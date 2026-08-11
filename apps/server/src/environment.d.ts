@@ -27,6 +27,8 @@ declare global {
             BALWYN_XERO_CLIENT_SECRET: string
             KINGSVILLE_XERO_CLIENT_ID: string
             KINGSVILLE_XERO_CLIENT_SECRET: string
+            WERRIBEE_XERO_CLIENT_ID: string
+            WERRIBEE_XERO_CLIENT_SECRET: string
         }
     }
 }

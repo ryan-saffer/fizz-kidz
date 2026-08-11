@@ -50,6 +50,13 @@ export const PUBLIC_STUDIOS = [
         postalCode: '3144',
         image: '/images/studios/malvern.jpg',
     },
+    {
+        slug: 'werribee',
+        name: 'Werribee',
+        streetAddress: 'T5, Harpley Town Center, Bradfield St',
+        addressLocality: 'Werribee',
+        postalCode: '3030',
+    },
 ] as const
 
 export type PublicStudioSlug = (typeof PUBLIC_STUDIOS)[number]['slug']

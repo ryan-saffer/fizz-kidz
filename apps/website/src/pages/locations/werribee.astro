@@ -1,0 +1,180 @@
+---
+import CardWithImage from "@/components/card-with-image.astro";
+import Container from "@/components/container.astro";
+import GoogleReviews from "@/components/google-reviews.astro";
+import Image from "@/components/image.astro";
+import LocationDetails from "@/components/location-details.astro";
+import PageIntro from "@/components/page-intro.astro";
+import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
+import { menu } from "@/components/react/navigation/navigation-menu";
+import {
+  sbPagesHomeEnergyJpg as contact,
+  sbPagesHomeHolidayProgramsJpg as holidayPrograms,
+  sbPagesHomePartiesJpg as birthday,
+  sbPagesHomeStudioPng as studio,
+  sbPagesPartiesSlimePartyJpg as slime,
+} from "@/data/storyblok-images";
+import Layout from "@/layout/Layout.astro";
+import { createLocationSchemas } from "@/utils/seo";
+
+const description =
+  "Visit Fizz Kidz Werribee at Harpley Town Center for hosted kids birthday parties, school holiday programs and hands-on slime, science, art and craft activities.";
+---
+
+<Layout
+  title="Kids Parties & Holiday Programs in Werribee | Fizz Kidz"
+  description={description}
+  schema={createLocationSchemas("werribee")}
+>
+  <main>
+    <div class="m-auto block max-w-[1380px] px-5 pt-4">
+      <BreadcrumbWrapper
+        client:idle
+        items={[
+          {
+            type: "link",
+            title: "Locations",
+            path: "/locations",
+          },
+          {
+            type: "dropdown",
+            title: "Werribee",
+            items: menu[5].items,
+          },
+        ]}
+      />
+      <PageIntro
+        type="image"
+        image={studio}
+        imageAlt="Children enjoying creative activities at a Fizz Kidz studio"
+        subtitle="Creative kids' fun in Melbourne's west"
+        color="purple"
+        actionButtonPath="/contact-us"
+        actionButtonText="Get in touch"
+      >
+        <span slot="title">Fizz Kidz Werribee Studio</span>
+        <span slot="content"
+          >Our Werribee studio is a colourful, hands-on destination where kids
+          can create, celebrate and have loads of fun!</span
+        >
+      </PageIntro>
+    </div>
+
+    <Container>
+      <p class="mt-16 text-center font-lilita text-5xl sm:mt-32">
+        Creativity & fun at Harpley Town Center!
+      </p>
+      <section
+        class="my-12 flex flex-col-reverse gap-8 md:pb-12 md:pt-16 lg:flex-row"
+      >
+        <div class="px-0 sm:px-12 lg:w-1/2">
+          <Image
+            class="rounded-2xl object-contain shadow-green-sm sm:shadow-green-md"
+            src={slime}
+            alt="A child stretching colourful slime at Fizz Kidz"
+          />
+        </div>
+        <div class="flex flex-col justify-center lg:w-1/2">
+          <p class="font-bold">Fizz Kidz Werribee Studio</p>
+          <p>T5, Harpley Town Center, Bradfield St, Werribee VIC 3030</p>
+          <p class="mt-4 font-bold">Phone</p>
+          <p><a href="tel:0390598144">(03) 9059 8144</a></p>
+          <p class="mt-4 font-bold">Email</p>
+          <p>
+            <a href="mailto:bookings@fizzkidz.com.au"
+              >bookings@fizzkidz.com.au</a
+            >
+          </p>
+          <p class="mt-4 font-bold">About Fizz Kidz Werribee</p>
+          <p>
+            Our Werribee studio brings Fizz Kidz creativity to families in
+            Melbourne's west.
+          </p>
+          <ul class="mb-4 list-disc pl-4">
+            <li>Located in Harpley Town Center on Bradfield St.</li>
+            <li>
+              A vibrant space for hosted birthday parties, holiday programs and
+              creative activities.
+            </li>
+            <li>
+              Hands-on slime, science, art and craft experiences with creations
+              for kids to take home.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mb-12 md:mb-20">
+        <iframe
+          title="Map showing Fizz Kidz Werribee"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3147.810572030706!2d144.6131446780955!3d-37.911490139633266!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad68592994a5fc9%3A0x4875f20b9af8bbc2!2sFizz%20Kidz%20Werribee!5e0!3m2!1sen!2sau!4v1786423710739!5m2!1sen!2sau"
+          width="100%"
+          height="450"
+          style="border:0;border-radius:12px"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </section>
+
+      <section class="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <a href="/birthday-parties">
+          <CardWithImage
+            className="group h-full w-full cursor-pointer hover:bg-gray-50"
+            image={birthday}
+            imageAlt="A child enjoying a Fizz Kidz birthday party"
+          >
+            <div slot="content" class="p-8 group-hover:cursor-pointer">
+              <p class="mb-4 font-lilita text-2xl text-[#9044E2]">
+                Birthday Parties
+              </p>
+              <p class="font-gotham text-lg">
+                Celebrate with a fully hosted, hands-on party at Fizz Kidz
+                Werribee, where kids make awesome creations to take home.
+              </p>
+            </div>
+          </CardWithImage>
+        </a>
+        <a href="/holiday-programs">
+          <CardWithImage
+            className="group h-full w-full cursor-pointer hover:bg-gray-50"
+            image={holidayPrograms}
+            imageAlt="A child holding a colourful Fizz Kidz creation"
+          >
+            <div slot="content" class="p-8">
+              <p class="mb-4 font-lilita text-2xl text-[#9044E2]">
+                Holiday Programs
+              </p>
+              <p class="font-gotham text-lg">
+                Fill the school holidays with guided activities, games and
+                creative projects at Fizz Kidz Werribee.
+              </p>
+            </div>
+          </CardWithImage>
+        </a>
+        <a href="/contact-us">
+          <CardWithImage
+            className="group h-full w-full cursor-pointer hover:bg-gray-50"
+            image={contact}
+            imageAlt="A child taking part in a creative Fizz Kidz activity"
+          >
+            <div slot="content" class="p-8">
+              <p class="mb-4 font-lilita text-2xl text-[#9044E2]">Contact Us</p>
+              <p class="font-gotham text-lg">
+                Have questions or would like to chat? Get in touch with our
+                Werribee team and we will be happy to help.
+              </p>
+            </div>
+          </CardWithImage>
+        </a>
+      </section>
+
+      <section>
+        <GoogleReviews
+          title="Hear what our parents have to say!"
+          location="werribee"
+        />
+      </section>
+    </Container>
+    <LocationDetails studio="werribee" />
+  </main>
+</Layout>

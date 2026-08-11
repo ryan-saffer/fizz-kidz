@@ -19,7 +19,7 @@ export function getStudioAddress(location: Studio) {
         case 'malvern':
             return '20 Glenferrie Rd, Malvern VIC 3144'
         case 'werribee':
-            return 'Shop T5, Harpley Town Center, Ison Rd, Werribee VIC 3030'
+            return 'T5, Harpley Town Center, Bradfield St, Werribee VIC 3030'
         default: {
             const exhaustiveCheck: never = location
             throw new Error(`cannot get address of unknown location: '${exhaustiveCheck}'`)
@@ -124,19 +124,19 @@ export function getPictureOfStudioUrl(location: Studio) {
 export function getReviewUrl(location: Studio) {
     switch (location) {
         case 'balwyn':
-            return 'https://search.google.com/local/writereview?placeid=ChIJRYl9pexB1moR5msbM8SdKVU'
+            return 'https://g.page/r/CeZrGzPEnSlVEBM/review'
         case 'cheltenham':
-            return 'https://search.google.com/local/writereview?placeid=ChIJxb0bw3lv1moRwrl1Q_P-cHo'
+            return 'https://g.page/r/CcK5dUPz_nB6EBM/review'
         case 'essendon':
-            return 'https://search.google.com/local/writereview?placeid=ChIJq_RqJMNd1moRksRMHNY2ExQ'
+            return 'https://g.page/r/CZLETBzWNhMUEBM/review'
         case 'geelong':
             return 'https://g.page/r/CZAxGZYQhETOEBM/review'
         case 'kingsville':
             return 'https://g.page/r/CRQItX8-YnBFEBM/review'
         case 'malvern':
-            return 'https://search.google.com/local/writereview?placeid=ChIJ92NJJx5q1moRdDSJo_X3BRo'
+            return 'https://g.page/r/CXQ0iaP19wUaEBM/review'
         case 'werribee':
-            return 'TODO'
+            return 'https://g.page/r/CcK7-JoL8nVIEBM/review'
         default: {
             const exhaustiveCheck: never = location
             throw new Error(`Unhandled location in getReviewUrl: '${exhaustiveCheck}'`)

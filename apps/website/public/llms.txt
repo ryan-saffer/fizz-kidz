@@ -1,6 +1,6 @@
 # Fizz Kidz
 
-> Fizz Kidz is an Australian children's entertainment provider offering hosted birthday parties, school holiday programs, preschool sessions, school programs and event activations. Its six public studios are in Balwyn, Cheltenham, Essendon, Geelong, Kingsville and Malvern, Victoria.
+> Fizz Kidz is an Australian children's entertainment provider offering hosted birthday parties, school holiday programs, preschool sessions, school programs and event activations. Its seven public studios are in Balwyn, Cheltenham, Essendon, Geelong, Kingsville, Malvern and Werribee, Victoria.
 
 Fizz Kidz runs hands-on activities for children, including slime, science, art, craft, tie dye and take-home creations. Birthday parties and holiday programs are generally designed for children aged 4 to 12. Current availability, pricing and booking details should be confirmed on the official pages linked below.
 
@@ -34,6 +34,7 @@ Fizz Kidz runs hands-on activities for children, including slime, science, art, 
 - [Geelong](https://www.fizzkidz.com.au/locations/geelong/): 352 Pakington St, Newtown VIC 3220.
 - [Kingsville](https://www.fizzkidz.com.au/locations/kingsville/): 238 Somerville Rd, Kingsville VIC 3012.
 - [Malvern](https://www.fizzkidz.com.au/locations/malvern/): 20 Glenferrie Rd, Malvern VIC 3144.
+- [Werribee](https://www.fizzkidz.com.au/locations/werribee/): T5, Harpley Town Center, Bradfield St, Werribee VIC 3030.
 
 ## Contact
 
