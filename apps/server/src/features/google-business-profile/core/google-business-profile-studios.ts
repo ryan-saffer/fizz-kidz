@@ -7,7 +7,7 @@ export const GOOGLE_BUSINESS_PROFILE_LOCATION_IDS = {
     geelong: '11438747137065650334',
     kingsville: '9935835601222746385',
     malvern: '12066138882170403782',
-    werribee: 'TODO',
+    werribee: '10356518758246450951',
 } satisfies Record<Studio, string>
 
 export const GOOGLE_BUSINESS_PROFILE_MAPS_URLS = {
@@ -17,19 +17,17 @@ export const GOOGLE_BUSINESS_PROFILE_MAPS_URLS = {
     geelong: 'https://maps.google.com/maps?cid=14863149877002056080',
     kingsville: 'https://maps.google.com/maps?cid=5003607206578685972',
     malvern: 'https://maps.google.com/maps?cid=1875177454252405876',
-    werribee: 'TODO',
+    werribee: 'https://maps.google.com/maps?cid=5221345474664512450',
 } satisfies Record<Studio, string>
 
 export function getGoogleBusinessProfileLocationIdForStudio(studio: Studio) {
-    const locationId = GOOGLE_BUSINESS_PROFILE_LOCATION_IDS[studio]
-    return locationId === 'TODO' ? undefined : locationId
+    return GOOGLE_BUSINESS_PROFILE_LOCATION_IDS[studio]
 }
 
 export function getGoogleBusinessProfileMapsUrlForStudio(studio: Studio | undefined) {
     if (!studio) return undefined
 
-    const mapsUrl = GOOGLE_BUSINESS_PROFILE_MAPS_URLS[studio]
-    return mapsUrl === 'TODO' ? undefined : mapsUrl
+    return GOOGLE_BUSINESS_PROFILE_MAPS_URLS[studio]
 }
 
 export function getGoogleBusinessProfileLocationId(locationName: string) {

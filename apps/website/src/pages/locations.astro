@@ -8,6 +8,7 @@ import { sbPagesLocationsEssendonJpg as essendon } from "@/data/storyblok-images
 import { sbPagesLocationsMalvernJpg as malvern } from "@/data/storyblok-images";
 import { sbPagesLocationsKingsvilleJpg as kingsville } from "@/data/storyblok-images";
 import { sbPagesHomeStudioPng as geelong } from "@/data/storyblok-images";
+import { sbPagesHomeEnergyJpg as werribee } from "@/data/storyblok-images";
 import Values from "@/components/values.astro";
 import MailingList from "@/components/mailing-list.astro";
 import CardWithImage from "@/components/card-with-image.astro";
@@ -18,7 +19,7 @@ import {
 } from "@/utils/seo";
 
 const description =
-  "Find Fizz Kidz studios in Balwyn, Cheltenham, Essendon, Geelong, Kingsville and Malvern for kids birthday parties, holiday programs and creative activities.";
+  "Find Fizz Kidz studios in Balwyn, Cheltenham, Essendon, Geelong, Kingsville, Malvern and Werribee for kids birthday parties, holiday programs and creative activities.";
 ---
 
 <Layout
@@ -171,6 +172,27 @@ const description =
               <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Malvern</p>
               <p class="mb-5 font-lilita text-xl">
                 20 Glenferrie Rd, Malvern VIC 3144
+              </p>
+              <div class="flex items-center gap-2">
+                <p>Learn more</p>
+                <ArrowRight className="h-4 w-4" />
+              </div>
+            </div>
+          </CardWithImage>
+        </a>
+        <a href="/locations/werribee">
+          <CardWithImage
+            className="group h-full w-full cursor-pointer"
+            image={werribee}
+            imageAlt="A child enjoying a creative Fizz Kidz activity"
+          >
+            <div
+              slot="content"
+              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
+            >
+              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Werribee</p>
+              <p class="mb-5 font-lilita text-xl">
+                T5, Harpley Town Center, Bradfield St, Werribee VIC 3030
               </p>
               <div class="flex items-center gap-2">
                 <p>Learn more</p>

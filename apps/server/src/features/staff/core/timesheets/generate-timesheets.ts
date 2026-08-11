@@ -43,7 +43,7 @@ export const OrdindayEarningsRateMap: Record<FranchiseOrMaster, string> = {
     master: '1ef5805a-5208-4d89-8f35-620104543ed4',
     balwyn: '5c60fbcc-9afa-4f93-a7c8-53a9a0bca39a',
     kingsville: '45fbb097-d95f-40d3-ae55-5ba650b79b1f',
-    werribee: 'TODO',
+    werribee: '8ba18b75-4e4f-4ed0-8c34-f5be6bea0b69',
 }
 
 export async function generateTimesheets({ startDateInput, endDateInput, studio }: GenerateTimesheetsParams) {

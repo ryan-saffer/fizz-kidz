@@ -199,6 +199,12 @@ export const menu = [
                 title: 'Malvern',
                 isNew: false,
             },
+            {
+                type: 'link',
+                path: '/locations/werribee',
+                title: 'Werribee',
+                isNew: true,
+            },
         ],
     },
 

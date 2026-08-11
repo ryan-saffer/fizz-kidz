@@ -28,10 +28,6 @@ See [Payroll](/people/payroll) for CSV generation, exception checks, and the man
 - Sling notes are copied into the CSV for reimbursements and other review items.
 - Generating the CSV does not import it or create a Xero pay run.
 
-:::caution[Werribee is not supported]
-Do not use the Portal payroll export for Werribee. Its payroll mappings are not available.
-:::
-
 ## Core services and shifts
 
 All seven core services have the same structure. Facilitator variants post to one COGS wage account, while Supervisor variants post to a separate Supervisor COGS wage account. Exceptions listed below post to a NON-COGS wage account.

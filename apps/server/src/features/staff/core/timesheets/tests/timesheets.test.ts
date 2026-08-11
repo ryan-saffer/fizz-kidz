@@ -6489,7 +6489,7 @@ describe('Timesheet suite', () => {
         })
     })
 
-    describe('Werribee TODO pay items', () => {
+    describe('Werribee pay items', () => {
         const monday = DateTime.fromObject({ day: 1, month: 5, year: 2023 })
         const sunday = DateTime.fromObject({ day: 7, month: 5, year: 2023 })
         const baseRow = {
@@ -6501,176 +6501,223 @@ describe('Timesheet suite', () => {
             summary: '',
             location: 'werribee' as SlingLocation,
         }
+        type RowInput = ConstructorParameters<typeof TimesheetRow>[0]
+        const ordinary = { firstThreeHours: false, afterThreeHours: false } as const
+        const firstThreeHours = { firstThreeHours: true, afterThreeHours: false } as const
+        const afterThreeHours = { firstThreeHours: false, afterThreeHours: true } as const
+        const cases: { name: string; overrides: Partial<RowInput>; expected: string }[] = [
+            {
+                name: 'under-18 COGS ordinary Mon-Sat',
+                overrides: { dob: youngerThan18, date: monday, position: SlingPosition.PARTY_FACILITATOR, rate: 14 },
+                expected: 'CGS 16&17yo COH - Mon to Sat - Werribee',
+            },
+            {
+                name: 'under-18 non-COGS ordinary Mon-Sat',
+                overrides: { dob: youngerThan18, date: monday, position: SlingPosition.MISCELLANEOUS, rate: 14 },
+                expected: 'NON-CGS 16&17yo COH - Mon to Sat - Werribee',
+            },
+            {
+                name: 'under-18 supervisor ordinary Mon-Sat',
+                overrides: { dob: youngerThan18, date: monday, position: SlingPosition.SUPERVISOR_PARTY, rate: 14 },
+                expected: 'SUPERVISOR 16&17yo COH - Mon to Sat - Werribee',
+            },
+            {
+                name: 'adult COGS ordinary Mon-Sat',
+                overrides: { dob: olderThan18, date: monday, position: SlingPosition.PARTY_FACILITATOR },
+                expected: 'CGS COH - Mon to Sat - Werribee',
+            },
+            {
+                name: 'adult non-COGS ordinary Mon-Sat',
+                overrides: { dob: olderThan18, date: monday, position: SlingPosition.MISCELLANEOUS },
+                expected: 'NON-CGS COH - Mon to Sat - Werribee',
+            },
+            {
+                name: 'adult supervisor ordinary Mon-Sat',
+                overrides: { dob: olderThan18, date: monday, position: SlingPosition.SUPERVISOR_PARTY },
+                expected: 'SUPERVISOR COH - Mon to Sat - Werribee',
+            },
+            {
+                name: 'COGS ordinary Sunday',
+                overrides: { dob: olderThan18, date: sunday, position: SlingPosition.SUNDAY_PARTY_FACILITATOR },
+                expected: 'CGS COH - Sunday - Werribee',
+            },
+            {
+                name: 'non-COGS ordinary Sunday',
+                overrides: { dob: olderThan18, date: sunday, position: SlingPosition.SUNDAY_MISCELLANEOUS },
+                expected: 'NON-CGS COH - Sunday - Werribee',
+            },
+            {
+                name: 'supervisor ordinary Sunday',
+                overrides: { dob: olderThan18, date: sunday, position: SlingPosition.SUNDAY_SUPERVISOR_PARTY },
+                expected: 'SUPERVISOR COH - Sunday - Werribee',
+            },
+            {
+                name: 'PT/FT ordinary Mon-Sat',
+                overrides: {
+                    dob: olderThan18,
+                    date: monday,
+                    position: SlingPosition.PARTY_FACILITATOR,
+                    isCasual: false,
+                },
+                expected: 'PT/FT Ordinary Hours - Mon to Sat - Werribee',
+            },
+            {
+                name: 'PT/FT ordinary Sunday',
+                overrides: {
+                    dob: olderThan18,
+                    date: sunday,
+                    position: SlingPosition.SUNDAY_PARTY_FACILITATOR,
+                    isCasual: false,
+                },
+                expected: 'PT/FT Ordinary Hours - Sunday - Werribee',
+            },
+            {
+                name: 'under-18 on-call Mon-Sat',
+                overrides: {
+                    dob: youngerThan18,
+                    date: monday,
+                    position: SlingPosition.ON_CALL_PARTY_FACILITATOR,
+                    rate: 14,
+                },
+                expected: 'On call - 16&17yo Csl Or Hs - Mon to Sat - Werribee',
+            },
+            {
+                name: 'adult on-call Mon-Sat',
+                overrides: { dob: olderThan18, date: monday, position: SlingPosition.ON_CALL_PARTY_FACILITATOR },
+                expected: 'ON CALL - Cas Ord Hrs - Mon to Sat - Werribee',
+            },
+            {
+                name: 'on-call Sunday',
+                overrides: { dob: olderThan18, date: sunday, position: SlingPosition.ON_CALL_PARTY_FACILITATOR },
+                expected: 'ON CALL - Cas Ord Hrs - Sunday - Werribee',
+            },
+            {
+                name: 'under-18 called-in Mon-Sat',
+                overrides: {
+                    dob: youngerThan18,
+                    date: monday,
+                    position: SlingPosition.CALLED_IN_PARTY_FACILITATOR,
+                    rate: 14,
+                },
+                expected: 'CALLEDIN - 16&17 Cas Ord Hrs - Mon to Sat - Werribee',
+            },
+            {
+                name: 'adult called-in Mon-Sat',
+                overrides: { dob: olderThan18, date: monday, position: SlingPosition.CALLED_IN_PARTY_FACILITATOR },
+                expected: 'CALLEDIN - Cas Ord Hrs - Mon to Sat - Werribee',
+            },
+            {
+                name: 'called-in Sunday',
+                overrides: { dob: olderThan18, date: sunday, position: SlingPosition.CALLED_IN_PARTY_FACILITATOR },
+                expected: 'CALLEDIN - Cas Ord Hrs - Sun - Werribee',
+            },
+            {
+                name: 'COGS overtime first three hours Mon-Sat',
+                overrides: {
+                    dob: olderThan18,
+                    date: monday,
+                    position: SlingPosition.PARTY_FACILITATOR,
+                    overtime: firstThreeHours,
+                },
+                expected: 'CGS OT - First 3 Hrs - Mon to Sat - Werribee',
+            },
+            {
+                name: 'non-COGS overtime first three hours Mon-Sat',
+                overrides: {
+                    dob: olderThan18,
+                    date: monday,
+                    position: SlingPosition.MISCELLANEOUS,
+                    overtime: firstThreeHours,
+                },
+                expected: 'NON-CGS OT - First 3 Hrs - Mon to Sat - Werribee',
+            },
+            {
+                name: 'supervisor overtime first three hours Mon-Sat',
+                overrides: {
+                    dob: olderThan18,
+                    date: monday,
+                    position: SlingPosition.SUPERVISOR_PARTY,
+                    overtime: firstThreeHours,
+                },
+                expected: 'SUPERVISOR OT - First 3 Hrs - Mon to Sat - Werribee',
+            },
+            {
+                name: 'COGS overtime first three hours Sunday',
+                overrides: {
+                    dob: olderThan18,
+                    date: sunday,
+                    position: SlingPosition.SUNDAY_PARTY_FACILITATOR,
+                    overtime: firstThreeHours,
+                },
+                expected: 'CGS OT - First 3 Hrs - Sunday - Werribee',
+            },
+            {
+                name: 'non-COGS overtime first three hours Sunday',
+                overrides: {
+                    dob: olderThan18,
+                    date: sunday,
+                    position: SlingPosition.SUNDAY_MISCELLANEOUS,
+                    overtime: firstThreeHours,
+                },
+                expected: 'NON-CGS OT - First 3 Hrs - Sunday - Werribee',
+            },
+            {
+                name: 'supervisor overtime first three hours Sunday',
+                overrides: {
+                    dob: olderThan18,
+                    date: sunday,
+                    position: SlingPosition.SUNDAY_SUPERVISOR_PARTY,
+                    overtime: firstThreeHours,
+                },
+                expected: 'SUPERVISOR OT - First 3 Hrs - Sunday - Werribee',
+            },
+            {
+                name: 'COGS overtime after three hours',
+                overrides: {
+                    dob: olderThan18,
+                    date: monday,
+                    position: SlingPosition.PARTY_FACILITATOR,
+                    overtime: afterThreeHours,
+                },
+                expected: 'CGS OT - After 3 Hrs - Werribee',
+            },
+            {
+                name: 'non-COGS overtime after three hours',
+                overrides: {
+                    dob: olderThan18,
+                    date: monday,
+                    position: SlingPosition.MISCELLANEOUS,
+                    overtime: afterThreeHours,
+                },
+                expected: 'NON-CGS OT - After 3 Hrs - Werribee',
+            },
+            {
+                name: 'supervisor overtime after three hours',
+                overrides: {
+                    dob: olderThan18,
+                    date: monday,
+                    position: SlingPosition.SUPERVISOR_PARTY,
+                    overtime: afterThreeHours,
+                },
+                expected: 'SUPERVISOR OT - After 3 Hrs - Werribee',
+            },
+        ]
 
-        it("returns 'TODO' for on-call shifts on Sunday at werribee", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: olderThan18,
-                date: sunday,
-                position: SlingPosition.ON_CALL_PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: false, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
+        for (const testCase of cases) {
+            it(`maps ${testCase.name}`, () => {
+                const row = new TimesheetRow({
+                    ...baseRow,
+                    dob: olderThan18,
+                    date: monday,
+                    position: SlingPosition.PARTY_FACILITATOR,
+                    rate: 'not required',
+                    overtime: ordinary,
+                    ...testCase.overrides,
+                })
 
-        it("returns 'TODO' for called-in shifts on Mon-Sat at werribee when under 18 with low rate", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: youngerThan18,
-                date: monday,
-                position: SlingPosition.CALLED_IN_PARTY_FACILITATOR,
-                rate: 14,
-                overtime: { firstThreeHours: false, afterThreeHours: false },
+                strictEqual(row.payItem, testCase.expected)
             })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for called-in shifts on Mon-Sat at werribee when 18+", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: olderThan18,
-                date: monday,
-                position: SlingPosition.CALLED_IN_PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: false, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for called-in shifts on Sunday at werribee", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: olderThan18,
-                date: sunday,
-                position: SlingPosition.CALLED_IN_PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: false, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for overtime first-3-hours on Mon-Sat at werribee", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: olderThan18,
-                date: monday,
-                position: SlingPosition.PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: true, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for overtime first-3-hours on Sunday at werribee", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: olderThan18,
-                date: sunday,
-                position: SlingPosition.SUNDAY_PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: true, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for overtime after-3-hours at werribee", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: olderThan18,
-                date: monday,
-                position: SlingPosition.PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: false, afterThreeHours: true },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for ordinary casual Mon-Sat at werribee when under 18 with low rate", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: youngerThan18,
-                date: monday,
-                position: SlingPosition.PARTY_FACILITATOR,
-                rate: 14,
-                overtime: { firstThreeHours: false, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for ordinary casual Mon-Sat at werribee when 18+", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: olderThan18,
-                date: monday,
-                position: SlingPosition.PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: false, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for ordinary casual Sunday at werribee", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: olderThan18,
-                date: sunday,
-                position: SlingPosition.SUNDAY_PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: false, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for ordinary PT/FT Mon-Sat at werribee", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                isCasual: false,
-                dob: olderThan18,
-                date: monday,
-                position: SlingPosition.PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: false, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for ordinary PT/FT Sunday at werribee", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                isCasual: false,
-                dob: olderThan18,
-                date: sunday,
-                position: SlingPosition.SUNDAY_PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: false, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for on-call Mon-Sat at werribee when under 18 with low rate", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: youngerThan18,
-                date: monday,
-                position: SlingPosition.ON_CALL_PARTY_FACILITATOR,
-                rate: 14,
-                overtime: { firstThreeHours: false, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
-
-        it("returns 'TODO' for on-call Mon-Sat at werribee when 18+", () => {
-            const row = new TimesheetRow({
-                ...baseRow,
-                dob: olderThan18,
-                date: monday,
-                position: SlingPosition.ON_CALL_PARTY_FACILITATOR,
-                rate: 'not required',
-                overtime: { firstThreeHours: false, afterThreeHours: false },
-            })
-            strictEqual(row.payItem, 'TODO')
-        })
+        }
     })
 
     describe('Laundry allowance', () => {
@@ -6820,6 +6867,7 @@ describe('Timesheet suite', () => {
                 ['geelong', 'Laundry Allowance - Geelong'],
                 ['kingsville', 'Laundry Allowance - Kingsville'],
                 ['malvern', 'Laundry Allowance - Malvern'],
+                ['werribee', 'Laundry Allowance - Werribee'],
                 ['head-office', 'Laundry Allowance - Head Office'],
             ]
 
@@ -6828,10 +6876,6 @@ describe('Timesheet suite', () => {
                     strictEqual(getLaundryAllowancePayItem(location), payItem)
                 })
             }
-
-            it("returns 'TODO' for werribee until the pay item is configured", () => {
-                strictEqual(getLaundryAllowancePayItem('werribee'), 'TODO')
-            })
         })
 
         describe('LaundryAllowanceRow', () => {

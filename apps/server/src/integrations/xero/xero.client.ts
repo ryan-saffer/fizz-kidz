@@ -5,20 +5,20 @@ import type { XeroClient as TXeroClient } from 'xero-node'
 
 const ENV_MAP: Record<FranchiseOrMaster, { clientId: string; clientSecret: string }> = {
     master: {
-        clientId: process.env.MASTER_XERO_CLIENT_ID!,
-        clientSecret: process.env.MASTER_XERO_CLIENT_SECRET!,
+        clientId: process.env.MASTER_XERO_CLIENT_ID,
+        clientSecret: process.env.MASTER_XERO_CLIENT_SECRET,
     },
     balwyn: {
-        clientId: process.env.BALWYN_XERO_CLIENT_ID!,
-        clientSecret: process.env.BALWYN_XERO_CLIENT_SECRET!,
+        clientId: process.env.BALWYN_XERO_CLIENT_ID,
+        clientSecret: process.env.BALWYN_XERO_CLIENT_SECRET,
     },
     kingsville: {
         clientId: process.env.KINGSVILLE_XERO_CLIENT_ID,
         clientSecret: process.env.KINGSVILLE_XERO_CLIENT_SECRET,
     },
     werribee: {
-        clientId: 'TODO',
-        clientSecret: 'TODO',
+        clientId: process.env.WERRIBEE_XERO_CLIENT_ID,
+        clientSecret: process.env.WERRIBEE_XERO_CLIENT_SECRET,
     },
 }
 
