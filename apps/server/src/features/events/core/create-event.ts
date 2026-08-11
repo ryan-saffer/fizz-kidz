@@ -3,6 +3,8 @@ import { DateTime } from 'luxon'
 import type { DistributiveOmit, Event, WithoutId } from '@fizz-kidz/core'
 import { ModuleIncursionMap, ModuleNameMap } from '@fizz-kidz/core'
 
+import { splitContactName, trimEventTextFields } from './event-input'
+
 import { throwTrpcError } from '@/app/trpc/transport-errors'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { CalendarClient } from '@/integrations/google/calendar.client'
@@ -20,7 +22,15 @@ export type CreateEvent = {
     emailMessage: string
 }
 
-export async function createEvent({ event, slots, sendConfirmationEmail, emailMessage }: CreateEvent) {
+export async function createEvent(input: CreateEvent) {
+    const event = trimEventTextFields(input.event)
+    const { slots, sendConfirmationEmail } = input
+    const emailMessage = input.emailMessage.trim()
+
+    if (!event.contactName) {
+        throwTrpcError('BAD_REQUEST', 'Contact name is required')
+    }
+
     if (event.$type === 'incursion') {
         console.log(event)
     }
@@ -69,10 +79,11 @@ export async function createEvent({ event, slots, sendConfirmationEmail, emailMe
         )
 
         try {
+            const { firstName, lastName } = splitContactName(event.contactName)
             const zohoDealId = await new ZohoClient().confirmB2BDeal({
                 dealId: event.zohoDealId,
-                firstName: event.contactName.split(' ')[0],
-                lastName: event.contactName.split(' ').slice(1).join(' '),
+                firstName,
+                lastName,
                 email: event.contactEmail,
                 mobile: event.contactNumber,
                 eventName: event.eventName,
@@ -114,32 +125,42 @@ export async function createEvent({ event, slots, sendConfirmationEmail, emailMe
 
             switch (type) {
                 case 'standard': {
-                    await mailClient.sendEmail('standardEventBookingConfirmation', event.contactEmail, {
-                        contactName: event.contactName,
-                        address: event.address,
-                        emailMessage: emailMessage,
-                        price: event.price,
-                        slots: slots.map((slot) => ({
-                            startTime: formatDate(slot.startTime),
-                            endTime: formatTime(slot.endTime),
-                        })),
-                    })
+                    await mailClient.sendEmail(
+                        'standardEventBookingConfirmation',
+                        event.contactEmail,
+                        {
+                            contactName: event.contactName,
+                            address: event.address,
+                            emailMessage: emailMessage,
+                            price: event.price,
+                            slots: slots.map((slot) => ({
+                                startTime: formatDate(slot.startTime),
+                                endTime: formatTime(slot.endTime),
+                            })),
+                        },
+                        { bcc: ['kym@fizzkidz.com.au'] }
+                    )
                     break
                 }
                 case 'incursion': {
-                    await mailClient.sendEmail('incursionBookingConfirmation', event.contactEmail, {
-                        contactName: event.contactName,
-                        organisation: event.organisation,
-                        address: event.address,
-                        slots: slots.map((slot) => ({
-                            startTime: formatDate(slot.startTime),
-                            endTime: formatTime(slot.endTime),
-                        })),
-                        emailMessage: emailMessage,
-                        incursion: ModuleIncursionMap[event.module],
-                        module: ModuleNameMap[event.module],
-                        price: event.price,
-                    })
+                    await mailClient.sendEmail(
+                        'incursionBookingConfirmation',
+                        event.contactEmail,
+                        {
+                            contactName: event.contactName,
+                            organisation: event.organisation,
+                            address: event.address,
+                            slots: slots.map((slot) => ({
+                                startTime: formatDate(slot.startTime),
+                                endTime: formatTime(slot.endTime),
+                            })),
+                            emailMessage: emailMessage,
+                            incursion: ModuleIncursionMap[event.module],
+                            module: ModuleNameMap[event.module],
+                            price: event.price,
+                        },
+                        { bcc: ['kym@fizzkidz.com.au'] }
+                    )
                     break
                 }
                 default: {

@@ -1,11 +1,19 @@
 import type { Event } from '@fizz-kidz/core'
 
+import { trimEventTextFields } from './event-input'
+
 import { throwTrpcError } from '@/app/trpc/transport-errors'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { CalendarClient } from '@/integrations/google/calendar.client'
 import { ZohoClient } from '@/integrations/zoho/zoho.client'
 
 export async function updateEvent(event: Event) {
+    event = trimEventTextFields(event)
+
+    if (!event.contactName) {
+        throwTrpcError('BAD_REQUEST', 'Contact name is required')
+    }
+
     // parse strings back into date
     event.startTime = new Date(event.startTime)
     event.endTime = new Date(event.endTime)
