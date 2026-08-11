@@ -20,7 +20,7 @@ describe('website form contracts', () => {
             name: 'Fizz Parent',
             email: 'parent@example.com',
             contactNumber: '0400000000',
-            location: 'balwyn',
+            location: 'werribee',
             preferredDateAndTime: 'Saturday afternoon',
             partyTheme: 'slime',
             enquiry: 'Please send package information',
@@ -64,13 +64,27 @@ describe('website form contracts', () => {
         }
     })
 
+    it('accepts Werribee for a location-specific contact enquiry', () => {
+        const result = ContactWebsiteFormSchema.safeParse({
+            name: 'Fizz Parent',
+            email: 'parent@example.com',
+            contactNumber: '0400000000',
+            service: 'holiday-program',
+            location: 'werribee',
+            enquiry: 'Please send program information',
+            reference: 'google',
+        })
+
+        strictEqual(result.success, true)
+    })
+
     it('validates the uploaded resume as part of a careers submission', () => {
         const result = CareersWebsiteFormSchema.safeParse({
             name: 'Fizz Applicant',
             email: 'applicant@example.com',
             contactNumber: '0400000000',
             role: 'facilitator',
-            location: 'malvern',
+            location: 'werribee',
             wwcc: 'yes',
             driversLicense: 'yes',
             application: 'I enjoy working with children.',

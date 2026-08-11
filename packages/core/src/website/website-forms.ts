@@ -24,6 +24,7 @@ export const WebsiteStudioOptions = [
     { value: 'geelong', label: 'Geelong' },
     { value: 'kingsville', label: 'Kingsville' },
     { value: 'malvern', label: 'Malvern' },
+    { value: 'werribee', label: 'Werribee' },
 ] as const satisfies SelectOptionTuple & readonly { value: Studio; label: string }[]
 
 export const ContactFormLocationOptions = [
