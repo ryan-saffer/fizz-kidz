@@ -22,12 +22,14 @@ export function CreateInvitationForm({
     isLoading,
     submitButton,
     className,
+    canEditSchedule = false,
 }: {
     defaultValues: Partial<InvitationsV2.Invitation>
     onSubmit: (values: InvitationsV2.Invitation) => void
     isLoading: boolean
     submitButton: ReactNode
     className?: string
+    canEditSchedule?: boolean
 }) {
     const form = useForm<InvitationsV2.Invitation>({
         defaultValues,
@@ -38,6 +40,7 @@ export function CreateInvitationForm({
     useEffect(() => form.setFocus('childName'), [form])
 
     // used to close calendar popover after date selection
+    const [isPartyCalendarOpen, setIsPartyCalendarOpen] = useState(false)
     const [isRsvpCalendarOpen, setIsRsvpCalendarOpen] = useState(false)
 
     return (
@@ -84,19 +87,57 @@ export function CreateInvitationForm({
                         control={form.control}
                         name="date"
                         rules={{ required: true }}
-                        render={({ field: { value, ...field } }) => (
+                        render={({ field }) => (
                             <FormItem className="flex flex-col">
                                 <FormLabel>Party Date</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        className="disabled:opacity-100"
-                                        placeholder="Date"
-                                        autoComplete="off"
-                                        disabled
-                                        value={format(value, 'PPP')}
-                                        {...field}
-                                    />
-                                </FormControl>
+                                {canEditSchedule ? (
+                                    <Popover open={isPartyCalendarOpen} onOpenChange={setIsPartyCalendarOpen}>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    disabled={isLoading}
+                                                    className={cn(
+                                                        'pl-3 text-left font-normal',
+                                                        !field.value && 'text-muted-foreground'
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(field.value, 'PPP')
+                                                    ) : (
+                                                        <span>Pick a date</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="twp z-[1302] w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={(date) => {
+                                                    if (!date) return
+                                                    field.onChange(date)
+                                                    setIsPartyCalendarOpen(false)
+                                                }}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                ) : (
+                                    <FormControl>
+                                        <Input
+                                            className="disabled:opacity-100"
+                                            placeholder="Date"
+                                            autoComplete="off"
+                                            disabled
+                                            value={format(field.value, 'PPP')}
+                                            name={field.name}
+                                            ref={field.ref}
+                                        />
+                                    </FormControl>
+                                )}
                             </FormItem>
                         )}
                     />
@@ -112,7 +153,7 @@ export function CreateInvitationForm({
                                         className="disabled:opacity-100"
                                         placeholder="Time"
                                         autoComplete="off"
-                                        disabled
+                                        disabled={isLoading || !canEditSchedule}
                                         {...field}
                                     />
                                 </FormControl>
@@ -219,7 +260,7 @@ export function CreateInvitationForm({
                                             </Button>
                                         </FormControl>
                                     </PopoverTrigger>
-                                    <PopoverContent className="twp w-auto p-0" align="start">
+                                    <PopoverContent className="twp z-[1302] w-auto p-0" align="start">
                                         <Calendar
                                             mode="single"
                                             selected={field.value}

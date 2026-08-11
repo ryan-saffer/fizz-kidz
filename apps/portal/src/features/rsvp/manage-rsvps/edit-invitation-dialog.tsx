@@ -215,6 +215,7 @@ export function EditInvitationDialog({
                             defaultValues={invitation}
                             isLoading={isPending}
                             onSubmit={onSubmit}
+                            canEditSchedule
                             submitButton={
                                 <div className="pt-4">
                                     <Button
