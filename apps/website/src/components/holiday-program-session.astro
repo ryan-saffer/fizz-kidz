@@ -39,11 +39,10 @@ const { program, className } = Astro.props;
   <div class="flex flex-1 flex-grow flex-col rounded-xl shadow-around">
     <div class="relative w-full rounded-t-xl">
       <Image
-        class="h-40 w-full rounded-t-xl object-cover"
+        class="h-auto w-full rounded-t-xl"
         src={program.image}
         alt="background image of holiday program"
-        width={500}
-        height={500}
+        inferSize
       />
       <span
         class={cn(
