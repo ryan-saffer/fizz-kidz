@@ -43,11 +43,13 @@ export function OrgProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (!currentOrg) {
+            setSelectedOrg(null)
             localStorage.removeItem('selectedOrg')
             return
         }
 
         if (currentOrg !== selectedOrg) {
+            setSelectedOrg(currentOrg)
             localStorage.setItem('selectedOrg', currentOrg)
         }
     }, [currentOrg, selectedOrg])
