@@ -271,6 +271,7 @@ export default defineConfig(({ command, mode }) => {
         resolve: { alias: portalAliases },
         build: {
             outDir: path.join(portalDir, 'dist'),
+            target: ['safari16.1', 'ios16.1'],
             sourcemap: true,
             rollupOptions: {
                 input: {
