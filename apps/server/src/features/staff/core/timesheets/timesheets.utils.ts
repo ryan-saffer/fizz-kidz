@@ -1109,26 +1109,8 @@ export class TimesheetRow {
     }
 }
 
-/**
- * Per-day laundry allowance constants.
- *
- * Rules (matching the historical `wages-backpay-reports` analysis):
- *   - Eligible employee-day rate: $1.32.
- *   - Weekly cap: $6.62 per Mon-Sun week per employee.
- *   - A day with multiple eligible shifts still only counts once.
- *   - A day with at least one eligible shift counts even if the employee also
- *     worked ineligible shifts that day.
- *
- * The cap is on the dollar amount, not the day count. 5 eligible days pays
- * $6.60 (under the $6.62 cap) and a 6th full-day row would push the total to
- * $7.92 (over). To respect the cap exactly we emit:
- *   - up to 5 rows of 1 unit ($1.32 each), then
- *   - one top-up row with fractional units worth exactly the remaining $0.02
- *     when 6 or more eligible days are worked.
- */
-export const LAUNDRY_DAILY_RATE = 1.32
-export const LAUNDRY_WEEKLY_CAP = 6.62
-export const LAUNDRY_FULL_DAYS_PER_WEEK = 5
+/** Maximum eligible laundry allowance days per Mon-Sun week. */
+export const LAUNDRY_MAX_DAYS_PER_WEEK = 5
 
 /**
  * A row representing the laundry allowance for a single eligible day.
@@ -1179,17 +1161,10 @@ export class LaundryAllowanceRow {
  * An "eligible day" is any calendar day (in the user's timezone) on which the
  * employee worked at least one `isLaundryEligibleShift` shift.
  *
- * Rows are emitted as follows (each row inherits the location + activity of
- * the earliest-starting eligible shift on its associated day):
- *   - up to `LAUNDRY_FULL_DAYS_PER_WEEK` full-day rows at 1 unit each
- *     ($1.32 per row), then
- *   - if the employee worked more eligible days than that, a single top-up
- *     row with fractional units worth exactly the remaining $0.02 needed to
- *     hit the $6.62 weekly cap. The top-up row uses the 6th eligible day for
- *     its date / location / activity.
- *
- * Days beyond the 6th do not generate additional rows - the cap has already
- * been paid out.
+ * Up to `LAUNDRY_MAX_DAYS_PER_WEEK` rows are emitted at 1 unit each. Each row
+ * inherits the location + activity of the earliest-starting eligible shift on
+ * its associated day. Further eligible days do not generate rows because the
+ * weekly day cap has been reached. Xero controls the value of each unit.
  */
 export function createLaundryAllowanceRows({
     firstName,
@@ -1237,8 +1212,7 @@ export function createLaundryAllowanceRows({
         (a, b) => a.firstShiftStart.toMillis() - b.firstShiftStart.toMillis()
     )
 
-    const fullDays = sortedDays.slice(0, LAUNDRY_FULL_DAYS_PER_WEEK)
-    const rows = fullDays.map(
+    return sortedDays.slice(0, LAUNDRY_MAX_DAYS_PER_WEEK).map(
         ({ date, location, activity }) =>
             new LaundryAllowanceRow({
                 firstName,
@@ -1250,31 +1224,6 @@ export function createLaundryAllowanceRows({
                 summary: 'Laundry allowance',
             })
     )
-
-    // If the employee worked more eligible days than the full-day allotment,
-    // add a single top-up row to reach exactly the weekly cap.
-    const topUpSourceDay = sortedDays[LAUNDRY_FULL_DAYS_PER_WEEK]
-    if (topUpSourceDay) {
-        const remainingDollars = LAUNDRY_WEEKLY_CAP - fullDays.length * LAUNDRY_DAILY_RATE
-        // Round to 4dp - Xero unit precision. With 5 full days this resolves to
-        // 0.0152 units * $1.32 = $0.020064, which rounds to the required $0.02.
-        const topUpUnits = Number((remainingDollars / LAUNDRY_DAILY_RATE).toFixed(4))
-        if (topUpUnits > 0) {
-            rows.push(
-                new LaundryAllowanceRow({
-                    firstName,
-                    lastName,
-                    date: topUpSourceDay.date,
-                    hours: topUpUnits,
-                    location: topUpSourceDay.location,
-                    activity: topUpSourceDay.activity,
-                    summary: 'Laundry allowance (weekly cap top-up)',
-                })
-            )
-        }
-    }
-
-    return rows
 }
 
 /**

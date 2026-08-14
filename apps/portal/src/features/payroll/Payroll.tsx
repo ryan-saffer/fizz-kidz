@@ -248,10 +248,9 @@ export const Payroll = () => {
                                 activity from their first shift that day.
                             </Paragraph>
                             <Paragraph style={{ marginBottom: 0 }}>
-                                The weekly cap is <Text strong>$6.62</Text>. Five days pays <Text strong>$6.60</Text>,
-                                so a 6th or 7th eligible day only adds <Text strong>$0.02</Text>. The export handles
-                                this with a final row of quantity <Text code>0.0152</Text>, because{' '}
-                                <Text code>$1.32 x 0.0152 = $0.020064</Text>, which Xero rounds to $0.02.
+                                The weekly cap is <Text strong>five eligible days</Text>. Further eligible days in the
+                                week do not add another allowance row. Xero controls the value paid for each allowance
+                                unit through the configured pay item.
                             </Paragraph>
                         </Panel>
                     </Collapse>

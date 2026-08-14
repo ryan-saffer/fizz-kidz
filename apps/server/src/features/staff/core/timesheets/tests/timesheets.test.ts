@@ -20,9 +20,7 @@ import {
     isSundayShift,
     isSupervisorShift,
     LaundryAllowanceRow,
-    LAUNDRY_DAILY_RATE,
-    LAUNDRY_FULL_DAYS_PER_WEEK,
-    LAUNDRY_WEEKLY_CAP,
+    LAUNDRY_MAX_DAYS_PER_WEEK,
     SlingLocationToId,
     type SlingLocation,
 } from '../timesheets.utils'
@@ -6898,27 +6896,11 @@ describe('Timesheet suite', () => {
                 strictEqual(row.activity, 'Parties')
                 strictEqual(row.summary, 'Laundry allowance')
             })
-
-            it('preserves fractional hours for top-up rows', () => {
-                const row = new LaundryAllowanceRow({
-                    firstName: FIRST_NAME,
-                    lastName: LAST_NAME,
-                    date: DateTime.fromObject({ year: 2024, month: 6, day: 8 }, { zone: TZ }),
-                    hours: 0.0152,
-                    location: 'cheltenham',
-                    activity: 'No Activity',
-                    summary: 'Laundry allowance (weekly cap top-up)',
-                })
-                strictEqual(row.hours, 0.0152)
-                strictEqual(row.payItem, 'Laundry Allowance - Cheltenham')
-            })
         })
 
         describe('constants', () => {
-            it('match the award amounts and full-day allotment', () => {
-                strictEqual(LAUNDRY_DAILY_RATE, 1.32)
-                strictEqual(LAUNDRY_WEEKLY_CAP, 6.62)
-                strictEqual(LAUNDRY_FULL_DAYS_PER_WEEK, 5)
+            it('sets the weekly day cap', () => {
+                strictEqual(LAUNDRY_MAX_DAYS_PER_WEEK, 5)
             })
         })
 
@@ -7049,7 +7031,7 @@ describe('Timesheet suite', () => {
                 strictEqual(rows[0].activity, 'Parties')
             })
 
-            it('emits rows for 5 eligible days with no top-up row', () => {
+            it('emits rows for 5 eligible days and reaches the weekly day cap', () => {
                 const days = ['2024-06-03', '2024-06-04', '2024-06-05', '2024-06-06', '2024-06-07']
                 const rows = run(
                     days.map((day) =>
@@ -7065,20 +7047,15 @@ describe('Timesheet suite', () => {
                     strictEqual(rows[i].hours, 1)
                     strictEqual(rows[i].summary, 'Laundry allowance')
                 }
-                const total = rows.reduce((sum, row) => sum + row.hours * LAUNDRY_DAILY_RATE, 0)
-                // 5 * 1.32 = 6.60
-                strictEqual(Number(total.toFixed(2)), 6.6)
             })
 
-            it('caps a week of 6 eligible days at the dollar cap with a fractional top-up row', () => {
+            it('does not emit a row for a 6th eligible day after reaching the weekly day cap', () => {
                 const days = ['2024-06-03', '2024-06-04', '2024-06-05', '2024-06-06', '2024-06-07', '2024-06-08']
                 const rows = run(
                     days.map((day, idx) =>
                         shift({
                             dtstart: `${day}T10:00:00+10:00`,
                             dtend: `${day}T14:00:00+10:00`,
-                            // give the 6th day a distinct location/activity to
-                            // prove the top-up row inherits from that day.
                             positionId:
                                 idx === 5
                                     ? SlingPositionToId[SlingPosition.HOLIDAY_PROGRAM_FACILITATOR]
@@ -7088,9 +7065,7 @@ describe('Timesheet suite', () => {
                     )
                 )
 
-                strictEqual(rows.length, 6)
-
-                // First 5 rows are the full-day rows.
+                strictEqual(rows.length, 5)
                 for (let i = 0; i < 5; i++) {
                     strictEqual(rows[i].hours, 1)
                     strictEqual(rows[i].payItem, 'Laundry Allowance - Balwyn')
@@ -7098,21 +7073,9 @@ describe('Timesheet suite', () => {
                     strictEqual(rows[i].summary, 'Laundry allowance')
                     strictEqual(rows[i].date.toISODate(), days[i])
                 }
-
-                // 6th row is the top-up.
-                const topUp = rows[5]
-                strictEqual(topUp.hours, 0.0152) // (6.62 - 6.60) / 1.32, rounded to 4dp
-                strictEqual(topUp.payItem, 'Laundry Allowance - Cheltenham')
-                strictEqual(topUp.activity, 'Holiday Programs')
-                strictEqual(topUp.summary, 'Laundry allowance (weekly cap top-up)')
-                strictEqual(topUp.date.toISODate(), '2024-06-08')
-
-                // Total payout (Xero rounds units * rate to 2dp).
-                const total = rows.reduce((sum, row) => sum + row.hours * LAUNDRY_DAILY_RATE, 0)
-                strictEqual(Number(total.toFixed(2)), LAUNDRY_WEEKLY_CAP)
             })
 
-            it('does not emit any further rows for the 7th eligible day onwards', () => {
+            it('does not emit any further rows after the 5th eligible day', () => {
                 const days = [
                     '2024-06-03',
                     '2024-06-04',
@@ -7130,11 +7093,9 @@ describe('Timesheet suite', () => {
                         })
                     )
                 )
-                // Still only 6 rows (5 full + 1 top-up).
-                strictEqual(rows.length, 6)
-                // None of the rows reference the 7th day.
+                strictEqual(rows.length, 5)
                 strictEqual(
-                    rows.some((row) => row.date.toISODate() === '2024-06-09'),
+                    rows.some((row) => ['2024-06-08', '2024-06-09'].includes(row.date.toISODate() ?? '')),
                     false
                 )
             })

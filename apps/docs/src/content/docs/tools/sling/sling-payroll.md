@@ -80,7 +80,7 @@ It does not apply to `[On Call]`, PIC, Supervisor, Training, or Miscellaneous sh
 
 ### Weekly cap
 
-The export adds `$1.32` for each eligible day, capped at `$6.62` per employee per week. Multiple eligible shifts on one day receive one allowance for that day.
+The export adds one laundry allowance unit for each eligible day, capped at five days per employee per week. Multiple eligible shifts on one day receive one allowance for that day. Xero controls the value of each unit through the configured pay item.
 
 ## Overtime thresholds in Sling
 
