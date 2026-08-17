@@ -2,7 +2,7 @@
     "name": "server",
     "private": true,
     "description": "Cloud Functions for Firebase",
-    "main": "lib/index.js",
+    "main": "dist/index.js",
     "scripts": {
         "build": "vp pack",
         "build:watch": "vp pack --watch",

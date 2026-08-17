@@ -2,9 +2,19 @@ import { strictEqual } from 'assert'
 
 import { describe, it } from 'vite-plus/test'
 
-import { addOrdinalSuffix } from './stringUtilities'
+import { addOrdinalSuffix, capitalise } from './stringUtilities'
 
 describe('Fizz Kidz Utilities', () => {
+    describe('capitalise', () => {
+        it('capitalises the first character without changing the rest', () => {
+            strictEqual(capitalise('fizz Kidz'), 'Fizz Kidz')
+        })
+
+        it('handles an empty string', () => {
+            strictEqual(capitalise(''), '')
+        })
+    })
+
     describe('addOrdinalSuffix', () => {
         it('should return "1st" for "1"', () => {
             strictEqual(addOrdinalSuffix('1'), '1st')

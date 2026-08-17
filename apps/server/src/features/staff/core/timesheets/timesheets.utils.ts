@@ -1,6 +1,6 @@
 import { DateTime, Duration, Interval } from 'luxon'
 
-import { ObjectKeys, assertNever, type ShiftUnderMinimumShiftLength, type Studio } from '@fizz-kidz/core'
+import { ObjectKeys, assertNever, capitalise, type ShiftUnderMinimumShiftLength, type Studio } from '@fizz-kidz/core'
 
 import type { Rate } from './timesheets.types'
 import type { Timesheet } from '@/integrations/sling/sling.types'
@@ -289,11 +289,7 @@ function formatSlingPositionLabel(position: SlingPosition | undefined) {
         return 'Unknown'
     }
 
-    return position
-        .toLowerCase()
-        .split('_')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
+    return position.toLowerCase().split('_').map(capitalise).join(' ')
 }
 
 function createOvertimeTimesheetRows(

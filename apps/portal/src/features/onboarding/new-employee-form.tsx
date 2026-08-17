@@ -3,11 +3,10 @@ import { Button, DatePicker, Divider, Form, Input, InputNumber, Modal, Select, T
 import React, { useState } from 'react'
 
 import type { EmployeeRole, InitiateEmployeeProps, Studio } from '@fizz-kidz/core'
-import { STUDIOS } from '@fizz-kidz/core'
+import { STUDIOS, capitalise } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
 import { useOrg } from '@session/use-org'
-import { capitalise } from '@shared/lib/string-utilities'
 
 import type { Dayjs } from 'dayjs'
 

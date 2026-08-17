@@ -11,13 +11,13 @@
             "@fizz-kidz/core": ["./src"]
         },
         "declaration": true,
-        "outDir": "lib-tsc",
+        "outDir": "dist",
         // "rootDir": "src",
         "strict": true,
         "skipLibCheck": true,
         "noErrorTruncation": true,
         "composite": true
     },
-    "exclude": ["lib", "node_modules", "src/**/*.spec.ts"],
+    "exclude": ["dist", "node_modules", "src/**/*.spec.ts"],
     "include": ["src"]
 }

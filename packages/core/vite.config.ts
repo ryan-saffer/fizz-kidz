@@ -7,7 +7,7 @@ const packageDir = process.cwd()
 export default defineConfig({
     pack: {
         entry: 'src/index.ts',
-        outDir: 'lib',
+        outDir: 'dist',
         format: 'esm',
         fixedExtension: false,
         platform: 'neutral',

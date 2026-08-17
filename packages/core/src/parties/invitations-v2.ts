@@ -1,4 +1,4 @@
-import type { Studio } from '..'
+import type { Studio } from '../core/studio'
 
 type BaseInvitation = {
     id: string // same id used to upload to storage

@@ -3,16 +3,16 @@
     "version": "1.0.0",
     "description": "Shared value and types to be used across React and Functions",
     "type": "module",
-    "main": "./lib/index.js",
-    "types": "./lib/index.d.ts",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
-            "types": "./lib/index.d.ts",
-            "import": "./lib/index.js"
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
         }
     },
     "files": [
-        "lib"
+        "dist"
     ],
     "scripts": {
         "build": "vp pack",

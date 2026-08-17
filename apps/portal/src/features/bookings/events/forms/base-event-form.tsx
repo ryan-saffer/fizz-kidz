@@ -20,10 +20,8 @@ import { DatePicker, TimePicker } from '@mui/x-date-pickers'
 import React from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 
-import { ModuleNameMap, ObjectKeys, STUDIOS } from '@fizz-kidz/core'
+import { ModuleNameMap, ObjectKeys, STUDIOS, capitalise } from '@fizz-kidz/core'
 import type { Event, ScienceModule, Studio } from '@fizz-kidz/core'
-
-import { capitalise } from '@shared/lib/string-utilities'
 
 import type { DateTime } from 'luxon'
 import type { Control, UseFieldArrayReturn } from 'react-hook-form'

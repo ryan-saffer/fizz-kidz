@@ -3,6 +3,8 @@ import { Clock, MapPin, PartyPopper, Sparkles, User } from 'lucide-react'
 import { Img } from 'react-image'
 import { useLocation, useNavigate } from 'react-router-dom'
 
+import { capitalise } from '@fizz-kidz/core'
+
 import Loader from '@shared/components/loader'
 import { Button } from '@shared/components/ui/button'
 import { Card, CardContent } from '@shared/components/ui/card'
@@ -23,7 +25,7 @@ export function ViewInvitation() {
     const time = invitation.time
     const address =
         invitation.$type === 'studio'
-            ? `${invitation.studio ? invitation.studio.charAt(0).toUpperCase() + invitation.studio.slice(1) : 'Fizz Kidz'} studio`
+            ? `${invitation.studio ? capitalise(invitation.studio) : 'Fizz Kidz'} studio`
             : invitation.address
 
     return (

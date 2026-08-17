@@ -1,7 +1,5 @@
 .env
 node_modules/
-lib/
-lib-tsc/
 coverage
 src/scienceProgram/data/
 tsconfig.tsbuildinfo

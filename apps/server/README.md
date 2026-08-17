@@ -62,4 +62,4 @@ npm --workspace server run script:prod
 
 These run through `tsx` without type checking and connect to the named real Firebase project.
 
-Firebase deploys `apps/server` as the Functions source. `lib/index.js` is its Node 22 CommonJS entrypoint; `@fizz-kidz/core` is bundled there while normal server dependencies are installed from the package manifest and lockfile.
+Firebase deploys `apps/server` as the Functions source. `dist/index.js` is its Node 22 CommonJS entrypoint; `@fizz-kidz/core` is bundled there while normal server dependencies are installed from the package manifest and lockfile.

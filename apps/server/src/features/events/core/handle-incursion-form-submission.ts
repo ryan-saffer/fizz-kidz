@@ -7,7 +7,7 @@ import {
     isFranchise,
     ModuleIncursionMap,
     ModuleNameMap,
-    Utilities,
+    capitalise,
 } from '@fizz-kidz/core'
 
 import { DatabaseClient } from '@/integrations/firebase/database.client'
@@ -90,7 +90,7 @@ export async function handleIncursionFormSubmission(response: PaperFormResponse<
             contactNumber: firstSlot.contactNumber,
             organisation,
             address,
-            studio: Utilities.capitalise(firstSlot.studio),
+            studio: capitalise(firstSlot.studio),
             eventName: firstSlot.eventName,
             module: ModuleNameMap[firstSlot.module],
             incursion: ModuleIncursionMap[firstSlot.module],

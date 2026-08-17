@@ -1,4 +1,4 @@
-import type { PartialRecord } from '..'
+import type { PartialRecord } from '../utilities'
 import type { Role } from './role'
 import type { StudioOrMaster } from './studio'
 

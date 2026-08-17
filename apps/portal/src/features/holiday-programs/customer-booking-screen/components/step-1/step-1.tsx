@@ -3,9 +3,7 @@ import { DateTime } from 'luxon'
 import React, { useMemo } from 'react'
 
 import type { AcuityTypes } from '@fizz-kidz/core'
-import { AcuityConstants, STUDIOS } from '@fizz-kidz/core'
-
-import { capitalise } from '@shared/lib/string-utilities'
+import { AcuityConstants, STUDIOS, capitalise } from '@fizz-kidz/core'
 
 import { useCart } from '../../state/cart-store'
 

@@ -333,12 +333,11 @@ export default defineConfig(({ command, mode }) => {
             ignorePatterns: [
                 'apps/portal/dist/**',
                 'apps/portal/coverage/**',
-                'apps/server/lib/**',
+                'apps/server/dist/**',
                 'apps/server/coverage/**',
                 'apps/website/dist/**',
                 'apps/website/.astro/**',
-                'packages/core/lib/**',
-                'packages/core/lib-tsc/**',
+                'packages/core/dist/**',
             ],
             options: {
                 reportUnusedDisableDirectives: 'error',

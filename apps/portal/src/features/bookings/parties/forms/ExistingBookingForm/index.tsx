@@ -33,10 +33,10 @@ import {
     PROD_ADDITIONS,
     STUDIOS,
     TAKE_HOME_BAGS,
-    Utilities,
     capitalise,
     getInvitationEntryUrl,
     getInvitationShareUrl,
+    isObjKey,
 } from '@fizz-kidz/core'
 import type { FirestoreBooking, FormBooking, PartyLostReason, WithId } from '@fizz-kidz/core'
 
@@ -132,7 +132,7 @@ const InnerExistingBookingForm: React.FC<ExistingBookingFormProps> = ({
     }
 
     const handleFormChange = (e: any) => {
-        if (Utilities.isObjKey(e.target.name, formValues)) {
+        if (isObjKey(e.target.name, formValues)) {
             updateFormValues(e.target.name, e.target.value)
         }
     }
@@ -146,7 +146,7 @@ const InnerExistingBookingForm: React.FC<ExistingBookingFormProps> = ({
     }
 
     const handleFormCheckboxChange = (e: ChangeEvent<any>) => {
-        if (Utilities.isObjKey(e.target.name, formValues)) {
+        if (isObjKey(e.target.name, formValues)) {
             updateFormValues(e.target.name, e.target.checked)
         }
     }
@@ -173,8 +173,8 @@ const InnerExistingBookingForm: React.FC<ExistingBookingFormProps> = ({
 
         if (
             selectedCreation &&
-            Utilities.isObjKey(selectedCreation, CREATIONS) &&
-            !Utilities.isObjKey(selectedCreation, ACTIVE_CREATIONS)
+            isObjKey(selectedCreation, CREATIONS) &&
+            !isObjKey(selectedCreation, ACTIVE_CREATIONS)
         ) {
             legacyCreationMenuItems.push(
                 <ListSubheader key="previously-selected">Previously Selected</ListSubheader>,

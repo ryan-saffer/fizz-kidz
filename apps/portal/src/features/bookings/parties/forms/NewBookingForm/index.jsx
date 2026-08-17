@@ -23,11 +23,10 @@ import { useMutation } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
 import { useState } from 'react'
 
-import { FormBookingFields, STUDIOS, combineStrings } from '@fizz-kidz/core'
+import { FormBookingFields, STUDIOS, capitalise, combineStrings } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
 import WithErrorDialog from '@shared/components/dialogs/legacy/ErrorDialog'
-import { capitalise } from '@shared/lib/string-utilities'
 
 import { errorFound, validateFormOnChange, validateFormOnSubmit } from '../validation'
 

@@ -3,7 +3,7 @@ import { CalendarIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import { capitalise, type InvitationsV2 } from '@fizz-kidz/core'
 
 import { Button } from '@shared/components/ui/button'
 import { Calendar } from '@shared/components/ui/calendar'
@@ -11,7 +11,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@shared/compo
 import { Input } from '@shared/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
 import { Switch } from '@shared/components/ui/switch'
-import { capitalise } from '@shared/lib/string-utilities'
 import { cn } from '@shared/lib/tailwind'
 
 import type { ReactNode } from 'react'

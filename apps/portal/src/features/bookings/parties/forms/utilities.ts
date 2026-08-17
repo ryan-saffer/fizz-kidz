@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 
 import type { Booking, FirestoreBooking, FormBooking } from '@fizz-kidz/core'
-import { Utilities } from '@fizz-kidz/core'
+import { isObjKey } from '@fizz-kidz/core'
 
 import type { ExistingBookingFormFields } from './ExistingBookingForm/types'
 
@@ -14,7 +14,7 @@ import type { ExistingBookingFormFields } from './ExistingBookingForm/types'
 export function mapFormToBooking(formValues: ExistingBookingFormFields): Booking {
     const booking = getEmptyDomainBooking()
     Object.keys(booking).forEach((key) => {
-        if (Utilities.isObjKey(key, booking)) {
+        if (isObjKey(key, booking)) {
             booking[key] = formValues[key]?.value as never // safe given we know key is a keyof DomainBooking
         }
     })
@@ -58,7 +58,7 @@ export function mapFirestoreBookingToFormValues(firestoreBooking: FirestoreBooki
     const formValues = getEmptyValues()
 
     for (const field in formValues) {
-        if (Utilities.isObjKey(field, formValues)) {
+        if (isObjKey(field, formValues)) {
             const val = domainBooking[field]
             if (val !== undefined) {
                 const prop = formValues[field]

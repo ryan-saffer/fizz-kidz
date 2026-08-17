@@ -23,11 +23,12 @@ const serverDir = process.cwd()
 dotenv.config({ path: path.join(serverDir, isProdProject() ? '.env.prod' : '.env') })
 
 const isWatch = process.argv.includes('--watch')
+const outDir = 'dist'
 
 export default defineConfig({
     pack: {
         entry: 'src/index.ts',
-        outDir: 'lib',
+        outDir,
         format: 'cjs',
         fixedExtension: false,
         platform: 'node',
@@ -44,10 +45,10 @@ export default defineConfig({
             onlyBundle: false,
         },
         copy: [
-            { from: 'src/**/*.html', to: 'lib', flatten: false },
-            { from: 'src/**/*.mjml', to: 'lib', flatten: false },
-            { from: 'src/**/*.png', to: 'lib', flatten: false },
-            { from: 'src/**/*.ttf', to: 'lib', flatten: false },
+            { from: 'src/**/*.html', to: outDir, flatten: false },
+            { from: 'src/**/*.mjml', to: outDir, flatten: false },
+            { from: 'src/**/*.png', to: outDir, flatten: false },
+            { from: 'src/**/*.ttf', to: outDir, flatten: false },
         ],
         checks: { legacyCjs: false },
         plugins:
