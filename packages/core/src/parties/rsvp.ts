@@ -1,4 +1,4 @@
-import { getApplicationDomain } from '../utilities'
+import { getApplicationDomain } from '../utilities/application-domain'
 
 export type Rsvp = {
     id: string

@@ -1,4 +1,4 @@
-import { getNumberOfCreations, ObjectKeys, PRODUCTS, TAKE_HOME_BAGS } from '@fizz-kidz/core'
+import { getPartyCreationCount, ObjectKeys, PRODUCTS, TAKE_HOME_BAGS } from '@fizz-kidz/core'
 
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 
@@ -48,7 +48,7 @@ export async function getPartyFormEmbedConfig(bookingId: string, partyOrCakeForm
         child_name: booking.childName,
         child_age: String(booking.childAge),
         food_package: booking.includesFood ? 'Include the food package' : 'I will self-cater the party',
-        creations_required: `${getNumberOfCreations(booking.type, booking.partyLength)}`,
+        creations_required: `${getPartyCreationCount(booking)}`,
         cake_purchased: cake,
         take_home_bags_purchased: [takeHomeBags, products].filter(Boolean).join('\n'),
     }).toString()

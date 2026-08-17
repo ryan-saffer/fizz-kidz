@@ -650,8 +650,8 @@ Recommended server check:
 
 Current party food/addition data lives in:
 
-- `packages/core/src/partyBookings/booking.ts`
-- `packages/core/src/partyBookings/additions.ts`
+- `packages/core/src/parties/booking.ts`
+- `packages/core/src/parties/additions.ts`
 
 Initial party-food candidates from `PROD_ADDITIONS`:
 

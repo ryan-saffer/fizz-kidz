@@ -1,36 +1,38 @@
 //#region Bookings
-export { ADDITIONS, PROD_ADDITIONS } from './partyBookings/additions'
-export type { Addition } from './partyBookings/additions'
-export { CakeFlavours } from './partyBookings/CakeFlavours'
+export { ADDITIONS, PROD_ADDITIONS } from './parties/additions'
+export type { Addition } from './parties/additions'
+export { CakeFlavours } from './parties/CakeFlavours'
 export {
     ACTIVE_CREATIONS,
     CREATION_PACKAGE_DISPLAY_NAMES,
     CREATION_PACKAGES,
     CREATIONS,
     PARTY_PACKAGE_COLOURS,
-} from './partyBookings/creations'
+} from './parties/creations'
 export type {
     ActiveCreation,
     Creation,
     CreationInstructionGroup,
     CreationInstructions,
     PartyPackageColour,
-} from './partyBookings/creations'
-export { TAKE_HOME_BAGS } from './partyBookings/take-home-bags'
-export type { TakeHomeBagType } from './partyBookings/take-home-bags'
-export { PRODUCTS } from './partyBookings/products'
-export type { ProductType } from './partyBookings/products'
+} from './parties/creations'
+export { TAKE_HOME_BAGS } from './parties/take-home-bags'
+export type { TakeHomeBagType } from './parties/take-home-bags'
+export { PRODUCTS } from './parties/products'
+export type { ProductType } from './parties/products'
 export * from './core/studio'
 export { ASSIGNABLE_ROLES, ROLES } from './core/role'
 export type { Role } from './core/role'
 export type { AuthUser, CustomerUser, StaffUser } from './core/user'
 export { RolePermissionMap } from './core/permission'
 export type { Permission } from './core/permission'
-export * from './partyBookings/booking'
-export { FormBookingFields, BookingFields } from './partyBookings/booking'
-export * from './partyBookings/Invitations'
-export * as InvitationsV2 from './partyBookings/invitations-v2'
-export * from './partyBookings/rsvp'
+export * from './parties/booking'
+export { FormBookingFields, BookingFields } from './parties/booking'
+export * from './parties/Invitations'
+export * as InvitationsV2 from './parties/invitations-v2'
+export * from './parties/rsvp'
+export * from './parties/party.utils'
+export * from './core/studio-details'
 //#endregion
 
 //#region Acuity

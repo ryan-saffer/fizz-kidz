@@ -1,6 +1,7 @@
-import { getStudioContactEmail, type Booking } from '@fizz-kidz/core'
+import { canOrderCake, getStudioContactEmail, type Booking } from '@fizz-kidz/core'
 
-import { canOrderCake, getCakeFormUrl, getUpcoming } from './utils.party'
+import { getUpcoming } from './party-form-scheduling'
+import { getCakeFormUrl } from './party-form-urls'
 
 import { timestampConverter } from '@/integrations/firebase/firestore-converters'
 import { FirestoreRefs } from '@/integrations/firebase/firestore.refs'

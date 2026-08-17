@@ -6,16 +6,16 @@ import {
     getApplicationDomain,
     getInvitationEntryUrl,
     getStudioAddress,
-    getNumberOfKidsAllowed,
+    getPartyChildCapacityMessages,
     getPartyCustomerContactInfo,
-    getPartyCreationCount,
     getPartyEndDate,
     getPictureOfStudioUrl,
     getStudioContactEmail,
     getPartyBirthdayChildDisplay,
+    canOrderCake,
 } from '@fizz-kidz/core'
 
-import { canOrderCake, getCakeFormUrl } from './utils.party'
+import { getCakeFormUrl } from './party-form-urls'
 
 import { env } from '@/app/init/firebase'
 import { throwTrpcError } from '@/app/trpc/transport-errors'
@@ -116,11 +116,10 @@ export async function updatePartyBooking(input: { bookingId: string; booking: Bo
                     address: booking.type === 'mobile' ? booking.address : getStudioAddress(booking.location),
                     location: capitalise(booking.location),
                     isMobile: booking.type === 'mobile',
-                    creationCount: getPartyCreationCount(booking.type, booking.partyLength),
                     contactEmail: customerContact.email,
                     contactPhone: customerContact.phoneDisplay,
                     contactName: customerContact.contactName || '',
-                    numberOfKidsAllowed: getNumberOfKidsAllowed(booking.location),
+                    numberOfKidsAllowed: getPartyChildCapacityMessages(booking.location),
                     studioPhotoUrl: getPictureOfStudioUrl(booking.location),
                     invitationsUrl,
                     includesFood: booking.includesFood,

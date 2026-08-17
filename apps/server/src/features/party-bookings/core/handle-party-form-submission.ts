@@ -10,10 +10,12 @@ import {
     type PartyForm,
     getPartyCustomerContactInfo,
     getStudioContactEmail,
+    getBookingCreationDisplayValues,
+    getBookingAdditionDisplayValues,
+    getPartyCreationCount,
 } from '@fizz-kidz/core'
 
 import { PartyFormMapper } from './party-form-mapper'
-import { getBookingCreations, getBookingAdditions } from './utils.party'
 
 import type { PaperformSubmission } from '@/integrations/paperforms/paperform.client'
 
@@ -74,8 +76,8 @@ export async function handlePartyFormSubmission(responses: PaperformSubmission<P
                         hour12: true,
                     }),
                     oldNumberOfKids: existingBooking.numberOfChildren,
-                    oldCreations: getBookingCreations(existingBooking),
-                    oldAdditions: getBookingAdditions(existingBooking),
+                    oldCreations: getBookingCreationDisplayValues(existingBooking),
+                    oldAdditions: getBookingAdditionDisplayValues(existingBooking),
                     newNumberOfKids: mappedBooking.numberOfChildren!,
                     newCreations: formMapper.getCreationDisplayValues(existingBooking.type),
                     newAdditions: formMapper.getAdditionDisplayValues(false),
@@ -183,14 +185,9 @@ export async function handlePartyFormSubmission(responses: PaperformSubmission<P
 
     const fullBooking = await DatabaseClient.getPartyBooking(formMapper.bookingId)
 
-    // if its a two creation party, but they picked three or more creations, notify manager (or if they picked more than 3 creations)
     const creations = formMapper.getCreationDisplayValues(existingBooking.type)
-    const choseThreeCreations = creations.length === 3
-    const requiresTwoCreations =
-        (fullBooking.type === 'mobile' && fullBooking.partyLength === '1') ||
-        (fullBooking.type !== 'mobile' && fullBooking.partyLength === '1.5')
 
-    if ((choseThreeCreations && requiresTwoCreations) || creations.length > 3) {
+    if (creations.length > getPartyCreationCount(fullBooking)) {
         try {
             await mailClient.sendEmail(
                 'tooManyCreationsChosen',

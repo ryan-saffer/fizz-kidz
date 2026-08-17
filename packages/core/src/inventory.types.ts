@@ -6,7 +6,7 @@ import type {
     INVENTORY_UNITS,
     INVENTORY_USAGE_RULE_TYPES,
 } from './inventory'
-import type { Addition } from './partyBookings/additions'
+import type { Addition } from './parties/additions'
 
 export type InventoryCategory = (typeof INVENTORY_CATEGORIES)[number]
 export type InventoryUnit = (typeof INVENTORY_UNITS)[number]

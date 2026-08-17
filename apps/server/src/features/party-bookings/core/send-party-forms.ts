@@ -11,7 +11,8 @@ import {
     getPartyBirthdayChildDisplay,
 } from '@fizz-kidz/core'
 
-import { getPartyFormUrl, getUpcoming } from './utils.party'
+import { getUpcoming } from './party-form-scheduling'
+import { getPartyFormUrl } from './party-form-urls'
 
 import { FirestoreRefs } from '@/integrations/firebase/firestore.refs'
 import { logError } from '@/integrations/observability/log-error'

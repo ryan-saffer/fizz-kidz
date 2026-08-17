@@ -3,7 +3,8 @@ import { logger } from 'firebase-functions/v2'
 import type { Booking } from '@fizz-kidz/core'
 import { getPartyCustomerContactInfo, getStudioContactEmail } from '@fizz-kidz/core'
 
-import { getPartyFormUrl, getUpcoming } from './utils.party'
+import { getUpcoming } from './party-form-scheduling'
+import { getPartyFormUrl } from './party-form-urls'
 
 import { FirestoreRefs } from '@/integrations/firebase/firestore.refs'
 import { logError } from '@/integrations/observability/log-error'

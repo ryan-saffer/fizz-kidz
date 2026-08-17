@@ -131,7 +131,6 @@ export type Emails = {
         address: string
         location: string
         isMobile: boolean
-        creationCount: string
         contactEmail: string
         contactPhone: string
         contactName?: string

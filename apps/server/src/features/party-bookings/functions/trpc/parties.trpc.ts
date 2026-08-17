@@ -17,6 +17,7 @@ import { authenticatedProcedure, publicProcedure, router } from '@/app/trpc/trpc
 import { createPartyBooking } from '@/features/party-bookings/core/create-party-booking'
 import { deletePartyBooking } from '@/features/party-bookings/core/delete-party-booking'
 import { generateInvitation } from '@/features/party-bookings/core/generate-invitation'
+import { getCakeFormUrl, getPartyFormUrl } from '@/features/party-bookings/core/party-form-urls'
 import { generateAndLinkInvitation } from '@/features/party-bookings/core/rsvp/edit-invitation-v2'
 import { generateInvitationUrl } from '@/features/party-bookings/core/rsvp/generate-invitation-url'
 import { generateInvitationV2 } from '@/features/party-bookings/core/rsvp/generate-invitation-v2'
@@ -26,7 +27,6 @@ import { resetInvitation } from '@/features/party-bookings/core/rsvp/reset-invit
 import { hostRsvpToParty, guestRsvpToParty } from '@/features/party-bookings/core/rsvp/rsvp-to-party-v2'
 import { sendPartyBookingConfirmationEmail } from '@/features/party-bookings/core/send-party-booking-confirmation-email'
 import { updatePartyBooking } from '@/features/party-bookings/core/update-party-booking'
-import { getCakeFormUrl, getPartyFormUrl } from '@/features/party-bookings/core/utils.party'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { getPartyFormEmbedConfig } from '@/integrations/paperforms/core/party-form-prefill'
 

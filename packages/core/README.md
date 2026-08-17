@@ -39,3 +39,5 @@ vp test --run --project core
 ```
 
 The build command emits a normal ESM package and declarations to `lib`. The output is useful for validation and future consumers, but current apps do not depend on it at runtime. Core tests live beside their implementations in `src` and run as part of the root test suite.
+
+Pure party-booking rules and transformations live in `src/parties/party.utils.ts`. Shared studio addresses, images, and review links live in `src/core/studio-details.ts`; runtime-specific form URLs and scheduling remain in the app that owns them.
