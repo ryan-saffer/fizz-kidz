@@ -642,7 +642,7 @@ export async function processWebsiteFormSubmission(
 
                 await mailClient.sendEmail(
                     'websiteFranchisingFormToFizz',
-                    'info@fizzkidz.com.au',
+                    'kym@fizzkidz.com.au',
                     {
                         firstName: formData.firstName,
                         lastName: formData.lastName,
