@@ -7,15 +7,20 @@ import LocationDetails from "@/components/location-details.astro";
 import PageIntro from "@/components/page-intro.astro";
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
 import { menu } from "@/components/react/navigation/navigation-menu";
+import { Button } from "@/components/react/ui/button";
 import {
   sbPagesHomeEnergyJpg as contact,
   sbPagesHomeHolidayProgramsJpg as holidayPrograms,
   sbPagesHomePartiesJpg as birthday,
   sbPagesHomeStudioPng as studio,
+  sbPagesLocationsKingsvilleOpening1Jpg as opening1,
+  sbPagesLocationsKingsvilleOpening2Jpg as opening2,
+  sbPagesLocationsKingsvilleOpening3Jpg as opening3,
   sbPagesPartiesSlimePartyJpg as slime,
 } from "@/data/storyblok-images";
 import Layout from "@/layout/Layout.astro";
 import { createLocationSchemas } from "@/utils/seo";
+import yellowWave from "@/assets/images/pages/locations/yellow-wave.svg";
 
 const description =
   "Visit Fizz Kidz Werribee at Harpley Town Center for hosted kids birthday parties, school holiday programs and hands-on slime, science, art and craft activities.";
@@ -59,6 +64,87 @@ const description =
         >
       </PageIntro>
     </div>
+    <Image
+      src={yellowWave}
+      alt="yellow background wave"
+      class="left-0 right-0 mt-12 w-screen"
+    />
+    <div class="bg-[#FFDC5D] py-4">
+      <div class="m-auto block max-w-[1380px] px-5">
+        <p class="text-center font-lilita text-6xl uppercase">Geelong Open Day</p>
+        <p class="mt-6 text-center font-gotham text-xl font-semibold">
+          Join us for our Fizz Kidz Geelong Open Day! 🎉<br /><br />
+          Choose your favourite session and join us in celebrating the opening of our
+          new Geelong Studio!<br />Each session is just $10, so grab your spot and
+          get ready for an AWESOME hands-on experience.<br /><br />
+          <u>Limited spots available, we suggest you book ASAP.</u><br /><br />We
+          can't wait to see you there!
+        </p>
+        <a
+          href="https://bookings.fizzkidz.com.au/programs?id=75381458"
+          class="mt-6 flex justify-center"
+        >
+          <Button
+            className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]"
+          >
+            Book Now
+          </Button>
+        </a>
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <CardWithImage image={opening2} imageAlt="two messy kids">
+            <div slot="content" class="p-8">
+              <p class="font-lilita text-3xl text-[#9044E2]">Science Explosion</p>
+              <p class="mt-2 font-semibold">
+                Saturday 6th June<br />10:00am - 11:00am
+              </p>
+              <ul class="mb-4 mt-2 list-disc pl-4">
+                <li>Bubbling Volcanoes</li>
+                <li>Galaxy Slime</li>
+              </ul>
+            </div>
+          </CardWithImage>
+          <CardWithImage image={opening1} imageAlt="two messy kids">
+            <div slot="content" class="p-8">
+              <p class="font-lilita text-3xl text-[#9DCC46]">Kawaii Cuties</p>
+              <p class="mt-2 font-semibold">
+                Saturday 6th June<br />11:30am - 12:30pm
+              </p>
+              <ul class="mb-4 mt-2 list-disc pl-4">
+                <li>GLOW Headbands</li>
+                <li>Charm Keyrings</li>
+              </ul>
+            </div>
+          </CardWithImage>
+          <CardWithImage image={opening3} imageAlt="two messy kids">
+            <div slot="content" class="p-8">
+              <p class="font-lilita text-3xl text-[#4DC5D9]">Roaring Rainbows</p>
+              <p class="mt-2 font-semibold">
+                Saturday 6th June<br />1:00pm - 2:00pm
+              </p>
+              <ul class="mb-4 mt-2 list-disc pl-4">
+                <li>Rainbow Tie Dye Totes</li>
+                <li>Rainbow Bath Bombs</li>
+              </ul>
+            </div>
+          </CardWithImage>
+        </div>
+        <a
+          href="https://bookings.fizzkidz.com.au/programs?id=75381458"
+          class="mt-6 flex justify-center"
+        >
+          <Button
+            className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]"
+          >
+            Book Now
+          </Button>
+        </a>
+      </div>
+    </div>
+    <Image
+      src={yellowWave}
+      alt="yellow background wave"
+      class="left-0 right-0 w-screen rotate-180"
+    />
 
     <Container>
       <p class="mt-16 text-center font-lilita text-5xl sm:mt-32">
