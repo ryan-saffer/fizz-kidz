@@ -1,13 +1,13 @@
 import { authenticatedProcedure, router } from '@/app/trpc/trpc'
-import { StoryblokClient } from '@/integrations/storyblok/storyblok.client'
+import { SanityClient } from '@/integrations/sanity/sanity.client'
 
 export const creationsRouter = router({
     getBirthdayPartyCreations: authenticatedProcedure.query(async () => {
-        const storyblok = await StoryblokClient.getInstance()
-        return storyblok.getBirthdayPartyCreations()
+        const sanity = await SanityClient.getInstance()
+        return sanity.getBirthdayPartyCreations()
     }),
     getHolidayProgramCreations: authenticatedProcedure.query(async () => {
-        const storyblok = await StoryblokClient.getInstance()
-        return storyblok.getHolidayProgramCreations()
+        const sanity = await SanityClient.getInstance()
+        return sanity.getHolidayProgramCreations()
     }),
 })

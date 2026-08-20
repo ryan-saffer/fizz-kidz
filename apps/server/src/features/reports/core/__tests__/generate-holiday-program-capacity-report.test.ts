@@ -59,15 +59,15 @@ class MockAcuityClient {
 }
 
 const mockAcuityClient = new MockAcuityClient()
-let mergeAcuityWithStoryblok = async (classes: MockClass[]) => classes
+let mergeAcuityWithSanity = async (classes: MockClass[]) => classes
 vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
 vi.mock('@/integrations/acuity/acuity.client', () => ({
     AcuityClient: {
         getInstance: async () => mockAcuityClient,
     },
 }))
-vi.mock('@/integrations/acuity/core/merge-storyblok-with-acuity', () => ({
-    mergeAcuityWithStoryblok: (classes: MockClass[]) => mergeAcuityWithStoryblok(classes),
+vi.mock('@/integrations/acuity/core/merge-sanity-with-acuity', () => ({
+    mergeAcuityWithSanity: (classes: MockClass[]) => mergeAcuityWithSanity(classes),
 }))
 
 let generateHolidayProgramCapacityReport: typeof HolidayProgramCapacityReportModule.generateHolidayProgramCapacityReport
@@ -84,7 +84,7 @@ describe('generateHolidayProgramCapacityReport', () => {
         mockAcuityClient.classes = []
         mockAcuityClient.appointmentCountsByClass.clear()
         mockAcuityClient.searchForAppointmentsInputs = []
-        mergeAcuityWithStoryblok = async (classes) => classes
+        mergeAcuityWithSanity = async (classes) => classes
     })
 
     it('calculates class and studio capacity for one studio', async () => {
@@ -205,7 +205,7 @@ describe('generateHolidayProgramCapacityReport', () => {
         strictEqual(generateHolidayProgramCapacityReportInputSchema.safeParse({ studio: 'richmond' }).success, false)
     })
 
-    it('uses the merged Storyblok title when available', async () => {
+    it('uses the merged Sanity title when available', async () => {
         mockAcuityClient.classes = [
             createClass({
                 id: 1,
@@ -214,7 +214,7 @@ describe('generateHolidayProgramCapacityReport', () => {
                 time: '2026-04-01T09:00:00+10:00',
             }),
         ]
-        mergeAcuityWithStoryblok = async (classes) => classes.map((klass) => ({ ...klass, title: 'Slime Spectacular' }))
+        mergeAcuityWithSanity = async (classes) => classes.map((klass) => ({ ...klass, title: 'Slime Spectacular' }))
 
         const result = await generateHolidayProgramCapacityReport({ studio: 'balwyn' })
 

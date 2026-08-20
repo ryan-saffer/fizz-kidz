@@ -1,0 +1,16 @@
+export const WEBSITE_IMAGE_CATEGORIES = [
+    'Creations',
+    'Holiday Program discount dialog',
+    'Activations and events',
+    'After-school programs',
+    'Franchising',
+    'Gift cards',
+    'Holiday Programs',
+    'Home',
+    'In-schools',
+    'Locations',
+    'Our team',
+    'Parties',
+    'Play Lab',
+    'Preschool Program',
+] as const

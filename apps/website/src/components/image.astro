@@ -4,15 +4,15 @@ import {
   type LocalImageProps,
   type RemoteImageProps,
 } from "astro:assets";
-import type { StoryblokImage } from "@/types/images";
+import type { WebsiteImage } from "@/types/images";
 
 type Props = Omit<LocalImageProps, "src"> & {
-  src: LocalImageProps["src"] | StoryblokImage | string;
+  src: LocalImageProps["src"] | WebsiteImage | string;
   inferSize?: boolean;
 };
 
 const { src, ...props } = Astro.props;
-const storyblokImage =
+const websiteImage =
   typeof src === "object" && src !== null && "assetId" in src ? src : null;
 
 const requestedWidth =
@@ -20,36 +20,36 @@ const requestedWidth =
 const requestedHeight =
   props.height === undefined ? undefined : Number(props.height);
 
-const imageProps = storyblokImage
+const imageProps = websiteImage
   ? (() => {
-      const defaultWidth = Math.min(storyblokImage.width, 1920);
+      const defaultWidth = Math.min(websiteImage.width, 1920);
       const width =
         requestedWidth ??
         (requestedHeight
           ? Math.round(
-              (requestedHeight * storyblokImage.width) / storyblokImage.height,
+              (requestedHeight * websiteImage.width) / websiteImage.height,
             )
           : defaultWidth);
       const height =
         requestedHeight ??
         (requestedWidth
           ? Math.round(
-              (requestedWidth * storyblokImage.height) / storyblokImage.width,
+              (requestedWidth * websiteImage.height) / websiteImage.width,
             )
           : Math.round(
-              (defaultWidth * storyblokImage.height) / storyblokImage.width,
+              (defaultWidth * websiteImage.height) / websiteImage.width,
             ));
       const layout = props.layout ?? "constrained";
       const responsiveWidths =
         layout !== "none" &&
         props.widths === undefined &&
         props.densities === undefined
-          ? getResponsiveWidths(width, storyblokImage.width)
+          ? getResponsiveWidths(width, websiteImage.width)
           : props.widths;
 
       return {
         ...props,
-        src: storyblokImage.src,
+        src: websiteImage.src,
         width,
         height,
         layout,

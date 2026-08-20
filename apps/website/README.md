@@ -2,7 +2,7 @@
 
 The public face of Fizz Kidz. Mostly Astro pages, with React where interaction earns its keep.
 
-Most copy lives directly in `src/pages` and `src/components`. Storyblok supplies current holiday-program content and hosts the images referenced by `src/data/storyblok-images.ts`.
+Most copy lives directly in `src/pages` and `src/components`. Sanity supplies the Holiday Program schedule and the editable image slots resolved by `src/data/website-images.ts` during the Website build.
 
 Website forms use the Zod schemas, inferred payload types, and select options exported from `@fizz-kidz/core` in `packages/core/src/website/website-forms.ts`. Submit active forms through `src/utils/website-forms.ts`; it dynamically imports the vanilla tRPC client on first submission, keeping tRPC out of the initial island bundle while preserving end-to-end input, output, and error typing.
 
@@ -29,7 +29,6 @@ npm --workspace website run preview
 
 Local environment values live in `apps/website/.env`:
 
-- `STORYBLOK_TOKEN`
 - `PUBLIC_UPLOADTHING_TOKEN`
 - `NETLIFY_TOKEN`
 
@@ -41,4 +40,4 @@ Production and preview values live in Netlify.
 
 > **Deployment:** Deploys from `main` and `develop` run through GitHub Actions. The pipeline publishes changed Firebase targets first and only then triggers a cached Netlify build when Website code changed, so a Firebase failure skips Netlify. `main` publishes production; `develop` publishes a branch deploy built in development mode. Netlify still owns pull-request previews and other branch deploys; automatic Git-backed builds from `main` and `develop` are ignored. GitHub's `dev` and `prod` environments require `NETLIFY_AUTH_TOKEN` and their branch-specific `NETLIFY_BUILD_HOOK_URL` secrets plus the `NETLIFY_SITE_ID` variable.
 
-Netlify hosts the Astro output and `apps/website/netlify/functions`. Remote image optimization allows Storyblok and Instagram CDN hosts.
+Netlify hosts the Astro output and `apps/website/netlify/functions`. Remote image optimization allows Sanity and Instagram CDN hosts.

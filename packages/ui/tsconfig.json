@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "jsx": "react-jsx",
+        "strict": true,
+        "skipLibCheck": true,
+        "paths": {
+            "@fizz-kidz/core": ["../core/src"],
+            "@fizz-kidz/ui": ["./src"]
+        }
+    },
+    "exclude": ["dist", "node_modules"],
+    "include": ["src"]
+}

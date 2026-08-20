@@ -2,17 +2,19 @@ import { useQuery } from '@tanstack/react-query'
 import Fuse from 'fuse.js'
 import { X } from 'lucide-react'
 import { type CSSProperties, useDeferredValue, useState } from 'react'
-import Markdown from 'react-markdown'
 
-import type { CreationInstructionGroup, CreationInstructions, PartyPackageColour } from '@fizz-kidz/core'
+import type {
+    BirthdayPartyCreationInstructionGroup,
+    BirthdayPartyCreationInstructions,
+    PartyPackageColour,
+} from '@fizz-kidz/core'
+import { CreationInstructions } from '@fizz-kidz/ui'
 
 import { useTRPC } from '@integrations/trpc'
 import Loader from '@shared/components/loader'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@shared/components/ui/accordion'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
-
-import { markdownComponents } from './markdown-components'
 
 type SearchableCreation = {
     packageIndex: number
@@ -37,19 +39,19 @@ export const PartyCreationsPage = () => {
     const deferredSearchTerm = useDeferredValue(searchTerm)
     const searchQuery = deferredSearchTerm.trim()
 
-    const renderAccordion = (creations: CreationInstructions[]) => {
+    const renderAccordion = (creations: BirthdayPartyCreationInstructions[]) => {
         return (
             <Accordion
                 type="multiple"
                 className="overflow-hidden rounded-2xl border border-white/70 bg-white/95 shadow-sm ring-1 ring-[var(--accent-soft)]"
             >
                 {creations.map((creation) => (
-                    <AccordionItem key={creation.name} value={creation.name} className="border-b border-slate-100">
+                    <AccordionItem key={creation._id} value={creation._id} className="border-b border-slate-100">
                         <AccordionTrigger className="px-4 text-left text-base font-semibold text-slate-900 hover:bg-[var(--accent-soft)] hover:no-underline sm:px-6">
                             {creation.name}
                         </AccordionTrigger>
                         <AccordionContent className="px-4 text-base leading-relaxed sm:px-6">
-                            <Markdown components={markdownComponents}>{creation.markdown}</Markdown>
+                            <CreationInstructions value={creation.instructions} />
                         </AccordionContent>
                     </AccordionItem>
                 ))}
@@ -57,7 +59,7 @@ export const PartyCreationsPage = () => {
         )
     }
 
-    const getVisiblePackages = (packages: CreationInstructionGroup[]) => {
+    const getVisiblePackages = (packages: BirthdayPartyCreationInstructionGroup[]) => {
         if (!searchQuery) return packages
 
         const searchableCreations = packages.flatMap((partyPackage, packageIndex) =>
@@ -90,7 +92,7 @@ export const PartyCreationsPage = () => {
     const visibleCreationCount = visiblePackages.reduce((acc, partyPackage) => acc + partyPackage.creations.length, 0)
 
     return (
-        <div className="twp min-h-full bg-gradient-to-b from-[#fff7fb] via-[#fff7ec] to-[#f2faff] px-4 py-6 sm:px-6 sm:py-8">
+        <div className="twp min-h-[calc(100vh-4rem)] bg-gradient-to-b from-[#fff7fb] via-[#fff7ec] to-[#f2faff] px-4 py-6 sm:px-6 sm:py-8">
             <div className="mx-auto flex max-w-6xl flex-col gap-6">
                 <header className="relative isolate py-6 sm:py-8">
                     <div className="relative flex flex-col gap-3">
@@ -159,7 +161,7 @@ export const PartyCreationsPage = () => {
 
                                 return (
                                     <section
-                                        key={partyPackage.name}
+                                        key={partyPackage._id}
                                         className="relative overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-4 shadow-[0_14px_32px_rgba(15,23,42,0.08)] ring-1 ring-[var(--accent-soft)] sm:p-5 sm:backdrop-blur"
                                         style={
                                             {

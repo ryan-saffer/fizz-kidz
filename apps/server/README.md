@@ -28,6 +28,7 @@ The `api` function owns `/api/trpc`, `/api/webhooks/**`, public endpoints such a
 - Website form mutations live in `src/features/website/functions/trpc/website-forms.trpc.ts`, delegate to the workflow in `src/features/website/core`, and are registered under `websiteForms`.
 - Keep browser origins in `src/app/http/cors-origins.ts`; Firebase handles preflight before lazily loading Express.
 - Keep credentials, SDK clients, Firestore, and network calls here.
+- Sanity Content Lake reads belong in `src/integrations/sanity`; the Birthday Party and Holiday Program creation pages receive normalized content through tRPC, and Holiday Program Acuity classes are enriched from the same Sanity schedule.
 - Name integration client modules `<provider-or-service>.client.ts`; use similarly descriptive dot-qualified names for reference registries and helpers where appropriate.
 - Load heavyweight SDKs lazily; Firebase cold starts notice everything.
 - Register new tRPC routers in `app/trpc/app.trpc.ts` and new background handlers in `app/background/function.ts`.
@@ -36,11 +37,12 @@ The `api` function owns `/api/trpc`, `/api/webhooks/**`, public endpoints such a
 
 ```bash
 npm run server
+npm run server:prod
 vp test --run --project server
 npm --workspace server run build
 ```
 
-The dev command watches server and core code, type-checks both, and starts the Functions/Pub/Sub emulators against the `dev` Firebase project alias. Environment loading selects `.env` for development and `.env.prod` for production.
+Both server commands watch server and core code, type-check both, and start the Functions/Pub/Sub emulators. `server` explicitly uses the `dev` Firebase project alias; `server:prod` explicitly uses `prod`. Environment loading selects `.env` for development and `.env.prod` for production.
 
 ## Dependencies
 

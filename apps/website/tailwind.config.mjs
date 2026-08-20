@@ -1,10 +1,13 @@
 import { withUt } from 'uploadthing/tw'
 
+import fizzUiPreset from '@fizz-kidz/ui/tailwind-preset'
+
 /** @type {import('tailwindcss').Config} */
 export default withUt({
     darkMode: ['class'],
-    content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+    content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}', '../../packages/ui/src/**/*.{js,jsx,ts,tsx}'],
     prefix: '',
+    presets: [fizzUiPreset],
     theme: {
         container: {
             center: true,
@@ -14,10 +17,6 @@ export default withUt({
             },
         },
         extend: {
-            fontFamily: {
-                lilita: ['LilitaOne', 'sans-serif'],
-                gotham: ['Gotham', 'sans-serif'],
-            },
             boxShadow: {
                 'purple-lg': '-50px 50px 0px -1px rgba(232,219,253,0.71)',
                 'purple-md': '-25px 25px 0px -1px rgba(232,219,253,0.71)',
@@ -34,7 +33,6 @@ export default withUt({
                 'gold-lg': '-50px 50px 0px -1px rgb(197, 179, 88, 0.2)',
                 'gold-md': '-25px 25px 0px -1px rgb(197, 179, 88, 0.2)',
                 'gold-sm': '-10px 10px 0px -1px rgb(197, 179, 88, 0.2)',
-                around: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
             },
             colors: {
                 border: 'hsl(var(--border))',

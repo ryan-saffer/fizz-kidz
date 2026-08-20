@@ -1,7 +1,7 @@
 import type { AcuityTypes } from '@fizz-kidz/core'
 import { AcuityConstants } from '@fizz-kidz/core'
 
-import { mergeAcuityWithStoryblok } from '../../core/merge-storyblok-with-acuity'
+import { mergeAcuityWithSanity } from '../../core/merge-sanity-with-acuity'
 
 import { acuityAuthenticatedProcedure, acuityPublicProcedure, router } from '@/app/trpc/trpc'
 
@@ -38,12 +38,12 @@ export const acuityRouter = router({
                     input.minDate
                 )
 
-                // for holiday programs, get the storyblok programs and merge them together
+                // For holiday programs, add the public schedule details managed in Sanity.
                 if (
                     input.appointmentTypeIds.includes(AcuityConstants.AppointmentTypes.HOLIDAY_PROGRAM) ||
                     input.appointmentTypeIds.includes(AcuityConstants.AppointmentTypes.TEST_HOLIDAY_PROGRAM)
                 ) {
-                    const mergedPrograms = await mergeAcuityWithStoryblok(acuityPrograms)
+                    const mergedPrograms = await mergeAcuityWithSanity(acuityPrograms)
                     return mergedPrograms
                 }
 

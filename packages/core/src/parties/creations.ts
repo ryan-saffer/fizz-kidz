@@ -1,3 +1,5 @@
+import type { PortableTextBlock, TypedObject } from '@portabletext/types'
+
 const GLAM_CREATIONS = {
     sparklingLipBalm: 'Sparkling Lip Balm',
     glitterFaceShimmer: 'Glitter Face Shimmer',
@@ -221,17 +223,50 @@ export const CREATIONS = {
 export type ActiveCreation = keyof typeof ACTIVE_CREATIONS
 export type Creation = keyof typeof CREATIONS
 
-export type CreationInstructions = {
+export type CreationInstructionImage = TypedObject & {
+    _type: 'image'
+    _key: string
+    alt?: string
+    asset?: { _ref?: string }
+    url?: string
+}
+
+export type CreationInstructionExternalImage = TypedObject & {
+    _type: 'externalImage'
+    _key: string
+    alt?: string
+    url?: string
+}
+
+export type CreationInstructionDivider = TypedObject & {
+    _type: 'divider'
+    _key: string
+}
+
+export type CreationInstructionsContent = Array<
+    PortableTextBlock | CreationInstructionImage | CreationInstructionExternalImage | CreationInstructionDivider
+>
+
+export type HolidayProgramCreationInstructions = {
+    _id: string
+    date: string
     name: string
-    markdown: string
+    instructions: CreationInstructionsContent
 }
 
 export const PARTY_PACKAGE_COLOURS = ['pink', 'blue', 'yellow', 'green', 'purple'] as const
 
 export type PartyPackageColour = (typeof PARTY_PACKAGE_COLOURS)[number]
 
-export type CreationInstructionGroup = {
+export type BirthdayPartyCreationInstructions = {
+    _id: string
+    name: string
+    instructions: CreationInstructionsContent
+}
+
+export type BirthdayPartyCreationInstructionGroup = {
+    _id: string
     name: string
     colour?: PartyPackageColour
-    creations: CreationInstructions[]
+    creations: BirthdayPartyCreationInstructions[]
 }

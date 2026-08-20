@@ -12,6 +12,7 @@ const workspaceDir = process.cwd()
 const portalDir = path.join(workspaceDir, 'apps/portal')
 const serverDir = path.join(workspaceDir, 'apps/server')
 const coreDir = path.join(workspaceDir, 'packages/core')
+const uiDir = path.join(workspaceDir, 'packages/ui')
 const vpBin = path.join(workspaceDir, 'node_modules', 'vite-plus', 'bin', 'vp')
 const npmBin = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 const processCleanups = new Set<() => void>()
@@ -24,6 +25,7 @@ const portalAliases = {
     '@session': path.join(portalDir, 'src/session'),
     '@shared': path.join(portalDir, 'src/shared'),
     '@fizz-kidz/core': path.join(coreDir, 'src'),
+    '@fizz-kidz/ui': path.join(uiDir, 'src'),
 }
 
 const serverAliases = {
@@ -152,6 +154,7 @@ function workspaceBuildPlugin(): Plugin {
             }
 
             runVp(['pack'], coreDir)
+            runVp(['pack'], uiDir)
             runVp(['pack'], serverDir)
         },
     }
@@ -243,10 +246,19 @@ function firebaseEmulatorPlugin(): Plugin {
 }
 
 export default defineConfig(({ command, mode }) => {
-    const envMode = mode === 'production' ? 'prod' : ['development', 'emulator'].includes(mode) ? 'dev' : mode
+    const envMode =
+        mode === 'production' || mode === 'prod-local'
+            ? 'prod'
+            : ['development', 'emulator'].includes(mode)
+              ? 'dev'
+              : mode
     const env = loadEnv(envMode, portalDir, '')
     const { version, builtAt } = resolveAppVersion(env)
-    const functionsApiTarget = `http://127.0.0.1:5001/${env.VITE_FIREBASE_PROJECT_ID}/australia-southeast1/api`
+    const functionsApiTarget = ['emulator', 'prod-local'].includes(mode)
+        ? `http://127.0.0.1:5001/${env.VITE_FIREBASE_PROJECT_ID}/australia-southeast1/api`
+        : env.VITE_ENV === 'prod'
+          ? 'https://bookings.fizzkidz.com.au'
+          : 'https://dev.fizzkidz.com.au'
     const envDefinitions = Object.fromEntries(
         Object.entries(env)
             .filter(([key]) => key.startsWith('VITE_'))
@@ -288,6 +300,7 @@ export default defineConfig(({ command, mode }) => {
             mode === 'test' ? undefined : firebaseEmulatorPlugin(),
             command === 'build' &&
             mode !== 'emulator' &&
+            mode !== 'prod-local' &&
             env.FUNCTIONS_EMULATOR !== 'true' &&
             process.env.FUNCTIONS_EMULATOR !== 'true' &&
             env.SENTRY_AUTH_TOKEN
@@ -325,6 +338,13 @@ export default defineConfig(({ command, mode }) => {
                         include: ['src/**/*.test.ts'],
                     },
                 },
+                {
+                    test: {
+                        name: 'ui',
+                        root: uiDir,
+                        include: ['src/**/*.test.{ts,tsx}'],
+                    },
+                },
             ],
         },
         lint: {
@@ -338,6 +358,7 @@ export default defineConfig(({ command, mode }) => {
                 'apps/website/dist/**',
                 'apps/website/.astro/**',
                 'packages/core/dist/**',
+                'packages/ui/dist/**',
             ],
             options: {
                 reportUnusedDisableDirectives: 'error',

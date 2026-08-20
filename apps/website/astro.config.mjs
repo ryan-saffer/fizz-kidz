@@ -14,6 +14,7 @@ export default defineConfig({
         resolve: {
             alias: {
                 '@fizz-kidz/core': fileURLToPath(new URL('../../packages/core/src', import.meta.url)),
+                '@fizz-kidz/ui': fileURLToPath(new URL('../../packages/ui/src', import.meta.url)),
             },
         },
     },
@@ -55,7 +56,7 @@ export default defineConfig({
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'a-ap.storyblok.com',
+                hostname: 'cdn.sanity.io',
             },
             {
                 protocol: 'https',
