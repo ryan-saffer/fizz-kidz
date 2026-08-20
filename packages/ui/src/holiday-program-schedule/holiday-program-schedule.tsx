@@ -58,7 +58,7 @@ function formatShortDate(date: string) {
 function formatLongDate(date: string) {
     const value = parseDate(date)
     const weekday = new Intl.DateTimeFormat('en-AU', { weekday: 'long' }).format(value)
-    const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(value)
+    const month = new Intl.DateTimeFormat('en-AU', { month: 'short' }).format(value)
     return `${weekday} ${ordinal(value.getDate())} ${month}`
 }
 

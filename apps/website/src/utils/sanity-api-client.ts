@@ -3,8 +3,6 @@ import { createImageUrlBuilder } from '@sanity/image-url'
 
 import type { HolidayProgramScheduleWeek } from '@fizz-kidz/core'
 
-import type { WebsiteImage } from '@/types/images'
-
 const HOLIDAY_PROGRAM_SCHEDULE_QUERY = `
     *[_type == "holidayProgramWeek"] | order(order asc) {
         _id,
@@ -28,12 +26,25 @@ const HOLIDAY_PROGRAM_SCHEDULE_QUERY = `
 const WEBSITE_IMAGES_QUERY = `
     *[_type == "websiteImage"] {
         key,
-        "assetId": image.asset->_id,
-        "src": image.asset->url,
-        "width": image.asset->metadata.dimensions.width,
-        "height": image.asset->metadata.dimensions.height
+        image {
+            ...,
+            "assetId": asset->_id,
+            "width": asset->metadata.dimensions.width,
+            "height": asset->metadata.dimensions.height
+        }
     }
 `
+
+type WebsiteImageRecord = {
+    image: {
+        asset: { _ref: string }
+        assetId: string
+        crop?: { bottom: number; left: number; right: number; top: number }
+        height: number
+        width: number
+    }
+    key: string
+}
 
 const client = createClient({
     projectId: 'rjsv3y4b',
@@ -46,8 +57,23 @@ const imageUrlBuilder = createImageUrlBuilder(client)
 
 export const sanityClient = {
     async getWebsiteImages() {
-        const images = await client.fetch<Array<WebsiteImage & { key: string }>>(WEBSITE_IMAGES_QUERY)
-        return Object.fromEntries(images.map(({ key, ...image }) => [key, image]))
+        const images = await client.fetch<WebsiteImageRecord[]>(WEBSITE_IMAGES_QUERY)
+        return Object.fromEntries(
+            images.map(({ image, key }) => {
+                const crop = image.crop ?? { bottom: 0, left: 0, right: 0, top: 0 }
+                const cropLeft = Math.round(image.width * crop.left)
+                const cropTop = Math.round(image.height * crop.top)
+                return [
+                    key,
+                    {
+                        assetId: image.assetId,
+                        src: imageUrlBuilder.image(image).auto('format').url(),
+                        width: Math.max(1, Math.round(image.width - image.width * crop.right - cropLeft)),
+                        height: Math.max(1, Math.round(image.height - image.height * crop.bottom - cropTop)),
+                    },
+                ]
+            })
+        )
     },
     async getHolidayProgramSchedule() {
         const weeks = await client.fetch<HolidayProgramScheduleWeek[]>(HOLIDAY_PROGRAM_SCHEDULE_QUERY)
