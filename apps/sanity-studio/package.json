@@ -1,0 +1,35 @@
+{
+    "name": "sanity-studio",
+    "private": true,
+    "version": "1.0.0",
+    "main": "package.json",
+    "license": "UNLICENSED",
+    "scripts": {
+        "build": "sanity build",
+        "deploy": "sanity deploy",
+        "deploy-graphql": "sanity graphql deploy",
+        "dev": "sanity dev",
+        "start": "sanity start",
+        "typecheck": "tsc --noEmit"
+    },
+    "keywords": [
+        "sanity"
+    ],
+    "dependencies": {
+        "@fizz-kidz/core": "1.0.0",
+        "@fizz-kidz/ui": "1.0.0",
+        "@sanity/icons": "^5.2.1",
+        "@sanity/image-url": "^2.1.1",
+        "@sanity/vision": "^6.10.1",
+        "react": "19.2.3",
+        "react-dom": "19.2.3",
+        "sanity": "^6.10.1",
+        "styled-components": "^6.1.18"
+    },
+    "devDependencies": {
+        "@types/react": "^19.2.14",
+        "autoprefixer": "^10.4.27",
+        "tailwindcss": "^3.4.4",
+        "typescript": "^5.8"
+    }
+}

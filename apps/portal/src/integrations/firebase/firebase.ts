@@ -43,7 +43,7 @@ class Firebase {
         this.auth = getAuth(app)
         this.db = getFirestore(app)
         this.functions = getFunctions(app, 'australia-southeast1')
-        if (import.meta.env.MODE === 'emulator') {
+        if (['emulator', 'prod-local'].includes(import.meta.env.MODE)) {
             connectFunctionsEmulator(this.functions, 'localhost', 5001)
         }
         this.googleProvider = new GoogleAuthProvider()

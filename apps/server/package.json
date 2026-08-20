@@ -16,6 +16,8 @@
     },
     "dependencies": {
         "@google-cloud/pubsub": "^3.7.1",
+        "@sanity/client": "^7.26.2",
+        "@sanity/image-url": "^2.1.1",
         "@sendgrid/mail": "^7.7.0",
         "@sentry/node": "^10.30.0",
         "@sparticuz/chromium": "^121.0.0",
@@ -34,7 +36,6 @@
         "puppeteer-core": "23.2.1",
         "qrcode": "^1.5.4",
         "square": "42.1.0",
-        "storyblok-js-client": "^6.10.11",
         "stripe": "^10.17.0",
         "xero-node": "^4.34.0",
         "zod": "^3.22.4"

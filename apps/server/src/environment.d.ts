@@ -16,7 +16,6 @@ declare global {
             PAPERFORM_API_TOKEN: string
             SEND_GRID_API_KEY: string
             SLING_PASSWORD: string
-            STORYBLOK_TOKEN: string
             ZOHO_CLIENT_ID: string
             ZOHO_CLIENT_SECRET: string
             ZOHO_REFRESH_TOKEN: string

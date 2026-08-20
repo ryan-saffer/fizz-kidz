@@ -1,7 +1,7 @@
 [build]
 command = "npm run build --workspace website"
 publish = "apps/website/dist"
-ignore = "if [ -n \"$INCOMING_HOOK_TITLE\" ]; then exit 1; fi; if [ \"$BRANCH\" = \"main\" ] || [ \"$BRANCH\" = \"develop\" ]; then exit 0; fi; git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF apps/website packages/core/src/website packages/core/src/index.ts packages/core/package.json package.json package-lock.json .node-version"
+ignore = "if [ -n \"$INCOMING_HOOK_TITLE\" ]; then exit 1; fi; if [ \"$BRANCH\" = \"main\" ] || [ \"$BRANCH\" = \"develop\" ]; then exit 0; fi; git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF apps/website packages/core packages/ui package.json package-lock.json .node-version"
 
 [context.deploy-preview]
 command = "npm run build:dev --workspace website"
@@ -16,4 +16,4 @@ NODE_VERSION = "22.23.2"
 directory = "apps/website/netlify/functions"
 
 [images]
-remote_images = ["https://a-ap.storyblok.com/.*", "https://.*.cdninstagram.com/.*"]
+remote_images = ["https://cdn.sanity.io/.*", "https://.*.cdninstagram.com/.*"]

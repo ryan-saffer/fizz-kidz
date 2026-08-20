@@ -1,0 +1,74 @@
+.fizz-creation-instructions {
+    color: #334155;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.625;
+}
+
+.fizz-creation-instructions h2 {
+    color: #b14592;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 16px 0 12px;
+}
+
+.fizz-creation-instructions h3 {
+    color: #ff4f9c;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 12px 0 8px;
+}
+
+.fizz-creation-instructions p {
+    margin: 0 0 12px;
+}
+
+.fizz-creation-instructions ul,
+.fizz-creation-instructions ol {
+    margin: 0 0 12px;
+    padding-left: 20px;
+}
+
+.fizz-creation-instructions ul {
+    list-style: disc;
+}
+
+.fizz-creation-instructions ol {
+    list-style: decimal;
+}
+
+.fizz-creation-instructions li + li {
+    margin-top: 4px;
+}
+
+.fizz-creation-instructions blockquote {
+    background: #f8fafc;
+    border-left: 4px solid #4bc5d9;
+    color: #475569;
+    margin: 8px 0;
+    padding: 8px 16px;
+}
+
+.fizz-creation-instructions a {
+    color: #007f98;
+    text-decoration: underline;
+}
+
+.fizz-creation-instructions hr {
+    border: 0;
+    border-top: 1px solid #cbd5e1;
+    margin: 16px 0;
+}
+
+.fizz-creation-instructions img {
+    border: 5px solid #4bc5d9;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgb(15 23 42 / 16%);
+    display: block;
+    height: auto;
+    margin: 12px 0;
+    max-width: 100%;
+    width: 250px;
+}

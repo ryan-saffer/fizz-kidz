@@ -22,14 +22,19 @@ The Portal batches tRPC requests through `/api/trpc`. The client is created in `
 
 `npm run portal:local` only starts the Portal and routes its tRPC and callable Functions through an already-running local Functions emulator. Auth, Firestore, and Storage remain connected to the development Firebase project.
 
+`npm run portal:prod-local` uses production Auth, Firestore, and Storage while routing tRPC and callable Functions through an already-running production-configured local Functions emulator. Run `npm run server:prod` separately.
+
 `@fizz-kidz/core` resolves straight to `packages/core/src`, so shared changes appear without a package build.
+
+Birthday Party and Holiday Program creation instructions come from Sanity through server tRPC endpoints. Their Portable Text renderer lives in `@fizz-kidz/ui` and is shared with the Sanity Studio preview.
 
 ## Run It
 
 ```bash
-npm run portal          # Portal + type watcher, no emulators
-npm run portal:local    # Portal only, pointed at local server
-npm run portal:prod     # Portal pointed at production
+npm run portal          # Development Firebase + deployed development backend
+npm run portal:prod     # Production Firebase + deployed production backend
+npm run portal:local    # Development Firebase + local development server
+npm run portal:prod-local # Production Firebase + local production server
 npm run dev             # Portal in local mode + local server stack
 vp test --run --project portal
 ```
@@ -37,6 +42,7 @@ vp test --run --project portal
 > **Remember**
 >
 > - `portal:prod` talks to real production services.
+> - `portal:prod-local` runs local server code against real production services and data.
 > - `/invite/**` uses the separate `invitation.html` build entry.
 > - Backend-owned paths such as `/forms/**` must match Express, Firebase Hosting, and the Vite proxy.
 > - Development uses `apps/portal/.env`; production mode also loads `.env.prod`.

@@ -1,10 +1,10 @@
 import type { ImageMetadata } from 'astro'
 
-export type StoryblokImage = {
+export type WebsiteImage = {
     src: string
     width: number
     height: number
-    assetId: number
+    assetId: string
 }
 
-export type ImageSource = ImageMetadata | StoryblokImage
+export type ImageSource = ImageMetadata | WebsiteImage

@@ -14,7 +14,8 @@
             "@shared/*": ["./src/shared/*"],
             "@server/*": ["../server/src/*"],
             "@/*": ["../server/src/*"],
-            "@fizz-kidz/core": ["../../packages/core/src"]
+            "@fizz-kidz/core": ["../../packages/core/src"],
+            "@fizz-kidz/ui": ["../../packages/ui/src"]
         },
 
         /* Bundler mode */

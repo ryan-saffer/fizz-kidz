@@ -1,3 +1,5 @@
+@import '@fizz-kidz/ui/brand-fonts.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -76,78 +78,6 @@
     .font-lilita {
         letter-spacing: 0.025em;
     }
-}
-
-@font-face {
-    font-family: 'LilitaOne';
-    src: url('/fonts/LilitaOne.ttf');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Gotham';
-    src: url('/fonts/Gotham-Thin.otf');
-    font-weight: 300;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Gotham';
-    src: url('/fonts/Gotham-ThinItalic.otf');
-    font-weight: 300;
-    font-style: italic;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Gotham';
-    src: url('/fonts/Gotham-Light.otf');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Gotham';
-    src: url('/fonts/Gotham-Medium.otf');
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Gotham';
-    src: url('/fonts/Gotham-Book.otf');
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Gotham';
-    src: url('/fonts/Gotham-BookItalic.otf');
-    font-weight: 600;
-    font-style: italic;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Gotham';
-    src: url('/fonts/Gotham-Bold.otf');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Gotham';
-    src: url('/fonts/Gotham-Black.otf') format('otf');
-    font-weight: 800;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Gotham';
-    src: url('/fonts/Gotham-UltraItalic.otf');
-    font-weight: 800;
-    font-style: italic;
-    font-display: swap;
 }
 
 html {

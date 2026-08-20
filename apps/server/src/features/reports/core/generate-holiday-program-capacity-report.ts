@@ -5,7 +5,7 @@ import type { AcuityTypes, Studio, StudioOrMaster } from '@fizz-kidz/core'
 
 import { env } from '@/app/init/firebase'
 import { AcuityClient } from '@/integrations/acuity/acuity.client'
-import { mergeAcuityWithStoryblok } from '@/integrations/acuity/core/merge-storyblok-with-acuity'
+import { mergeAcuityWithSanity } from '@/integrations/acuity/core/merge-sanity-with-acuity'
 
 const studioOrMasterSchema = z.custom<StudioOrMaster>(
     (value) => typeof value === 'string' && (value === 'master' || STUDIOS.includes(value as Studio))
@@ -62,7 +62,7 @@ export async function generateHolidayProgramCapacityReport(
     )
     const allowedCalendarIds = new Set(studios.map((studio) => AcuityConstants.StoreCalendars[studio]))
 
-    const classes = (await mergeAcuityWithStoryblok(await acuity.getClasses(appointmentTypeIds, true, Date.now())))
+    const classes = (await mergeAcuityWithSanity(await acuity.getClasses(appointmentTypeIds, true, Date.now())))
         .filter((klass) => allowedCalendarIds.has(klass.calendarID))
         .sort((a, b) => a.time.localeCompare(b.time))
 

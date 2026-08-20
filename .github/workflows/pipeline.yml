@@ -6,8 +6,10 @@ on:
         paths:
             - 'apps/portal/**'
             - 'apps/server/**'
+            - 'apps/sanity-studio/**'
             - 'apps/website/**'
             - 'packages/core/**'
+            - 'packages/ui/**'
             - 'package.json'
             - 'package-lock.json'
             - 'vite.config.ts'
@@ -17,6 +19,7 @@ on:
             - 'firebase.json'
             - '.firebaserc'
             - 'apps/portal/predeploy.sh'
+            - '.github/deploy-netlify.sh'
             - '.github/workflows/pipeline.yml'
 
     # Manual trigger from the Actions tab
@@ -60,6 +63,7 @@ jobs:
                       portal:
                         - 'apps/portal/**'
                         - 'packages/core/**'
+                        - 'packages/ui/**'
                         - 'package.json'
                         - 'package-lock.json'
                         - 'vite.config.ts'
@@ -80,9 +84,16 @@ jobs:
                         - '.firebaserc'
                       website:
                         - 'apps/website/**'
-                        - 'packages/core/src/website/**'
-                        - 'packages/core/src/index.ts'
-                        - 'packages/core/package.json'
+                        - 'packages/core/**'
+                        - 'packages/ui/**'
+                        - 'package.json'
+                        - 'package-lock.json'
+                        - '.node-version'
+                        - '.github/deploy-netlify.sh'
+                      sanity:
+                        - 'apps/sanity-studio/**'
+                        - 'packages/core/**'
+                        - 'packages/ui/**'
                         - 'package.json'
                         - 'package-lock.json'
                         - '.node-version'
@@ -104,9 +115,11 @@ jobs:
                       node_modules
                       apps/portal/node_modules
                       apps/docs/node_modules
+                      apps/sanity-studio/node_modules
                       apps/server/node_modules
                       apps/website/node_modules
                       packages/core/node_modules
+                      packages/ui/node_modules
                   key: dependencies-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.node-version', 'package.json', 'package-lock.json') }}
 
             - name: Create server .env from SERVER_ENV_FILE
@@ -156,9 +169,10 @@ jobs:
             # builds artifacts here, then removes those hooks only from its generated config
             # to avoid rebuilding the same artifacts at deploy.
             - name: Build deployment artifacts
-              if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.portal == 'true' || steps.changes.outputs.server == 'true'
+              if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.portal == 'true' || steps.changes.outputs.server == 'true' || steps.changes.outputs.sanity == 'true'
               env:
                   DEPLOY_PORTAL: ${{ github.event_name == 'workflow_dispatch' || steps.changes.outputs.portal == 'true' }}
+                  BUILD_SANITY: ${{ github.event_name == 'workflow_dispatch' || steps.changes.outputs.sanity == 'true' }}
                   DEPLOY_SERVER: ${{ github.event_name == 'workflow_dispatch' || steps.changes.outputs.server == 'true' }}
                   GCLOUD_PROJECT: ${{ env.PROJECT_ID }}
               run: |
@@ -168,6 +182,10 @@ jobs:
 
                   if [ "$DEPLOY_SERVER" = "true" ]; then
                     (cd apps/server && vp pack)
+                  fi
+
+                  if [ "$BUILD_SANITY" = "true" ]; then
+                    npm run build --workspace sanity-studio
                   fi
 
             - name: Deploy Firebase targets
@@ -197,6 +215,12 @@ jobs:
                     --token "$FIREBASE_TOKEN" \
                     --non-interactive \
                     --force
+
+            - name: Deploy Sanity Studio
+              if: success() && github.ref_name == 'main' && (github.event_name == 'workflow_dispatch' || steps.changes.outputs.sanity == 'true')
+              env:
+                  SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+              run: npm run deploy --workspace sanity-studio -- --no-build --yes --schema-required
 
             # This remains after Firebase so a failed Firebase deploy prevents the Website
             # from publishing a client that expects the new server contract.
