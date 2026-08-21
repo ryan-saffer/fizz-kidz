@@ -22,7 +22,10 @@ describe('CreationInstructions', () => {
                 listItem: 'number',
                 level: 1,
                 markDefs: [],
-                children: [{ _type: 'span', _key: 'step-span', text: 'Mix the slime', marks: [] }],
+                children: [
+                    { _type: 'span', _key: 'step-span', text: 'Mix the slime', marks: ['strong'] },
+                    { _type: 'span', _key: 'step-note', text: ' carefully', marks: ['em'] },
+                ],
             },
             {
                 _type: 'externalImage',
@@ -41,6 +44,8 @@ describe('CreationInstructions', () => {
         expect(html).toContain('class="fizz-creation-instructions"')
         expect(html).toContain('<h2>Morning session</h2>')
         expect(html).toContain('<ol>')
+        expect(html).toContain('<strong>Mix the slime</strong>')
+        expect(html).toContain('<em> carefully</em>')
         expect(html).toContain('src="https://example.com/slime.jpg"')
         expect(html).toContain('alt="Finished slime"')
         expect(html).toContain('<hr/>')

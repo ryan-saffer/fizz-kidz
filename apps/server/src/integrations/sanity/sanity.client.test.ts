@@ -62,6 +62,7 @@ describe('SanityClient', () => {
             perspective: 'published',
             useCdn: true,
         })
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('status == "live"'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('| order(date asc)'))
         expect(imageUrlBuilder.image).toHaveBeenCalledWith(image)
         expect(result).toEqual([

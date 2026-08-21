@@ -1,5 +1,8 @@
+import { ArchiveIcon } from '@sanity/icons/Archive'
+import { DocumentTextIcon } from '@sanity/icons/DocumentText'
 import { FolderIcon } from '@sanity/icons/Folder'
 import { ImagesIcon } from '@sanity/icons/Images'
+import { SearchIcon } from '@sanity/icons/Search'
 import { UploadIcon } from '@sanity/icons/Upload'
 
 import { WebsiteImageBulkReplace } from './components/website-image-bulk-replace'
@@ -64,7 +67,44 @@ export const structure: StructureResolver = (S) =>
                     S.list()
                         .title('Holiday Programs')
                         .items([
-                            S.documentTypeListItem('holidayProgramCreation'),
+                            S.listItem()
+                                .title('Search instructions')
+                                .icon(SearchIcon)
+                                .child(
+                                    S.documentList()
+                                        .id('holiday-program-search-instructions')
+                                        .title('Search Holiday Program instructions')
+                                        .schemaType('holidayProgramCreation')
+                                        .filter('_type == "holidayProgramCreation"')
+                                        .defaultOrdering([{ field: 'date', direction: 'desc' }])
+                                        .initialValueTemplates([])
+                                ),
+                            S.divider(),
+                            S.listItem()
+                                .title('Live instructions')
+                                .icon(DocumentTextIcon)
+                                .child(
+                                    S.documentList()
+                                        .id('holiday-program-live-instructions')
+                                        .title('Live instructions')
+                                        .schemaType('holidayProgramCreation')
+                                        .filter(
+                                            '_type == "holidayProgramCreation" && (status == "live" || !defined(status))'
+                                        )
+                                        .defaultOrdering([{ field: 'date', direction: 'asc' }])
+                                ),
+                            S.listItem()
+                                .title('Archive')
+                                .icon(ArchiveIcon)
+                                .child(
+                                    S.documentList()
+                                        .id('holiday-program-archived-instructions')
+                                        .title('Archived instructions')
+                                        .schemaType('holidayProgramCreation')
+                                        .filter('_type == "holidayProgramCreation" && status == "archived"')
+                                        .defaultOrdering([{ field: 'date', direction: 'desc' }])
+                                        .initialValueTemplates([])
+                                ),
                             S.documentTypeListItem('holidayProgramWeek'),
                         ])
                 ),

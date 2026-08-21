@@ -4,6 +4,8 @@ The content studio for Fizz Kidz. It is a standalone Sanity app in the npm works
 
 The Studio manages public Website images and the Holiday Program schedule plus Birthday Party and Holiday Program creation instructions. `holidayProgramWeek` documents contain the schedule cards and show a live Website preview. Birthday Party packages hold ordered references to reusable `birthdayPartyCreation` documents, while each program day is a `holidayProgramCreation` document. Published changes are read by the Website or server and shown in their respective interfaces.
 
+Holiday Program instructions have `live` and `archived` statuses. Only published live instructions appear in Portal. Use **Holiday Programs > Search instructions** to search across both statuses without changing the global search type filter. The archive remains searchable so editors can reuse previous recipes when preparing a new schedule; move the previous live set to archived after each program period.
+
 ## Commands
 
 Run commands from the repository root:
@@ -27,7 +29,7 @@ The production dataset is used in local development. Treat edits in the Studio a
 
 Keep the Studio standalone rather than embedding it in another app. Use kebab-case schema filenames and Sanity's `defineType` and `defineField` helpers when adding schemas.
 
-The shared `@fizz-kidz/ui` `CreationInstructions` component renders both the Studio preview and the Portal output. The Studio owns only the adapter that resolves unpublished Sanity image references.
+The shared `@fizz-kidz/ui` `CreationInstructions` component renders both the Studio preview and the Portal output. On wide screens the Portable Text editor and sticky Portal preview appear side by side, with editor scrolling mirrored proportionally in the preview; narrower screens use a stacked layout. The editor opens active at a tall viewport-based height and remains manually resizable. The Studio owns only the adapter that resolves unpublished Sanity image references.
 
 The shared `HolidayProgramSchedule` React component renders statically in Astro and directly in the Studio preview. Both consumers scan `packages/ui/src` with Tailwind and use the shared UI preset and bundled brand fonts. Studio disables Tailwind preflight so the preview utilities do not reset Sanity's interface.
 

@@ -6,7 +6,21 @@ export const holidayProgramCreation = defineType({
     title: 'Holiday Program creations',
     type: 'document',
     icon: DocumentTextIcon,
+    initialValue: { status: 'live' },
     fields: [
+        defineField({
+            name: 'status',
+            title: 'Status',
+            type: 'string',
+            options: {
+                list: [
+                    { title: 'Live', value: 'live' },
+                    { title: 'Archived', value: 'archived' },
+                ],
+                layout: 'radio',
+            },
+            validation: (rule) => rule.required(),
+        }),
         defineField({
             name: 'date',
             title: 'Program date',
@@ -34,9 +48,17 @@ export const holidayProgramCreation = defineType({
             name: 'dateAsc',
             by: [{ field: 'date', direction: 'asc' }],
         },
+        {
+            title: 'Program date, newest first',
+            name: 'dateDesc',
+            by: [{ field: 'date', direction: 'desc' }],
+        },
     ],
     preview: {
-        select: { title: 'name', date: 'date' },
-        prepare: ({ title, date }) => ({ title, subtitle: date }),
+        select: { title: 'name', date: 'date', status: 'status' },
+        prepare: ({ title, date, status }) => ({
+            title,
+            subtitle: `${status === 'archived' ? 'Archived' : 'Live'} · ${date}`,
+        }),
     },
 })

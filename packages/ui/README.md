@@ -4,7 +4,7 @@ Shared React UI used by more than one Fizz Kidz app. Components here must remain
 
 ## Creation Instructions
 
-`CreationInstructions` renders the structured instruction content returned by the server. The Portal uses it for staff-facing instructions, and Sanity Studio uses it for the live editor preview. Keeping the renderer here makes the Studio preview match the Portal without coupling either app to the other's styling system.
+`CreationInstructions` renders the structured instruction content returned by the server. The Portal uses it for staff-facing instructions, and Sanity Studio uses it for the live editor preview. Keeping the renderer and its Fizz-branded typography, marks, lists, callouts, dividers, and image treatment here makes the Studio preview match the Portal without coupling either app to the other's styling system.
 
 Image URLs must be resolved before content reaches the component. The server resolves Sanity assets in GROQ, while the Studio adapter resolves unsaved image references with its authenticated Sanity client.
 

@@ -25,11 +25,13 @@ const components: PortableTextComponents<CreationInstructionsContent[number]> = 
         number: ({ children }) => <ol>{children}</ol>,
     },
     marks: {
+        em: ({ children }) => <em>{children}</em>,
         link: ({ children, value }) => (
             <a href={value?.href} target="_blank" rel="noreferrer">
                 {children}
             </a>
         ),
+        strong: ({ children }) => <strong>{children}</strong>,
     },
     types: {
         divider: () => <hr />,

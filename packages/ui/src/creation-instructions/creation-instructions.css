@@ -1,34 +1,68 @@
 .fizz-creation-instructions {
-    color: #334155;
-    font-family: Arial, sans-serif;
+    background: #ffffff;
+    border: 1px solid #f2dce9;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgb(82 36 68 / 7%);
+    color: #29354a;
+    font-family: 'Gotham', 'GothamLight', Arial, sans-serif;
     font-size: 16px;
-    line-height: 1.625;
+    line-height: 1.65;
+    overflow: hidden;
+    padding: 20px;
 }
 
 .fizz-creation-instructions h2 {
-    color: #b14592;
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1.4;
-    margin: 16px 0 12px;
+    background: linear-gradient(90deg, #b14592, #ff4f9c 58%, #ef8d32);
+    background-clip: text;
+    border-bottom: 2px solid #f8d8e9;
+    color: transparent;
+    font-family: 'LilitaOne', 'Gotham', sans-serif;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    margin: 28px 0 18px;
+    padding-bottom: 10px;
 }
 
 .fizz-creation-instructions h3 {
-    color: #ff4f9c;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.4;
-    margin: 12px 0 8px;
+    background: linear-gradient(90deg, #fff0f7, #fff8ec);
+    border-left: 4px solid #ff4f9c;
+    border-radius: 0 10px 10px 0;
+    color: #782d68;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 24px 0 14px;
+    padding: 9px 12px;
+}
+
+.fizz-creation-instructions > :first-child {
+    margin-top: 0;
+}
+
+.fizz-creation-instructions > :last-child {
+    margin-bottom: 0;
 }
 
 .fizz-creation-instructions p {
-    margin: 0 0 12px;
+    margin: 0 0 14px;
+}
+
+.fizz-creation-instructions strong {
+    color: #202b3d;
+    font-weight: 700;
+}
+
+.fizz-creation-instructions em {
+    color: #6f3b69;
+    font-style: italic;
 }
 
 .fizz-creation-instructions ul,
 .fizz-creation-instructions ol {
-    margin: 0 0 12px;
-    padding-left: 20px;
+    margin: 0 0 18px;
+    padding-left: 24px;
 }
 
 .fizz-creation-instructions ul {
@@ -39,36 +73,66 @@
     list-style: decimal;
 }
 
+.fizz-creation-instructions ul li::marker {
+    color: #ff4f9c;
+}
+
+.fizz-creation-instructions ol li::marker {
+    color: #009ab6;
+    font-weight: 700;
+}
+
 .fizz-creation-instructions li + li {
-    margin-top: 4px;
+    margin-top: 7px;
 }
 
 .fizz-creation-instructions blockquote {
-    background: #f8fafc;
-    border-left: 4px solid #4bc5d9;
-    color: #475569;
-    margin: 8px 0;
-    padding: 8px 16px;
+    background: linear-gradient(110deg, #fff8dc, #fff1f8);
+    border: 1px solid #f5dfaa;
+    border-left: 5px solid #f6ba34;
+    border-radius: 4px 14px 14px 4px;
+    color: #4a3c32;
+    margin: 20px 0;
+    padding: 14px 16px;
+}
+
+.fizz-creation-instructions blockquote p:last-child {
+    margin-bottom: 0;
 }
 
 .fizz-creation-instructions a {
-    color: #007f98;
-    text-decoration: underline;
+    color: #a52c81;
+    font-weight: 700;
+    text-decoration-color: #ff9bc7;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
 }
 
 .fizz-creation-instructions hr {
+    background: linear-gradient(90deg, #ff4f9c, #f6ba34, #9ecc48, #00c2e3, #b14592);
     border: 0;
-    border-top: 1px solid #cbd5e1;
-    margin: 16px 0;
+    border-radius: 999px;
+    height: 3px;
+    margin: 28px 0;
+    opacity: 0.7;
 }
 
 .fizz-creation-instructions img {
-    border: 5px solid #4bc5d9;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgb(15 23 42 / 16%);
+    background: #ffffff;
+    border: 6px solid #ffffff;
+    border-radius: 18px;
+    box-shadow:
+        0 14px 28px rgb(84 41 73 / 15%),
+        0 0 0 1px rgb(177 69 146 / 12%);
     display: block;
     height: auto;
-    margin: 12px 0;
+    margin: 24px auto;
     max-width: 100%;
-    width: 250px;
+    width: min(360px, 100%);
+}
+
+@media (min-width: 640px) {
+    .fizz-creation-instructions {
+        padding: 26px 28px;
+    }
 }

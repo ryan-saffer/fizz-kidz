@@ -9,7 +9,7 @@ import type { SanityClient as Client } from '@sanity/client'
 import type { ImageUrlBuilder, SanityImageSource } from '@sanity/image-url'
 
 const HOLIDAY_PROGRAM_CREATIONS_QUERY = `
-    *[_type == "holidayProgramCreation"] | order(date asc) {
+    *[_type == "holidayProgramCreation" && status == "live"] | order(date asc) {
         _id,
         date,
         name,
