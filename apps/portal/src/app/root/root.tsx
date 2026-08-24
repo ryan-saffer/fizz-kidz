@@ -55,7 +55,10 @@ const antdTheme: ThemeConfig = {
 function InnerRoot() {
     const firebase = useFirebase()
 
-    const domain = getApplicationDomain(import.meta.env.VITE_ENV, import.meta.env.MODE === 'emulator')
+    const domain = getApplicationDomain(
+        import.meta.env.VITE_ENV,
+        ['emulator', 'prod-local'].includes(import.meta.env.MODE)
+    )
 
     const [queryClient] = useState(() => new QueryClient())
     const [trpcClient] = useState(() =>
