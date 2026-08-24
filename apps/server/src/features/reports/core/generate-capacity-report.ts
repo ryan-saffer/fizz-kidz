@@ -2,7 +2,12 @@ import { TRPCError } from '@trpc/server'
 import { DateTime } from 'luxon'
 import { z } from 'zod'
 
-import { STUDIOS } from '@fizz-kidz/core'
+import {
+    getPartyBookingCapacity,
+    PARTY_BOOKING_CAPACITY_END_DATE,
+    PARTY_BOOKING_CAPACITY_START_DATE,
+    STUDIOS,
+} from '@fizz-kidz/core'
 import type { Studio, StudioOrMaster } from '@fizz-kidz/core'
 
 import { DatabaseClient } from '@/integrations/firebase/database.client'
@@ -14,9 +19,8 @@ const studioOrMasterSchema = z.custom<StudioOrMaster>(
 )
 
 export const generateCapacityReportInputSchema = z.object({
-    startDate: z.string(),
-    endDate: z.string(),
-    availableSlots: z.number().int().positive(),
+    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     studio: studioOrMasterSchema,
 })
 
@@ -26,19 +30,36 @@ export type GenerateCapacityReportResponse = {
     startDate: string
     endDate: string
     studio: StudioOrMaster
-    results: CapacityReportStudioResult[]
+    overall: CapacityReportSummary
+    studios: CapacityReportStudioResult[]
+    weeks: CapacityReportWeekResult[]
 }
 
-type CapacityReportStudioResult = {
-    studio: Studio
+type CapacityReportSummary = {
     bookedSlots: number
     availableSlots: number
     utilisationPercentage: number
 }
 
+type CapacityReportStudioSummary = CapacityReportSummary & {
+    studio: Studio
+}
+
+type CapacityReportStudioResult = CapacityReportStudioSummary & { weeks: CapacityReportWeekSummary[] }
+
+type CapacityReportWeekSummary = CapacityReportSummary & { startDate: string; endDate: string }
+
+type CapacityReportWeekResult = CapacityReportWeekSummary & { studios: CapacityReportStudioSummary[] }
+
 const throwReportError = (message: string, errorCode: string): never => {
     throw new TRPCError({ code: 'BAD_REQUEST', message, cause: { errorCode } })
 }
+
+const summariseCapacity = (bookedSlots: number, availableSlots: number): CapacityReportSummary => ({
+    bookedSlots,
+    availableSlots,
+    utilisationPercentage: availableSlots === 0 ? 0 : (bookedSlots / availableSlots) * 100,
+})
 
 export async function generateCapacityReport(
     input: GenerateCapacityReportInput
@@ -54,8 +75,13 @@ export async function generateCapacityReport(
         throwReportError('start date must come before the end date', 'invalid-range')
     }
 
-    if (input.availableSlots < 1) {
-        throwReportError('available slots must be greater than 0', 'invalid-slots')
+    const capacityStartDate = DateTime.fromISO(PARTY_BOOKING_CAPACITY_START_DATE, { zone: REPORT_ZONE })
+    const capacityEndDate = DateTime.fromISO(PARTY_BOOKING_CAPACITY_END_DATE, { zone: REPORT_ZONE })
+    if (startDate < capacityStartDate || endDate > capacityEndDate) {
+        throwReportError(
+            `capacity is only available from ${PARTY_BOOKING_CAPACITY_START_DATE} to ${PARTY_BOOKING_CAPACITY_END_DATE}`,
+            'capacity-unavailable'
+        )
     }
 
     const bookings = (
@@ -66,19 +92,73 @@ export async function generateCapacityReport(
         })
     ).filter((booking) => booking.type === 'studio')
     const studios = input.studio === 'master' ? STUDIOS : [input.studio]
+    const weeks: { startDate: DateTime; endDate: DateTime }[] = []
+    let weekStart = startDate
+
+    while (weekStart <= endDate) {
+        const sunday = weekStart.plus({ days: 7 - weekStart.weekday })
+        const weekEnd = sunday < endDate ? sunday : endDate
+        weeks.push({ startDate: weekStart, endDate: weekEnd })
+        weekStart = weekEnd.plus({ days: 1 })
+    }
+
+    const getBookedSlots = (studio: Studio, periodStart: DateTime, periodEnd: DateTime) =>
+        bookings.filter((booking) => {
+            if (booking.location !== studio) return false
+            const bookingDate = DateTime.fromJSDate(booking.dateTime.toDate(), { zone: REPORT_ZONE })
+            return bookingDate >= periodStart && bookingDate < periodEnd.plus({ days: 1 })
+        }).length
+
+    const studioResults = studios.map((studio) => {
+        const availableSlots = getPartyBookingCapacity(input.startDate, input.endDate)
+
+        return {
+            studio,
+            ...summariseCapacity(getBookedSlots(studio, startDate, endDate), availableSlots),
+            weeks: weeks.map(({ startDate: periodStart, endDate: periodEnd }) => {
+                const weekStartDate = periodStart.toISODate()
+                const weekEndDate = periodEnd.toISODate()
+                const weekCapacity = getPartyBookingCapacity(weekStartDate, weekEndDate)
+
+                return {
+                    startDate: weekStartDate,
+                    endDate: weekEndDate,
+                    ...summariseCapacity(getBookedSlots(studio, periodStart, periodEnd), weekCapacity),
+                }
+            }),
+        }
+    })
+
+    const overall = summariseCapacity(
+        studioResults.reduce((total, studio) => total + studio.bookedSlots, 0),
+        studioResults.reduce((total, studio) => total + studio.availableSlots, 0)
+    )
 
     return {
         startDate: input.startDate,
         endDate: input.endDate,
         studio: input.studio,
-        results: studios.map((studio) => {
-            const bookedSlots = bookings.filter((booking) => booking.location === studio).length
+        overall,
+        studios: studioResults,
+        weeks: weeks.map(({ startDate: periodStart, endDate: periodEnd }, weekIndex) => {
+            const weekStudios = studioResults.map(({ studio, weeks: studioWeeks }) => ({
+                studio,
+                ...studioWeeks[weekIndex],
+            }))
 
             return {
-                studio,
-                bookedSlots,
-                availableSlots: input.availableSlots,
-                utilisationPercentage: (bookedSlots / input.availableSlots) * 100,
+                startDate: periodStart.toISODate(),
+                endDate: periodEnd.toISODate(),
+                ...summariseCapacity(
+                    weekStudios.reduce((total, studio) => total + studio.bookedSlots, 0),
+                    weekStudios.reduce((total, studio) => total + studio.availableSlots, 0)
+                ),
+                studios: weekStudios.map((studio) => ({
+                    studio: studio.studio,
+                    bookedSlots: studio.bookedSlots,
+                    availableSlots: studio.availableSlots,
+                    utilisationPercentage: studio.utilisationPercentage,
+                })),
             }
         }),
     }

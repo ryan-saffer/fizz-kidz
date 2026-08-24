@@ -9,10 +9,15 @@ import { generateCapacityReport, generateCapacityReportInputSchema } from '../ge
 
 type CapacityReportQueryInput = { startDate: Date; endDate: Date; studio: StudioOrMaster }
 
-const createBooking = (location: FirestoreBooking['location'], type: FirestoreBooking['type']): FirestoreBooking =>
+const createBooking = (
+    location: FirestoreBooking['location'],
+    type: FirestoreBooking['type'],
+    date = '2026-07-18T10:00:00+10:00'
+): FirestoreBooking =>
     ({
         location,
         type,
+        dateTime: { toDate: () => new Date(date) },
     }) as FirestoreBooking
 
 describe('generateCapacityReport', () => {
@@ -28,22 +33,52 @@ describe('generateCapacityReport', () => {
         ]
 
         const result = await generateCapacityReport({
-            startDate: '2026-04-01',
-            endDate: '2026-04-30',
-            availableSlots: 20,
+            startDate: '2026-07-17',
+            endDate: '2026-07-19',
             studio: 'balwyn',
         })
 
         deepStrictEqual(result, {
-            startDate: '2026-04-01',
-            endDate: '2026-04-30',
+            startDate: '2026-07-17',
+            endDate: '2026-07-19',
             studio: 'balwyn',
-            results: [
+            overall: {
+                bookedSlots: 2,
+                availableSlots: 9,
+                utilisationPercentage: (2 / 9) * 100,
+            },
+            studios: [
                 {
                     studio: 'balwyn',
                     bookedSlots: 2,
-                    availableSlots: 20,
-                    utilisationPercentage: 10,
+                    availableSlots: 9,
+                    utilisationPercentage: (2 / 9) * 100,
+                    weeks: [
+                        {
+                            startDate: '2026-07-17',
+                            endDate: '2026-07-19',
+                            bookedSlots: 2,
+                            availableSlots: 9,
+                            utilisationPercentage: (2 / 9) * 100,
+                        },
+                    ],
+                },
+            ],
+            weeks: [
+                {
+                    startDate: '2026-07-17',
+                    endDate: '2026-07-19',
+                    bookedSlots: 2,
+                    availableSlots: 9,
+                    utilisationPercentage: (2 / 9) * 100,
+                    studios: [
+                        {
+                            studio: 'balwyn',
+                            bookedSlots: 2,
+                            availableSlots: 9,
+                            utilisationPercentage: (2 / 9) * 100,
+                        },
+                    ],
                 },
             ],
         })
@@ -51,34 +86,85 @@ describe('generateCapacityReport', () => {
 
     it('returns a row for each studio when reporting on master', async () => {
         mockDatabaseClient.getPartyBookingsForCapacityReport = async () => [
-            createBooking('balwyn', 'studio'),
-            createBooking('balwyn', 'studio'),
-            createBooking('kingsville', 'studio'),
-            createBooking('cheltenham', 'mobile'),
+            createBooking('balwyn', 'studio', '2026-07-04T10:00:00+10:00'),
+            createBooking('balwyn', 'studio', '2026-07-05T10:00:00+10:00'),
+            createBooking('kingsville', 'studio', '2026-07-05T10:00:00+10:00'),
+            createBooking('cheltenham', 'mobile', '2026-07-05T10:00:00+10:00'),
         ]
 
         const result = await generateCapacityReport({
-            startDate: '2026-04-01',
-            endDate: '2026-04-30',
-            availableSlots: 10,
+            startDate: '2026-07-04',
+            endDate: '2026-07-05',
             studio: 'master',
         })
 
-        strictEqual(result.results.length, STUDIOS.length)
+        strictEqual(result.studios.length, STUDIOS.length)
         deepStrictEqual(
-            result.results.filter((studioResult) => studioResult.bookedSlots > 0),
+            result.studios
+                .filter((studioResult) => studioResult.bookedSlots > 0)
+                .map((studioResult) => ({
+                    studio: studioResult.studio,
+                    bookedSlots: studioResult.bookedSlots,
+                    availableSlots: studioResult.availableSlots,
+                    utilisationPercentage: studioResult.utilisationPercentage,
+                })),
             [
                 {
                     studio: 'balwyn',
                     bookedSlots: 2,
-                    availableSlots: 10,
-                    utilisationPercentage: 20,
+                    availableSlots: 5,
+                    utilisationPercentage: 40,
                 },
                 {
                     studio: 'kingsville',
                     bookedSlots: 1,
-                    availableSlots: 10,
-                    utilisationPercentage: 10,
+                    availableSlots: 5,
+                    utilisationPercentage: 20,
+                },
+            ]
+        )
+        deepStrictEqual(result.overall, {
+            bookedSlots: 3,
+            availableSlots: 5 * STUDIOS.length,
+            utilisationPercentage: (3 / (5 * STUDIOS.length)) * 100,
+        })
+    })
+
+    it('groups bookings and capacity into partial and complete Monday-to-Sunday weeks', async () => {
+        mockDatabaseClient.getPartyBookingsForCapacityReport = async () => [
+            createBooking('balwyn', 'studio', '2026-07-19T10:00:00+10:00'),
+            createBooking('balwyn', 'studio', '2026-07-24T10:00:00+10:00'),
+            createBooking('balwyn', 'studio', '2026-07-26T10:00:00+10:00'),
+        ]
+
+        const result = await generateCapacityReport({
+            startDate: '2026-07-17',
+            endDate: '2026-07-26',
+            studio: 'balwyn',
+        })
+
+        deepStrictEqual(
+            result.weeks.map((week) => ({
+                startDate: week.startDate,
+                endDate: week.endDate,
+                bookedSlots: week.bookedSlots,
+                availableSlots: week.availableSlots,
+                utilisationPercentage: week.utilisationPercentage,
+            })),
+            [
+                {
+                    startDate: '2026-07-17',
+                    endDate: '2026-07-19',
+                    bookedSlots: 1,
+                    availableSlots: 9,
+                    utilisationPercentage: (1 / 9) * 100,
+                },
+                {
+                    startDate: '2026-07-20',
+                    endDate: '2026-07-26',
+                    bookedSlots: 2,
+                    availableSlots: 9,
+                    utilisationPercentage: (2 / 9) * 100,
                 },
             ]
         )
@@ -92,9 +178,8 @@ describe('generateCapacityReport', () => {
         }
 
         await generateCapacityReport({
-            startDate: '2026-04-01',
-            endDate: '2026-04-30',
-            availableSlots: 20,
+            startDate: '2026-07-03',
+            endDate: '2026-07-12',
             studio: 'balwyn',
         })
 
@@ -102,20 +187,19 @@ describe('generateCapacityReport', () => {
         strictEqual(queryInput.studio, 'balwyn')
         strictEqual(
             queryInput.startDate.toLocaleString('en-au', { timeZone: 'Australia/Melbourne' }),
-            '01/04/2026, 12:00:00 am'
+            '03/07/2026, 12:00:00 am'
         )
         strictEqual(
             queryInput.endDate.toLocaleString('en-au', { timeZone: 'Australia/Melbourne' }),
-            '01/05/2026, 12:00:00 am'
+            '13/07/2026, 12:00:00 am'
         )
     })
 
     it('rejects invalid report inputs', async () => {
         await rejects(
             generateCapacityReport({
-                startDate: '2026-04-30',
-                endDate: '2026-04-01',
-                availableSlots: 20,
+                startDate: '2026-07-30',
+                endDate: '2026-07-01',
                 studio: 'balwyn',
             })
         )
@@ -123,28 +207,41 @@ describe('generateCapacityReport', () => {
         await rejects(
             generateCapacityReport({
                 startDate: 'not-a-date',
-                endDate: '2026-04-01',
-                availableSlots: 20,
+                endDate: '2026-07-01',
                 studio: 'balwyn',
             })
         )
 
         await rejects(
             generateCapacityReport({
-                startDate: '2026-04-01',
-                endDate: '2026-04-30',
-                availableSlots: 0,
+                startDate: '2026-07-02',
+                endDate: '2026-07-30',
                 studio: 'balwyn',
             })
         )
     })
 
+    it('supports the zero-capacity days through the end of 2026', async () => {
+        mockDatabaseClient.getPartyBookingsForCapacityReport = async () => []
+
+        const result = await generateCapacityReport({
+            startDate: '2026-12-28',
+            endDate: '2026-12-31',
+            studio: 'balwyn',
+        })
+
+        deepStrictEqual(result.overall, {
+            bookedSlots: 0,
+            availableSlots: 0,
+            utilisationPercentage: 0,
+        })
+    })
+
     it('validates the trpc input schema', () => {
         strictEqual(
             generateCapacityReportInputSchema.safeParse({
-                startDate: '2026-04-01',
-                endDate: '2026-04-30',
-                availableSlots: 20,
+                startDate: '2026-07-03',
+                endDate: '2026-07-30',
                 studio: 'master',
             }).success,
             true
@@ -152,20 +249,18 @@ describe('generateCapacityReport', () => {
 
         strictEqual(
             generateCapacityReportInputSchema.safeParse({
-                startDate: '2026-04-01',
-                endDate: '2026-04-30',
-                availableSlots: 0,
-                studio: 'balwyn',
+                startDate: '2026-07-03',
+                endDate: '2026-07-30',
+                studio: 'richmond',
             }).success,
             false
         )
 
         strictEqual(
             generateCapacityReportInputSchema.safeParse({
-                startDate: '2026-04-01',
-                endDate: '2026-04-30',
-                availableSlots: 20,
-                studio: 'richmond',
+                startDate: '2026-07-03T12:00:00+10:00',
+                endDate: '2026-07-30',
+                studio: 'balwyn',
             }).success,
             false
         )

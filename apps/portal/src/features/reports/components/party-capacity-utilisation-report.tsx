@@ -1,38 +1,64 @@
-import { useMutation } from '@tanstack/react-query'
-import { format } from 'date-fns'
-import { BarChart3, CalendarIcon } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { addDays, addMonths, endOfMonth, format } from 'date-fns'
+import { Cake, CalendarIcon, ChevronDown, ExternalLink, LoaderCircle } from 'lucide-react'
 import { useState } from 'react'
 
-import type { Studio, StudioOrMaster } from '@fizz-kidz/core'
+import {
+    PARTY_BOOKING_CAPACITY_END_DATE,
+    PARTY_BOOKING_CAPACITY_START_DATE,
+    type Studio,
+    type StudioOrMaster,
+} from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
 import { useOrg } from '@session/use-org'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@shared/components/ui/accordion'
 import { Alert, AlertDescription, AlertTitle } from '@shared/components/ui/alert'
+import { Badge } from '@shared/components/ui/badge'
 import { Button } from '@shared/components/ui/button'
 import { Calendar } from '@shared/components/ui/calendar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@shared/components/ui/card'
-import { Input } from '@shared/components/ui/input'
 import { Label } from '@shared/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { getOrgName } from '@shared/lib/studio-utils'
 import { cn } from '@shared/lib/tailwind'
 
-import type { FormEvent } from 'react'
 import type { DateRange } from 'react-day-picker'
 
 type CapacityReportResult = {
     startDate: string
     endDate: string
     studio: StudioOrMaster
-    results: CapacityReportStudioResult[]
+    overall: CapacityReportSummary
+    studios: CapacityReportStudioResult[]
+    weeks: CapacityReportWeekResult[]
 }
 
-type CapacityReportStudioResult = {
-    studio: Studio
+type CapacityReportSummary = {
     bookedSlots: number
     availableSlots: number
     utilisationPercentage: number
 }
+
+type CapacityReportStudioSummary = CapacityReportSummary & {
+    studio: Studio
+}
+
+type CapacityReportWeekSummary = CapacityReportSummary & { startDate: string; endDate: string }
+
+type CapacityReportStudioResult = CapacityReportStudioSummary & { weeks: CapacityReportWeekSummary[] }
+
+type CapacityReportWeekResult = CapacityReportWeekSummary & { studios: CapacityReportStudioSummary[] }
+
+type MasterBreakdownView = 'studio' | 'weekly'
+type DateRangePreset =
+    | 'current-month'
+    | 'upcoming-month'
+    | 'next-30-days'
+    | 'next-90-days'
+    | 'until-end-of-year'
+    | 'custom'
 
 const formatPercent = (value: number) =>
     new Intl.NumberFormat('en-AU', {
@@ -42,174 +68,356 @@ const formatPercent = (value: number) =>
 
 const formatReportDate = (value: string) => format(new Date(`${value}T00:00:00`), 'd MMMM yyyy')
 
+const formatWeek = ({ startDate, endDate }: CapacityReportWeekSummary) =>
+    `${format(new Date(`${startDate}T00:00:00`), 'd MMM')} - ${format(new Date(`${endDate}T00:00:00`), 'd MMM')}`
+
+const getMelbourneDate = () => {
+    const parts = new Intl.DateTimeFormat('en-AU', {
+        timeZone: 'Australia/Melbourne',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).formatToParts(new Date())
+    const getPart = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? ''
+    return `${getPart('year')}-${getPart('month')}-${getPart('day')}`
+}
+
+const getDefaultDateRange = () => {
+    const today = getMelbourneDate()
+    return clampDateRange(today, format(addDays(new Date(`${today}T00:00:00`), 89), 'yyyy-MM-dd'))
+}
+
+const clampDateRange = (startDate: string, endDate: string) => ({
+    startDate:
+        startDate < PARTY_BOOKING_CAPACITY_START_DATE
+            ? PARTY_BOOKING_CAPACITY_START_DATE
+            : startDate > PARTY_BOOKING_CAPACITY_END_DATE
+              ? PARTY_BOOKING_CAPACITY_END_DATE
+              : startDate,
+    endDate:
+        endDate < PARTY_BOOKING_CAPACITY_START_DATE
+            ? PARTY_BOOKING_CAPACITY_START_DATE
+            : endDate > PARTY_BOOKING_CAPACITY_END_DATE
+              ? PARTY_BOOKING_CAPACITY_END_DATE
+              : endDate,
+})
+
+const getPresetDateRange = (preset: Exclude<DateRangePreset, 'custom'>) => {
+    const today = getMelbourneDate()
+    const todayDate = new Date(`${today}T00:00:00`)
+
+    if (preset === 'current-month') {
+        return clampDateRange(`${today.slice(0, 7)}-01`, format(endOfMonth(todayDate), 'yyyy-MM-dd'))
+    }
+
+    if (preset === 'upcoming-month') {
+        const nextMonth = addMonths(new Date(`${today.slice(0, 7)}-01T00:00:00`), 1)
+        return clampDateRange(format(nextMonth, 'yyyy-MM-dd'), format(endOfMonth(nextMonth), 'yyyy-MM-dd'))
+    }
+
+    if (preset === 'until-end-of-year') {
+        return clampDateRange(today, PARTY_BOOKING_CAPACITY_END_DATE)
+    }
+
+    const numberOfDays = preset === 'next-30-days' ? 30 : 90
+    return clampDateRange(today, format(addDays(todayDate, numberOfDays - 1), 'yyyy-MM-dd'))
+}
+
 export function PartyCapacityUtilisationReport() {
     const trpc = useTRPC()
     const { currentOrg } = useOrg()
-    const [startDate, setStartDate] = useState('')
-    const [endDate, setEndDate] = useState('')
-    const [availableSlots, setAvailableSlots] = useState('')
-    const [result, setResult] = useState<CapacityReportResult | null>(null)
-
-    const generateCapacityReport = useMutation(trpc.reports.generateCapacityReport.mutationOptions())
-
-    const parsedAvailableSlots = Number(availableSlots)
-    const canRunReport = Boolean(
-        currentOrg && startDate && endDate && Number.isInteger(parsedAvailableSlots) && parsedAvailableSlots > 0
+    const [open, setOpen] = useState(false)
+    const [{ startDate, endDate }, setDateRange] = useState(getDefaultDateRange)
+    const [dateRangePreset, setDateRangePreset] = useState<DateRangePreset>('next-90-days')
+    const reportQuery = useQuery(
+        trpc.reports.generateCapacityReport.queryOptions(
+            { startDate, endDate, studio: currentOrg ?? 'master' },
+            { enabled: Boolean(currentOrg && startDate && endDate) }
+        )
     )
-
-    const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        if (!currentOrg || !canRunReport) return
-
-        try {
-            const report = await generateCapacityReport.mutateAsync({
-                startDate,
-                endDate,
-                availableSlots: parsedAvailableSlots,
-                studio: currentOrg,
-            })
-            setResult(report)
-        } catch {
-            setResult(null)
-        }
-    }
+    const result = reportQuery.data ?? null
 
     return (
-        <Card className="overflow-hidden rounded-3xl border-white shadow-[0_14px_32px_rgba(15,23,42,0.08)]">
-            <CardHeader className="bg-[#fff7fb] text-slate-950 ring-1 ring-inset ring-[#B14594]/10">
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                    <BarChart3 className="h-5 w-5 text-[#B14594]" /> Party Capacity Utilisation
-                </CardTitle>
-                <CardDescription className="text-slate-600">
-                    Count in-studio birthday parties over a date range and compare them to the available booking slots
-                    you enter.
-                </CardDescription>
+        <Card className="overflow-hidden rounded-3xl border-[#B14594]/20 bg-white shadow-[0_14px_32px_rgba(15,23,42,0.08)]">
+            <CardHeader className="bg-gradient-to-r from-white via-white to-[#B14594]/[0.04] text-slate-950">
+                <button
+                    type="button"
+                    aria-expanded={open}
+                    className="flex w-full items-start justify-between gap-4 text-left"
+                    onClick={() => setOpen((value) => !value)}
+                >
+                    <span className="flex flex-col gap-2">
+                        <CardTitle className="flex items-center gap-2 text-2xl">
+                            <Cake className="h-5 w-5 text-[#B14594]" /> Birthday Party Capacity
+                        </CardTitle>
+                        <CardDescription className="text-slate-600">
+                            See how many available in-studio birthday party slots have been booked over a date range.
+                        </CardDescription>
+                    </span>
+                    <ChevronDown
+                        className={cn(
+                            'mt-1 h-5 w-5 shrink-0 text-slate-500 transition-transform',
+                            open && 'rotate-180'
+                        )}
+                    />
+                </button>
             </CardHeader>
-            <CardContent className="grid gap-6 p-6 lg:grid-cols-[1fr_0.9fr]">
-                <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-                    <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700 ring-1 ring-slate-200">
-                        Reporting on:{' '}
-                        <span className="font-bold text-slate-950">
-                            {currentOrg ? getOrgName(currentOrg) : 'No organisation selected'}
-                        </span>
-                    </div>
+            {open ? (
+                <CardContent className="flex flex-col gap-5 p-6">
+                    <div className="flex flex-col gap-4">
+                        <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700 ring-1 ring-slate-200">
+                            Reporting on:{' '}
+                            <span className="font-bold text-slate-950">
+                                {currentOrg ? getOrgName(currentOrg) : 'No organisation selected'}
+                            </span>
+                        </div>
 
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="capacity-date-range">Date range</Label>
-                        <DateRangePicker
-                            id="capacity-date-range"
-                            startDate={startDate}
-                            endDate={endDate}
-                            onChange={({ startDate, endDate }) => {
-                                setStartDate(startDate)
-                                setEndDate(endDate)
-                            }}
-                        />
-                    </div>
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="capacity-date-range-preset">Date range</Label>
+                            <Select
+                                value={dateRangePreset}
+                                onValueChange={(value: DateRangePreset) => {
+                                    setDateRangePreset(value)
+                                    if (value !== 'custom') setDateRange(getPresetDateRange(value))
+                                }}
+                            >
+                                <SelectTrigger id="capacity-date-range-preset" className="w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="current-month">Current month</SelectItem>
+                                    <SelectItem value="upcoming-month">Upcoming month</SelectItem>
+                                    <SelectItem value="next-30-days">Next 30 days</SelectItem>
+                                    <SelectItem value="next-90-days">Next 90 days</SelectItem>
+                                    <SelectItem value="until-end-of-year">Until the end of the year</SelectItem>
+                                    <SelectItem value="custom">Custom</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <p className="m-0 text-xs text-slate-500">
+                                {endDate
+                                    ? `${formatReportDate(startDate)} to ${formatReportDate(endDate)}`
+                                    : 'Select an end date to update the report.'}
+                            </p>
+                        </div>
 
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="capacity-available-slots">
-                            Available booking slots{currentOrg === 'master' ? ' per studio' : ''}
-                        </Label>
-                        <Input
-                            id="capacity-available-slots"
-                            type="number"
-                            min="1"
-                            step="1"
-                            placeholder="Example: 20"
-                            value={availableSlots}
-                            onChange={(event) => setAvailableSlots(event.target.value)}
-                        />
+                        {dateRangePreset === 'custom' ? (
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="capacity-date-range">Custom date range</Label>
+                                <DateRangePicker
+                                    id="capacity-date-range"
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    onChange={setDateRange}
+                                />
+                            </div>
+                        ) : null}
+
+                        <div className="rounded-2xl border border-[#B14594]/15 bg-[#fff7fb] p-4 text-sm text-slate-600">
+                            Capacity is calculated from the published party schedule from{' '}
+                            {formatReportDate(PARTY_BOOKING_CAPACITY_START_DATE)} to{' '}
+                            {formatReportDate(PARTY_BOOKING_CAPACITY_END_DATE)}.
+                            <a
+                                href="https://docs.google.com/spreadsheets/d/1gJ4H1THdA2l3FJt6r6XSq2c40YZTuU2ENzEEpPYJiXI/edit?usp=sharing"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-2 flex w-fit items-center gap-1 font-bold text-[#8d3676] underline-offset-4 hover:underline"
+                            >
+                                View slot schedule and calculations <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                        </div>
+
+                        {reportQuery.isError ? (
+                            <Alert variant="destructive">
+                                <AlertTitle>Unable to run report</AlertTitle>
+                                <AlertDescription>Check the date range, then try again.</AlertDescription>
+                            </Alert>
+                        ) : null}
+
                         <p className="m-0 text-xs text-slate-500">
-                            {currentOrg === 'master'
-                                ? 'Enter the slots available for each studio in the selected date range.'
-                                : 'Enter the total slots available for the selected date range and organisation.'}
+                            The report updates when you choose a complete range.
                         </p>
                     </div>
 
-                    {generateCapacityReport.isError ? (
-                        <Alert variant="destructive">
-                            <AlertTitle>Unable to run report</AlertTitle>
-                            <AlertDescription>
-                                Check the date range and available slots, then try again.
-                            </AlertDescription>
-                        </Alert>
+                    {reportQuery.isPending && startDate && endDate ? (
+                        <CapacityReportLoading />
+                    ) : result ? (
+                        <CapacityReportSummary result={result} />
                     ) : null}
-
-                    <Button
-                        type="submit"
-                        className="w-full bg-[#B14594] text-white hover:bg-[#9f3d86] sm:w-fit"
-                        disabled={!canRunReport || generateCapacityReport.isPending}
-                    >
-                        {generateCapacityReport.isPending ? 'Running report...' : 'Run report'}
-                    </Button>
-                </form>
-
-                <CapacityReportSummary result={result} currentOrg={currentOrg} />
-            </CardContent>
+                </CardContent>
+            ) : null}
         </Card>
     )
 }
 
-function CapacityReportSummary({
-    result,
-    currentOrg,
-}: {
-    result: CapacityReportResult | null
-    currentOrg: StudioOrMaster | null
-}) {
-    if (!result) {
-        return (
-            <div className="flex min-h-72 flex-col justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
-                <p className="m-0 text-sm font-bold uppercase tracking-[0.2em] text-slate-400">No report yet</p>
-                <p className="m-0 mt-2 text-sm text-slate-600">
-                    Choose a date range and available slots to see utilisation for{' '}
-                    {currentOrg ? getOrgName(currentOrg) : 'the selected organisation'}.
-                </p>
-            </div>
-        )
-    }
-
-    const isMasterReport = result.studio === 'master'
+function CapacityReportSummary({ result }: { result: CapacityReportResult }) {
+    const [masterView, setMasterView] = useState<MasterBreakdownView>('studio')
 
     return (
-        <div className="flex flex-col justify-between gap-6 rounded-3xl bg-gradient-to-br from-[#00c2e3] to-[#B14594] p-6 text-white shadow-lg">
-            <div className="flex flex-col gap-2">
-                <p className="m-0 text-sm font-bold uppercase tracking-[0.2em] text-white/70">Capacity reached</p>
-                {!isMasterReport && result.results[0] ? (
-                    <p className="m-0 text-6xl font-black leading-none sm:text-7xl">
-                        {formatPercent(result.results[0].utilisationPercentage)}%
-                    </p>
-                ) : null}
-                <p className="m-0 text-sm text-white/80">
-                    {getOrgName(result.studio)} from {formatReportDate(result.startDate)} to{' '}
-                    {formatReportDate(result.endDate)}
-                </p>
-            </div>
-
-            <div className="flex flex-col gap-3">
-                {result.results.map((studioResult) => (
-                    <StudioResultRow key={studioResult.studio} result={studioResult} showStudio={isMasterReport} />
-                ))}
-            </div>
+        <div className="flex flex-col gap-5">
+            <OverallCapacityCard report={result} />
+            {result.studio === 'master' ? (
+                <div className="flex flex-col gap-4">
+                    <div className="flex flex-wrap gap-2">
+                        <BreakdownChip active={masterView === 'studio'} onClick={() => setMasterView('studio')}>
+                            Studio breakdown
+                        </BreakdownChip>
+                        <BreakdownChip active={masterView === 'weekly'} onClick={() => setMasterView('weekly')}>
+                            Weekly breakdown
+                        </BreakdownChip>
+                    </div>
+                    {masterView === 'studio' ? (
+                        <StudioBreakdown studios={result.studios} />
+                    ) : (
+                        <WeeklyBreakdown weeks={result.weeks} showStudios />
+                    )}
+                </div>
+            ) : (
+                <StudioBreakdown studios={result.studios} />
+            )}
         </div>
     )
 }
 
-function StudioResultRow({ result, showStudio }: { result: CapacityReportStudioResult; showStudio: boolean }) {
+function OverallCapacityCard({ report }: { report: CapacityReportResult }) {
     return (
-        <div className="rounded-2xl bg-white/15 p-4 ring-1 ring-white/20">
-            <div className="flex items-start justify-between gap-3">
-                <div>
-                    <p className="m-0 text-xs font-semibold uppercase tracking-wide text-white/75">
-                        {showStudio ? getOrgName(result.studio) : 'In-studio bookings'}
-                    </p>
-                    <p className="m-0 mt-1 text-sm text-white/75">
-                        {result.bookedSlots} of {result.availableSlots} slots booked
-                    </p>
-                </div>
-                <p className="m-0 text-3xl font-black">{formatPercent(result.utilisationPercentage)}%</p>
+        <section className="flex flex-col gap-5 rounded-3xl bg-gradient-to-br from-[#00c2e3] to-[#B14594] p-6 text-white shadow-lg sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p className="m-0 text-sm font-bold uppercase tracking-[0.2em] text-white/70">Capacity reached</p>
+                <p className="m-0 mt-2 text-6xl font-black leading-none sm:text-7xl">
+                    {formatPercent(report.overall.utilisationPercentage)}%
+                </p>
+                <p className="m-0 mt-3 text-sm text-white/80">
+                    {getOrgName(report.studio)} from {formatReportDate(report.startDate)} to{' '}
+                    {formatReportDate(report.endDate)}
+                </p>
             </div>
+            <div className="rounded-2xl bg-white/15 p-4 ring-1 ring-white/20 sm:min-w-64">
+                <p className="m-0 text-xs font-bold uppercase tracking-wide text-white/70">In-studio bookings</p>
+                <p className="m-0 mt-1 text-xl font-black">
+                    {report.overall.bookedSlots} of {report.overall.availableSlots} slots booked
+                </p>
+                <p className="m-0 mt-1 text-sm text-white/75">
+                    {report.overall.availableSlots - report.overall.bookedSlots} slots remaining
+                </p>
+            </div>
+        </section>
+    )
+}
+
+function BreakdownChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: string }) {
+    return (
+        <button
+            type="button"
+            className={cn(
+                'rounded-full border px-4 py-2 text-sm font-bold transition-colors',
+                active
+                    ? 'border-[#B14594] bg-[#B14594] text-white shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-[#B14594]/40 hover:text-[#B14594]'
+            )}
+            onClick={onClick}
+        >
+            {children}
+        </button>
+    )
+}
+
+function StudioBreakdown({ studios }: { studios: CapacityReportStudioResult[] }) {
+    return (
+        <Accordion type="multiple" className="grid gap-4">
+            {studios.map((studio) => (
+                <AccordionItem
+                    key={studio.studio}
+                    value={studio.studio}
+                    className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+                >
+                    <AccordionTrigger className="bg-slate-50 px-5 py-5 text-left hover:no-underline">
+                        <BreakdownHeading title={getOrgName(studio.studio)} summary={studio} />
+                    </AccordionTrigger>
+                    <AccordionContent className="p-0">
+                        <CapacityRows rows={studio.weeks} />
+                    </AccordionContent>
+                </AccordionItem>
+            ))}
+        </Accordion>
+    )
+}
+
+function WeeklyBreakdown({ weeks, showStudios }: { weeks: CapacityReportWeekResult[]; showStudios: boolean }) {
+    return (
+        <Accordion type="multiple" className="grid gap-4">
+            {weeks.map((week) => (
+                <AccordionItem
+                    key={week.startDate}
+                    value={week.startDate}
+                    className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+                >
+                    <AccordionTrigger className="bg-slate-50 px-5 py-5 text-left hover:no-underline">
+                        <BreakdownHeading title={formatWeek(week)} summary={week} />
+                    </AccordionTrigger>
+                    <AccordionContent className="p-0">
+                        {showStudios ? <CapacityRows rows={week.studios} showStudios /> : null}
+                    </AccordionContent>
+                </AccordionItem>
+            ))}
+        </Accordion>
+    )
+}
+
+function BreakdownHeading({ title, summary }: { title: string; summary: CapacityReportSummary }) {
+    return (
+        <div className="flex flex-1 flex-col gap-3 pr-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p className="m-0 text-xl font-black text-slate-950">{title}</p>
+                <p className="m-0 mt-1 text-sm text-slate-500">
+                    {summary.bookedSlots} of {summary.availableSlots} slots booked
+                </p>
+            </div>
+            <Badge className="w-fit border-[#00c2e3]/20 bg-[#00c2e3]/10 text-[#007f96] hover:bg-[#00c2e3]/10">
+                {formatPercent(summary.utilisationPercentage)}% full
+            </Badge>
+        </div>
+    )
+}
+
+function CapacityRows({
+    rows,
+    showStudios = false,
+}: {
+    rows: (CapacityReportWeekSummary | CapacityReportStudioSummary)[]
+    showStudios?: boolean
+}) {
+    return (
+        <div className="flex flex-col divide-y divide-slate-100 border-t border-slate-100">
+            {rows.map((row) => {
+                const label = showStudios
+                    ? getOrgName((row as CapacityReportStudioSummary).studio)
+                    : formatWeek(row as CapacityReportWeekSummary)
+                return (
+                    <div key={label} className="flex items-center justify-between gap-4 px-5 py-4">
+                        <div>
+                            <p className="m-0 font-bold text-slate-950">{label}</p>
+                            <p className="m-0 mt-1 text-sm text-slate-500">
+                                {row.bookedSlots} of {row.availableSlots} slots booked
+                            </p>
+                        </div>
+                        <p className="m-0 text-lg font-black text-[#B14594]">
+                            {formatPercent(row.utilisationPercentage)}%
+                        </p>
+                    </div>
+                )
+            })}
+        </div>
+    )
+}
+
+function CapacityReportLoading() {
+    return (
+        <div
+            aria-live="polite"
+            className="flex min-h-32 items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-6 py-8 text-sm font-semibold text-slate-600"
+        >
+            <LoaderCircle className="h-4 w-4 text-[#B14594] motion-safe:animate-spin" />
+            <span>Loading capacity report...</span>
         </div>
     )
 }
@@ -265,6 +473,12 @@ function DateRangePicker({
                 <Calendar
                     mode="range"
                     defaultMonth={selectedRange?.from}
+                    startMonth={new Date(`${PARTY_BOOKING_CAPACITY_START_DATE}T00:00:00`)}
+                    endMonth={new Date(`${PARTY_BOOKING_CAPACITY_END_DATE}T00:00:00`)}
+                    disabled={{
+                        before: new Date(`${PARTY_BOOKING_CAPACITY_START_DATE}T00:00:00`),
+                        after: new Date(`${PARTY_BOOKING_CAPACITY_END_DATE}T00:00:00`),
+                    }}
                     selected={selectedRange}
                     onSelect={(range) => {
                         onChange({

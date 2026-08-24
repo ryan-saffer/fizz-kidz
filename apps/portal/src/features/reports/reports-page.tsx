@@ -22,8 +22,8 @@ export function ReportsPage() {
                     </div>
                 </header>
 
-                <HolidayProgramCapacityReport />
                 <PartyCapacityUtilisationReport />
+                <HolidayProgramCapacityReport />
             </div>
         </div>
     )

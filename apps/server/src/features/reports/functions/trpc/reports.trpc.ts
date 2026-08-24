@@ -13,7 +13,7 @@ import {
 export const reportsRouter = router({
     generateCapacityReport: reportReadProcedure
         .input(generateCapacityReportInputSchema)
-        .mutation(({ input }) => generateCapacityReport(input)),
+        .query(({ input }) => generateCapacityReport(input)),
     generateHolidayProgramCapacityReport: reportReadProcedure
         .input(generateHolidayProgramCapacityReportInputSchema)
         .query(({ input }) => generateHolidayProgramCapacityReport(input)),

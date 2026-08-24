@@ -1,6 +1,7 @@
+import Parasol from '@mui/icons-material/BeachAccessOutlined'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { CalendarDays, RefreshCw, UsersRound } from 'lucide-react'
+import { CalendarDays, ChevronDown, LoaderCircle, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 
 import type { Studio, StudioOrMaster } from '@fizz-kidz/core'
@@ -13,7 +14,6 @@ import { Badge } from '@shared/components/ui/badge'
 import { Button } from '@shared/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { Progress } from '@shared/components/ui/progress'
-import { Skeleton } from '@shared/components/ui/skeleton'
 import { Switch } from '@shared/components/ui/switch'
 import { getOrgName } from '@shared/lib/studio-utils'
 import { cn } from '@shared/lib/tailwind'
@@ -114,6 +114,7 @@ const getAcuityClassUrl = (classId: number) => {
 export function HolidayProgramCapacityReport() {
     const trpc = useTRPC()
     const { currentOrg } = useOrg()
+    const [open, setOpen] = useState(false)
     const [comparePreviousPeriod, setComparePreviousPeriod] = useState(false)
 
     const reportQuery = useQuery(
@@ -126,73 +127,90 @@ export function HolidayProgramCapacityReport() {
     const report = reportQuery.data ?? null
 
     return (
-        <Card className="overflow-hidden rounded-3xl border-white shadow-[0_14px_32px_rgba(15,23,42,0.08)]">
-            <CardHeader className="bg-[#effcff] text-slate-950 ring-1 ring-inset ring-[#00c2e3]/15">
+        <Card className="overflow-hidden rounded-3xl border-[#00c2e3]/20 bg-white shadow-[0_14px_32px_rgba(15,23,42,0.08)]">
+            <CardHeader className="bg-gradient-to-r from-white via-white to-[#00c2e3]/[0.04] text-slate-950">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="flex flex-col gap-2">
-                        <CardTitle className="flex items-center gap-2 text-2xl">
-                            <UsersRound className="h-5 w-5 text-[#00a9c7]" /> Holiday Program Capacity
-                        </CardTitle>
-                        <CardDescription className="max-w-3xl text-slate-600">
-                            See each upcoming holiday program class by studio, including booked children, total
-                            capacity, remaining spots, and utilisation.
-                        </CardDescription>
-                    </div>
-                    <Button
+                    <button
                         type="button"
-                        variant="outline"
-                        className="w-full gap-2 rounded-full bg-white sm:w-fit"
-                        disabled={!currentOrg || reportQuery.isFetching}
-                        onClick={() => reportQuery.refetch()}
+                        aria-expanded={open}
+                        className="flex flex-1 items-start justify-between gap-4 text-left"
+                        onClick={() => setOpen((value) => !value)}
                     >
-                        <RefreshCw className={cn('h-4 w-4', reportQuery.isFetching && 'animate-spin')} /> Refresh
-                    </Button>
-                </div>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-5 p-6">
-                <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700 ring-1 ring-slate-200">
-                    Reporting on:{' '}
-                    <span className="font-bold text-slate-950">
-                        {currentOrg ? getOrgName(currentOrg) : 'No organisation selected'}
-                    </span>
-                    {report ? (
-                        <span className="ml-2 text-xs text-slate-500">
-                            Updated {format(new Date(report.generatedAt), 'd MMM yyyy, h:mm a')}
+                        <span className="flex flex-col gap-2">
+                            <CardTitle className="flex items-center gap-2 text-2xl">
+                                <Parasol className="h-5 w-5 text-[#009ab5]" /> Holiday Program Capacity
+                            </CardTitle>
+                            <CardDescription className="max-w-3xl text-slate-600">
+                                See each upcoming holiday program class by studio, including booked children, total
+                                capacity, remaining spots, and utilisation.
+                            </CardDescription>
                         </span>
+                        <ChevronDown
+                            className={cn(
+                                'mt-1 h-5 w-5 shrink-0 text-slate-500 transition-transform',
+                                open && 'rotate-180'
+                            )}
+                        />
+                    </button>
+                    {open ? (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full gap-2 rounded-full bg-white sm:w-fit"
+                            disabled={!currentOrg || reportQuery.isFetching}
+                            onClick={() => reportQuery.refetch()}
+                        >
+                            <RefreshCw className={cn('h-4 w-4', reportQuery.isFetching && 'animate-spin')} /> Refresh
+                        </Button>
                     ) : null}
                 </div>
-
-                <label
-                    htmlFor="compare-previous-holiday-program"
-                    className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-[#00c2e3]/20 bg-[#effcff] p-4"
-                >
-                    <span>
-                        <span className="block text-sm font-bold text-slate-950">Compare with previous period</span>
-                        <span className="mt-1 block text-xs text-slate-600">
-                            See whether bookings are ahead or behind at the same number of days before opening.
+            </CardHeader>
+            {open ? (
+                <CardContent className="flex flex-col gap-5 p-6">
+                    <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700 ring-1 ring-slate-200">
+                        Reporting on:{' '}
+                        <span className="font-bold text-slate-950">
+                            {currentOrg ? getOrgName(currentOrg) : 'No organisation selected'}
                         </span>
-                    </span>
-                    <Switch
-                        id="compare-previous-holiday-program"
-                        checked={comparePreviousPeriod}
-                        disabled={!currentOrg || reportQuery.isFetching}
-                        onCheckedChange={setComparePreviousPeriod}
-                    />
-                </label>
+                        {report ? (
+                            <span className="ml-2 text-xs text-slate-500">
+                                Updated {format(new Date(report.generatedAt), 'd MMM yyyy, h:mm a')}
+                            </span>
+                        ) : null}
+                    </div>
 
-                {reportQuery.isPending ? <HolidayProgramCapacitySkeleton /> : null}
+                    <label
+                        htmlFor="compare-previous-holiday-program"
+                        className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-[#00c2e3]/20 bg-[#effcff] p-4"
+                    >
+                        <span>
+                            <span className="block text-sm font-bold text-slate-950">Compare with previous period</span>
+                            <span className="mt-1 block text-xs text-slate-600">
+                                See whether bookings are ahead or behind at the same number of days before opening.
+                            </span>
+                        </span>
+                        <Switch
+                            id="compare-previous-holiday-program"
+                            checked={comparePreviousPeriod}
+                            disabled={!currentOrg || reportQuery.isFetching}
+                            onCheckedChange={setComparePreviousPeriod}
+                        />
+                    </label>
 
-                {reportQuery.isError ? (
-                    <Alert variant="destructive">
-                        <AlertTitle>Unable to load holiday program capacity</AlertTitle>
-                        <AlertDescription>Refresh the report or try again later.</AlertDescription>
-                    </Alert>
-                ) : null}
+                    {reportQuery.isPending ? <HolidayProgramCapacitySkeleton /> : null}
 
-                {report && !reportQuery.isPending ? (
-                    <HolidayProgramCapacitySummary report={report} showComparison={comparePreviousPeriod} />
-                ) : null}
-            </CardContent>
+                    {reportQuery.isError ? (
+                        <Alert variant="destructive">
+                            <AlertTitle>Unable to load holiday program capacity</AlertTitle>
+                            <AlertDescription>Refresh the report or try again later.</AlertDescription>
+                        </Alert>
+                    ) : null}
+
+                    {report && !reportQuery.isPending ? (
+                        <HolidayProgramCapacitySummary report={report} showComparison={comparePreviousPeriod} />
+                    ) : null}
+                </CardContent>
+            ) : null}
         </Card>
     )
 }
@@ -676,9 +694,13 @@ function ClassCapacityRow({ klass }: { klass: HolidayProgramCapacityClassResult 
 
 function HolidayProgramCapacitySkeleton() {
     return (
-        <div className="flex flex-col gap-4">
-            <Skeleton className="h-40 rounded-3xl" />
-            <Skeleton className="h-64 rounded-3xl" />
+        <div
+            role="status"
+            aria-live="polite"
+            className="flex min-h-32 items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-6 py-8 text-sm font-semibold text-slate-600"
+        >
+            <LoaderCircle className="h-4 w-4 text-[#009ab5] motion-safe:animate-spin" />
+            <span>Loading capacity report...</span>
         </div>
     )
 }
