@@ -103,6 +103,9 @@ export class AcuityClient {
         if (params.maxResults) {
             path += `&max=${params.maxResults}`
         }
+        if (params.showAll) {
+            path += `&showall=true`
+        }
         let result = await this._request<AcuityTypes.Api.Appointment[]>(path)
         if (params.classId) {
             result = result.filter((it) => it.classID === params.classId)
