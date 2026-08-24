@@ -1,6 +1,6 @@
 import { deepStrictEqual, strictEqual } from 'assert'
 
-import { beforeAll, beforeEach, describe, it, vi } from 'vite-plus/test'
+import { afterEach, beforeAll, beforeEach, describe, it, vi } from 'vite-plus/test'
 
 import { AcuityConstants, STUDIOS } from '@fizz-kidz/core'
 import type { AcuityTypes } from '@fizz-kidz/core'
@@ -29,6 +29,7 @@ const createClass = (input: {
 class MockAcuityClient {
     classes: MockClass[] = []
     appointmentCountsByClass = new Map<number, number>()
+    appointmentsByClass = new Map<number, Array<Partial<AcuityTypes.Api.Appointment>>>()
     searchForAppointmentsInputs: AcuityTypes.Client.FetchAppointmentsParams[] = []
 
     async getClasses(): Promise<MockClass[]> {
@@ -47,14 +48,25 @@ class MockAcuityClient {
                 const date = klass.time.split('T')[0]
                 return (!input.minDate || date >= input.minDate) && (!input.maxDate || date <= input.maxDate)
             })
-            .flatMap((klass) =>
-                Array.from({ length: this.appointmentCountsByClass.get(klass.id) ?? 0 }, (_, index) => ({
-                    id: klass.id * 1000 + index,
-                    appointmentTypeID: klass.appointmentTypeID,
-                    calendarID: klass.calendarID,
-                    classID: klass.id,
-                }))
-            ) as AcuityTypes.Api.Appointment[]
+            .flatMap((klass) => {
+                const appointments: Array<Partial<AcuityTypes.Api.Appointment>> =
+                    this.appointmentsByClass.get(klass.id) ??
+                    Array.from({ length: this.appointmentCountsByClass.get(klass.id) ?? 0 }, (_, index) => ({
+                        id: klass.id * 1000 + index,
+                        appointmentTypeID: klass.appointmentTypeID,
+                        calendarID: klass.calendarID,
+                        classID: klass.id,
+                    }))
+
+                return appointments
+                    .filter((appointment) => input.showAll || appointment.canceled !== true)
+                    .map((appointment) => ({
+                        appointmentTypeID: klass.appointmentTypeID,
+                        calendarID: klass.calendarID,
+                        classID: klass.id,
+                        ...appointment,
+                    }))
+            }) as AcuityTypes.Api.Appointment[]
     }
 }
 
@@ -81,10 +93,17 @@ beforeAll(async () => {
 
 describe('generateHolidayProgramCapacityReport', () => {
     beforeEach(() => {
+        vi.useFakeTimers()
+        vi.setSystemTime(new Date('2026-03-01T12:00:00+11:00'))
         mockAcuityClient.classes = []
         mockAcuityClient.appointmentCountsByClass.clear()
+        mockAcuityClient.appointmentsByClass.clear()
         mockAcuityClient.searchForAppointmentsInputs = []
         mergeAcuityWithSanity = async (classes) => classes
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
     })
 
     it('calculates class and studio capacity for one studio', async () => {
@@ -219,5 +238,64 @@ describe('generateHolidayProgramCapacityReport', () => {
         const result = await generateHolidayProgramCapacityReport({ studio: 'balwyn' })
 
         strictEqual(result.studios[0].classes[0].title, 'Slime Spectacular')
+    })
+
+    it('compares booking pace at the same number of days before each program starts', async () => {
+        mockAcuityClient.classes = [
+            createClass({
+                id: 10,
+                calendarID: AcuityConstants.StoreCalendars.balwyn,
+                slotsAvailable: 5,
+                time: '2026-06-29T10:00:00+10:00',
+            }),
+            createClass({
+                id: 20,
+                calendarID: AcuityConstants.StoreCalendars.balwyn,
+                slotsAvailable: 7,
+                time: '2026-09-21T10:00:00+10:00',
+            }),
+        ]
+        mockAcuityClient.appointmentsByClass.set(10, [
+            { id: 1001, datetimeCreated: '2026-05-20T10:00:00+10:00' },
+            { id: 1002, datetimeCreated: '2026-05-31T10:00:00+10:00', canceled: true },
+            { id: 1003, datetimeCreated: '2026-06-02T10:00:00+10:00' },
+            { id: 1004, datetimeCreated: '2026-06-10T10:00:00+10:00' },
+            { id: 1005, datetimeCreated: '2026-06-15T10:00:00+10:00' },
+            { id: 1006, datetimeCreated: '2026-06-20T10:00:00+10:00' },
+        ])
+        mockAcuityClient.appointmentsByClass.set(20, [
+            { id: 2001, datetimeCreated: '2026-08-01T10:00:00+10:00' },
+            { id: 2002, datetimeCreated: '2026-08-10T10:00:00+10:00' },
+            { id: 2003, datetimeCreated: '2026-08-20T10:00:00+10:00' },
+        ])
+
+        vi.setSystemTime(new Date('2026-08-24T12:00:00+10:00'))
+        const result = await generateHolidayProgramCapacityReport({
+            studio: 'balwyn',
+            comparePreviousPeriod: true,
+        })
+
+        strictEqual(result.comparison?.available, true)
+        strictEqual(result.comparison?.daysBeforeStart, 28)
+        deepStrictEqual(result.comparison?.currentPeriod, {
+            startDate: '2026-09-21',
+            endDate: '2026-09-21',
+        })
+        deepStrictEqual(result.comparison?.previousPeriod, {
+            startDate: '2026-06-29',
+            endDate: '2026-06-29',
+            cutoffDate: '2026-06-01',
+        })
+        deepStrictEqual(result.comparison?.current, {
+            bookingsMade: 3,
+            totalCapacity: 10,
+            utilisationPercentage: 30,
+        })
+        deepStrictEqual(result.comparison?.previous, {
+            bookingsMade: 2,
+            totalCapacity: 10,
+            utilisationPercentage: 20,
+        })
+        strictEqual(result.comparison?.percentagePointDifference, 10)
     })
 })
