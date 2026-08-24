@@ -9,6 +9,7 @@ export type FetchAppointmentsParams = {
     minDate?: string
     maxDate?: string
     maxResults?: number
+    showAll?: boolean
 }
 
 // For getting specific appointments by ids
