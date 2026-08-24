@@ -31,6 +31,7 @@ export type HolidayProgramBookingPaceComparison = {
     available: boolean
     approximate: true
     daysBeforeStart: number
+    daysIntoPeriod: number
     currentPeriod: HolidayProgramPeriod
     previousPeriod?: HolidayProgramPeriod & { cutoffDate: string }
     current?: HolidayProgramBookingPaceSummary
@@ -103,11 +104,24 @@ export async function generateHolidayProgramCapacityReport(
     )
     const allowedCalendarIds = new Set(studios.map((studio) => AcuityConstants.StoreCalendars[studio]))
 
-    const upcomingClasses = (await mergeAcuityWithSanity(await acuity.getClasses(appointmentTypeIds, true, Date.now())))
+    const reportDayStart = generatedAt.startOf('day')
+    const classMinDate = input.comparePreviousPeriod
+        ? generatedAt.minus({ months: COMPARISON_LOOKBACK_MONTHS }).startOf('day').toMillis()
+        : reportDayStart.toMillis()
+    const candidateClasses = (
+        await mergeAcuityWithSanity(await acuity.getClasses(appointmentTypeIds, true, classMinDate))
+    )
         .filter((klass) => allowedCalendarIds.has(klass.calendarID))
-        .filter((klass) => DateTime.fromISO(klass.time).toMillis() >= generatedAt.startOf('day').toMillis())
         .sort((a, b) => a.time.localeCompare(b.time))
-    const classes = getProgramPeriods(upcomingClasses)[0] ?? []
+    const upcomingClasses = candidateClasses.filter(
+        (klass) => DateTime.fromISO(klass.time).toMillis() >= reportDayStart.toMillis()
+    )
+    const classes = upcomingClasses
+    const currentClasses = input.comparePreviousPeriod
+        ? (getProgramPeriods(candidateClasses).find(
+              (period) => DateTime.fromISO(period.at(-1)!.time).toMillis() >= reportDayStart.toMillis()
+          ) ?? [])
+        : (getProgramPeriods(upcomingClasses)[0] ?? [])
 
     const allAppointmentsByClassId = await getAppointmentsByClassId({
         acuity,
@@ -155,12 +169,10 @@ export async function generateHolidayProgramCapacityReport(
         studios: studioResults,
     }
 
-    if (input.comparePreviousPeriod && classes.length > 0) {
+    if (input.comparePreviousPeriod && currentClasses.length > 0) {
         report.comparison = await generateBookingPaceComparison({
             acuity,
-            currentClasses: classes,
-            currentAppointmentsByClassId: allAppointmentsByClassId,
-            currentClassResults: classResults,
+            currentClasses,
             generatedAt,
             studios,
             allowedCalendarIds,
@@ -225,8 +237,6 @@ function getActiveAppointmentsByClassId(appointmentsByClassId: Map<number, Acuit
 async function generateBookingPaceComparison({
     acuity,
     currentClasses,
-    currentAppointmentsByClassId,
-    currentClassResults,
     generatedAt,
     studios,
     allowedCalendarIds,
@@ -234,34 +244,33 @@ async function generateBookingPaceComparison({
 }: {
     acuity: Awaited<ReturnType<typeof AcuityClient.getInstance>>
     currentClasses: HolidayProgramClass[]
-    currentAppointmentsByClassId: Map<number, AcuityTypes.Api.Appointment[]>
-    currentClassResults: HolidayProgramCapacityClassResult[]
     generatedAt: DateTime
     studios: Studio[]
     allowedCalendarIds: Set<number>
     calendarId?: number
 }): Promise<HolidayProgramBookingPaceComparison> {
-    const currentPeriod = getProgramPeriod(currentClasses)
-    const currentStart = DateTime.fromISO(currentClasses[0].time).setZone(REPORT_TIME_ZONE)
-    const daysBeforeStart = Math.max(
-        0,
-        Math.ceil(currentStart.startOf('day').diff(generatedAt.startOf('day'), 'days').days)
-    )
-    const unavailable = (unavailableReason: string): HolidayProgramBookingPaceComparison => ({
-        available: false,
-        approximate: true,
-        daysBeforeStart,
-        currentPeriod,
-        excludedAppointments: 0,
-        unavailableReason,
-    })
-
     const comparisonMinDate = generatedAt.minus({ months: COMPARISON_LOOKBACK_MONTHS }).startOf('day').toMillis()
     const comparisonClasses = (await acuity.getClasses(appointmentTypeIds, true, comparisonMinDate))
         .filter((klass) => allowedCalendarIds.has(klass.calendarID))
         .filter((klass) => klass.time < currentClasses[0].time)
         .sort((a, b) => a.time.localeCompare(b.time))
-    const previousClasses = getProgramPeriods(comparisonClasses).at(-1)
+    const programPeriods = getProgramPeriods([...comparisonClasses, ...currentClasses])
+    const completeCurrentClasses = programPeriods.at(-1)!
+    const previousClasses = programPeriods.at(-2)
+    const currentPeriod = getProgramPeriod(completeCurrentClasses)
+    const currentStart = DateTime.fromISO(completeCurrentClasses[0].time).setZone(REPORT_TIME_ZONE)
+    const dayOffset = Math.floor(generatedAt.startOf('day').diff(currentStart.startOf('day'), 'days').days)
+    const daysBeforeStart = Math.max(0, -dayOffset)
+    const daysIntoPeriod = generatedAt.toMillis() >= currentStart.toMillis() ? dayOffset + 1 : 0
+    const unavailable = (unavailableReason: string): HolidayProgramBookingPaceComparison => ({
+        available: false,
+        approximate: true,
+        daysBeforeStart,
+        daysIntoPeriod,
+        currentPeriod,
+        excludedAppointments: 0,
+        unavailableReason,
+    })
 
     if (!previousClasses?.length) {
         return unavailable('No previous holiday program period was found in Acuity.')
@@ -269,24 +278,42 @@ async function generateBookingPaceComparison({
 
     const previousPeriod = getProgramPeriod(previousClasses)
     const previousStart = DateTime.fromISO(previousClasses[0].time).setZone(REPORT_TIME_ZONE)
-    const previousCutoff = previousStart.startOf('day').minus({ days: daysBeforeStart }).endOf('day')
-    const previousAppointmentsByClassId = await getAppointmentsByClassId({
-        acuity,
-        classes: previousClasses,
-        calendarId,
-        showAll: true,
+    const previousCutoff = previousStart.startOf('day').plus({ days: dayOffset }).set({
+        hour: generatedAt.hour,
+        minute: generatedAt.minute,
+        second: generatedAt.second,
+        millisecond: generatedAt.millisecond,
     })
+    const [currentAppointmentsByClassId, previousAppointmentsByClassId] = await Promise.all([
+        getAppointmentsByClassId({
+            acuity,
+            classes: completeCurrentClasses,
+            calendarId,
+            showAll: true,
+        }),
+        getAppointmentsByClassId({
+            acuity,
+            classes: previousClasses,
+            calendarId,
+            showAll: true,
+        }),
+    ])
+    const currentActiveAppointmentsByClassId = getActiveAppointmentsByClassId(currentAppointmentsByClassId)
     const previousActiveAppointmentsByClassId = getActiveAppointmentsByClassId(previousAppointmentsByClassId)
+    const currentCapacityByClassId = new Map(
+        completeCurrentClasses.map((klass) => [
+            klass.id,
+            (currentActiveAppointmentsByClassId.get(klass.id)?.length ?? 0) + klass.slotsAvailable,
+        ])
+    )
     const previousCapacityByClassId = new Map(
         previousClasses.map((klass) => [
             klass.id,
             (previousActiveAppointmentsByClassId.get(klass.id)?.length ?? 0) + klass.slotsAvailable,
         ])
     )
-    const currentCapacityByClassId = new Map(currentClassResults.map((klass) => [klass.classId, klass.totalCapacity]))
-
     const currentPace = getBookingPaceByStudio({
-        classes: currentClasses,
+        classes: completeCurrentClasses,
         appointmentsByClassId: currentAppointmentsByClassId,
         capacityByClassId: currentCapacityByClassId,
         cutoff: generatedAt,
@@ -315,6 +342,7 @@ async function generateBookingPaceComparison({
         available: true,
         approximate: true,
         daysBeforeStart,
+        daysIntoPeriod,
         currentPeriod,
         previousPeriod: { ...previousPeriod, cutoffDate: previousCutoff.toISODate()! },
         current,

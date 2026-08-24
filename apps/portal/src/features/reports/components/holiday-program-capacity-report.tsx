@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { CalendarDays, ExternalLink, RefreshCw, UsersRound } from 'lucide-react'
+import { CalendarDays, RefreshCw, UsersRound } from 'lucide-react'
 import { useState } from 'react'
 
 import type { Studio, StudioOrMaster } from '@fizz-kidz/core'
@@ -30,6 +30,7 @@ type HolidayProgramBookingPaceComparison = {
     available: boolean
     approximate: true
     daysBeforeStart: number
+    daysIntoPeriod: number
     currentPeriod: HolidayProgramPeriod
     previousPeriod?: HolidayProgramPeriod & { cutoffDate: string }
     current?: HolidayProgramBookingPaceSummary
@@ -279,7 +280,9 @@ function BookingPaceComparison({
                     <div>
                         <p className="m-0 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Booking pace</p>
                         <h3 className="m-0 mt-1 text-2xl font-black text-slate-950">
-                            {comparison.daysBeforeStart} days before the first session
+                            {comparison.daysIntoPeriod > 0
+                                ? `Day ${comparison.daysIntoPeriod} of the current program`
+                                : `${comparison.daysBeforeStart} days before the first session`}
                         </h3>
                     </div>
                     <Badge className={position.badgeClassName}>{position.label}</Badge>
@@ -293,7 +296,11 @@ function BookingPaceComparison({
                     summary={comparison.current}
                 />
                 <BookingPaceMetric
-                    label="Previous program at this point"
+                    label={
+                        comparison.daysIntoPeriod > 0
+                            ? `Previous program on day ${comparison.daysIntoPeriod}`
+                            : 'Previous program at this point'
+                    }
                     period={comparison.previousPeriod}
                     summary={comparison.previous}
                     detail={`Bookings made by ${formatReportDate(comparison.previousPeriod.cutoffDate)}`}
@@ -556,7 +563,7 @@ function DailyClassCapacityRow({ klass }: { klass: HolidayProgramCapacityClassRe
             </div>
             <Button asChild variant="outline" className="w-full gap-2 rounded-full lg:justify-self-end">
                 <a href={getAcuityClassUrl(klass.classId)} target="_blank" rel="noreferrer">
-                    Open in Acuity <ExternalLink className="h-3.5 w-3.5" />
+                    Open in Acuity
                 </a>
             </Button>
         </div>
@@ -660,7 +667,7 @@ function ClassCapacityRow({ klass }: { klass: HolidayProgramCapacityClassResult 
             </div>
             <Button asChild variant="outline" className="w-full gap-2 rounded-full lg:justify-self-end">
                 <a href={getAcuityClassUrl(klass.classId)} target="_blank" rel="noreferrer">
-                    Open in Acuity <ExternalLink className="h-3.5 w-3.5" />
+                    Open in Acuity
                 </a>
             </Button>
         </div>
