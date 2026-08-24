@@ -16,6 +16,11 @@ export interface Appointment {
     paid: 'yes' | 'no'
     location: string
     datetime: string
+    /** ISO timestamp returned by Acuity for when the appointment was originally booked. */
+    datetimeCreated?: string
+    /** Legacy formatted booking date returned by some Acuity appointment responses. */
+    dateCreated?: string
+    canceled?: boolean
     confirmationPage: string
     certificate: string
     duration: string
