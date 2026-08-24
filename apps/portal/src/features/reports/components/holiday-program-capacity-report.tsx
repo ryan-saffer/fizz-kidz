@@ -14,6 +14,7 @@ import { Button } from '@shared/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { Progress } from '@shared/components/ui/progress'
 import { Skeleton } from '@shared/components/ui/skeleton'
+import { Switch } from '@shared/components/ui/switch'
 import { getOrgName } from '@shared/lib/studio-utils'
 import { cn } from '@shared/lib/tailwind'
 
@@ -22,6 +23,39 @@ type HolidayProgramCapacityReportResult = {
     generatedAt: string
     overall: HolidayProgramCapacitySummary
     studios: HolidayProgramCapacityStudioResult[]
+    comparison?: HolidayProgramBookingPaceComparison
+}
+
+type HolidayProgramBookingPaceComparison = {
+    available: boolean
+    approximate: true
+    daysBeforeStart: number
+    currentPeriod: HolidayProgramPeriod
+    previousPeriod?: HolidayProgramPeriod & { cutoffDate: string }
+    current?: HolidayProgramBookingPaceSummary
+    previous?: HolidayProgramBookingPaceSummary
+    percentagePointDifference?: number
+    studios?: HolidayProgramBookingPaceStudioResult[]
+    excludedAppointments: number
+    unavailableReason?: string
+}
+
+type HolidayProgramPeriod = {
+    startDate: string
+    endDate: string
+}
+
+type HolidayProgramBookingPaceSummary = {
+    bookingsMade: number
+    totalCapacity: number
+    utilisationPercentage: number
+}
+
+type HolidayProgramBookingPaceStudioResult = {
+    studio: Studio
+    current: HolidayProgramBookingPaceSummary
+    previous: HolidayProgramBookingPaceSummary
+    percentagePointDifference: number
 }
 
 type HolidayProgramCapacitySummary = {
@@ -79,10 +113,11 @@ const getAcuityClassUrl = (classId: number) => {
 export function HolidayProgramCapacityReport() {
     const trpc = useTRPC()
     const { currentOrg } = useOrg()
+    const [comparePreviousPeriod, setComparePreviousPeriod] = useState(false)
 
     const reportQuery = useQuery(
         trpc.reports.generateHolidayProgramCapacityReport.queryOptions(
-            { studio: currentOrg ?? 'master' },
+            { studio: currentOrg ?? 'master', comparePreviousPeriod },
             { enabled: Boolean(currentOrg) }
         )
     )
@@ -126,6 +161,24 @@ export function HolidayProgramCapacityReport() {
                     ) : null}
                 </div>
 
+                <label
+                    htmlFor="compare-previous-holiday-program"
+                    className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-[#00c2e3]/20 bg-[#effcff] p-4"
+                >
+                    <span>
+                        <span className="block text-sm font-bold text-slate-950">Compare with previous period</span>
+                        <span className="mt-1 block text-xs text-slate-600">
+                            See whether bookings are ahead or behind at the same number of days before opening.
+                        </span>
+                    </span>
+                    <Switch
+                        id="compare-previous-holiday-program"
+                        checked={comparePreviousPeriod}
+                        disabled={!currentOrg || reportQuery.isFetching}
+                        onCheckedChange={setComparePreviousPeriod}
+                    />
+                </label>
+
                 {reportQuery.isPending ? <HolidayProgramCapacitySkeleton /> : null}
 
                 {reportQuery.isError ? (
@@ -135,13 +188,21 @@ export function HolidayProgramCapacityReport() {
                     </Alert>
                 ) : null}
 
-                {report && !reportQuery.isPending ? <HolidayProgramCapacitySummary report={report} /> : null}
+                {report && !reportQuery.isPending ? (
+                    <HolidayProgramCapacitySummary report={report} showComparison={comparePreviousPeriod} />
+                ) : null}
             </CardContent>
         </Card>
     )
 }
 
-function HolidayProgramCapacitySummary({ report }: { report: HolidayProgramCapacityReportResult }) {
+function HolidayProgramCapacitySummary({
+    report,
+    showComparison,
+}: {
+    report: HolidayProgramCapacityReportResult
+    showComparison: boolean
+}) {
     const [masterView, setMasterView] = useState<MasterBreakdownView>('studio')
     const hasClasses = report.studios.some((studio) => studio.classes.length > 0)
     const classCount = report.studios.reduce((total, studio) => total + studio.classes.length, 0)
@@ -161,6 +222,9 @@ function HolidayProgramCapacitySummary({ report }: { report: HolidayProgramCapac
     return (
         <div className="flex flex-col gap-5">
             <OverallCapacityCard summary={report.overall} classCount={classCount} />
+            {showComparison && report.comparison ? (
+                <BookingPaceComparison comparison={report.comparison} showStudios={report.studio === 'master'} />
+            ) : null}
             {report.studio === 'master' ? (
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-wrap gap-2">
@@ -182,6 +246,181 @@ function HolidayProgramCapacitySummary({ report }: { report: HolidayProgramCapac
             )}
         </div>
     )
+}
+
+function BookingPaceComparison({
+    comparison,
+    showStudios,
+}: {
+    comparison: HolidayProgramBookingPaceComparison
+    showStudios: boolean
+}) {
+    if (!comparison.available || !comparison.current || !comparison.previous || !comparison.previousPeriod) {
+        return (
+            <Alert>
+                <AlertTitle>Previous-period comparison unavailable</AlertTitle>
+                <AlertDescription>
+                    {comparison.unavailableReason ?? 'A comparable previous holiday program period was not found.'}
+                </AlertDescription>
+            </Alert>
+        )
+    }
+
+    const difference = comparison.percentagePointDifference ?? 0
+    const position = getPacePosition(difference)
+    const comparableStudios = (comparison.studios ?? []).filter(
+        (studio) => studio.current.totalCapacity > 0 || studio.previous.totalCapacity > 0
+    )
+
+    return (
+        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 bg-slate-50 p-5">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <p className="m-0 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Booking pace</p>
+                        <h3 className="m-0 mt-1 text-2xl font-black text-slate-950">
+                            {comparison.daysBeforeStart} days before the first session
+                        </h3>
+                    </div>
+                    <Badge className={position.badgeClassName}>{position.label}</Badge>
+                </div>
+            </div>
+
+            <div className="grid gap-4 p-5 md:grid-cols-3">
+                <BookingPaceMetric
+                    label="Current program"
+                    period={comparison.currentPeriod}
+                    summary={comparison.current}
+                />
+                <BookingPaceMetric
+                    label="Previous program at this point"
+                    period={comparison.previousPeriod}
+                    summary={comparison.previous}
+                    detail={`Bookings made by ${formatReportDate(comparison.previousPeriod.cutoffDate)}`}
+                />
+                <div className="rounded-2xl bg-slate-950 p-4 text-white">
+                    <p className="m-0 text-xs font-bold uppercase tracking-wide text-white/60">Difference</p>
+                    <p className="m-0 mt-2 text-3xl font-black">
+                        {difference > 0 ? '+' : ''}
+                        {formatPercent(difference)} pts
+                    </p>
+                    <p className="m-0 mt-2 text-sm text-white/75">{position.description}</p>
+                </div>
+            </div>
+
+            {showStudios && comparableStudios.length > 0 ? (
+                <div className="border-t border-slate-100 px-5 py-4">
+                    <p className="m-0 mb-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                        Studio comparison
+                    </p>
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[36rem] border-collapse text-sm">
+                            <thead>
+                                <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-400">
+                                    <th className="pb-2 font-bold">Studio</th>
+                                    <th className="pb-2 text-right font-bold">Current</th>
+                                    <th className="pb-2 text-right font-bold">Previous</th>
+                                    <th className="pb-2 text-right font-bold">Difference</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {comparableStudios.map((studio) => (
+                                    <tr key={studio.studio} className="border-b border-slate-100 last:border-b-0">
+                                        <td className="py-3 font-bold text-slate-950">{getOrgName(studio.studio)}</td>
+                                        <td className="py-3 text-right text-slate-700">
+                                            {formatPercent(studio.current.utilisationPercentage)}%
+                                        </td>
+                                        <td className="py-3 text-right text-slate-700">
+                                            {formatPercent(studio.previous.utilisationPercentage)}%
+                                        </td>
+                                        <td
+                                            className={cn(
+                                                'py-3 text-right font-black',
+                                                studio.percentagePointDifference > 0
+                                                    ? 'text-emerald-700'
+                                                    : studio.percentagePointDifference < 0
+                                                      ? 'text-[#B14594]'
+                                                      : 'text-slate-500'
+                                            )}
+                                        >
+                                            {studio.percentagePointDifference > 0 ? '+' : ''}
+                                            {formatPercent(studio.percentagePointDifference)} pts
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            ) : null}
+
+            <div className="border-t border-amber-200 bg-amber-50 px-5 py-3 text-xs text-amber-900">
+                Historical booking pace is an estimate because Acuity records when a booking was made, but not when a
+                later cancellation occurred.
+                {comparison.excludedAppointments > 0
+                    ? ` ${comparison.excludedAppointments} appointment${comparison.excludedAppointments === 1 ? '' : 's'} without a readable booking date were excluded.`
+                    : ''}
+            </div>
+        </section>
+    )
+}
+
+function BookingPaceMetric({
+    label,
+    period,
+    summary,
+    detail,
+}: {
+    label: string
+    period: HolidayProgramPeriod
+    summary: HolidayProgramBookingPaceSummary
+    detail?: string
+}) {
+    return (
+        <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+            <p className="m-0 text-xs font-bold uppercase tracking-wide text-slate-400">{label}</p>
+            <p className="m-0 mt-2 text-3xl font-black text-slate-950">
+                {formatPercent(summary.utilisationPercentage)}%
+            </p>
+            <p className="m-0 mt-1 text-sm text-slate-600">
+                {summary.bookingsMade}/{summary.totalCapacity} bookings made
+            </p>
+            <p className="m-0 mt-2 text-xs text-slate-400">
+                {formatPeriod(period)}
+                {detail ? ` · ${detail}` : ''}
+            </p>
+        </div>
+    )
+}
+
+function getPacePosition(difference: number) {
+    if (difference > 0.05) {
+        return {
+            label: `${formatPercent(difference)} points ahead`,
+            description: 'Bookings are ahead of the previous program at the equivalent point.',
+            badgeClassName: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100',
+        }
+    }
+    if (difference < -0.05) {
+        return {
+            label: `${formatPercent(Math.abs(difference))} points behind`,
+            description: 'Bookings are behind the previous program at the equivalent point.',
+            badgeClassName: 'bg-[#B14594]/10 text-[#8d3676] hover:bg-[#B14594]/10',
+        }
+    }
+    return {
+        label: 'Level with previous',
+        description: 'Bookings are level with the previous program at the equivalent point.',
+        badgeClassName: 'bg-slate-200 text-slate-700 hover:bg-slate-200',
+    }
+}
+
+function formatPeriod(period: HolidayProgramPeriod) {
+    return `${formatReportDate(period.startDate)} to ${formatReportDate(period.endDate)}`
+}
+
+function formatReportDate(value: string) {
+    return format(new Date(`${value}T00:00:00`), 'd MMM yyyy')
 }
 
 function BreakdownChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: string }) {
