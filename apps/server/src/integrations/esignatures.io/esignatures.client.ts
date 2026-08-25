@@ -1,6 +1,26 @@
+import type { FranchiseOrMaster, StudioOrMaster } from '@fizz-kidz/core'
+import { getFranchiseOrMaster } from '@fizz-kidz/core'
+
 import { env } from '@/app/init/firebase'
 
-const PARTY_FACILITATOR_CONTRACT_TEMPLATE_ID = 'ae77f4ae-8a4d-438a-82b1-b27d49b45ea9'
+const PARTY_FACILITATOR_CONTRACTS = {
+    balwyn: {
+        templateId: '2fb4d0e2-a496-4006-aefa-caadb1a70aba',
+        employer: 'NEXTGEN FUNLABS PTY LTD',
+    },
+    master: {
+        templateId: 'ae77f4ae-8a4d-438a-82b1-b27d49b45ea9',
+        employer: 'FIZZ KIDZ AUSTRALIA PTY LTD',
+    },
+    kingsville: {
+        templateId: 'a2ac9ef4-11e3-4946-b5c6-fd9c6df6b0c3',
+        employer: 'The Trustee for HAO & THO FAMILY TRUST',
+    },
+    werribee: {
+        templateId: '0ba0e659-2e70-4d67-994b-0ac39cab46a2',
+        employer: 'Fizz Kidz Werribee',
+    },
+} as const satisfies Record<FranchiseOrMaster, { templateId: string; employer: string }>
 const AREA_MANAGER_CONTRACT_TEMPLATE_ID = 'd6aecbf5-6842-4144-9968-f8f6714dc50b'
 
 type BaseCreateContractParams = {
@@ -10,7 +30,8 @@ type BaseCreateContractParams = {
 }
 
 type CreatePartyFacilitatorContractParams = BaseCreateContractParams & {
-    templateVariables: PartyFacilitatorContractTemplateVariables
+    studio: StudioOrMaster
+    templateVariables: PartyFacilitatorContractInputVariables
 }
 
 type CreateAreaManagerContractParams = BaseCreateContractParams & {
@@ -22,7 +43,8 @@ type ESignaturesContractTemplateVariables = {
     [apiKey: string]: string | number
 }
 
-type PartyFacilitatorContractTemplateVariables = ESignaturesContractTemplateVariables & {
+type PartyFacilitatorContractInputVariables = {
+    name: string
     position: string
     managerName: string
     managerPosition: string
@@ -32,6 +54,11 @@ type PartyFacilitatorContractTemplateVariables = ESignaturesContractTemplateVari
     sundayRate: number
     senderName: string
     senderPosition: string
+}
+
+type PartyFacilitatorContractTemplateVariables = PartyFacilitatorContractInputVariables & {
+    employer: string
+    [apiKey: string]: string | number
 }
 
 type AreaManagerContractTemplateVariables = {
@@ -55,8 +82,15 @@ type ESignaturesCreateContractResponse = {
 }
 
 export class ESignatureClient {
-    createPartyFacilitatorContract(params: CreatePartyFacilitatorContractParams) {
-        return this.#createContract(PARTY_FACILITATOR_CONTRACT_TEMPLATE_ID, params)
+    createPartyFacilitatorContract({ studio, ...params }: CreatePartyFacilitatorContractParams) {
+        const contract = PARTY_FACILITATOR_CONTRACTS[getFranchiseOrMaster(studio)]
+        return this.#createContract<PartyFacilitatorContractTemplateVariables>(contract.templateId, {
+            ...params,
+            templateVariables: {
+                ...params.templateVariables,
+                employer: contract.employer,
+            },
+        })
     }
 
     createAreaManagerContract(params: CreateAreaManagerContractParams) {

@@ -31,6 +31,7 @@ export async function initiateOnboarding(input: InitiateEmployeeProps) {
             }))
         } else {
             ;({ contractId, contractSignUrl } = await esignaturesClient.createPartyFacilitatorContract({
+                studio: input.studio,
                 id: employeeRef.id,
                 email: input.email,
                 mobile: input.mobile,
