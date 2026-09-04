@@ -56,8 +56,20 @@ export const structure: StructureResolver = (S) =>
                     S.list()
                         .title('Birthday Parties')
                         .items([
-                            S.documentTypeListItem('birthdayPartyCreation'),
-                            S.documentTypeListItem('birthdayPartyPackage'),
+                            S.listItem()
+                                .title('Customer catalogue')
+                                .icon(FolderIcon)
+                                .child(
+                                    S.list()
+                                        .title('Customer catalogue')
+                                        .items([
+                                            S.documentTypeListItem('birthdayPartyPackage').title('Packages'),
+                                            S.documentTypeListItem('birthdayPartyCreationOffering').title(
+                                                'Creation offerings'
+                                            ),
+                                        ])
+                                ),
+                            S.documentTypeListItem('birthdayPartyCreation').title('Staff recipes'),
                         ])
                 ),
             S.listItem()

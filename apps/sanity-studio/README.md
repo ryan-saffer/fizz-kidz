@@ -2,7 +2,7 @@
 
 The content studio for Fizz Kidz. It is a standalone Sanity app in the npm workspace and connects to project `rjsv3y4b`, dataset `production`.
 
-The Studio manages public Website images and the Holiday Program schedule plus Birthday Party and Holiday Program creation instructions. `holidayProgramWeek` documents contain the schedule cards and show a live Website preview. Birthday Party packages hold ordered references to reusable `birthdayPartyCreation` documents, while each program day is a `holidayProgramCreation` document. Published changes are read by the Website or server and shown in their respective interfaces.
+The Studio manages public Website images, the customer Birthday Party creation catalogue, and the Holiday Program schedule plus Birthday Party and Holiday Program creation instructions. `holidayProgramWeek` documents contain the schedule cards and show a live Website preview. Birthday Party packages keep their existing ordered staff recipe references while also holding ordered customer offerings and package-specific cards. Each customer offering can point to one reusable `birthdayPartyCreation` staff recipe. Published changes are read by the Website or server and shown in their respective interfaces.
 
 Holiday Program instructions have `live` and `archived` statuses. Only published live instructions appear in Portal. Use **Holiday Programs > Search instructions** to search across both statuses without changing the global search type filter. The archive remains searchable so editors can reuse previous recipes when preparing a new schedule; move the previous live set to archived after each program period.
 
@@ -28,6 +28,28 @@ The production dataset is used in local development. Treat edits in the Studio a
 - `static/` contains files copied into the Studio build.
 
 Keep the Studio standalone rather than embedding it in another app. Use kebab-case schema filenames and Sanity's `defineType` and `defineField` helpers when adding schemas.
+
+## Birthday Party catalogue
+
+The Birthday Party area separates customer content from staff instructions:
+
+- **Customer catalogue > Packages** owns Website order, headings, package presentation, booking-channel availability, and package-specific cards.
+- **Customer catalogue > Creation offerings** owns stable booking keys, customer names, previous Paperform labels, status, and the optional staff recipe relationship.
+- **Staff recipes** remains the reusable instruction library consumed by the Portal.
+
+The Phase 1 migration source is `migrations/birthday-party-catalogue-source.ts`. From `apps/sanity-studio`, validate it against the current production assets and recipes with a read-only dry run:
+
+```bash
+npx sanity exec migrations/import-birthday-party-catalogue.ts --with-user-token
+```
+
+Pass `-- --apply` only after reviewing `docs/birthday-party-creation-catalogue-inventory.md`. Apply creates or replaces migration-owned drafts and never publishes them. It refuses to overwrite unrelated package or offering drafts.
+
+Validate the stored draft graph, including the non-contiguous Jungle Safari card sequence, with:
+
+```bash
+npx sanity exec migrations/verify-birthday-party-catalogue-drafts.ts --with-user-token
+```
 
 The shared `@fizz-kidz/ui` `CreationInstructions` component renders both the Studio preview and the Portal output. On wide screens the Portable Text editor and sticky Portal preview appear side by side, with editor scrolling mirrored proportionally in the preview; narrower screens use a stacked layout. The editor opens active at a tall viewport-based height and remains manually resizable. The Studio owns only the adapter that resolves unpublished Sanity image references.
 

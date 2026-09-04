@@ -3,7 +3,7 @@ import { defineField, defineType } from 'sanity'
 
 export const birthdayPartyCreation = defineType({
     name: 'birthdayPartyCreation',
-    title: 'Birthday Party creations',
+    title: 'Birthday Party staff recipe',
     type: 'document',
     icon: DocumentTextIcon,
     fields: [

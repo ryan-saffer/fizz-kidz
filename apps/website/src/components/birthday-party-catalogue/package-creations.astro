@@ -1,0 +1,56 @@
+---
+import CreationCard from "@/components/birthday-party-catalogue/creation-card.astro";
+import CreationsSummary from "@/components/creations-summary.astro";
+import PartyPackageCreations from "@/components/party-package-creations.astro";
+import type { ImageSource } from "@/types/images";
+
+import type { BirthdayPartyCataloguePackage } from "@fizz-kidz/core";
+
+type Props = {
+  partyPackage: BirthdayPartyCataloguePackage;
+  variant?: "summary" | "party";
+  image?: ImageSource;
+  imageAlt?: string;
+};
+
+const {
+  partyPackage,
+  variant = "summary",
+  image,
+  imageAlt = `${partyPackage.name} Party Package`,
+} = Astro.props;
+
+if (variant === "party" && !image && !partyPackage.hidePartyImage) {
+  throw new Error(`Missing party image for Sanity package: ${partyPackage.key}`);
+}
+---
+
+{
+  variant === "party" ? (
+    <PartyPackageCreations
+      partyPackage={partyPackage.name}
+      caption={partyPackage.caption}
+      image={image!}
+      imageAlt={imageAlt}
+      hideLeftImage={partyPackage.hidePartyImage}
+      blackBackground={partyPackage.blackBackground}
+      useDefaultSlot
+    >
+      {partyPackage.cards.map((card) => (
+        <div>
+          <CreationCard card={card} flippable={false} />
+        </div>
+      ))}
+    </PartyPackageCreations>
+  ) : (
+    <CreationsSummary
+      title={partyPackage.summaryTitle}
+      color={partyPackage.accentColour}
+      useDefaultSlot
+    >
+      {partyPackage.cards.map((card) => (
+        <CreationCard card={card} flippable={false} />
+      ))}
+    </CreationsSummary>
+  )
+}

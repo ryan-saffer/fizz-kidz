@@ -2,7 +2,9 @@
 
 The public face of Fizz Kidz. Mostly Astro pages, with React where interaction earns its keep.
 
-Most copy lives directly in `src/pages` and `src/components`. Sanity supplies the Holiday Program schedule and the editable image slots resolved by `src/data/website-images.ts` during the Website build.
+Most copy lives directly in `src/pages` and `src/components`. Sanity supplies the Holiday Program schedule, the birthday-party customer catalogue, and the editable image slots resolved during the Website build.
+
+`src/utils/sanity-api-client.ts` is the Sanity boundary. Its birthday-party query returns the complete published active catalogue and validates it with the runtime-neutral contract from `@fizz-kidz/core`. Generic catalogue cards and package sections live under `src/components/birthday-party-catalogue`. The current birthday-party routes remain on their static components until the imported catalogue drafts have been reviewed and published.
 
 Website forms use the Zod schemas, inferred payload types, and select options exported from `@fizz-kidz/core` in `packages/core/src/website/website-forms.ts`. Submit active forms through `src/utils/website-forms.ts`; it dynamically imports the vanilla tRPC client on first submission, keeping tRPC out of the initial island bundle while preserving end-to-end input, output, and error typing.
 
