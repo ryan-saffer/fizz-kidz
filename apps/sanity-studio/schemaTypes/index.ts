@@ -5,7 +5,6 @@ import { holidayProgramCreation } from './documents/holiday-program-creation'
 import { holidayProgramWeek } from './documents/holiday-program-week'
 import { websiteImage } from './documents/website-image'
 import { birthdayPartyCreationCard } from './objects/birthday-party-creation-card'
-import { birthdayPartyOfferingEntry } from './objects/birthday-party-offering-entry'
 import { creationInstructions } from './objects/creation-instructions'
 import { externalImage } from './objects/external-image'
 import { holidayProgramSession } from './objects/holiday-program-session'
@@ -19,7 +18,6 @@ export const schemaTypes = [
     websiteImage,
     creationInstructions,
     birthdayPartyCreationCard,
-    birthdayPartyOfferingEntry,
     externalImage,
     holidayProgramSession,
 ]

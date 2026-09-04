@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { isDeepStrictEqual } from 'node:util'
 
 import { getCliClient } from 'sanity/cli'
 
@@ -11,7 +12,10 @@ import {
 const API_VERSION = '2026-08-01'
 const MIGRATION_SOURCE = 'website-catalogue-phase-1-2026-09'
 const apply = process.argv.includes('--apply')
+const applyImages = process.argv.includes('--apply-images')
 const client = getCliClient({ apiVersion: API_VERSION }).withConfig({ perspective: 'raw' })
+
+if (apply && applyImages) throw new Error('Choose either --apply or --apply-images, not both.')
 
 type SanityDocument = {
     _id: string
@@ -47,7 +51,7 @@ function migrationOwned(document: SanityDocument) {
     return document.migrationSource === MIGRATION_SOURCE
 }
 
-function draftOfferingReference(offering: SanityDocument) {
+function draftCreationReference(offering: SanityDocument) {
     return {
         _ref: publishedId(offering._id),
         _strengthenOnPublish: { type: 'birthdayPartyCreationOffering' },
@@ -69,12 +73,26 @@ const [imageDocuments, recipeDocuments, packageDocuments, packageDrafts, existin
 ])
 
 const imagesByKey = oneBy(imageDocuments, (image) => image.key, 'published Website image key')
-const recipesByName = oneBy(recipeDocuments, (recipe) => recipe.name, 'published staff recipe name')
+const recipesByName = oneBy(recipeDocuments, (recipe) => recipe.name, 'published creation instructions name')
 const packagesByName = oneBy(
     packageDocuments,
     (partyPackage) => String(partyPackage.name),
     'published staff package name'
 )
+const imageKeysByOfferingKey = new Map<string, string>()
+for (const sourcePackage of birthdayPartyCataloguePackages) {
+    for (const packageOffering of sourcePackage.offerings) {
+        const bookingChoiceCards = packageOffering.cards.filter((card) => card.useForBookingChoice)
+        if (bookingChoiceCards.length !== 1) {
+            throw new Error(
+                `Package "${sourcePackage.key}" offering "${packageOffering.offeringKey}" must have exactly one booking choice image.`
+            )
+        }
+        if (!imageKeysByOfferingKey.has(packageOffering.offeringKey)) {
+            imageKeysByOfferingKey.set(packageOffering.offeringKey, bookingChoiceCards[0].imageKey)
+        }
+    }
+}
 const packageDraftsByPublishedId = oneBy(
     packageDrafts,
     (partyPackage) => publishedId(partyPackage._id),
@@ -102,12 +120,18 @@ for (const [key, sourceOffering] of Object.entries(sourceOfferings)) {
     const documentId = documentIds.values().next().value ?? randomUUID()
     const recipe = sourceOffering.recipeName ? recipesByName.get(sourceOffering.recipeName) : undefined
     if (sourceOffering.recipeName && !recipe) {
-        throw new Error(`Missing published staff recipe "${sourceOffering.recipeName}" for offering "${key}".`)
+        throw new Error(`Missing published creation instructions "${sourceOffering.recipeName}" for offering "${key}".`)
+    }
+    const imageKey = imageKeysByOfferingKey.get(key)
+    const websiteImage = imageKey ? imagesByKey.get(imageKey) : undefined
+    if (!imageKey || !websiteImage?.image) {
+        throw new Error(`Missing published Creation image for offering "${key}".`)
     }
 
     desiredOfferingDocuments.set(key, {
         _id: `drafts.${documentId}`,
         _type: 'birthdayPartyCreationOffering',
+        image: websiteImage.image,
         key,
         legacyLabels: sourceOffering.legacyLabels ?? [],
         migrationSource: MIGRATION_SOURCE,
@@ -132,6 +156,7 @@ const desiredPackageDocuments = birthdayPartyCataloguePackages.map((sourcePackag
 
     const sourceCards = sourcePackage.offerings.flatMap((packageOffering) =>
         packageOffering.cards.map((sourceCard, cardIndex) => ({
+            availability: packageOffering.availability,
             cardIndex,
             offeringKey: packageOffering.offeringKey,
             sourceCard,
@@ -157,6 +182,9 @@ const desiredPackageDocuments = birthdayPartyCataloguePackages.map((sourcePackag
     if (orderedSourceCards.length !== sourceCards.length) {
         throw new Error(`Package "${sourcePackage.key}" Website card order is incomplete.`)
     }
+    const bookingOrderByOfferingKey = new Map(
+        sourcePackage.offerings.map((packageOffering, index) => [packageOffering.offeringKey, index + 1])
+    )
 
     return {
         ...publishedPackage,
@@ -169,20 +197,9 @@ const desiredPackageDocuments = birthdayPartyCataloguePackages.map((sourcePackag
         hidePartyImage: sourcePackage.hidePartyImage ?? false,
         key: sourcePackage.key,
         migrationSource: MIGRATION_SOURCE,
-        offeringEntries: sourcePackage.offerings.map((packageOffering) => {
-            const offering = desiredOfferingDocuments.get(packageOffering.offeringKey)
-            if (!offering) throw new Error(`Unknown offering key "${packageOffering.offeringKey}".`)
-
-            return {
-                _key: `offering_${packageOffering.offeringKey}`,
-                _type: 'birthdayPartyOfferingEntry',
-                availability: packageOffering.availability,
-                offering: draftOfferingReference(offering),
-            }
-        }),
         status: 'active',
         summaryTitle: sourcePackage.summaryTitle,
-        websiteCards: orderedSourceCards.map(({ cardIndex, offeringKey, sourceCard }) => {
+        websiteCards: orderedSourceCards.map(({ availability, cardIndex, offeringKey, sourceCard }) => {
             const websiteImage = imagesByKey.get(sourceCard.imageKey)
             if (!websiteImage?.image) {
                 throw new Error(
@@ -191,34 +208,54 @@ const desiredPackageDocuments = birthdayPartyCataloguePackages.map((sourcePackag
             }
             const offering = desiredOfferingDocuments.get(offeringKey)
             if (!offering) throw new Error(`Unknown offering key "${offeringKey}".`)
+            const creationName = sourceOfferings[offeringKey].name
 
             return {
                 _key: `card_${offeringKey}_${cardIndex + 1}`,
                 _type: 'birthdayPartyCreationCard',
-                alt: sourceCard.alt,
+                ...(sourceCard.alt === `${creationName} creation` ? {} : { alt: sourceCard.alt }),
+                ...(sourceCard.useForBookingChoice
+                    ? {
+                          bookingChannels: availability,
+                          bookingOrder: bookingOrderByOfferingKey.get(offeringKey),
+                      }
+                    : {}),
                 colour: sourceCard.colour,
-                image: websiteImage.image,
-                label: sourceCard.label,
-                offering: draftOfferingReference(offering),
-                useForBookingChoice: sourceCard.useForBookingChoice,
+                creation: draftCreationReference(offering),
+                ...(sourceCard.label.length === 0 ? { hideLabel: true } : {}),
+                ...(isDeepStrictEqual(websiteImage.image, offering.image) ? {} : { image: websiteImage.image }),
+                ...(isDeepStrictEqual(sourceCard.label, [creationName]) || sourceCard.label.length === 0
+                    ? {}
+                    : { label: sourceCard.label }),
             }
         }),
     }
 })
 
 console.log(
-    `${apply ? 'Applying' : 'Dry run for'} ${desiredOfferingDocuments.size} offering drafts and ${desiredPackageDocuments.length} package drafts.`
+    `${apply ? 'Applying' : applyImages ? 'Applying images to' : 'Dry run for'} ${desiredOfferingDocuments.size} creation drafts${applyImages ? '' : ` and ${desiredPackageDocuments.length} package drafts`}.`
 )
 console.log(`Found ${existingOfferings.length} existing offering documents and ${packageDrafts.length} package drafts.`)
 
-if (!apply) {
+if (!apply && !applyImages) {
     console.log('No documents changed. Run again with --apply after reviewing the source inventory.')
     process.exit(0)
 }
 
 let transaction = client.transaction()
-for (const offering of desiredOfferingDocuments.values()) transaction = transaction.createOrReplace(offering)
-for (const partyPackage of desiredPackageDocuments) transaction = transaction.createOrReplace(partyPackage)
+if (applyImages) {
+    if (existingOfferings.length !== desiredOfferingDocuments.size) {
+        throw new Error('Creation image updates require every migration-owned creation draft to exist first.')
+    }
+    for (const offering of desiredOfferingDocuments.values()) {
+        transaction = transaction.patch(offering._id, (patch) => patch.setIfMissing({ image: offering.image }))
+    }
+} else {
+    for (const offering of desiredOfferingDocuments.values()) transaction = transaction.createOrReplace(offering)
+    for (const partyPackage of desiredPackageDocuments) transaction = transaction.createOrReplace(partyPackage)
+}
 
 const result = await transaction.commit({ visibility: 'sync' })
-console.log(`Created or replaced ${result.results.length} drafts. No documents were published.`)
+console.log(
+    `${applyImages ? 'Filled missing images on' : 'Created or replaced'} ${result.results.length} drafts. No documents were published.`
+)

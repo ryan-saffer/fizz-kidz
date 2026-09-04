@@ -16,11 +16,12 @@ The Website is the authority for the initial migration. Its current names, packa
 - Phase 1 changes the Website and Sanity Studio. It does not change the live Paperform or booking submission path.
 - Preserve Paperform's package-specific Multiple Choice questions. Their option images and layout are part of the customer experience.
 - Preserve the existing Sanity-triggered Website rebuild. Creation and package publishes must continue to trigger it.
-- Keep public creation offerings separate from staff recipes. Several themed customer choices can share one set of staff instructions, and one creation can use different imagery in different packages.
+- Keep public creation offerings separate from creation instructions. Several themed customer choices can share one set of instructions, and one creation can use different imagery in different packages.
 - Give every offering a stable business key. Let Sanity generate ordinary document `_id` values.
 - Retire offerings instead of deleting them once a booking or Paperform submission may refer to them.
 - Keep Paperform field IDs and other provider configuration in the server integration, not in Sanity content.
 - Treat intentional studio/mobile differences as catalogue data. They must not live only as manual changes inside Paperform.
+- Use each package's ordered Website cards as its only creation-membership source. Exactly one card per creation owns booking channels and booking order; additional cards are presentation variants.
 
 ## Current state
 
@@ -38,13 +39,13 @@ The catalogues have already drifted. Sanity includes a Sweet Kitty package that 
 
 ## Domain model
 
-### Staff recipe
+### Creation instructions
 
-The existing Sanity `_type` `birthdayPartyCreation` remains the staff recipe and instruction document. Its Studio title can be clarified without changing the stored type.
+The existing Sanity `_type` `birthdayPartyCreation` remains the creation-instructions document. Its stored type does not change.
 
-A recipe contains:
+An instruction document contains:
 
-- Internal recipe name.
+- Internal instruction name.
 - Portable Text instructions.
 - Instruction images.
 
@@ -59,14 +60,14 @@ An offering contains:
 - `key`: required, unique, stable, and read-only after first publication.
 - `name`: the customer-facing default name.
 - `status`: `active` or `retired`.
-- `recipe`: an optional reference to a `birthdayPartyCreation` recipe.
+- `recipe`: an optional reference to a `birthdayPartyCreation` instruction document.
 - `legacyLabels`: previous Paperform labels that must still resolve to this offering.
 
 An offering's key is stored on new bookings. Names can change without changing booking identity.
 
 ### Party package
 
-Continue using `birthdayPartyPackage`, but add a new ordered array for customer offerings rather than changing the existing recipe-reference array in place. Once all consumers use the new field, deprecate the old field through Sanity's read-only, hidden, and deprecated lifecycle.
+Continue using `birthdayPartyPackage`, but add one ordered Website-card array rather than changing the existing creation-instruction reference array in place. Once all consumers use the catalogue, deprecate the old instruction field through Sanity's read-only, hidden, and deprecated lifecycle.
 
 Each package contains:
 
@@ -75,21 +76,15 @@ Each package contains:
 - Active or retired status.
 - Display order.
 - Package colour or theme where still required by the current design.
-- An ordered list of offering entries.
-- An independently ordered list of Website cards.
-
-Each offering entry contains:
-
-- A reference to a customer offering.
-- Availability for `studio`, `mobile`, or both.
+- One ordered list of Website cards.
 
 Each Website card contains:
 
 - A reference to the customer offering it represents.
-- Package-specific image, alt text, label lines, and colour treatment.
-- Whether it supplies that offering's Paperform booking-choice image.
+- Optional package-specific image, alt text, and label overrides plus its colour treatment.
+- Booking channels and booking-menu order when it is the creation's booking card.
 
-Cards are ordered separately from selectable offerings. This preserves both Fluid Bears' six contiguous cards for one offering and Jungle Safari's two non-contiguous Monster Slime cards. A card reuses a Sanity asset rather than copying the binary image.
+Exactly one card per creation has booking channels. Filtering and sorting those cards by booking order derives the selectable creations without a second synchronized list. Website array order still preserves both Fluid Bears' six contiguous cards for one creation and Jungle Safari's two non-contiguous Monster Slime cards. Booking order remains independent where needed, such as Fairy's Marshmallow Slime placement. A card defaults to its creation's image and name and stores overrides only where presentation differs.
 
 Every array projection must include its Sanity `_key`.
 
@@ -97,12 +92,12 @@ Every array projection must include its Sanity `_key`.
 
 Sanity validation and automated checks should enforce these rules:
 
-- Active packages have a key, name, order, and at least one offering.
+- Active packages have a key, name, order, and at least one Website card.
 - Active offerings have a unique stable key and customer-facing name.
-- Every active package entry has at least one booking channel.
-- Every active Website card has an image, useful alt text, and a package offering reference.
+- Every creation represented in a package has exactly one card with at least one booking channel and a unique consecutive booking order.
+- Every active Website card resolves an image, useful alt text, and creation reference.
 - Active Website entries appear in the corresponding Paperform package question once the Paperform phase is live.
-- One package cannot contain the same offering twice unless the entries are deliberate presentation variants and the model explicitly supports that case.
+- One package may contain multiple cards for a creation, but only one can be its booking card.
 - Retired offerings remain queryable for historical bookings and old submissions.
 - A legacy Paperform label resolves to exactly one offering within its package.
 - Publishing a broken reference or ambiguous Paperform label is blocked.
@@ -134,7 +129,7 @@ Phase 0 is complete when every Website card has an explicit destination in the n
 ### Sanity Studio
 
 - [x] Add the customer offering document schema with validation and a useful preview.
-- [x] Extend the package schema with the ordered customer-offering entries.
+- [x] Extend the package schema with one ordered Website-card list that also derives booking choices.
 - [x] Keep existing recipe references intact during migration.
 - [x] Add Studio structure entries that make packages, customer offerings, and recipes easy to distinguish.
 - [x] Add a package preview that shows the same creation cards and order as the Website where practical.
@@ -157,9 +152,9 @@ Phase 0 is complete when every Website card has an explicit destination in the n
 
 - The rebuilt Website matches the current production catalogue before editors make any intentional content changes.
 - An editor can rename, reorder, add, retire, or replace the image for a creation in an existing package without a code change.
-- The all-creations page and each party page read the same package entries.
+- The all-creations page and each party page read the same package cards.
 - A missing required image, invalid reference, duplicate key, or ambiguous legacy label fails validation or the Website build with a useful message.
-- The staff recipe and Portal instruction experience still works.
+- The creation-instructions and Portal instruction experience still works.
 - Paperform and booking submission behavior is unchanged.
 
 ## Phase 2: server catalogue and Portal compatibility

@@ -18,7 +18,22 @@ const validCatalogue: BirthdayPartyCatalogue = {
                 {
                     _key: 'card-1',
                     alt: 'Green monster slime in a jar',
+                    bookingChannels: ['studio', 'mobile'],
+                    bookingOrder: 1,
                     colour: 'green',
+                    creation: {
+                        _id: 'creation-1',
+                        image: {
+                            assetId: 'image-1',
+                            height: 500,
+                            src: 'https://cdn.sanity.io/image-1.png',
+                            width: 500,
+                        },
+                        key: 'monsterSlime',
+                        name: 'Monster Slime',
+                        status: 'active',
+                        legacyLabels: [],
+                    },
                     image: {
                         assetId: 'image-1',
                         height: 500,
@@ -26,21 +41,6 @@ const validCatalogue: BirthdayPartyCatalogue = {
                         width: 500,
                     },
                     label: ['Monster Slime'],
-                    offeringKey: 'monsterSlime',
-                    useForBookingChoice: true,
-                },
-            ],
-            offerings: [
-                {
-                    _key: 'entry-1',
-                    availability: ['studio', 'mobile'],
-                    offering: {
-                        _id: 'offering-1',
-                        key: 'monsterSlime',
-                        name: 'Monster Slime',
-                        status: 'active',
-                        legacyLabels: [],
-                    },
                 },
             ],
         },
@@ -59,13 +59,24 @@ describe('validateBirthdayPartyCatalogue', () => {
         deepStrictEqual(validateBirthdayPartyCatalogue(validCatalogue), validCatalogue)
     })
 
-    it('rejects an offering that is unavailable through every booking channel', () => {
+    it('requires exactly one booking card for every creation', () => {
         const catalogue = structuredClone(validCatalogue)
-        catalogue.packages[0].offerings[0].availability = []
+        catalogue.packages[0].cards[0].bookingChannels = []
+        catalogue.packages[0].cards[0].bookingOrder = undefined
 
         throws(
             () => validateBirthdayPartyCatalogue(catalogue),
-            /Package "slime" offering "monsterSlime" must have at least one booking channel/
+            /Package "slime" creation "monsterSlime" must have exactly one booking card/
+        )
+    })
+
+    it('rejects invalid booking channels', () => {
+        const catalogue = structuredClone(validCatalogue)
+        catalogue.packages[0].cards[0].bookingChannels = ['studio', 'studio']
+
+        throws(
+            () => validateBirthdayPartyCatalogue(catalogue),
+            /Package "slime" creation "monsterSlime" has invalid booking channels/
         )
     })
 
@@ -75,7 +86,7 @@ describe('validateBirthdayPartyCatalogue', () => {
 
         throws(
             () => validateBirthdayPartyCatalogue(catalogue),
-            /Package "slime" offering "monsterSlime" card "card-1" must have an image/
+            /Package "slime" creation "monsterSlime" card "card-1" must have an image/
         )
     })
 
@@ -86,85 +97,125 @@ describe('validateBirthdayPartyCatalogue', () => {
         throws(() => validateBirthdayPartyCatalogue(catalogue), /Duplicate package key "slime"/)
     })
 
-    it('rejects duplicate offerings within a package', () => {
+    it('rejects one stable creation key belonging to different documents', () => {
         const catalogue = structuredClone(validCatalogue)
-        catalogue.packages[0].offerings.push({
-            ...structuredClone(catalogue.packages[0].offerings[0]),
-            _key: 'entry-2',
+        catalogue.packages[0].cards.push({
+            ...structuredClone(catalogue.packages[0].cards[0]),
+            _key: 'card-2',
+            bookingChannels: [],
+            bookingOrder: undefined,
+            creation: {
+                ...structuredClone(catalogue.packages[0].cards[0].creation),
+                _id: 'creation-2',
+            },
         })
 
-        throws(
-            () => validateBirthdayPartyCatalogue(catalogue),
-            /Package "slime" contains duplicate offering "monsterSlime"/
-        )
+        throws(() => validateBirthdayPartyCatalogue(catalogue), /Duplicate creation key "monsterSlime"/)
     })
 
     it('rejects ambiguous current and legacy labels within a package', () => {
         const catalogue = structuredClone(validCatalogue)
-        const secondOffering = structuredClone(catalogue.packages[0].offerings[0])
-        secondOffering._key = 'entry-2'
-        secondOffering.offering = {
-            _id: 'offering-2',
-            key: 'alienSlime',
-            legacyLabels: [' monster slime '],
-            name: 'Alien Slime',
-            status: 'active',
-        }
-        catalogue.packages[0].offerings.push(secondOffering)
-
-        throws(
-            () => validateBirthdayPartyCatalogue(catalogue),
-            /Package "slime" label "monster slime" is ambiguous between offerings "monsterSlime" and "alienSlime"/
-        )
-    })
-
-    it('supports non-contiguous presentation cards with exactly one booking choice image', () => {
-        const catalogue = structuredClone(validCatalogue)
-        catalogue.packages[0].offerings.push({
-            _key: 'entry-2',
-            availability: ['studio'],
-            offering: {
-                _id: 'offering-2',
+        catalogue.packages[0].cards.push({
+            ...structuredClone(catalogue.packages[0].cards[0]),
+            _key: 'card-2',
+            bookingChannels: ['studio'],
+            bookingOrder: 2,
+            creation: {
+                _id: 'creation-2',
+                image: {
+                    assetId: 'image-2',
+                    height: 500,
+                    src: 'https://cdn.sanity.io/image-2.png',
+                    width: 500,
+                },
                 key: 'alienSlime',
-                legacyLabels: [],
+                legacyLabels: [' monster slime '],
                 name: 'Alien Slime',
                 status: 'active',
             },
+            image: {
+                assetId: 'image-2',
+                height: 500,
+                src: 'https://cdn.sanity.io/image-2.png',
+                width: 500,
+            },
+            label: ['Alien Slime'],
         })
+
+        throws(
+            () => validateBirthdayPartyCatalogue(catalogue),
+            /Package "slime" label "monster slime" is ambiguous between creations "monsterSlime" and "alienSlime"/
+        )
+    })
+
+    it('supports non-contiguous presentation cards with exactly one booking card', () => {
+        const catalogue = structuredClone(validCatalogue)
         catalogue.packages[0].cards.push(
             {
                 ...structuredClone(catalogue.packages[0].cards[0]),
                 _key: 'card-2',
+                bookingChannels: ['studio'],
+                bookingOrder: 2,
+                creation: {
+                    _id: 'creation-2',
+                    image: {
+                        assetId: 'image-2',
+                        height: 500,
+                        src: 'https://cdn.sanity.io/image-2.png',
+                        width: 500,
+                    },
+                    key: 'alienSlime',
+                    legacyLabels: [],
+                    name: 'Alien Slime',
+                    status: 'active',
+                },
+                image: {
+                    assetId: 'image-2',
+                    height: 500,
+                    src: 'https://cdn.sanity.io/image-2.png',
+                    width: 500,
+                },
                 label: ['Alien Slime'],
-                offeringKey: 'alienSlime',
             },
             {
                 ...structuredClone(catalogue.packages[0].cards[0]),
                 _key: 'card-3',
-                useForBookingChoice: false,
+                bookingChannels: [],
+                bookingOrder: undefined,
             }
         )
 
         deepStrictEqual(validateBirthdayPartyCatalogue(catalogue), catalogue)
 
-        catalogue.packages[0].cards[2].useForBookingChoice = true
+        catalogue.packages[0].cards[2].bookingChannels = ['mobile']
+        catalogue.packages[0].cards[2].bookingOrder = 3
         throws(
             () => validateBirthdayPartyCatalogue(catalogue),
-            /Package "slime" offering "monsterSlime" must have exactly one booking choice image/
+            /Package "slime" creation "monsterSlime" must have exactly one booking card/
         )
     })
 
-    it('rejects a broken offering reference with its package and entry keys', () => {
+    it('requires consecutive unique booking orders', () => {
         const catalogue = structuredClone(validCatalogue)
-        catalogue.packages[0].offerings[0].offering = null as never
+        catalogue.packages[0].cards[0].bookingOrder = 2
 
         throws(
             () => validateBirthdayPartyCatalogue(catalogue),
-            /Package "slime" entry "entry-1" has a missing offering reference/
+            /Package "slime" booking orders must be consecutive from 1/
         )
     })
 
-    it('rejects incomplete active package and offering content', () => {
+    it('rejects a broken creation reference with its package and card keys', () => {
+        const catalogue = structuredClone(validCatalogue)
+        catalogue.packages[0].cards[0].creation = null as never
+
+        throws(
+            () => validateBirthdayPartyCatalogue(catalogue),
+            /Package "slime" card "card-1" has a missing creation reference/
+        )
+    })
+
+    it('rejects incomplete active package and creation content', () => {
         const cases: Array<{
             expected: RegExp
             mutate: (catalogue: BirthdayPartyCatalogue) => void
@@ -178,19 +229,23 @@ describe('validateBirthdayPartyCatalogue', () => {
                 mutate: (catalogue) => (catalogue.packages[0].name = ''),
             },
             {
-                expected: /Package "slime" must contain at least one offering/,
-                mutate: (catalogue) => (catalogue.packages[0].offerings = []),
+                expected: /Package "slime" must contain at least one Website card/,
+                mutate: (catalogue) => (catalogue.packages[0].cards = []),
             },
             {
-                expected: /Package "slime" offering "offering-1" must have a stable key/,
-                mutate: (catalogue) => (catalogue.packages[0].offerings[0].offering.key = ''),
+                expected: /Package "slime" creation "creation-1" must have a stable key/,
+                mutate: (catalogue) => (catalogue.packages[0].cards[0].creation.key = ''),
             },
             {
-                expected: /Package "slime" offering "monsterSlime" must be active/,
-                mutate: (catalogue) => (catalogue.packages[0].offerings[0].offering.status = 'retired'),
+                expected: /Package "slime" creation "monsterSlime" must be active/,
+                mutate: (catalogue) => (catalogue.packages[0].cards[0].creation.status = 'retired'),
             },
             {
-                expected: /Package "slime" offering "monsterSlime" card "card-1" must have useful alt text/,
+                expected: /Package "slime" creation "monsterSlime" must have an image/,
+                mutate: (catalogue) => (catalogue.packages[0].cards[0].creation.image = undefined as never),
+            },
+            {
+                expected: /Package "slime" creation "monsterSlime" card "card-1" must have useful alt text/,
                 mutate: (catalogue) => (catalogue.packages[0].cards[0].alt = ' '),
             },
         ]

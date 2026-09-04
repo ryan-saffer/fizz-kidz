@@ -15,6 +15,9 @@ const client = getCliClient({ apiVersion: API_VERSION }).withConfig({ perspectiv
 const counts = await client.fetch<{
     migratedPackageDrafts: number
     offeringDrafts: number
+    offeringDraftsWithImages: number
+    packagesWithDuplicateCreationLists: number
+    packagesWithLegacyCardFields: number
     publishedOfferings: number
 }>(
     `{
@@ -28,6 +31,24 @@ const counts = await client.fetch<{
             _id in path("drafts.**") &&
             migrationSource == $migrationSource
         ]),
+        "offeringDraftsWithImages": count(*[
+            _type == "birthdayPartyCreationOffering" &&
+            _id in path("drafts.**") &&
+            migrationSource == $migrationSource &&
+            defined(image.asset._ref)
+        ]),
+        "packagesWithDuplicateCreationLists": count(*[
+            _type == "birthdayPartyPackage" &&
+            _id in path("drafts.**") &&
+            migrationSource == $migrationSource &&
+            defined(offeringEntries)
+        ]),
+        "packagesWithLegacyCardFields": count(*[
+            _type == "birthdayPartyPackage" &&
+            _id in path("drafts.**") &&
+            migrationSource == $migrationSource &&
+            count(websiteCards[defined(offering) || defined(useForBookingChoice)]) > 0
+        ]),
         "publishedOfferings": count(*[
             _type == "birthdayPartyCreationOffering" &&
             !(_id in path("drafts.**"))
@@ -38,7 +59,10 @@ const counts = await client.fetch<{
 
 strictEqual(counts.migratedPackageDrafts, birthdayPartyCataloguePackages.length)
 strictEqual(counts.offeringDrafts, Object.keys(birthdayPartyCatalogueOfferings).length)
-strictEqual(counts.publishedOfferings, 0, 'Customer offering documents must remain unpublished at the review gate')
+strictEqual(counts.offeringDraftsWithImages, counts.offeringDrafts)
+strictEqual(counts.packagesWithDuplicateCreationLists, 0)
+strictEqual(counts.packagesWithLegacyCardFields, 0)
+strictEqual(counts.publishedOfferings, 0, 'Creation documents must remain unpublished at the review gate')
 
 const catalogue = await client.withConfig({ perspective: 'drafts' }).fetch<BirthdayPartyCatalogue>(`
     {
@@ -53,33 +77,41 @@ const catalogue = await client.withConfig({ perspective: 'drafts' }).fetch<Birth
             caption,
             "cards": websiteCards[] {
                 _key,
-                alt,
+                "alt": coalesce(alt, creation->name + " creation"),
+                "bookingChannels": coalesce(bookingChannels, []),
+                bookingOrder,
                 colour,
-                "image": {
-                    "assetId": image.asset->_id,
-                    "height": image.asset->metadata.dimensions.height,
-                    "src": image.asset->url,
-                    "width": image.asset->metadata.dimensions.width
-                },
-                "label": coalesce(label, []),
-                "offeringKey": offering->key,
-                useForBookingChoice
-            },
-            hidePartyImage,
-            key,
-            "name": customerName,
-            "offerings": offeringEntries[] {
-                _key,
-                availability,
-                offering->{
+                creation->{
                     _id,
+                    "image": {
+                        "assetId": image.asset->_id,
+                        "height": image.asset->metadata.dimensions.height,
+                        "src": image.asset->url,
+                        "width": image.asset->metadata.dimensions.width
+                    },
                     key,
                     "legacyLabels": coalesce(legacyLabels, []),
                     name,
                     recipe->{_id, name},
                     status
-                }
+                },
+                "image": {
+                    "assetId": coalesce(image.asset->_id, creation->image.asset->_id),
+                    "height": coalesce(
+                        image.asset->metadata.dimensions.height,
+                        creation->image.asset->metadata.dimensions.height
+                    ),
+                    "src": coalesce(image.asset->url, creation->image.asset->url),
+                    "width": coalesce(
+                        image.asset->metadata.dimensions.width,
+                        creation->image.asset->metadata.dimensions.width
+                    )
+                },
+                "label": select(hideLabel == true => [], defined(label) => label, [creation->name])
             },
+            hidePartyImage,
+            key,
+            "name": customerName,
             "order": catalogueOrder,
             status,
             summaryTitle
@@ -96,10 +128,27 @@ strictEqual(
     catalogue.packages.reduce((count, partyPackage) => count + partyPackage.cards.length, 0),
     83
 )
+strictEqual(
+    catalogue.packages.reduce(
+        (count, partyPackage) => count + partyPackage.cards.filter((card) => card.bookingChannels.length > 0).length,
+        0
+    ),
+    77
+)
+for (const sourcePackage of birthdayPartyCataloguePackages) {
+    deepStrictEqual(
+        catalogue.packages
+            .find((partyPackage) => partyPackage.key === sourcePackage.key)
+            ?.cards.filter((card) => card.bookingChannels.length > 0)
+            .sort((left, right) => left.bookingOrder! - right.bookingOrder!)
+            .map((card) => card.creation.key),
+        sourcePackage.offerings.map((offering) => offering.offeringKey)
+    )
+}
 deepStrictEqual(
     catalogue.packages
         .find((partyPackage) => partyPackage.key === 'safari')
-        ?.cards.map((card) => `${card.offeringKey}:${card.colour}`),
+        ?.cards.map((card) => `${card.creation.key}:${card.colour}`),
     [
         'monsterSlime:purple',
         'monsterExplosions:green',
@@ -113,5 +162,5 @@ deepStrictEqual(
 )
 
 console.log(
-    `Verified ${catalogue.packages.length} package drafts, ${counts.offeringDrafts} offering drafts, and 83 ordered Website cards. Nothing is published.`
+    `Verified ${catalogue.packages.length} package drafts with one 83-card sequence, 77 derived booking choices, and ${counts.offeringDrafts} creation drafts with images. Nothing is published.`
 )

@@ -2,7 +2,7 @@
 
 The content studio for Fizz Kidz. It is a standalone Sanity app in the npm workspace and connects to project `rjsv3y4b`, dataset `production`.
 
-The Studio manages public Website images, the customer Birthday Party creation catalogue, and the Holiday Program schedule plus Birthday Party and Holiday Program creation instructions. `holidayProgramWeek` documents contain the schedule cards and show a live Website preview. Birthday Party packages keep their existing ordered staff recipe references while also holding ordered customer offerings and package-specific cards. Each customer offering can point to one reusable `birthdayPartyCreation` staff recipe. Published changes are read by the Website or server and shown in their respective interfaces.
+The Studio manages public Website images, the Birthday Party package catalogue, and the Holiday Program schedule plus Birthday Party and Holiday Program creation instructions. `holidayProgramWeek` documents contain the schedule cards and show a live Website preview. Birthday Party packages keep their existing ordered creation-instruction references while using one ordered Website-card list for customer-facing creations. Each creation can point to one reusable `birthdayPartyCreation` instruction document. Published changes are read by the Website or server and shown in their respective interfaces.
 
 Holiday Program instructions have `live` and `archived` statuses. Only published live instructions appear in Portal. Use **Holiday Programs > Search instructions** to search across both statuses without changing the global search type filter. The archive remains searchable so editors can reuse previous recipes when preparing a new schedule; move the previous live set to archived after each program period.
 
@@ -33,19 +33,23 @@ Keep the Studio standalone rather than embedding it in another app. Use kebab-ca
 
 The Birthday Party area separates customer content from staff instructions:
 
-- **Customer catalogue > Packages** owns Website order, headings, package presentation, booking-channel availability, and package-specific cards.
-- **Customer catalogue > Creation offerings** owns stable booking keys, customer names, previous Paperform labels, status, and the optional staff recipe relationship.
-- **Staff recipes** remains the reusable instruction library consumed by the Portal.
+- **Party packages > Packages** owns Website order, headings, package presentation, and one ordered Website-card list. Every card references a creation; exactly one card per creation also owns its booking channels and booking-menu order.
+- **Party packages > Creations** owns stable booking keys, customer names, default images, previous Paperform labels, status, and the optional creation-instructions relationship.
+- **Creation instructions** remains the reusable instruction library consumed by the Portal.
 
-The Phase 1 migration source is `migrations/birthday-party-catalogue-source.ts`. From `apps/sanity-studio`, validate it against the current production assets and recipes with a read-only dry run:
+The Phase 1 migration source is `migrations/birthday-party-catalogue-source.ts`. From `apps/sanity-studio`, validate it against the current production assets and creation instructions with a read-only dry run:
 
 ```bash
 npx sanity exec migrations/import-birthday-party-catalogue.ts --with-user-token
 ```
 
-Pass `-- --apply` only after reviewing `docs/birthday-party-creation-catalogue-inventory.md`. Apply creates or replaces migration-owned drafts and never publishes them. It refuses to overwrite unrelated package or offering drafts.
+Pass `-- --apply` only after reviewing `docs/birthday-party-creation-catalogue-inventory.md`. Apply creates or replaces migration-owned drafts and never publishes them. It refuses to overwrite unrelated package or creation drafts.
 
-Validate the stored draft graph, including the non-contiguous Jungle Safari card sequence, with:
+For an existing import created before creation images were added, pass `-- --apply-images` to fill only missing image fields from **Website images > Creations**. This leaves every other reviewed draft field—and any image already selected by an editor—unchanged.
+
+The one-time `migrate-birthday-party-package-cards.ts` migration collapses the old duplicate package-creation list into the Website cards. It is dry-run by default; pass `-- --apply` to patch only card fields and remove the obsolete list. It never publishes documents.
+
+Validate the stored draft graph, including booking order and the non-contiguous Jungle Safari card sequence, with:
 
 ```bash
 npx sanity exec migrations/verify-birthday-party-catalogue-drafts.ts --with-user-token

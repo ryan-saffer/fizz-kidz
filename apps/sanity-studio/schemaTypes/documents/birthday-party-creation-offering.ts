@@ -36,7 +36,7 @@ async function isUniqueOfferingKey(key: string | undefined, context: ValidationC
 
 export const birthdayPartyCreationOffering = defineType({
     name: 'birthdayPartyCreationOffering',
-    title: 'Customer creation offering',
+    title: 'Creation',
     type: 'document',
     icon: ComposeSparklesIcon,
     initialValue: { status: 'active' },
@@ -46,7 +46,7 @@ export const birthdayPartyCreationOffering = defineType({
             title: 'Catalogue key',
             type: 'string',
             description:
-                'Stable booking identity. Use lower camel case and never rename this after the offering is published.',
+                'Stable booking identity. Use lower camel case and never rename this after the creation is published.',
             readOnly: ({ document }) => Boolean(document?._id && !document._id.startsWith('drafts.')),
             validation: (rule) =>
                 rule
@@ -58,6 +58,15 @@ export const birthdayPartyCreationOffering = defineType({
             name: 'name',
             title: 'Customer-facing name',
             type: 'string',
+            validation: (rule) => rule.required(),
+        }),
+        defineField({
+            name: 'image',
+            title: 'Image',
+            type: 'image',
+            description:
+                'Default image for this creation. Package cards may use another image when their presentation differs.',
+            options: { hotspot: true },
             validation: (rule) => rule.required(),
         }),
         defineField({
@@ -75,7 +84,7 @@ export const birthdayPartyCreationOffering = defineType({
         }),
         defineField({
             name: 'recipe',
-            title: 'Staff recipe',
+            title: 'Creation instructions',
             type: 'reference',
             to: [{ type: 'birthdayPartyCreation' }],
             description: 'Optional reusable instructions shown to staff. This does not control customer presentation.',
@@ -97,10 +106,11 @@ export const birthdayPartyCreationOffering = defineType({
         }),
     ],
     preview: {
-        select: { key: 'key', status: 'status', title: 'name' },
-        prepare: ({ key, status, title }) => ({
+        select: { key: 'key', media: 'image', status: 'status', title: 'name' },
+        prepare: ({ key, media, status, title }) => ({
             title,
             subtitle: [key, status === 'retired' ? 'Retired' : undefined].filter(Boolean).join(' · '),
+            media,
         }),
     },
 })

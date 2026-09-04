@@ -16,15 +16,17 @@ export type BirthdayPartyCatalogueImage = {
 export type BirthdayPartyCreationCard = {
     _key: string
     alt: string
+    bookingChannels: BirthdayPartyBookingChannel[]
+    bookingOrder?: number
     colour: BirthdayPartyCardColour
+    creation: BirthdayPartyCatalogueCreation
     image: BirthdayPartyCatalogueImage
     label: string[]
-    offeringKey: string
-    useForBookingChoice: boolean
 }
 
-export type BirthdayPartyCreationOffering = {
+export type BirthdayPartyCatalogueCreation = {
     _id: string
+    image: BirthdayPartyCatalogueImage
     key: string
     legacyLabels: string[]
     name: string
@@ -33,12 +35,6 @@ export type BirthdayPartyCreationOffering = {
         name: string
     }
     status: BirthdayPartyCatalogueStatus
-}
-
-export type BirthdayPartyPackageOffering = {
-    _key: string
-    availability: BirthdayPartyBookingChannel[]
-    offering: BirthdayPartyCreationOffering
 }
 
 export type BirthdayPartyCataloguePackage = {
@@ -50,7 +46,6 @@ export type BirthdayPartyCataloguePackage = {
     hidePartyImage?: boolean
     key: string
     name: string
-    offerings: BirthdayPartyPackageOffering[]
     order: number
     status: BirthdayPartyCatalogueStatus
     summaryTitle: string
@@ -60,6 +55,17 @@ export type BirthdayPartyCatalogue = {
     packages: BirthdayPartyCataloguePackage[]
 }
 
+function hasCompleteImage(image: BirthdayPartyCatalogueImage | undefined) {
+    return Boolean(
+        image?.assetId &&
+        image.src &&
+        Number.isFinite(image.width) &&
+        image.width > 0 &&
+        Number.isFinite(image.height) &&
+        image.height > 0
+    )
+}
+
 export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue): BirthdayPartyCatalogue {
     if (catalogue.packages.length === 0) {
         throw new Error('Birthday party catalogue must contain at least one package')
@@ -67,7 +73,7 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
 
     const packageKeys = new Set<string>()
     const packageOrders = new Set<number>()
-    const offeringIdsByKey = new Map<string, string>()
+    const creationIdsByKey = new Map<string, string>()
 
     for (const partyPackage of catalogue.packages) {
         if (!partyPackage.key?.trim()) {
@@ -97,135 +103,122 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
         if (!/^#[0-9A-F]{6}$/i.test(partyPackage.accentColour)) {
             throw new Error(`Package "${partyPackage.key}" must have a six-digit hexadecimal accent colour`)
         }
-        if (partyPackage.offerings.length === 0) {
-            throw new Error(`Package "${partyPackage.key}" must contain at least one offering`)
-        }
-
-        const offeringKeys = new Set<string>()
-        const offeringKeysByLabel = new Map<string, string>()
-        const entryKeys = new Set<string>()
-        for (const packageOffering of partyPackage.offerings) {
-            if (!packageOffering._key?.trim() || entryKeys.has(packageOffering._key)) {
-                throw new Error(`Package "${partyPackage.key}" has a missing or duplicate entry key`)
-            }
-            entryKeys.add(packageOffering._key)
-
-            if (!packageOffering.offering) {
-                throw new Error(
-                    `Package "${partyPackage.key}" entry "${packageOffering._key}" has a missing offering reference`
-                )
-            }
-
-            if (!packageOffering.offering.key?.trim()) {
-                throw new Error(
-                    `Package "${partyPackage.key}" offering "${packageOffering.offering._id}" must have a stable key`
-                )
-            }
-            if (offeringKeys.has(packageOffering.offering.key)) {
-                throw new Error(
-                    `Package "${partyPackage.key}" contains duplicate offering "${packageOffering.offering.key}"`
-                )
-            }
-            offeringKeys.add(packageOffering.offering.key)
-
-            const existingOfferingId = offeringIdsByKey.get(packageOffering.offering.key)
-            if (existingOfferingId && existingOfferingId !== packageOffering.offering._id) {
-                throw new Error(`Duplicate offering key "${packageOffering.offering.key}"`)
-            }
-            offeringIdsByKey.set(packageOffering.offering.key, packageOffering.offering._id)
-
-            if (packageOffering.offering.status !== 'active') {
-                throw new Error(
-                    `Package "${partyPackage.key}" offering "${packageOffering.offering.key}" must be active`
-                )
-            }
-            if (!packageOffering.offering.name?.trim()) {
-                throw new Error(
-                    `Package "${partyPackage.key}" offering "${packageOffering.offering.key}" must have a customer-facing name`
-                )
-            }
-
-            for (const label of [packageOffering.offering.name, ...packageOffering.offering.legacyLabels]) {
-                const normalizedLabel = label.trim().toLocaleLowerCase('en-AU')
-                if (!normalizedLabel) {
-                    throw new Error(
-                        `Package "${partyPackage.key}" offering "${packageOffering.offering.key}" has an empty legacy label`
-                    )
-                }
-                const existingOfferingKey = offeringKeysByLabel.get(normalizedLabel)
-                if (existingOfferingKey && existingOfferingKey !== packageOffering.offering.key) {
-                    throw new Error(
-                        `Package "${partyPackage.key}" label "${normalizedLabel}" is ambiguous between offerings "${existingOfferingKey}" and "${packageOffering.offering.key}"`
-                    )
-                }
-                offeringKeysByLabel.set(normalizedLabel, packageOffering.offering.key)
-            }
-
-            if (packageOffering.availability.length === 0) {
-                throw new Error(
-                    `Package "${partyPackage.key}" offering "${packageOffering.offering.key}" must have at least one booking channel`
-                )
-            }
-            if (
-                new Set(packageOffering.availability).size !== packageOffering.availability.length ||
-                packageOffering.availability.some((channel) => !BIRTHDAY_PARTY_BOOKING_CHANNELS.includes(channel))
-            ) {
-                throw new Error(
-                    `Package "${partyPackage.key}" offering "${packageOffering.offering.key}" has invalid booking channels`
-                )
-            }
-        }
-
         if (partyPackage.cards.length === 0) {
             throw new Error(`Package "${partyPackage.key}" must contain at least one Website card`)
         }
 
         const cardKeys = new Set<string>()
+        const creationKeys = new Set<string>()
+        const creationKeysByLabel = new Map<string, string>()
+        const bookingCardCounts = new Map<string, number>()
+        const bookingOrders = new Set<number>()
         for (const card of partyPackage.cards) {
             if (!card._key?.trim() || cardKeys.has(card._key)) {
                 throw new Error(`Package "${partyPackage.key}" has a missing or duplicate card key`)
             }
             cardKeys.add(card._key)
 
-            if (!offeringKeys.has(card.offeringKey)) {
+            if (!card.creation) {
+                throw new Error(`Package "${partyPackage.key}" card "${card._key}" has a missing creation reference`)
+            }
+
+            const creation = card.creation
+            if (!creation.key?.trim()) {
+                throw new Error(`Package "${partyPackage.key}" creation "${creation._id}" must have a stable key`)
+            }
+
+            const existingCreationId = creationIdsByKey.get(creation.key)
+            if (existingCreationId && existingCreationId !== creation._id) {
+                throw new Error(`Duplicate creation key "${creation.key}"`)
+            }
+            creationIdsByKey.set(creation.key, creation._id)
+
+            if (!creationKeys.has(creation.key)) {
+                creationKeys.add(creation.key)
+
+                if (creation.status !== 'active') {
+                    throw new Error(`Package "${partyPackage.key}" creation "${creation.key}" must be active`)
+                }
+                if (!creation.name?.trim()) {
+                    throw new Error(
+                        `Package "${partyPackage.key}" creation "${creation.key}" must have a customer-facing name`
+                    )
+                }
+                if (!hasCompleteImage(creation.image)) {
+                    throw new Error(`Package "${partyPackage.key}" creation "${creation.key}" must have an image`)
+                }
+
+                for (const label of [creation.name, ...creation.legacyLabels]) {
+                    const normalizedLabel = label.trim().toLocaleLowerCase('en-AU')
+                    if (!normalizedLabel) {
+                        throw new Error(
+                            `Package "${partyPackage.key}" creation "${creation.key}" has an empty legacy label`
+                        )
+                    }
+                    const existingCreationKey = creationKeysByLabel.get(normalizedLabel)
+                    if (existingCreationKey && existingCreationKey !== creation.key) {
+                        throw new Error(
+                            `Package "${partyPackage.key}" label "${normalizedLabel}" is ambiguous between creations "${existingCreationKey}" and "${creation.key}"`
+                        )
+                    }
+                    creationKeysByLabel.set(normalizedLabel, creation.key)
+                }
+            }
+
+            const bookingChannels = Array.isArray(card.bookingChannels) ? card.bookingChannels : []
+            if (
+                !Array.isArray(card.bookingChannels) ||
+                new Set(bookingChannels).size !== bookingChannels.length ||
+                bookingChannels.some((channel) => !BIRTHDAY_PARTY_BOOKING_CHANNELS.includes(channel))
+            ) {
+                throw new Error(`Package "${partyPackage.key}" creation "${creation.key}" has invalid booking channels`)
+            }
+            if (bookingChannels.length > 0) {
+                bookingCardCounts.set(creation.key, (bookingCardCounts.get(creation.key) ?? 0) + 1)
+                if (!Number.isInteger(card.bookingOrder) || (card.bookingOrder ?? 0) < 1) {
+                    throw new Error(
+                        `Package "${partyPackage.key}" creation "${creation.key}" booking card must have a positive integer order`
+                    )
+                }
+                if (bookingOrders.has(card.bookingOrder!)) {
+                    throw new Error(`Package "${partyPackage.key}" has duplicate booking order "${card.bookingOrder}"`)
+                }
+                bookingOrders.add(card.bookingOrder!)
+            } else if (card.bookingOrder != null) {
                 throw new Error(
-                    `Package "${partyPackage.key}" card "${card._key}" references unknown offering "${card.offeringKey}"`
+                    `Package "${partyPackage.key}" creation "${creation.key}" display card cannot have a booking order`
                 )
             }
 
             if (!card.alt?.trim()) {
                 throw new Error(
-                    `Package "${partyPackage.key}" offering "${card.offeringKey}" card "${card._key}" must have useful alt text`
+                    `Package "${partyPackage.key}" creation "${creation.key}" card "${card._key}" must have useful alt text`
                 )
             }
             if (!BIRTHDAY_PARTY_CARD_COLOURS.includes(card.colour)) {
                 throw new Error(
-                    `Package "${partyPackage.key}" offering "${card.offeringKey}" card "${card._key}" has an invalid colour`
+                    `Package "${partyPackage.key}" creation "${creation.key}" card "${card._key}" has an invalid colour`
                 )
             }
-            if (
-                !card.image?.assetId ||
-                !card.image.src ||
-                !Number.isFinite(card.image.width) ||
-                card.image.width <= 0 ||
-                !Number.isFinite(card.image.height) ||
-                card.image.height <= 0
-            ) {
+            if (!hasCompleteImage(card.image)) {
                 throw new Error(
-                    `Package "${partyPackage.key}" offering "${card.offeringKey}" card "${card._key}" must have an image`
+                    `Package "${partyPackage.key}" creation "${creation.key}" card "${card._key}" must have an image`
                 )
             }
         }
 
-        for (const offeringKey of offeringKeys) {
-            if (
-                partyPackage.cards.filter((card) => card.offeringKey === offeringKey && card.useForBookingChoice)
-                    .length !== 1
-            ) {
+        for (const creationKey of creationKeys) {
+            if (bookingCardCounts.get(creationKey) !== 1) {
                 throw new Error(
-                    `Package "${partyPackage.key}" offering "${offeringKey}" must have exactly one booking choice image`
+                    `Package "${partyPackage.key}" creation "${creationKey}" must have exactly one booking card`
                 )
             }
+        }
+        if (
+            bookingOrders.size !== creationKeys.size ||
+            !Array.from(bookingOrders).every((order) => order <= creationKeys.size)
+        ) {
+            throw new Error(`Package "${partyPackage.key}" booking orders must be consecutive from 1`)
         }
     }
 

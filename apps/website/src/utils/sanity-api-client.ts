@@ -4,8 +4,8 @@ import { createImageUrlBuilder } from '@sanity/image-url'
 import {
     validateBirthdayPartyCatalogue,
     type BirthdayPartyCatalogue,
+    type BirthdayPartyCatalogueCreation,
     type BirthdayPartyCreationCard,
-    type BirthdayPartyPackageOffering,
     type HolidayProgramScheduleWeek,
 } from '@fizz-kidz/core'
 
@@ -21,28 +21,31 @@ const BIRTHDAY_PARTY_CATALOGUE_QUERY = `
         "cards": websiteCards[] {
             _key,
             alt,
+            "bookingChannels": coalesce(bookingChannels, []),
+            bookingOrder,
             colour,
+            creation->{
+                _id,
+                image {
+                    ...,
+                    "assetId": asset->_id,
+                    "width": asset->metadata.dimensions.width,
+                    "height": asset->metadata.dimensions.height
+                },
+                key,
+                "legacyLabels": coalesce(legacyLabels, []),
+                name,
+                recipe->{_id, name},
+                status
+            },
+            hideLabel,
             image {
                 ...,
                 "assetId": asset->_id,
                 "width": asset->metadata.dimensions.width,
                 "height": asset->metadata.dimensions.height
             },
-            "label": coalesce(label, []),
-            "offeringKey": offering->key,
-            useForBookingChoice
-        },
-        "offerings": offeringEntries[] {
-            _key,
-            "availability": coalesce(availability, []),
-            offering->{
-                _id,
-                key,
-                "legacyLabels": coalesce(legacyLabels, []),
-                name,
-                recipe->{_id, name},
-                status
-            }
+            label
         },
         "order": catalogueOrder,
         status,
@@ -96,9 +99,22 @@ type WebsiteImageRecord = {
     key: string
 }
 
-type BirthdayPartyCatalogueRecord = Omit<BirthdayPartyCatalogue['packages'][number], 'cards' | 'offerings'> & {
-    cards?: Array<Omit<BirthdayPartyCreationCard, 'image'> & { image?: SanityImage }>
-    offerings?: BirthdayPartyPackageOffering[]
+type SanityCatalogueCreation = Omit<BirthdayPartyCatalogueCreation, 'image'> & { image?: SanityImage }
+
+type SanityCreationCard = Omit<
+    BirthdayPartyCreationCard,
+    'alt' | 'bookingChannels' | 'creation' | 'image' | 'label'
+> & {
+    alt?: string
+    bookingChannels?: BirthdayPartyCreationCard['bookingChannels']
+    creation?: SanityCatalogueCreation
+    hideLabel?: boolean
+    image?: SanityImage
+    label?: string[]
+}
+
+type BirthdayPartyCatalogueRecord = Omit<BirthdayPartyCatalogue['packages'][number], 'cards'> & {
+    cards?: SanityCreationCard[]
 }
 
 const client = createClient({
@@ -135,11 +151,31 @@ export const sanityClient = {
         return validateBirthdayPartyCatalogue({
             packages: packages.map((partyPackage) => ({
                 ...partyPackage,
-                cards: (partyPackage.cards ?? []).map((card) => ({
-                    ...card,
-                    image: resolveCatalogueImage(card.image),
-                })),
-                offerings: partyPackage.offerings ?? [],
+                cards: (partyPackage.cards ?? []).map((card) => {
+                    const creation = card.creation
+                        ? {
+                              ...card.creation,
+                              image: resolveCatalogueImage(card.creation.image),
+                          }
+                        : undefined
+
+                    return {
+                        _key: card._key,
+                        alt: card.alt?.trim() || (creation?.name ? `${creation.name} creation` : ''),
+                        bookingChannels: card.bookingChannels ?? [],
+                        bookingOrder: card.bookingOrder ?? undefined,
+                        colour: card.colour,
+                        creation: creation as BirthdayPartyCatalogueCreation,
+                        image: resolveCatalogueImage(card.image ?? card.creation?.image),
+                        label: card.hideLabel
+                            ? []
+                            : card.label?.length
+                              ? card.label
+                              : creation?.name
+                                ? [creation.name]
+                                : [],
+                    }
+                }),
             })),
         })
     },

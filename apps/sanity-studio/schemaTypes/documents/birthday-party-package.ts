@@ -14,17 +14,13 @@ const colours = [
     { title: 'Purple', value: 'purple' },
 ]
 
-type OfferingEntryValue = {
-    offering?: { _ref?: string }
-}
-
 type CardValue = {
-    offering?: { _ref?: string }
-    useForBookingChoice?: boolean
+    bookingChannels?: string[]
+    bookingOrder?: number
+    creation?: { _ref?: string }
 }
 
 type PartyPackageValue = {
-    offeringEntries?: OfferingEntryValue[]
     status?: string
     websiteCards?: CardValue[]
 }
@@ -62,35 +58,40 @@ async function isUniquePackageKey(key: string | undefined, context: ValidationCo
     return result.duplicateId ? `The package key "${key}" is already in use.` : true
 }
 
-function hasUniqueOfferings(entries: OfferingEntryValue[] | undefined) {
-    if (!entries) return true
-
-    const references = entries.flatMap((entry) => (entry.offering?._ref ? [entry.offering._ref] : []))
-    return new Set(references).size === references.length
-        ? true
-        : 'Each customer offering can appear only once in a package. Add multiple cards to one offering instead.'
-}
-
 function hasConsistentCards(value: SanityDocument | undefined) {
     const partyPackage = value as PartyPackageValue | undefined
-    const offeringReferences = new Set(
-        (partyPackage?.offeringEntries ?? []).flatMap((entry) => (entry.offering?._ref ? [entry.offering._ref] : []))
-    )
     const cards = partyPackage?.websiteCards ?? []
+    const creationReferences = new Set<string>()
+    const bookingOrders = new Set<number>()
 
     for (const card of cards) {
-        if (!card.offering?._ref || !offeringReferences.has(card.offering._ref)) {
-            return 'Every Website card must reference an offering selected in this package.'
+        if (!card.creation?._ref) return 'Every Website card must reference a creation.'
+        creationReferences.add(card.creation._ref)
+
+        if ((card.bookingChannels?.length ?? 0) > 0) {
+            if (!Number.isInteger(card.bookingOrder) || (card.bookingOrder ?? 0) < 1) {
+                return 'Every booking card must have a positive integer booking choice order.'
+            }
+            if (bookingOrders.has(card.bookingOrder!)) return 'Booking choice order must be unique within a package.'
+            bookingOrders.add(card.bookingOrder!)
+        } else if (card.bookingOrder !== undefined) {
+            return 'Additional display cards cannot have a booking choice order.'
         }
     }
 
-    for (const offeringReference of offeringReferences) {
+    for (const creationReference of creationReferences) {
         const bookingChoiceCount = cards.filter(
-            (card) => card.offering?._ref === offeringReference && card.useForBookingChoice
+            (card) => card.creation?._ref === creationReference && (card.bookingChannels?.length ?? 0) > 0
         ).length
         if (bookingChoiceCount !== 1) {
-            return 'Every package offering must have exactly one Website card selected as its booking choice image.'
+            return 'Every creation must have exactly one Website card with booking channels.'
         }
+    }
+    if (
+        bookingOrders.size !== creationReferences.size ||
+        !Array.from(bookingOrders).every((order) => order <= creationReferences.size)
+    ) {
+        return 'Booking choice order must be consecutive from 1.'
     }
 
     return true
@@ -147,7 +148,7 @@ export const birthdayPartyPackage = defineType({
                     value: status,
                 })),
             },
-            description: 'Leave blank only for a legacy staff package that is not part of the customer catalogue.',
+            description: 'Leave blank only for a legacy staff package that is not part of Party packages.',
         }),
         defineField({
             name: 'colour',
@@ -225,25 +226,11 @@ export const birthdayPartyPackage = defineType({
             initialValue: false,
         }),
         defineField({
-            name: 'offeringEntries',
-            title: 'Customer catalogue offerings',
-            type: 'array',
-            description: 'Drag offerings into the order customer booking choices should use.',
-            of: [defineArrayMember({ type: 'birthdayPartyOfferingEntry' })],
-            validation: (rule) =>
-                rule.custom((entries, context) => {
-                    if (isActiveCataloguePackage(context) && !entries?.length) {
-                        return 'Active catalogue packages must contain at least one offering.'
-                    }
-                    return hasUniqueOfferings(entries as OfferingEntryValue[] | undefined)
-                }),
-        }),
-        defineField({
             name: 'websiteCards',
             title: 'Website cards',
             type: 'array',
             description:
-                'Drag cards into the exact order customers should see them. Multiple cards may represent one offering.',
+                'This is the package creation list. Drag cards into Website order; configure booking channels on exactly one card per creation.',
             components: { input: BirthdayPartyCardsInput },
             of: [defineArrayMember({ type: 'birthdayPartyCreationCard' })],
             validation: (rule) =>
@@ -255,10 +242,10 @@ export const birthdayPartyPackage = defineType({
         }),
         defineField({
             name: 'creations',
-            title: 'Staff recipes (legacy)',
+            title: 'Creation instructions (legacy)',
             type: 'array',
             description:
-                'Existing Portal instruction order. Keep this intact until the Portal reads recipes through customer offerings.',
+                'Existing Portal instruction order. Keep this intact until the Portal reads instructions through party-package creations.',
             of: [defineArrayMember({ type: 'reference', to: [{ type: 'birthdayPartyCreation' }] })],
             validation: (rule) => rule.required().min(1).unique(),
         }),
@@ -272,6 +259,7 @@ export const birthdayPartyPackage = defineType({
     ],
     preview: {
         select: {
+            creationImage: 'websiteCards.0.creation.image',
             key: 'key',
             media: 'websiteCards.0.image',
             order: 'catalogueOrder',
@@ -279,7 +267,7 @@ export const birthdayPartyPackage = defineType({
             status: 'status',
             title: 'customerName',
         },
-        prepare: ({ key, media, order, staffTitle, status, title }) => ({
+        prepare: ({ creationImage, key, media, order, staffTitle, status, title }) => ({
             title: title ?? staffTitle ?? 'Untitled package',
             subtitle: [
                 key && Number.isFinite(order) ? `${order}: ${key}` : 'Legacy staff-only package',
@@ -287,7 +275,7 @@ export const birthdayPartyPackage = defineType({
             ]
                 .filter(Boolean)
                 .join(' · '),
-            media,
+            media: media ?? creationImage,
         }),
     },
 })

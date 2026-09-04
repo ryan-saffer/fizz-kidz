@@ -4,14 +4,14 @@ Captured 4 September 2026. The Website package modules and creation cards are au
 
 ## Summary
 
-| Source                               | Packages |   Selectable package entries |                   Rendered card placements |
+| Source                               | Packages | Selectable package creations |                   Rendered card placements |
 | ------------------------------------ | -------: | ---------------------------: | -----------------------------------------: |
 | Website migration source             |       10 |                           77 |                                         83 |
 | Unique customer offerings            |        — |                           50 |                                          — |
 | Production Paperform creation fields |       10 | 154 across studio and mobile | Images are not exposed by the Standard API |
 | Published Sanity staff catalogue     |       11 |                   54 recipes |                                          — |
 
-The Website contains 61 creation-card modules; 56 are used by the 10 package modules, while five older customization cards are not part of the catalogue. Reuse across packages and the six-card Fluid Bears sequence produce 83 rendered card placements. The new model groups those placements into 77 selectable package entries.
+The Website contains 61 creation-card modules; 56 are used by the 10 package modules, while five older customization cards are not part of the catalogue. Reuse across packages and the six-card Fluid Bears sequence produce 83 rendered card placements. In the new single-list model, 77 of those cards carry booking configuration and the other six are presentation-only variants.
 
 ## Package presentation
 
@@ -163,12 +163,12 @@ Paperform “Yes/No” means the current option text resolves to the offering na
 
 - **Website authority:** Package order, package membership, card order, card labels, colours, and image slots above come from the Website.
 - **Presentation variants:** `fluidBears` is one selectable offering with six image-only cards. Jungle Safari `monsterSlime` is one selectable offering with purple and green cards.
-- **Jungle Safari card order:** The Website sequence is purple Monster Slime, Monster Explosions, Bugs in Bath Bombs, green Monster Slime, Dinosaur Bath Bombs, Bubbling Volcanoes, Dragon Fire Potions, then Slithering Snake Potions. Cards are ordered independently from selectable offerings so this sequence remains intact.
-- **Mobile soap restriction:** Production Paperform omits Unicorn Soap from Glam, Fairy, and Unicorn mobile questions. The migration records those three package entries as studio-only.
+- **Jungle Safari card order:** The Website sequence is purple Monster Slime, Monster Explosions, Bugs in Bath Bombs, green Monster Slime, Dinosaur Bath Bombs, Bubbling Volcanoes, Dragon Fire Potions, then Slithering Snake Potions. The green Monster Slime card is presentation-only, so this sequence remains intact without duplicating the package creation list.
+- **Mobile soap restriction:** Production Paperform omits Unicorn Soap from Glam, Fairy, and Unicorn mobile questions. The migration records those three booking cards as studio-only.
 - **Science mobile drift:** The production `science_creations_mobile` field currently contains Slime choices rather than the Science list. The migration treats the Website Science list as available in both channels; Phase 3 must correct the field rather than preserve this drift.
 - **Slime studio drift:** The production studio field contains Nutella Slime, which is absent from the Website, and calls Fairy Slime “Fairy Glitter Slime.” Nutella remains historical only; `Fairy Glitter Slime` is retained as a legacy label for `fairySlime`.
 - **Sanity drift:** Published Sanity includes Sweet Kitty, but the Website does not. Sweet Kitty is not imported into the active customer catalogue. Its staff package and recipes remain untouched.
-- **Staff recipes:** Several customer offerings intentionally share one recipe, including themed lip balms, shimmer products, Taylor Swift bath bombs, and both Tie Dye items. `frozenSparkleSlime` has no matching published recipe and keeps an empty optional recipe reference.
+- **Creation instructions:** Several customer offerings intentionally share one instruction document, including themed lip balms, shimmer products, Taylor Swift bath bombs, and both Tie Dye items. `frozenSparkleSlime` has no matching published instructions and keeps an empty optional reference.
 
 ## Paperform API gaps still requiring a safe form copy
 
