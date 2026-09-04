@@ -2,9 +2,11 @@
 
 The public face of Fizz Kidz. Mostly Astro pages, with React where interaction earns its keep.
 
-Most copy lives directly in `src/pages` and `src/components`. Sanity supplies the Holiday Program schedule, the birthday-party customer catalogue, and the editable image slots resolved during the Website build.
+Most copy lives directly in `src/pages` and `src/components`. Sanity supplies the Holiday Program schedule, birthday-party catalogue and package pages, and the editable image slots resolved during the Website build.
 
-`src/utils/sanity-api-client.ts` is the Sanity boundary. Its birthday-party query returns the complete published active catalogue, resolves each card's optional image, label, and alt-text overrides against its creation defaults, and validates the result with the runtime-neutral contract from `@fizz-kidz/core`. Generic catalogue cards and package sections live under `src/components/birthday-party-catalogue`. The current birthday-party routes remain on their static components until the imported catalogue drafts have been reviewed and published.
+`src/utils/sanity-api-client.ts` is the Sanity boundary. Its birthday-party query returns the complete published active catalogue, resolves image and card overrides, and validates the result with the runtime-neutral contract from `@fizz-kidz/core`. Generic package rendering lives under `src/components/birthday-party-catalogue`; `src/pages/birthday-parties/[slug].astro` generates one static route per active package. The same package data supplies the birthday-party menu, breadcrumbs, Party Themes, all-creations page, hero, SEO, and optional feature sections. At Home remains a dedicated static page.
+
+Publishing an active package triggers the existing Netlify build webhook. A successful build adds its route to the site and sitemap and includes it in the menu, Party Themes, and creations. Retiring a package removes those surfaces on the next successful build. Published packages therefore need complete Website-page data, unique menu and theme-card orders, and a permanent non-reserved slug; malformed data fails the Website build rather than producing a partial page.
 
 Website forms use the Zod schemas, inferred payload types, and select options exported from `@fizz-kidz/core` in `packages/core/src/website/website-forms.ts`. Submit active forms through `src/utils/website-forms.ts`; it dynamically imports the vanilla tRPC client on first submission, keeping tRPC out of the initial island bundle while preserving end-to-end input, output, and error typing.
 

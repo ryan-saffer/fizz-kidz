@@ -1,10 +1,13 @@
 export const BIRTHDAY_PARTY_CATALOGUE_STATUSES = ['active', 'retired'] as const
 export const BIRTHDAY_PARTY_BOOKING_CHANNELS = ['studio', 'mobile'] as const
 export const BIRTHDAY_PARTY_CARD_COLOURS = ['pink', 'yellow', 'green', 'purple', 'blue', 'white', 'red'] as const
+export const BIRTHDAY_PARTY_HERO_THEMES = ['purple', 'blue', 'pink', 'green', 'gold'] as const
+export const BIRTHDAY_PARTY_RESERVED_SLUGS = ['at-home-parties', 'book-a-party', 'creations'] as const
 
 export type BirthdayPartyCatalogueStatus = (typeof BIRTHDAY_PARTY_CATALOGUE_STATUSES)[number]
 export type BirthdayPartyBookingChannel = (typeof BIRTHDAY_PARTY_BOOKING_CHANNELS)[number]
 export type BirthdayPartyCardColour = (typeof BIRTHDAY_PARTY_CARD_COLOURS)[number]
+export type BirthdayPartyHeroTheme = (typeof BIRTHDAY_PARTY_HERO_THEMES)[number]
 
 export type BirthdayPartyCatalogueImage = {
     assetId: string
@@ -37,6 +40,55 @@ export type BirthdayPartyCatalogueCreation = {
     status: BirthdayPartyCatalogueStatus
 }
 
+export type BirthdayPartyFeatureCard = {
+    _key: string
+    alt: string
+    colour: BirthdayPartyCardColour
+    image: BirthdayPartyCatalogueImage
+    label: string[]
+}
+
+export type BirthdayPartyFeatureSection = {
+    _key: string
+    cards: BirthdayPartyFeatureCard[]
+    description: string
+    headingImage?: BirthdayPartyCatalogueImage
+    headingImageAlt?: string
+    title?: string
+}
+
+export type BirthdayPartyWebsitePage = {
+    creationsImage?: BirthdayPartyCatalogueImage
+    creationsImageAlt?: string
+    features: BirthdayPartyFeatureSection[]
+    hero: {
+        description: string
+        image: BirthdayPartyCatalogueImage
+        imageAlt: string
+        subtitle: string
+        theme: BirthdayPartyHeroTheme
+        title: string
+    }
+    navigation: {
+        isNew: boolean
+        order: number
+        title: string
+    }
+    seo: {
+        description: string
+        serviceName: string
+        title: string
+    }
+    slug: string
+    themeCard: {
+        colour: string
+        image: BirthdayPartyCatalogueImage
+        imageAlt: string
+        order: number
+        title: string
+    }
+}
+
 export type BirthdayPartyCataloguePackage = {
     _id: string
     accentColour: string
@@ -49,6 +101,7 @@ export type BirthdayPartyCataloguePackage = {
     order: number
     status: BirthdayPartyCatalogueStatus
     summaryTitle: string
+    websitePage: BirthdayPartyWebsitePage
 }
 
 export type BirthdayPartyCatalogue = {
@@ -73,6 +126,9 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
 
     const packageKeys = new Set<string>()
     const packageOrders = new Set<number>()
+    const navigationOrders = new Set<number>()
+    const slugs = new Set<string>()
+    const themeCardOrders = new Set<number>()
     const creationIdsByKey = new Map<string, string>()
 
     for (const partyPackage of catalogue.packages) {
@@ -102,6 +158,134 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
         }
         if (!/^#[0-9A-F]{6}$/i.test(partyPackage.accentColour)) {
             throw new Error(`Package "${partyPackage.key}" must have a six-digit hexadecimal accent colour`)
+        }
+        const websitePage = partyPackage.websitePage
+        if (!websitePage) {
+            throw new Error(`Package "${partyPackage.key}" must have Website page content`)
+        }
+        if (!websitePage.seo) throw new Error(`Package "${partyPackage.key}" must have Website SEO content`)
+        if (!websitePage.hero) throw new Error(`Package "${partyPackage.key}" must have Website hero content`)
+        if (!websitePage.navigation)
+            throw new Error(`Package "${partyPackage.key}" must have Website navigation content`)
+        if (!websitePage.themeCard) throw new Error(`Package "${partyPackage.key}" must have a Party Themes card`)
+        if (!Array.isArray(websitePage.features)) {
+            throw new Error(`Package "${partyPackage.key}" must have a Website feature list`)
+        }
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(websitePage.slug)) {
+            throw new Error(`Package "${partyPackage.key}" must have a valid Website slug`)
+        }
+        if (
+            BIRTHDAY_PARTY_RESERVED_SLUGS.includes(websitePage.slug as (typeof BIRTHDAY_PARTY_RESERVED_SLUGS)[number])
+        ) {
+            throw new Error(`Package "${partyPackage.key}" uses reserved Website slug "${websitePage.slug}"`)
+        }
+        if (slugs.has(websitePage.slug)) {
+            throw new Error(`Duplicate Website slug "${websitePage.slug}"`)
+        }
+        slugs.add(websitePage.slug)
+
+        for (const [field, value] of [
+            ['SEO title', websitePage.seo?.title],
+            ['SEO description', websitePage.seo?.description],
+            ['schema service name', websitePage.seo?.serviceName],
+            ['hero title', websitePage.hero?.title],
+            ['hero subtitle', websitePage.hero?.subtitle],
+            ['hero description', websitePage.hero?.description],
+            ['hero image description', websitePage.hero?.imageAlt],
+            ['navigation title', websitePage.navigation?.title],
+            ['theme card title', websitePage.themeCard?.title],
+            ['theme card image description', websitePage.themeCard?.imageAlt],
+        ] as const) {
+            if (!value?.trim()) throw new Error(`Package "${partyPackage.key}" must have a ${field}`)
+        }
+        if (!BIRTHDAY_PARTY_HERO_THEMES.includes(websitePage.hero.theme)) {
+            throw new Error(`Package "${partyPackage.key}" has an invalid hero theme`)
+        }
+        if (!hasCompleteImage(websitePage.hero.image)) {
+            throw new Error(`Package "${partyPackage.key}" must have a hero image`)
+        }
+        if (!partyPackage.hidePartyImage) {
+            if (!hasCompleteImage(websitePage.creationsImage)) {
+                throw new Error(`Package "${partyPackage.key}" must have a creations-section image`)
+            }
+            if (!websitePage.creationsImageAlt?.trim()) {
+                throw new Error(`Package "${partyPackage.key}" must have a creations-section image description`)
+            }
+        }
+        if (!Number.isInteger(websitePage.navigation.order) || websitePage.navigation.order < 0) {
+            throw new Error(`Package "${partyPackage.key}" must have a non-negative integer navigation order`)
+        }
+        if (navigationOrders.has(websitePage.navigation.order)) {
+            throw new Error(`Duplicate navigation order "${websitePage.navigation.order}"`)
+        }
+        navigationOrders.add(websitePage.navigation.order)
+        if (typeof websitePage.navigation.isNew !== 'boolean') {
+            throw new Error(`Package "${partyPackage.key}" must declare whether it is new`)
+        }
+        if (!Number.isInteger(websitePage.themeCard.order) || websitePage.themeCard.order < 0) {
+            throw new Error(`Package "${partyPackage.key}" must have a non-negative integer theme-card order`)
+        }
+        if (themeCardOrders.has(websitePage.themeCard.order)) {
+            throw new Error(`Duplicate theme-card order "${websitePage.themeCard.order}"`)
+        }
+        themeCardOrders.add(websitePage.themeCard.order)
+        if (!/^#[0-9A-F]{6}$/i.test(websitePage.themeCard.colour)) {
+            throw new Error(`Package "${partyPackage.key}" must have a six-digit hexadecimal theme-card colour`)
+        }
+        if (!hasCompleteImage(websitePage.themeCard.image)) {
+            throw new Error(`Package "${partyPackage.key}" must have a theme-card image`)
+        }
+
+        const featureKeys = new Set<string>()
+        for (const feature of websitePage.features) {
+            if (!feature._key?.trim() || featureKeys.has(feature._key)) {
+                throw new Error(`Package "${partyPackage.key}" has a missing or duplicate feature key`)
+            }
+            featureKeys.add(feature._key)
+            if (!feature.title?.trim() && !hasCompleteImage(feature.headingImage)) {
+                throw new Error(`Package "${partyPackage.key}" feature "${feature._key}" must have a heading`)
+            }
+            if (feature.headingImage && !feature.headingImageAlt?.trim()) {
+                throw new Error(
+                    `Package "${partyPackage.key}" feature "${feature._key}" must describe its heading image`
+                )
+            }
+            if (!feature.description?.trim()) {
+                throw new Error(`Package "${partyPackage.key}" feature "${feature._key}" must have a description`)
+            }
+            if (!Array.isArray(feature.cards) || feature.cards.length === 0) {
+                throw new Error(`Package "${partyPackage.key}" feature "${feature._key}" must have at least one card`)
+            }
+
+            const featureCardKeys = new Set<string>()
+            for (const card of feature.cards) {
+                if (!card._key?.trim() || featureCardKeys.has(card._key)) {
+                    throw new Error(
+                        `Package "${partyPackage.key}" feature "${feature._key}" has a missing or duplicate card key`
+                    )
+                }
+                featureCardKeys.add(card._key)
+                if (!card.alt?.trim()) {
+                    throw new Error(
+                        `Package "${partyPackage.key}" feature "${feature._key}" card "${card._key}" must have useful alt text`
+                    )
+                }
+                if (!BIRTHDAY_PARTY_CARD_COLOURS.includes(card.colour)) {
+                    throw new Error(
+                        `Package "${partyPackage.key}" feature "${feature._key}" card "${card._key}" has an invalid colour`
+                    )
+                }
+                if (!hasCompleteImage(card.image)) {
+                    throw new Error(
+                        `Package "${partyPackage.key}" feature "${feature._key}" card "${card._key}" must have an image`
+                    )
+                }
+                if (!Array.isArray(card.label) || card.label.length === 0 || card.label.some((line) => !line.trim())) {
+                    throw new Error(
+                        `Package "${partyPackage.key}" feature "${feature._key}" card "${card._key}" must have a label`
+                    )
+                }
+            }
         }
         if (partyPackage.cards.length === 0) {
             throw new Error(`Package "${partyPackage.key}" must contain at least one Website card`)

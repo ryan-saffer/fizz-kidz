@@ -3,16 +3,8 @@ import PageIntro from "@/components/page-intro.astro";
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
 import Layout from "@/layout/Layout.astro";
 import { websitePagesPartiesCreationsHeroJpg as hero } from "@/data/website-images";
-import KPopPowerCreations from "@/components/creation-packages/k-pop-power-creations.astro";
-import GlamCreations from "@/components/creation-packages/glam-creations.astro";
-import ScienceCreations from "@/components/creation-packages/science-creations.astro";
-import SlimeCreations from "@/components/creation-packages/slime-creations.astro";
-import FairyCreations from "@/components/creation-packages/fairy-creations.astro";
-import FluidBearsCreations from "@/components/creation-packages/fluid-bears-creations.astro";
-import JungleSafariCreations from "@/components/creation-packages/jungle-safari-creations.astro";
-import UnicornCreations from "@/components/creation-packages/unicorn-creations.astro";
-import TieDyeCreations from "@/components/creation-packages/tie-dye-creations.astro";
-import TaylorSwiftCreations from "@/components/creation-packages/taylor-swift-creations.astro";
+import PackageCreations from "@/components/birthday-party-catalogue/package-creations.astro";
+import { birthdayPartyCatalogue } from "@/data/birthday-party-catalogue";
 ---
 
 <Layout
@@ -43,16 +35,11 @@ import TaylorSwiftCreations from "@/components/creation-packages/taylor-swift-cr
       <span slot="title">Fizz Kidz Creations</span>
     </PageIntro>
     <section class="mt-12 md:mt-40">
-      <KPopPowerCreations />
-      <GlamCreations />
-      <ScienceCreations />
-      <SlimeCreations />
-      <FairyCreations />
-      <FluidBearsCreations />
-      <JungleSafariCreations />
-      <UnicornCreations />
-      <TieDyeCreations />
-      <TaylorSwiftCreations />
+      {
+        birthdayPartyCatalogue.packages.map((partyPackage) => (
+          <PackageCreations partyPackage={partyPackage} />
+        ))
+      }
     </section>
   </main>
 </Layout>

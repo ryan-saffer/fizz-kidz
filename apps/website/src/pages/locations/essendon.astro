@@ -18,7 +18,7 @@ import { websitePagesLocationsEssendonEssendon2Jpg as carousel2Image } from "@/d
 import { websitePagesLocationsEssendonEssendon3Jpg as carousel3Image } from "@/data/website-images";
 import { websitePagesLocationsEssendonEssendon4Jpg as carousel4Image } from "@/data/website-images";
 import { websitePagesLocationsEssendonEssendon5Jpg as carousel5Image } from "@/data/website-images";
-import { menu } from "@/components/react/navigation/navigation-menu";
+import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
 import { createLocationSchemas } from "@/utils/seo";
 
 const description =
@@ -43,7 +43,7 @@ const description =
         {
           type: "dropdown",
           title: "Essendon",
-          items: menu[5].items,
+          items: locationMenuLinks,
         },
       ]}
     />

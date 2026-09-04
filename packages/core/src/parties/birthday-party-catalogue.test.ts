@@ -14,6 +14,52 @@ const validCatalogue: BirthdayPartyCatalogue = {
             order: 1,
             summaryTitle: 'Slime Creations',
             accentColour: '#9044E2',
+            websitePage: {
+                slug: 'slime-parties',
+                seo: {
+                    title: 'Kids Slime Birthday Parties | Fizz Kidz',
+                    description: 'A hosted slime birthday party.',
+                    serviceName: 'Kids Slime Birthday Party',
+                },
+                hero: {
+                    title: 'Kids Slime Birthday Parties',
+                    subtitle: 'Slime, slime and more slime!',
+                    description: 'Together lets get messy and make the most perfect slimes!',
+                    theme: 'purple',
+                    image: {
+                        assetId: 'hero-image',
+                        height: 800,
+                        src: 'https://cdn.sanity.io/hero-image.png',
+                        width: 1200,
+                    },
+                    imageAlt: 'A child holding slime',
+                },
+                creationsImage: {
+                    assetId: 'package-image',
+                    height: 500,
+                    src: 'https://cdn.sanity.io/package-image.png',
+                    width: 500,
+                },
+                creationsImageAlt: 'Slime Party Package',
+                navigation: {
+                    title: 'Slime Parties',
+                    order: 1,
+                    isNew: false,
+                },
+                themeCard: {
+                    title: 'Slime Parties',
+                    order: 1,
+                    colour: '#9044E2',
+                    image: {
+                        assetId: 'theme-image',
+                        height: 500,
+                        src: 'https://cdn.sanity.io/theme-image.png',
+                        width: 500,
+                    },
+                    imageAlt: 'A child holding slime',
+                },
+                features: [],
+            },
             cards: [
                 {
                     _key: 'card-1',
@@ -95,6 +141,79 @@ describe('validateBirthdayPartyCatalogue', () => {
         catalogue.packages.push({ ...structuredClone(catalogue.packages[0]), _id: 'package-2' })
 
         throws(() => validateBirthdayPartyCatalogue(catalogue), /Duplicate package key "slime"/)
+    })
+
+    it('rejects missing or conflicting Website routes and listing orders', () => {
+        const missingPage = structuredClone(validCatalogue)
+        missingPage.packages[0].websitePage = undefined as never
+        throws(() => validateBirthdayPartyCatalogue(missingPage), /Package "slime" must have Website page content/)
+
+        const duplicated = structuredClone(validCatalogue)
+        duplicated.packages.push({
+            ...structuredClone(duplicated.packages[0]),
+            _id: 'package-2',
+            key: 'science',
+            order: 2,
+        })
+        throws(() => validateBirthdayPartyCatalogue(duplicated), /Duplicate Website slug "slime-parties"/)
+
+        duplicated.packages[1].websitePage.slug = 'science-parties'
+        throws(() => validateBirthdayPartyCatalogue(duplicated), /Duplicate navigation order "1"/)
+
+        duplicated.packages[1].websitePage.navigation.order = 2
+        throws(() => validateBirthdayPartyCatalogue(duplicated), /Duplicate theme-card order "1"/)
+    })
+
+    it('rejects reserved Website routes and incomplete page images', () => {
+        const catalogue = structuredClone(validCatalogue)
+        catalogue.packages[0].websitePage.slug = 'creations'
+        throws(
+            () => validateBirthdayPartyCatalogue(catalogue),
+            /Package "slime" uses reserved Website slug "creations"/
+        )
+
+        catalogue.packages[0].websitePage.slug = 'slime-parties'
+        catalogue.packages[0].websitePage.hero.image = undefined as never
+        throws(() => validateBirthdayPartyCatalogue(catalogue), /Package "slime" must have a hero image/)
+
+        catalogue.packages[0].websitePage.hero.image = structuredClone(
+            validCatalogue.packages[0].websitePage.hero.image
+        )
+        catalogue.packages[0].websitePage.creationsImage = undefined
+        throws(() => validateBirthdayPartyCatalogue(catalogue), /Package "slime" must have a creations-section image/)
+
+        catalogue.packages[0].hidePartyImage = true
+        deepStrictEqual(validateBirthdayPartyCatalogue(catalogue), catalogue)
+    })
+
+    it('validates optional package feature sections', () => {
+        const catalogue = structuredClone(validCatalogue)
+        catalogue.packages[0].websitePage.features.push({
+            _key: 'slime-lab',
+            cards: [
+                {
+                    _key: 'choose-base',
+                    alt: 'Slime base options',
+                    colour: 'white',
+                    image: {
+                        assetId: 'feature-card-image',
+                        height: 500,
+                        src: 'https://cdn.sanity.io/feature-card-image.png',
+                        width: 500,
+                    },
+                    label: ['Choose your base'],
+                },
+            ],
+            description: 'Design your slime from scratch.',
+            title: 'Slime Lab',
+        })
+        deepStrictEqual(validateBirthdayPartyCatalogue(catalogue), catalogue)
+
+        catalogue.packages[0].websitePage.features[0].cards[0].label = []
+        throws(
+            () => validateBirthdayPartyCatalogue(catalogue),
+            /Package "slime" feature "slime-lab" card "choose-base" must have a label/
+        )
     })
 
     it('rejects one stable creation key belonging to different documents', () => {

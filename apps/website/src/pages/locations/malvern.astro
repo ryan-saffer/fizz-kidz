@@ -18,7 +18,7 @@ import { websitePagesLocationsMalvernMalvern2Jpg as carousel2Image } from "@/dat
 import { websitePagesLocationsMalvernMalvern3Jpg as carousel3Image } from "@/data/website-images";
 import { websitePagesLocationsMalvernMalvern4Jpg as carousel4Image } from "@/data/website-images";
 import { websitePagesLocationsMalvernMalvern5Jpg as carousel5Image } from "@/data/website-images";
-import { menu } from "@/components/react/navigation/navigation-menu";
+import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
 import { createLocationSchemas } from "@/utils/seo";
 
 const description =
@@ -43,7 +43,7 @@ const description =
         {
           type: "dropdown",
           title: "Malvern",
-          items: menu[5].items,
+          items: locationMenuLinks,
         },
       ]}
     />

@@ -6,7 +6,7 @@ import { Button } from '../ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import NavigationMenuItemDesktop from './navigation-menu-item-desktop'
 
-import type { MenuLink } from './navigation-menu'
+import type { MenuLink } from './navigation-menu-data'
 
 function NavigationMenuDropdown({
     title,

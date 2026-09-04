@@ -241,6 +241,19 @@ export const birthdayPartyPackage = defineType({
                 ),
         }),
         defineField({
+            name: 'websitePage',
+            title: 'Website page',
+            type: 'birthdayPartyWebsitePage',
+            description:
+                'Controls this package’s generated page, menu item, Party Themes card, SEO, and optional feature sections.',
+            validation: (rule) =>
+                rule.custom((page, context) =>
+                    isActiveCataloguePackage(context) && !page
+                        ? 'Active catalogue packages must have complete Website page content.'
+                        : true
+                ),
+        }),
+        defineField({
             name: 'creations',
             title: 'Creation instructions (legacy)',
             type: 'array',

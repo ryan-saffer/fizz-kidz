@@ -6,8 +6,18 @@ import {
     type BirthdayPartyCatalogue,
     type BirthdayPartyCatalogueCreation,
     type BirthdayPartyCreationCard,
+    type BirthdayPartyFeatureCard,
+    type BirthdayPartyFeatureSection,
+    type BirthdayPartyWebsitePage,
     type HolidayProgramScheduleWeek,
 } from '@fizz-kidz/core'
+
+const BIRTHDAY_PARTY_IMAGE_PROJECTION = `{
+    ...,
+    "assetId": asset->_id,
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+}`
 
 const BIRTHDAY_PARTY_CATALOGUE_QUERY = `
     *[_type == "birthdayPartyPackage" && status == "active"] | order(catalogueOrder asc) {
@@ -26,12 +36,7 @@ const BIRTHDAY_PARTY_CATALOGUE_QUERY = `
             colour,
             creation->{
                 _id,
-                image {
-                    ...,
-                    "assetId": asset->_id,
-                    "width": asset->metadata.dimensions.width,
-                    "height": asset->metadata.dimensions.height
-                },
+                image ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
                 key,
                 "legacyLabels": coalesce(legacyLabels, []),
                 name,
@@ -39,17 +44,50 @@ const BIRTHDAY_PARTY_CATALOGUE_QUERY = `
                 status
             },
             hideLabel,
-            image {
-                ...,
-                "assetId": asset->_id,
-                "width": asset->metadata.dimensions.width,
-                "height": asset->metadata.dimensions.height
-            },
+            image ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
             label
         },
         "order": catalogueOrder,
         status,
-        summaryTitle
+        summaryTitle,
+        websitePage {
+            "slug": slug.current,
+            seo,
+            hero {
+                description,
+                image ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
+                imageAlt,
+                subtitle,
+                theme,
+                title
+            },
+            creationsImage ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
+            creationsImageAlt,
+            navigation,
+            themeCard {
+                colour,
+                image ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
+                imageAlt,
+                order,
+                title
+            },
+            features[] {
+                _key,
+                _type,
+                title,
+                headingImage ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
+                headingImageAlt,
+                description,
+                cards[] {
+                    _key,
+                    _type,
+                    colour,
+                    image ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
+                    imageAlt,
+                    label
+                }
+            }
+        }
     }
 `
 
@@ -113,8 +151,26 @@ type SanityCreationCard = Omit<
     label?: string[]
 }
 
-type BirthdayPartyCatalogueRecord = Omit<BirthdayPartyCatalogue['packages'][number], 'cards'> & {
+type SanityFeatureCard = Omit<BirthdayPartyFeatureCard, 'alt' | 'image'> & {
+    image?: SanityImage
+    imageAlt?: string
+}
+
+type SanityFeatureSection = Omit<BirthdayPartyFeatureSection, 'cards' | 'headingImage'> & {
+    cards?: SanityFeatureCard[]
+    headingImage?: SanityImage
+}
+
+type SanityWebsitePage = Omit<BirthdayPartyWebsitePage, 'creationsImage' | 'features' | 'hero' | 'themeCard'> & {
+    creationsImage?: SanityImage
+    features?: SanityFeatureSection[]
+    hero?: Omit<BirthdayPartyWebsitePage['hero'], 'image'> & { image?: SanityImage }
+    themeCard?: Omit<BirthdayPartyWebsitePage['themeCard'], 'image'> & { image?: SanityImage }
+}
+
+type BirthdayPartyCatalogueRecord = Omit<BirthdayPartyCatalogue['packages'][number], 'cards' | 'websitePage'> & {
     cards?: SanityCreationCard[]
+    websitePage?: SanityWebsitePage
 }
 
 const client = createClient({
@@ -145,12 +201,47 @@ function resolveCatalogueImage(image: SanityImage | undefined) {
     return resolveImage(image)
 }
 
+function normalizeWebsitePage(page: SanityWebsitePage | undefined): BirthdayPartyWebsitePage {
+    if (!page) return undefined as never
+
+    return {
+        ...page,
+        creationsImage: page.creationsImage ? resolveCatalogueImage(page.creationsImage) : undefined,
+        features: Array.isArray(page.features)
+            ? page.features.map((feature) => ({
+                  ...feature,
+                  cards: Array.isArray(feature.cards)
+                      ? feature.cards.map((card) => ({
+                            ...card,
+                            alt: card.imageAlt ?? '',
+                            image: resolveCatalogueImage(card.image),
+                        }))
+                      : (undefined as never),
+                  headingImage: feature.headingImage ? resolveCatalogueImage(feature.headingImage) : undefined,
+              }))
+            : (undefined as never),
+        hero: page.hero
+            ? {
+                  ...page.hero,
+                  image: resolveCatalogueImage(page.hero.image),
+              }
+            : (undefined as never),
+        themeCard: page.themeCard
+            ? {
+                  ...page.themeCard,
+                  image: resolveCatalogueImage(page.themeCard.image),
+              }
+            : (undefined as never),
+    }
+}
+
 export const sanityClient = {
     async getBirthdayPartyCatalogue() {
         const packages = await client.fetch<BirthdayPartyCatalogueRecord[]>(BIRTHDAY_PARTY_CATALOGUE_QUERY)
         return validateBirthdayPartyCatalogue({
             packages: packages.map((partyPackage) => ({
                 ...partyPackage,
+                websitePage: normalizeWebsitePage(partyPackage.websitePage),
                 cards: (partyPackage.cards ?? []).map((card) => {
                     const creation = card.creation
                         ? {

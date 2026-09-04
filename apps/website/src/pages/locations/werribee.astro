@@ -6,7 +6,7 @@ import Image from "@/components/image.astro";
 import LocationDetails from "@/components/location-details.astro";
 import PageIntro from "@/components/page-intro.astro";
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import { menu } from "@/components/react/navigation/navigation-menu";
+import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
 import {
   websitePagesHomeEnergyJpg as contact,
   websitePagesHomeHolidayProgramsJpg as holidayPrograms,
@@ -39,7 +39,7 @@ const description =
           {
             type: "dropdown",
             title: "Werribee",
-            items: menu[5].items,
+          items: locationMenuLinks,
           },
         ]}
       />

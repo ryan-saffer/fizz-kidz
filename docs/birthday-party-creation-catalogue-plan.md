@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress. The Phase 0 inventory, shared contract, Studio schemas, migration, drafts, Website query, and generic renderers are complete. The imported drafts still require visual review and publication before the Website routes are cut over.
+In progress across the full catalogue programme. Phase 1 is implemented: the reviewed catalogue and page data are published in Sanity, the Studio is deployed, and the Website builds every package route and catalogue surface from Sanity. The Website code still needs to pass through its normal deployment before production uses the dynamic routes. Paperform API investigation and Phases 2–4 remain.
 
 ## Goal
 
@@ -22,6 +22,8 @@ The Website is the authority for the initial migration. Its current names, packa
 - Keep Paperform field IDs and other provider configuration in the server integration, not in Sanity content.
 - Treat intentional studio/mobile differences as catalogue data. They must not live only as manual changes inside Paperform.
 - Use each package's ordered Website cards as its only creation-membership source. Exactly one card per creation owns booking channels and booking order; additional cards are presentation variants.
+- Generate package pages from one fixed template. Sanity owns each package's route, SEO, hero, menu entry, Party Themes card, creations image, and optional feature sections; shared pricing, party information, FAQs, reviews, and values remain in Website code.
+- Include every active package in Party Themes, including Fairy and Unicorn. Keep At Home as a dedicated static Website page.
 
 ## Current state
 
@@ -77,6 +79,7 @@ Each package contains:
 - Display order.
 - Package colour or theme where still required by the current design.
 - One ordered list of Website cards.
+- Website-page data for its permanent slug, SEO, hero, navigation entry, Party Themes card, creations image, and optional package-specific feature sections.
 
 Each Website card contains:
 
@@ -135,16 +138,18 @@ Phase 0 is complete when every Website card has an explicit destination in the n
 - [x] Add a package preview that shows the same creation cards and order as the Website where practical.
 - [x] Import Website content as drafts using generated Sanity document IDs and explicit stable offering keys.
 - [x] Reuse the Sanity assets behind the current Website image slots where possible.
-- [ ] Review and publish the imported catalogue only after it matches the Website inventory.
+- [x] Review and publish the imported catalogue only after it matches the Website inventory.
+- [x] Add and publish validated Website-page fields for all active packages.
 
 ### Website
 
 - [x] Add one typed GROQ query for the published active party catalogue.
 - [x] Add a generic creation-card Astro module.
 - [x] Add a generic package-creations Astro module for summary and party-page variants.
-- [ ] Render `/birthday-parties/creations/` from the catalogue.
-- [ ] Render each existing party page's creation section by stable package key.
-- [ ] Preserve current names, order, images, responsive layout, links, and page copy at cutover.
+- [x] Render `/birthday-parties/creations/` from the catalogue.
+- [x] Generate all active package routes from one `[slug].astro` template and the published catalogue.
+- [x] Derive package navigation, breadcrumbs, Party Themes, SEO, and sitemap routes from the same package data.
+- [x] Preserve current names, order, images, responsive layout, links, and page copy at cutover; include Fairy and Unicorn in Party Themes.
 - [ ] Remove obsolete package and creation modules after visual comparison and production verification.
 - [x] Confirm package and offering publishes use the existing automatic Website rebuild path.
 
@@ -156,6 +161,8 @@ Phase 0 is complete when every Website card has an explicit destination in the n
 - A missing required image, invalid reference, duplicate key, or ambiguous legacy label fails validation or the Website build with a useful message.
 - The creation-instructions and Portal instruction experience still works.
 - Paperform and booking submission behavior is unchanged.
+
+Phase 1 verification completed with the root checks and 507 tests, Website and Studio checks/builds, generated-route and sitemap assertions, rendered HTML parity for all ten package pages, and pixel-identical desktop/mobile hero screenshots against the static build. Static package and creation modules remain temporarily as a production-verification fallback; the ten static route files have been replaced by the dynamic route.
 
 ## Phase 2: server catalogue and Portal compatibility
 
@@ -228,7 +235,7 @@ Automated coverage should include:
 
 Manual verification should include:
 
-- Side-by-side screenshots of every package on the old and new Website builds.
+- Side-by-side desktop and mobile screenshots of every package on the old and new Website builds. Phase 1 verified the hero viewport for all ten routes; complete rendered HTML was compared for the remaining package content.
 - Desktop and mobile Paperform checks for every package question.
 - A test submission containing creations from more than one package.
 - Reprocessing an old submission after one option has been renamed.
@@ -239,8 +246,9 @@ Run the relevant repository checks at the end of each phase. Phase 1 must includ
 ## Relevant code
 
 - Website catalogue page: `apps/website/src/pages/birthday-parties/creations.astro`
-- Website package modules: `apps/website/src/components/creation-packages`
-- Website creation cards: `apps/website/src/components/creations`
+- Website package route template: `apps/website/src/pages/birthday-parties/[slug].astro`
+- Website package renderers: `apps/website/src/components/birthday-party-catalogue`
+- Temporary static fallback modules: `apps/website/src/components/creation-packages` and `apps/website/src/components/creations`
 - Website Sanity adapter: `apps/website/src/utils/sanity-api-client.ts`
 - Sanity package schema: `apps/sanity-studio/schemaTypes/documents/birthday-party-package.ts`
 - Sanity recipe schema: `apps/sanity-studio/schemaTypes/documents/birthday-party-creation.ts`
