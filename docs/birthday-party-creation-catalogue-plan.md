@@ -26,7 +26,7 @@ The Website is the authority for the initial migration. Its current names, packa
 - Include every active package in Party Themes, including Fairy and Unicorn. Keep At Home as a dedicated static Website page.
 - Store one canonical package name. Derive `{Package name} Parties`, `{Package name} Creations`, and `{Package name} Party Package` where those labels are rendered.
 - Store one primary colour for the Website introduction and Portal, plus one accent colour for the all-creations heading and Party Themes card. Both fields use one shared supported-colour palette. Keep the Fluid Bears black creations background as a separate presentation setting.
-- Store one Website position per package. It controls the package order in the menu, Party Themes cards, and all-creations catalogue.
+- Store one package position. It controls Portal creation-instruction groups and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue.
 - Complete and test the Website, Portal, server, and Paperform work before one coordinated production cutover. Remove legacy Sanity fields only after that cutover is verified.
 
 ## Remaining legacy state
@@ -80,7 +80,7 @@ Each package contains:
 - Stable package key or slug.
 - Canonical package name.
 - Active or retired status.
-- One Website position shared by the menu, Party Themes cards, and all-creations catalogue.
+- One position shared by Portal creation-instruction groups and the Website menu, Party Themes cards, and all-creations catalogue.
 - Primary and accent colours where required by the current design.
 - One ordered list of Website cards.
 - Website-page data for its permanent slug, SEO, hero, navigation entry, Party Themes card, creations image, and optional package-specific feature sections.
@@ -224,7 +224,8 @@ Submission handling should use package context when resolving labels. This avoid
 - [ ] Remove the active `CREATION_PACKAGES`, `CREATION_PACKAGE_DISPLAY_NAMES`, and `ACTIVE_CREATIONS` catalogue after all consumers have moved.
 - [ ] Retain the minimum legacy key mapping needed for historical records, or migrate those records before deleting it.
 - [ ] Remove old Paperform label-to-key code after the oldest resubmittable form data no longer needs it.
-- [ ] Deprecate the old recipe-reference field on `birthdayPartyPackage` only after Portal instruction queries use the new offering-to-recipe relationship.
+- [ ] Remove the migration-only Portal order after the coordinated production cutover is verified.
+- [ ] Migrate Sweet Kitty to the new creation relationships, then remove the migration-only package instruction references.
 - [ ] Run the package-field migration's `--cleanup --apply` mode after the compatible Website, server, and Portal code is deployed, then remove the hidden legacy schema fields.
 - [ ] Update the Website, Studio, server, Portal, and core READMEs to describe the final ownership model.
 

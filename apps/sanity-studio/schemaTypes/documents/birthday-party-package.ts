@@ -230,19 +230,21 @@ export const birthdayPartyPackage = defineType({
         }),
         defineField({
             name: 'order',
-            title: 'Portal instructions order',
+            title: 'Portal instructions order (migration only)',
             type: 'number',
-            description: 'Existing Portal instruction order. Keep this intact until the Portal catalogue cutover.',
+            description:
+                'Used only by the currently deployed Portal. Do not edit. Delete this field after the coordinated production cutover is verified.',
+            deprecated: { reason: 'Replaced by Position. Retained temporarily for the deployed Portal.' },
             group: 'core',
-            validation: (rule) => rule.required().integer().min(0),
+            readOnly: true,
         }),
         defineField({
             name: 'position',
             title: 'Position',
             type: 'number',
             description:
-                'Controls this package’s position in the Website menu, Party Themes cards, and all-creations catalogue. Lower numbers appear first.',
-            group: 'website',
+                'Controls this package’s position in Portal creation instructions and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue. Lower numbers appear first.',
+            group: 'core',
             validation: (rule) =>
                 rule
                     .integer()
@@ -343,13 +345,16 @@ export const birthdayPartyPackage = defineType({
         }),
         defineField({
             name: 'creations',
-            title: 'Creation instructions (legacy)',
+            title: 'Creation instructions (migration only)',
             type: 'array',
             description:
-                'Existing Portal instruction order. Keep this intact until the Portal reads instructions through party-package creations.',
+                'Used by the currently deployed Portal and the Sweet Kitty staff-only fallback. Do not edit. Delete after the coordinated cutover is verified and Sweet Kitty uses the new creation relationships.',
+            deprecated: {
+                reason: 'Active packages now derive instructions through Website card creations. Retained temporarily for migration.',
+            },
             group: 'core',
+            readOnly: true,
             of: [defineArrayMember({ type: 'reference', to: [{ type: 'birthdayPartyCreation' }] })],
-            validation: (rule) => rule.required().min(1).unique(),
         }),
         defineField({
             name: 'migrationSource',

@@ -15,6 +15,7 @@ const apply = process.argv.includes('--apply')
 const cleanup = process.argv.includes('--cleanup')
 const client = getCliClient({ apiVersion: API_VERSION }).withConfig({ perspective: 'raw', useCdn: false })
 const primaryColourOverrides = new Map<string, BirthdayPartyPackageColour>([['fluidBears', 'black']])
+const staffOnlyPositionOverrides = new Map<string, number>([['Sweet Kitty', 11]])
 const legacyAccentColourAliases = new Map<string, BirthdayPartyPackageColourHex>([
     ['#43D4F3', '#4DC5DA'],
     ['#F7BB35', '#F6BA33'],
@@ -28,6 +29,7 @@ type PackageDocument = {
     customerName?: string
     key?: string
     name?: string
+    order?: number
     packageName?: string
     position?: number
     primaryColour?: BirthdayPartyPackageColour
@@ -49,12 +51,17 @@ function normalizeAccentColour(value: string | undefined) {
     return BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS.find((option) => option.hex === uppercaseValue)?.hex
 }
 
-function getWebsitePosition(partyPackage: PackageDocument) {
+function getPosition(partyPackage: PackageDocument) {
+    const packageName =
+        partyPackage.packageName?.trim() ||
+        partyPackage.customerName?.trim() ||
+        partyPackage.name?.replace(/\s+Parties$/, '').trim()
     return (
         partyPackage.position ??
         partyPackage.websitePage?.navigation?.order ??
         partyPackage.catalogueOrder ??
-        partyPackage.websitePage?.themeCard?.order
+        partyPackage.websitePage?.themeCard?.order ??
+        (packageName ? staffOnlyPositionOverrides.get(packageName) : undefined)
     )
 }
 
@@ -79,7 +86,7 @@ const changes = packages.flatMap((partyPackage) => {
         partyPackage.websitePage?.hero?.theme ??
         partyPackage.colour
     const accentColour = normalizeAccentColour(partyPackage.accentColour)
-    const position = getWebsitePosition(partyPackage)
+    const position = getPosition(partyPackage)
 
     if (!packageName) throw new Error(`Package "${partyPackage._id}" has no usable package name.`)
     if (!primaryColour || !isBirthdayPartyPackageColour(primaryColour)) {
@@ -97,6 +104,7 @@ const changes = packages.flatMap((partyPackage) => {
         partyPackage.catalogueOrder !== undefined ||
         partyPackage.customerName !== undefined ||
         partyPackage.name !== undefined ||
+        partyPackage.order !== undefined ||
         partyPackage.summaryTitle !== undefined ||
         partyPackage.websitePage?.creationsImageAlt !== undefined ||
         partyPackage.websitePage?.hero?.theme !== undefined ||
@@ -134,7 +142,7 @@ for (const [description, documents] of [
 ] as const) {
     const activePositions = documents
         .filter((partyPackage) => partyPackage.status === 'active')
-        .map((partyPackage) => getWebsitePosition(partyPackage))
+        .map((partyPackage) => getPosition(partyPackage))
     strictEqual(
         new Set(activePositions).size,
         activePositions.length,
@@ -168,6 +176,7 @@ for (const change of changes) {
                           'catalogueOrder',
                           'customerName',
                           'name',
+                          'order',
                           'summaryTitle',
                           'websitePage.creationsImageAlt',
                           'websitePage.hero.theme',
@@ -210,6 +219,7 @@ for (const partyPackage of migratedPackages) {
                 partyPackage.catalogueOrder !== undefined ||
                 partyPackage.customerName !== undefined ||
                 partyPackage.name !== undefined ||
+                partyPackage.order !== undefined ||
                 partyPackage.summaryTitle !== undefined ||
                 partyPackage.websitePage?.creationsImageAlt !== undefined ||
                 partyPackage.websitePage?.hero?.theme !== undefined ||

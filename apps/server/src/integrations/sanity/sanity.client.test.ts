@@ -117,7 +117,7 @@ describe('SanityClient', () => {
         const sanity = await getSanityClient()
         const result = await sanity.getBirthdayPartyCreations()
 
-        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('| order(order asc)'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('| order(coalesce(position, order) asc)'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('websiteCards[count(bookingChannels) > 0'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('creation->recipe->'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(packageName, name)'))

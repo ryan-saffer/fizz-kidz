@@ -22,7 +22,8 @@ const HOLIDAY_PROGRAM_CREATIONS_QUERY = `
 `
 
 const BIRTHDAY_PARTY_CREATIONS_QUERY = `
-    *[_type == "birthdayPartyPackage" && (!defined(status) || status == "active")] | order(order asc) {
+    *[_type == "birthdayPartyPackage" && (!defined(status) || status == "active")]
+        | order(coalesce(position, order) asc) {
         _id,
         "name": coalesce(packageName, name),
         "colour": coalesce(primaryColour, colour),

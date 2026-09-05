@@ -33,7 +33,7 @@ Keep the Studio standalone rather than embedding it in another app. Use kebab-ca
 
 The Birthday Party area separates customer content from staff instructions:
 
-- **Packages** owns the canonical package name, primary and accent colours, one Website position, one ordered Website-card list, and the generated Website page. Position controls the package order in the Website menu, Party Themes cards, and all-creations catalogue. The form separates core package information from Website route, SEO, page content, and listing settings. Every creation card references a creation; exactly one card per creation also owns its booking channels and booking-menu order.
+- **Packages** owns the canonical package name, primary and accent colours, one position, one ordered Website-card list, and the generated Website page. Position controls Portal instruction groups and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue. The form separates core package information from Website route, SEO, page content, and listing settings. Every creation card references a creation; exactly one card per creation also owns its booking channels and booking-menu order.
 - **Creations** owns stable booking keys, customer names, default images, previous Paperform labels, status, and the optional creation-instructions relationship. Each creation displays a derived, read-only list of every package whose Website cards reference it.
 - **Creation instructions** remains the reusable instruction library consumed by the Portal. Each instruction displays a derived, read-only list of every creation that references it; one instruction can be shared by multiple creations.
 
@@ -59,7 +59,7 @@ npx sanity exec migrations/verify-birthday-party-catalogue-drafts.ts --with-user
 
 Package labels are derived from **Package name**: the Portal, Website menu, and Party Themes use `{Package name} Parties`; the all-creations page uses `{Package name} Creations`; and the creations-section image description uses `{Package name} Party Package`. **Primary colour** and **Accent colour** are selected from the same shared named-colour list. Primary supplies the Website introduction and Portal instruction colour; accent supplies the all-creations heading and Party Themes card. The separate black-background toggle is the Fluid Bears presentation exception.
 
-`migrations/migrate-birthday-party-package-fields.ts` backfilled those canonical fields and the unified Website position in production. The old name, colour, and separate Website order fields remain hidden and read-only so currently deployed consumers keep working. After the compatible Website, server, and Portal code has deployed, preview and then remove those legacy values with:
+`migrations/migrate-birthday-party-package-fields.ts` backfilled those canonical fields and the unified package position in production. The old name, colour, Website order, Portal order, and direct instruction fields remain read-only migration fields so currently deployed consumers keep working. The direct instruction field also supports Sweet Kitty until its staff-only relationships are migrated. After the coordinated Website, server, and Portal cutover is verified, preview and then remove eligible legacy values with:
 
 ```bash
 npx sanity exec migrations/migrate-birthday-party-package-fields.ts --with-user-token -- --cleanup
