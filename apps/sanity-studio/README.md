@@ -34,7 +34,7 @@ Keep the Studio standalone rather than embedding it in another app. Use kebab-ca
 The Birthday Party area separates customer content from staff instructions:
 
 - **Packages** owns the canonical package name, primary and accent colours, one position, one ordered Website-card list, and the generated Website page. Position controls Portal instruction groups and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue. The form separates core package information from Website route, SEO, page content, and listing settings. Every creation card references a creation; exactly one card per creation also owns its booking channels and booking-menu order.
-- **Creations** owns stable booking keys, customer names, default images, previous Paperform labels, status, and the optional creation-instructions relationship. Each creation displays a derived, read-only list of every package whose Website cards reference it.
+- **Creations > Live** owns current booking choices, including stable keys, customer names, default images, previous Paperform labels, and optional creation instructions. **Creations > Archived** contains historical choices retained for old bookings; archived creations are not offered for new bookings and do not require Website images. Each creation displays a derived, read-only list of every package whose Website cards reference it.
 - **Creation instructions** remains the reusable instruction library consumed by the Portal. Each instruction displays a derived, read-only list of every creation that references it; one instruction can be shared by multiple creations.
 
 The Phase 1 migration source is `migrations/birthday-party-catalogue-source.ts`. From `apps/sanity-studio`, validate it against the current production assets and creation instructions with a read-only dry run:
@@ -48,6 +48,13 @@ Pass `-- --apply` only after reviewing `docs/birthday-party-creation-catalogue-i
 For an existing import created before creation images were added, pass `-- --apply-images` to fill only missing image fields from **Website images > Creations**. This leaves every other reviewed draft field—and any image already selected by an editor—unchanged.
 
 The one-time `migrate-birthday-party-package-cards.ts` migration collapses the old duplicate package-creation list into the Website cards. It is dry-run by default; pass `-- --apply` to patch only card fields and remove the obsolete list. It never publishes documents.
+
+`migrations/import-retired-birthday-party-creations.ts` imports the deprecated hardcoded creation keys as published archived creations with Sanity-generated document IDs. It is idempotent and refuses conflicting keys or draft-only documents. Preview it before applying:
+
+```bash
+npx sanity exec migrations/import-retired-birthday-party-creations.ts --with-user-token
+npx sanity exec migrations/import-retired-birthday-party-creations.ts --with-user-token -- --apply
+```
 
 Before publishing an initial import, validate its draft graph, including booking order and the non-contiguous Jungle Safari card sequence, with:
 

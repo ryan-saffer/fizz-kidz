@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress across the full catalogue programme. Phases 1 and 2 are implemented locally: Sanity owns the reviewed catalogue and package pages, the Website builds every catalogue surface from it, and the server and Portal use the same catalogue for booking choices and submission resolution. The Studio and canonical Sanity content are live, but the Website, Portal, and server changes will remain undeployed until the complete coordinated cutover. Paperform integration and final cleanup remain.
+In progress across the full catalogue programme. Phases 1 and 2 are implemented locally: Sanity owns the reviewed catalogue and package pages, including live and archived creation keys; the Website builds every catalogue surface from it; and the server and Portal use the same catalogue for booking choices and submission resolution. The Studio and canonical Sanity content are live, but the Website, Portal, and server changes will remain undeployed until the complete coordinated cutover. Paperform integration and final cleanup remain.
 
 ## Goal
 
@@ -183,6 +183,7 @@ Move the booking system before changing Paperform. This lets the server understa
 - [x] Preserve retired selections when editing an old booking, but do not offer them for a new selection.
 - [x] Add structured logging for unknown Paperform values rather than silently dropping them.
 - [x] Derive active package instruction groups through creation-to-instruction references while retaining Sweet Kitty's staff-only fallback.
+- [x] Import deprecated hardcoded creation keys into Sanity as archived creations for historical bookings.
 
 Phase 2 is implemented locally. The server and Portal handle current Paperform labels, future stable keys, renamed labels, channel availability, and previously selected retired or unknown creations. Production remains unchanged until the coordinated cutover.
 

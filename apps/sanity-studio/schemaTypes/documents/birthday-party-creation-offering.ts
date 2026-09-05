@@ -67,9 +67,12 @@ export const birthdayPartyCreationOffering = defineType({
             title: 'Image',
             type: 'image',
             description:
-                'Default image for this creation. Package cards may use another image when their presentation differs.',
+                'Default image for a live creation. Package cards may use another image when their presentation differs. Archived historical creations do not need an image.',
             options: { hotspot: true },
-            validation: (rule) => rule.required(),
+            validation: (rule) =>
+                rule.custom((image, context) =>
+                    context.document?.status === 'active' && !image ? 'Live creations must have an image.' : true
+                ),
         }),
         defineField({
             name: 'status',
@@ -78,7 +81,7 @@ export const birthdayPartyCreationOffering = defineType({
             options: {
                 layout: 'radio',
                 list: BIRTHDAY_PARTY_CATALOGUE_STATUSES.map((status) => ({
-                    title: status === 'active' ? 'Active' : 'Retired',
+                    title: status === 'active' ? 'Live' : 'Archived',
                     value: status,
                 })),
             },
@@ -111,7 +114,7 @@ export const birthdayPartyCreationOffering = defineType({
         select: { key: 'key', media: 'image', status: 'status', title: 'name' },
         prepare: ({ key, media, status, title }) => ({
             title,
-            subtitle: [key, status === 'retired' ? 'Retired' : undefined].filter(Boolean).join(' · '),
+            subtitle: [key, status === 'retired' ? 'Archived' : undefined].filter(Boolean).join(' · '),
             media,
         }),
     },
