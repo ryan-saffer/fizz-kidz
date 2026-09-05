@@ -24,10 +24,13 @@ import { throwFunctionsError } from '@/app/trpc/transport-errors'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { MixpanelClient } from '@/integrations/mixpanel/mixpanel.client'
 import { logError } from '@/integrations/observability/log-error'
+import { SanityClient } from '@/integrations/sanity/sanity.client'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 
 export async function handlePartyFormSubmission(responses: PaperformSubmission<PartyForm>) {
-    const formMapper = new PartyFormMapper(responses)
+    const sanity = await SanityClient.getInstance()
+    const catalogue = await sanity.getBirthdayPartyBookingCatalogue()
+    const formMapper = new PartyFormMapper(responses, catalogue)
     const existingBooking = await DatabaseClient.getPartyBooking(formMapper.bookingId)
 
     let mappedBooking: Partial<Booking> = {}
@@ -76,7 +79,7 @@ export async function handlePartyFormSubmission(responses: PaperformSubmission<P
                         hour12: true,
                     }),
                     oldNumberOfKids: existingBooking.numberOfChildren,
-                    oldCreations: getBookingCreationDisplayValues(existingBooking),
+                    oldCreations: getBookingCreationDisplayValues(existingBooking, catalogue),
                     oldAdditions: getBookingAdditionDisplayValues(existingBooking),
                     newNumberOfKids: mappedBooking.numberOfChildren!,
                     newCreations: formMapper.getCreationDisplayValues(existingBooking.type),

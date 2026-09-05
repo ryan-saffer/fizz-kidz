@@ -16,6 +16,7 @@ import {
 } from '@fizz-kidz/core'
 
 import { getCakeFormUrl } from './party-form-urls'
+import { validateBookingCreations } from './validate-booking-creations'
 
 import { env } from '@/app/init/firebase'
 import { throwTrpcError } from '@/app/trpc/transport-errors'
@@ -33,6 +34,7 @@ export async function updatePartyBooking(input: { bookingId: string; booking: Bo
     booking.dateTime = new Date(booking.dateTime)
 
     const existingBooking = await DatabaseClient.getPartyBooking(bookingId)
+    await validateBookingCreations(booking, existingBooking)
     await DatabaseClient.updatePartyBooking(bookingId, booking)
 
     const calendarClient = await CalendarClient.getInstance()

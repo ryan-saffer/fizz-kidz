@@ -30,6 +30,8 @@ Birthday Party and Holiday Program creation instructions come from Sanity throug
 
 Birthday-party instruction group labels and colours are package-owned: the server derives the `Parties` label from Sanity's canonical package name and returns its primary colour to the Portal.
 
+The Existing Booking form reads its creation menus from the server's Sanity catalogue. It filters choices by studio/mobile availability and preserves a booking's retired or historical selection without offering that value on other bookings.
+
 ## Run It
 
 ```bash

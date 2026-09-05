@@ -1,10 +1,11 @@
 import type {
+    BirthdayPartyBookingCatalogue,
     BirthdayPartyCreationInstructionGroup,
     CreationInstructionsContent,
     HolidayProgramCreationInstructions,
     HolidayProgramScheduleWeek,
 } from '@fizz-kidz/core'
-import { getBirthdayPartyPackagePartyName } from '@fizz-kidz/core'
+import { getBirthdayPartyPackagePartyName, validateBirthdayPartyBookingCatalogue } from '@fizz-kidz/core'
 
 import type { SanityClient as Client } from '@sanity/client'
 import type { ImageUrlBuilder, SanityImageSource } from '@sanity/image-url'
@@ -21,16 +22,68 @@ const HOLIDAY_PROGRAM_CREATIONS_QUERY = `
 `
 
 const BIRTHDAY_PARTY_CREATIONS_QUERY = `
-    *[_type == "birthdayPartyPackage"] | order(order asc) {
+    *[_type == "birthdayPartyPackage" && (!defined(status) || status == "active")] | order(order asc) {
         _id,
         "name": coalesce(packageName, name),
         "colour": coalesce(primaryColour, colour),
-        creations[]-> {
+        status,
+        "creationCards": websiteCards[count(bookingChannels) > 0 && defined(creation->recipe)] {
+            _key,
+            bookingOrder,
+            "recipe": creation->recipe-> {
+                _id,
+                name,
+                instructions[] {
+                    ...
+                }
+            }
+        },
+        "legacyCreations": creations[]-> {
             _id,
             name,
             instructions[] {
                 ...
             }
+        }
+    }
+`
+
+type BirthdayPartyInstructionGroupRecord = Omit<BirthdayPartyCreationInstructionGroup, 'creations'> & {
+    creationCards?: Array<{
+        _key: string
+        bookingOrder?: number
+        recipe?: BirthdayPartyCreationInstructionGroup['creations'][number]
+    }>
+    legacyCreations?: BirthdayPartyCreationInstructionGroup['creations']
+    status?: string
+}
+
+const BIRTHDAY_PARTY_BOOKING_CATALOGUE_QUERY = `
+    {
+        "creations": *[_type == "birthdayPartyCreationOffering"] | order(name asc) {
+            key,
+            "legacyLabels": coalesce(legacyLabels, []),
+            name,
+            status
+        },
+        "packages": *[
+            _type == "birthdayPartyPackage" &&
+            defined(key) &&
+            status in ["active", "retired"]
+        ] | order(coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order) asc) {
+            "creations": websiteCards[count(bookingChannels) > 0] {
+                _key,
+                "bookingChannels": coalesce(bookingChannels, []),
+                bookingOrder,
+                "key": creation->key,
+                "legacyLabels": coalesce(creation->legacyLabels, []),
+                "name": creation->name,
+                "status": creation->status
+            },
+            key,
+            "name": coalesce(packageName, customerName, name),
+            "position": coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order),
+            status
         }
     }
 `
@@ -134,15 +187,38 @@ export class SanityClient {
     }
 
     async getBirthdayPartyCreations() {
-        const groups = await this.#sanity.fetch<BirthdayPartyCreationInstructionGroup[]>(BIRTHDAY_PARTY_CREATIONS_QUERY)
+        const groups = await this.#sanity.fetch<BirthdayPartyInstructionGroupRecord[]>(BIRTHDAY_PARTY_CREATIONS_QUERY)
         return groups.map((group) => ({
-            ...group,
+            _id: group._id,
+            colour: group.colour,
             name: getBirthdayPartyPackagePartyName(group.name),
-            creations: group.creations.map((creation) => ({
+            creations: Array.from(
+                new Map(
+                    (group.status === 'active'
+                        ? (group.creationCards ?? [])
+                              .sort((left, right) => (left.bookingOrder ?? 0) - (right.bookingOrder ?? 0))
+                              .flatMap((card) => (card.recipe ? [card.recipe] : []))
+                        : (group.legacyCreations ?? [])
+                    ).map((creation) => [creation._id, creation] as const)
+                ).values()
+            ).map((creation) => ({
                 ...creation,
                 instructions: this.#resolveInstructionImages(creation.instructions),
             })),
         }))
+    }
+
+    async getBirthdayPartyBookingCatalogue() {
+        const catalogue = await this.#sanity
+            .withConfig({ useCdn: false })
+            .fetch<BirthdayPartyBookingCatalogue>(BIRTHDAY_PARTY_BOOKING_CATALOGUE_QUERY)
+        return validateBirthdayPartyBookingCatalogue({
+            creations: catalogue.creations,
+            packages: catalogue.packages.map((partyPackage) => ({
+                ...partyPackage,
+                creations: partyPackage.creations.sort((left, right) => left.bookingOrder - right.bookingOrder),
+            })),
+        })
     }
 
     async getHolidayProgramSchedule() {

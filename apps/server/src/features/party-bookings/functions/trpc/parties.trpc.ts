@@ -27,6 +27,7 @@ import { resetInvitation } from '@/features/party-bookings/core/rsvp/reset-invit
 import { hostRsvpToParty, guestRsvpToParty } from '@/features/party-bookings/core/rsvp/rsvp-to-party-v2'
 import { sendPartyBookingConfirmationEmail } from '@/features/party-bookings/core/send-party-booking-confirmation-email'
 import { updatePartyBooking } from '@/features/party-bookings/core/update-party-booking'
+import { UnavailableBirthdayPartyCreationsError } from '@/features/party-bookings/core/validate-booking-creations'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { getPartyFormEmbedConfig } from '@/integrations/paperforms/core/party-form-prefill'
 
@@ -41,13 +42,27 @@ export type DeletePartyBooking = {
     lostReasonOtherDetails: string | undefined
 }
 
+async function handleBookingCreationValidation<T>(operation: () => Promise<T>) {
+    try {
+        return await operation()
+    } catch (error) {
+        if (error instanceof UnavailableBirthdayPartyCreationsError) {
+            throwTrpcError('BAD_REQUEST', error.message, error, {
+                invalidKeys: error.invalidKeys,
+                type: error.bookingType,
+            })
+        }
+        throw error
+    }
+}
+
 export const partiesRouter = router({
     createPartyBooking: authenticatedProcedure
         .input((input: unknown) => input as CreatePartyBooking)
-        .mutation(({ input }) => createPartyBooking(input)),
+        .mutation(({ input }) => handleBookingCreationValidation(() => createPartyBooking(input))),
     updatePartyBooking: authenticatedProcedure
         .input((input: unknown) => input as UpdatePartyBooking)
-        .mutation(({ input }) => updatePartyBooking(input)),
+        .mutation(({ input }) => handleBookingCreationValidation(() => updatePartyBooking(input))),
     deletePartyBooking: authenticatedProcedure
         .input((input: unknown) => input as DeletePartyBooking)
         .mutation(({ input }) => deletePartyBooking(input)),

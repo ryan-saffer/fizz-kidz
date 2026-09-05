@@ -3,13 +3,67 @@ import { deepStrictEqual, throws } from 'assert'
 import { describe, it } from 'vite-plus/test'
 
 import {
+    getActiveBirthdayPartyBookingPackages,
+    getBirthdayPartyBookingCreationName,
     getBirthdayPartyPackageCreationsTitle,
     getBirthdayPartyPackageColourHex,
     getBirthdayPartyPackageImageDescription,
     getBirthdayPartyPackagePartyName,
+    resolveBirthdayPartyBookingCreation,
     validateBirthdayPartyCatalogue,
+    validateBirthdayPartyBookingCatalogue,
+    type BirthdayPartyBookingCatalogue,
     type BirthdayPartyCatalogue,
 } from './birthday-party-catalogue'
+
+const bookingCatalogue: BirthdayPartyBookingCatalogue = {
+    creations: [
+        {
+            key: 'fairySlime',
+            legacyLabels: ['Fairy Glitter Slime'],
+            name: 'Fairy Slime',
+            status: 'active',
+        },
+        {
+            key: 'unicornSoap',
+            legacyLabels: [],
+            name: 'Unicorn Soap',
+            status: 'active',
+        },
+        {
+            key: 'nutellaSlime',
+            legacyLabels: ['Chocolate Slime'],
+            name: 'Nutella Slime',
+            status: 'retired',
+        },
+    ],
+    packages: [
+        {
+            creations: [
+                {
+                    bookingChannels: ['studio', 'mobile'],
+                    bookingOrder: 2,
+                    key: 'fairySlime',
+                    legacyLabels: ['Fairy Glitter Slime'],
+                    name: 'Fairy Slime',
+                    status: 'active',
+                },
+                {
+                    bookingChannels: ['studio'],
+                    bookingOrder: 1,
+                    key: 'unicornSoap',
+                    legacyLabels: [],
+                    name: 'Unicorn Soap',
+                    status: 'active',
+                },
+            ],
+            key: 'fairy',
+            name: 'Fairy',
+            position: 1,
+            status: 'active',
+        },
+    ],
+}
 
 const validCatalogue: BirthdayPartyCatalogue = {
     packages: [
@@ -397,5 +451,82 @@ describe('validateBirthdayPartyCatalogue', () => {
             testCase.mutate(catalogue)
             throws(() => validateBirthdayPartyCatalogue(catalogue), testCase.expected)
         }
+    })
+})
+
+describe('birthday party booking catalogue', () => {
+    it('validates and filters active package creations by channel and booking order', () => {
+        deepStrictEqual(validateBirthdayPartyBookingCatalogue(bookingCatalogue), bookingCatalogue)
+
+        deepStrictEqual(
+            getActiveBirthdayPartyBookingPackages(bookingCatalogue, 'studio')[0].creations.map(
+                (creation) => creation.key
+            ),
+            ['unicornSoap', 'fairySlime']
+        )
+        deepStrictEqual(
+            getActiveBirthdayPartyBookingPackages(bookingCatalogue, 'mobile')[0].creations.map(
+                (creation) => creation.key
+            ),
+            ['fairySlime']
+        )
+    })
+
+    it('resolves current keys, names, and legacy labels within a package and channel', () => {
+        deepStrictEqual(
+            resolveBirthdayPartyBookingCreation(bookingCatalogue, {
+                channel: 'mobile',
+                packageKey: 'fairy',
+                submittedValue: ' Fairy Glitter Slime ',
+            })?.key,
+            'fairySlime'
+        )
+        deepStrictEqual(
+            resolveBirthdayPartyBookingCreation(bookingCatalogue, {
+                channel: 'studio',
+                packageKey: 'fairy',
+                submittedValue: 'unicornSoap',
+            })?.key,
+            'unicornSoap'
+        )
+        deepStrictEqual(
+            resolveBirthdayPartyBookingCreation(bookingCatalogue, {
+                channel: 'mobile',
+                packageKey: 'fairy',
+                submittedValue: 'Unicorn Soap',
+            }),
+            undefined
+        )
+        deepStrictEqual(
+            resolveBirthdayPartyBookingCreation(bookingCatalogue, {
+                channel: 'studio',
+                packageKey: 'fairy',
+                submittedValue: 'Chocolate Slime',
+            }),
+            undefined
+        )
+        deepStrictEqual(getBirthdayPartyBookingCreationName(bookingCatalogue, 'fairySlime'), 'Fairy Slime')
+    })
+
+    it('rejects malformed package booking configuration', () => {
+        const catalogue = structuredClone(bookingCatalogue)
+        catalogue.packages[0].creations[1].bookingOrder = 2
+
+        throws(
+            () => validateBirthdayPartyBookingCatalogue(catalogue),
+            /Package "fairy" has duplicate booking order "2"/
+        )
+    })
+
+    it('allows a retired package to remain without a position or current creations', () => {
+        const catalogue = structuredClone(bookingCatalogue)
+        catalogue.packages.push({
+            creations: [],
+            key: 'retiredPackage',
+            name: 'Retired package',
+            status: 'retired',
+        })
+
+        deepStrictEqual(validateBirthdayPartyBookingCatalogue(catalogue), catalogue)
     })
 })

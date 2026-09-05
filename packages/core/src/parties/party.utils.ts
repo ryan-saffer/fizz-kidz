@@ -1,15 +1,20 @@
 import { ADDITIONS, type Addition } from './additions'
-import { CREATIONS } from './creations'
+import { getBirthdayPartyBookingCreationName, type BirthdayPartyBookingCatalogue } from './birthday-party-catalogue'
+import { CREATIONS, type Creation } from './creations'
 
 import type { Studio } from '../core/studio'
 import type { BaseBooking, Booking } from './booking'
 
 const CAKE_ORDER_EXCLUDED_STUDIOS: Studio[] = ['geelong', 'werribee']
 
-export function getBookingCreationDisplayValues(booking: BaseBooking) {
+export function getBookingCreationDisplayValues(booking: BaseBooking, catalogue?: BirthdayPartyBookingCatalogue) {
     return [booking.creation1, booking.creation2, booking.creation3]
         .filter((creation) => creation !== undefined)
-        .map((creation) => CREATIONS[creation])
+        .map((creation) => getBirthdayPartyCreationDisplayName(creation, catalogue))
+}
+
+export function getBirthdayPartyCreationDisplayName(key: string, catalogue?: BirthdayPartyBookingCatalogue) {
+    return (catalogue && getBirthdayPartyBookingCreationName(catalogue, key)) ?? CREATIONS[key as Creation] ?? key
 }
 
 export function getBookingAdditionDisplayValues(booking: BaseBooking) {

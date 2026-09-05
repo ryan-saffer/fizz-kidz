@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress across the full catalogue programme. Phase 1 is implemented: the reviewed catalogue and page data are published in Sanity, the Studio is deployed, and the Website builds every package route and catalogue surface from Sanity. A post-migration simplification has also added one canonical package name, primary colour, and accent colour; legacy stored fields remain temporarily for deployed-consumer compatibility. The Website code still needs to pass through its normal deployment before production uses the dynamic routes. Paperform API investigation and Phases 2–4 remain.
+In progress across the full catalogue programme. Phases 1 and 2 are implemented locally: Sanity owns the reviewed catalogue and package pages, the Website builds every catalogue surface from it, and the server and Portal use the same catalogue for booking choices and submission resolution. The Studio and canonical Sanity content are live, but the Website, Portal, and server changes will remain undeployed until the complete coordinated cutover. Paperform integration and final cleanup remain.
 
 ## Goal
 
@@ -27,18 +27,19 @@ The Website is the authority for the initial migration. Its current names, packa
 - Store one canonical package name. Derive `{Package name} Parties`, `{Package name} Creations`, and `{Package name} Party Package` where those labels are rendered.
 - Store one primary colour for the Website introduction and Portal, plus one accent colour for the all-creations heading and Party Themes card. Both fields use one shared supported-colour palette. Keep the Fluid Bears black creations background as a separate presentation setting.
 - Store one Website position per package. It controls the package order in the menu, Party Themes cards, and all-creations catalogue.
+- Complete and test the Website, Portal, server, and Paperform work before one coordinated production cutover. Remove legacy Sanity fields only after that cutover is verified.
 
-## Current state
+## Remaining legacy state
 
-The same subject is represented differently in several places:
+The cutover keeps these fallbacks until production verification:
 
 - `apps/website/src/components/creation-packages` has 10 package-specific Astro modules.
 - `apps/website/src/components/creations` has 61 card modules containing names, images, and colours.
-- `packages/core/src/parties/creations.ts` has 50 active booking keys, package groupings, display names, and a larger retired catalogue.
-- `apps/sanity-studio` has published `birthdayPartyPackage` and `birthdayPartyCreation` documents for the staff instruction experience. At the time this plan was written, production held 11 packages and 54 creation instruction documents.
+- `packages/core/src/parties/creations.ts` retains the old active and retired creation maps for historical booking and pre-catalogue Paperform values.
+- `apps/sanity-studio` retains old package fields for the currently deployed consumers and the Sweet Kitty staff-only instruction package.
 - `apps/server/src/integrations/paperforms/paperform.client.ts` maps 20 package/channel fields by Paperform field ID.
-- `apps/server/src/features/party-bookings/core/party-form-mapper.ts` converts submitted display text back to a hardcoded creation key.
-- `apps/portal/src/features/bookings/parties/forms/ExistingBookingForm/index.tsx` builds its creation menus from the same hardcoded catalogue.
+- `apps/server/src/features/party-bookings/core/party-form-mapper.ts` resolves submitted values through Sanity, with a temporary fallback to a unique old-map value.
+- `apps/portal/src/features/bookings/parties/forms/ExistingBookingForm/index.tsx` reads current creation menus through server tRPC and uses the old map only to label an unknown historical selection.
 
 The catalogues have already drifted. Sanity includes a Sweet Kitty package that the public Website catalogue does not render. The Website also has themed choices such as Taylor Swift lip balm while the matching staff instructions are stored as a generic Lip Balm recipe.
 
@@ -98,7 +99,7 @@ Every array projection must include its Sanity `_key`.
 
 Sanity validation and automated checks should enforce these rules:
 
-- Active packages have a key, name, order, and at least one Website card.
+- Active packages have a key, name, Website position, and at least one Website card.
 - Active offerings have a unique stable key and customer-facing name.
 - Every creation represented in a package has exactly one card with at least one booking channel and a unique consecutive booking order.
 - Every active Website card resolves an image, useful alt text, and creation reference.
@@ -112,7 +113,7 @@ Sanity validation and automated checks should enforce these rules:
 
 Put runtime-neutral catalogue types and pure validation or normalization in `packages/core`. Keep Sanity clients and GROQ in each app that performs I/O.
 
-The Website Sanity adapter should expose one small operation for the full published catalogue. The server Sanity adapter should expose the same normalized result and add lookup operations for active and historical offerings. Portal reads should continue through server tRPC rather than adding a browser-to-Sanity dependency.
+The Website Sanity adapter exposes one operation for the full published catalogue. The server Sanity adapter exposes a smaller booking catalogue with active packages and all active or retired creations. Portal reads continue through server tRPC rather than adding a browser-to-Sanity dependency.
 
 The normalized result should contain enough data for callers to render packages, build Paperform choices, resolve submissions, and display retired bookings without knowing the Sanity schema.
 
@@ -172,17 +173,18 @@ Phase 1 verification completed with the root checks and 507 tests, Website and S
 
 Move the booking system before changing Paperform. This lets the server understand both old and new submissions during the form cutover.
 
-- [ ] Add server catalogue reads for active and retired offerings.
-- [ ] Resolve an offering by package plus stable key, current label, or legacy label.
-- [ ] Change new booking creation fields from a compile-time union to validated stable catalogue keys.
-- [ ] Keep the old `CREATIONS` map as a temporary fallback for historical Firestore data.
-- [ ] Update booking display helpers and emails to resolve catalogue names, with a safe fallback for old keys.
-- [ ] Expose active package offerings to the Portal through tRPC.
-- [ ] Move the Existing Booking form's creation menus from hardcoded constants to the server catalogue.
-- [ ] Preserve retired selections when editing an old booking, but do not offer them for a new selection.
-- [ ] Add structured logging for unknown Paperform values rather than silently dropping them.
+- [x] Add server catalogue reads for active and retired offerings.
+- [x] Resolve an offering by package plus stable key, current label, or legacy label.
+- [x] Change new booking creation fields from a compile-time union to validated stable catalogue keys.
+- [x] Keep the old `CREATIONS` map as a temporary fallback for historical Firestore data.
+- [x] Update booking display helpers and emails to resolve catalogue names, with a safe fallback for old keys.
+- [x] Expose active package offerings to the Portal through tRPC.
+- [x] Move the Existing Booking form's creation menus from hardcoded constants to the server catalogue.
+- [x] Preserve retired selections when editing an old booking, but do not offer them for a new selection.
+- [x] Add structured logging for unknown Paperform values rather than silently dropping them.
+- [x] Derive active package instruction groups through creation-to-instruction references while retaining Sweet Kitty's staff-only fallback.
 
-Phase 2 is complete when the server and Portal can handle the current Paperform labels, future stable keys, renamed labels, and retired creations.
+Phase 2 is implemented locally. The server and Portal handle current Paperform labels, future stable keys, renamed labels, channel availability, and previously selected retired or unknown creations. Production remains unchanged until the coordinated cutover.
 
 ## Phase 3: Paperform
 

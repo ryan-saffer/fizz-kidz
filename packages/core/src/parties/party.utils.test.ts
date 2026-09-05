@@ -50,6 +50,39 @@ describe('party utilities', () => {
 
             deepStrictEqual(getBookingCreationDisplayValues(booking), [])
         })
+
+        it('uses the stable key when a historical creation is not in the legacy map', () => {
+            const booking = {
+                creation1: 'futureCatalogueCreation',
+                creation2: undefined,
+                creation3: undefined,
+            } as BaseBooking
+
+            deepStrictEqual(getBookingCreationDisplayValues(booking), ['futureCatalogueCreation'])
+        })
+
+        it('prefers the current catalogue name over the legacy map', () => {
+            const booking = {
+                creation1: 'sparklingLipBalm',
+                creation2: undefined,
+                creation3: undefined,
+            } as BaseBooking
+
+            deepStrictEqual(
+                getBookingCreationDisplayValues(booking, {
+                    creations: [
+                        {
+                            key: 'sparklingLipBalm',
+                            legacyLabels: [],
+                            name: 'Sparkle Lip Balm',
+                            status: 'active',
+                        },
+                    ],
+                    packages: [],
+                }),
+                ['Sparkle Lip Balm']
+            )
+        })
     })
 
     describe('getBookingAdditionDisplayValues', () => {

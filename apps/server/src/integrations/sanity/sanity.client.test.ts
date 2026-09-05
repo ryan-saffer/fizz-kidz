@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { createClient, createImageUrlBuilder, fetch, imageUrlBuilder } = vi.hoisted(() => {
+const { createClient, createImageUrlBuilder, fetch, imageUrlBuilder, withConfig } = vi.hoisted(() => {
     const builder = {
         auto: vi.fn(),
         fit: vi.fn(),
@@ -20,6 +20,7 @@ const { createClient, createImageUrlBuilder, fetch, imageUrlBuilder } = vi.hoist
         createImageUrlBuilder: vi.fn(() => builder),
         fetch: vi.fn(),
         imageUrlBuilder: builder,
+        withConfig: vi.fn(),
     }
 })
 
@@ -30,7 +31,8 @@ describe('SanityClient', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.resetModules()
-        createClient.mockReturnValue({ fetch })
+        withConfig.mockReturnValue({ fetch })
+        createClient.mockReturnValue({ fetch, withConfig })
     })
 
     async function getSanityClient() {
@@ -81,13 +83,33 @@ describe('SanityClient', () => {
                 _id: 'package-1',
                 name: 'Slime',
                 colour: 'purple',
-                creations: [
+                status: 'active',
+                creationCards: [
                     {
-                        _id: 'creation-1',
-                        name: 'Fairy Slime',
-                        instructions: [{ _key: 'image-1', _type: 'image', asset: { _ref: 'image-1' } }],
+                        _key: 'card-1',
+                        bookingOrder: 1,
+                        recipe: {
+                            _id: 'creation-1',
+                            name: 'Fairy Slime',
+                            instructions: [{ _key: 'image-1', _type: 'image', asset: { _ref: 'image-1' } }],
+                        },
+                    },
+                    {
+                        _key: 'card-2',
+                        bookingOrder: 2,
+                        recipe: {
+                            _id: 'creation-1',
+                            name: 'Fairy Slime',
+                            instructions: [{ _key: 'image-1', _type: 'image', asset: { _ref: 'image-1' } }],
+                        },
                     },
                 ],
+            },
+            {
+                _id: 'package-2',
+                name: 'Sweet Kitty',
+                colour: 'pink',
+                legacyCreations: [{ _id: 'creation-2', name: 'Kitty Slime', instructions: [] }],
             },
         ]
         fetch.mockResolvedValue(packages)
@@ -96,17 +118,65 @@ describe('SanityClient', () => {
         const result = await sanity.getBirthdayPartyCreations()
 
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('| order(order asc)'))
-        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('creations[]->'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('websiteCards[count(bookingChannels) > 0'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('creation->recipe->'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(packageName, name)'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(primaryColour, colour)'))
         expect(result[0].name).toBe('Slime Parties')
         expect(result[0].colour).toBe('purple')
+        expect(result[0].creations).toHaveLength(1)
         expect(result[0].creations[0].instructions[0]).toEqual({
             _key: 'image-1',
             _type: 'image',
             asset: { _ref: 'image-1' },
             url: 'https://cdn.sanity.io/cropped-image.jpg',
         })
+        expect(result[1]).toEqual({
+            _id: 'package-2',
+            colour: 'pink',
+            name: 'Sweet Kitty Parties',
+            creations: [{ _id: 'creation-2', name: 'Kitty Slime', instructions: [] }],
+        })
+    })
+
+    it('reads and validates the Birthday Party booking catalogue', async () => {
+        fetch.mockResolvedValue({
+            creations: [
+                {
+                    key: 'fairySlime',
+                    legacyLabels: ['Fairy Glitter Slime'],
+                    name: 'Fairy Slime',
+                    status: 'active',
+                },
+            ],
+            packages: [
+                {
+                    creations: [
+                        {
+                            _key: 'card-1',
+                            bookingChannels: ['studio', 'mobile'],
+                            bookingOrder: 1,
+                            key: 'fairySlime',
+                            legacyLabels: ['Fairy Glitter Slime'],
+                            name: 'Fairy Slime',
+                            status: 'active',
+                        },
+                    ],
+                    key: 'fairy',
+                    name: 'Fairy',
+                    position: 1,
+                    status: 'active',
+                },
+            ],
+        })
+
+        const sanity = await getSanityClient()
+        const result = await sanity.getBirthdayPartyBookingCatalogue()
+
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('birthdayPartyCreationOffering'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('websiteCards[count(bookingChannels) > 0]'))
+        expect(withConfig).toHaveBeenCalledWith({ useCdn: false })
+        expect(result.packages[0].creations[0].key).toBe('fairySlime')
     })
 
     it('reads the published Holiday Program schedule in display order', async () => {

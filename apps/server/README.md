@@ -28,8 +28,9 @@ The `api` function owns `/api/trpc`, `/api/webhooks/**`, public endpoints such a
 - Website form mutations live in `src/features/website/functions/trpc/website-forms.trpc.ts`, delegate to the workflow in `src/features/website/core`, and are registered under `websiteForms`.
 - Keep browser origins in `src/app/http/cors-origins.ts`; Firebase handles preflight before lazily loading Express.
 - Keep credentials, SDK clients, Firestore, and network calls here.
-- Sanity Content Lake reads belong in `src/integrations/sanity`; the Birthday Party and Holiday Program creation pages receive normalized content through tRPC, and Holiday Program Acuity classes are enriched from the same Sanity schedule.
-- Birthday-party instruction groups read each package's canonical name and primary colour from Sanity. The server adds the `Parties` suffix expected by the Portal rather than storing that duplicate label in Sanity.
+- Sanity Content Lake reads belong in `src/integrations/sanity`; the Birthday Party catalogue and creation instructions plus the Holiday Program schedule and instructions receive normalized content through tRPC.
+- Birthday-party instruction groups read package names and colours from Sanity and derive recipes through each package's creation cards. Legacy package instruction references remain only as a fallback for staff-only packages such as Sweet Kitty.
+- The booking catalogue includes active and retired creations. Paperform values resolve within their package by stable key, current name, or legacy label. A package-specific transition map temporarily handles pre-catalogue options such as Nutella Slime; unknown values are logged and rejected. Booking writes validate new creation keys against their party channel while allowing an existing historical selection to remain unchanged.
 - Name integration client modules `<provider-or-service>.client.ts`; use similarly descriptive dot-qualified names for reference registries and helpers where appropriate.
 - Load heavyweight SDKs lazily; Firebase cold starts notice everything.
 - Register new tRPC routers in `app/trpc/app.trpc.ts` and new background handlers in `app/background/function.ts`.

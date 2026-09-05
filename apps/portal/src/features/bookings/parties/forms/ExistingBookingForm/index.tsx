@@ -16,16 +16,12 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { DatePicker, TimePicker } from '@mui/x-date-pickers'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
 import React, { useCallback, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 import {
-    ACTIVE_CREATIONS,
-    CREATION_PACKAGE_DISPLAY_NAMES,
-    CREATION_PACKAGES,
-    CREATIONS,
     FormBookingFields,
     ObjectKeys,
     PARTY_LOST_REASONS,
@@ -51,6 +47,7 @@ import type { ErrorDialogProps } from '@shared/components/dialogs/legacy/ErrorDi
 
 import { mapFirestoreBookingToFormValues, mapFormToBooking } from '../utilities'
 import { validateFormOnChange, validateFormOnSubmit } from '../validation'
+import { getBirthdayPartyCreationMenu } from './creation-menu'
 
 import type { ExistingBookingFormFields } from './types'
 import type { ChangeEvent } from 'react'
@@ -82,6 +79,12 @@ const InnerExistingBookingForm: React.FC<ExistingBookingFormProps> = ({
     const confirm = useConfirm()
     const mappedBooking = useMemo(() => mapFirestoreBookingToFormValues(booking), [booking])
     const [draftFormValues, setDraftFormValues] = useState<ExistingBookingFormFields | null>(null)
+
+    const {
+        data: bookingCatalogue,
+        isError: bookingCatalogueFailed,
+        isPending: bookingCataloguePending,
+    } = useQuery(trpc.creations.getBirthdayPartyBookingCatalogue.queryOptions())
 
     const updateBookingMutation = useMutation(trpc.parties.updatePartyBooking.mutationOptions())
     const deleteBookingMutation = useMutation(trpc.parties.deletePartyBooking.mutationOptions())
@@ -151,47 +154,55 @@ const InnerExistingBookingForm: React.FC<ExistingBookingFormProps> = ({
         }
     }
 
-    const getCreationMenuItems = useCallback((selectedCreation: string | undefined) => {
-        type CreationPackage = keyof typeof CREATION_PACKAGES
-        const creationPackageEntries = Object.entries(CREATION_PACKAGES) as [
-            CreationPackage,
-            (typeof CREATION_PACKAGES)[CreationPackage],
-        ][]
-
-        const activeCreationMenuItems = creationPackageEntries.flatMap(([packageKey, creations]) => [
-            <ListSubheader key={packageKey}>{CREATION_PACKAGE_DISPLAY_NAMES[packageKey]}</ListSubheader>,
-            ...Object.entries(creations)
-                .sort(([, a], [, b]) => a.localeCompare(b))
-                .map(([creation, displayValue]) => (
-                    <MenuItem key={`${packageKey}-${creation}`} value={creation}>
-                        {displayValue}
+    const getCreationMenuItems = useCallback(
+        (selectedCreation: string | undefined) => {
+            const menu = bookingCatalogue
+                ? getBirthdayPartyCreationMenu(bookingCatalogue, formValues.type.value, selectedCreation)
+                : { packages: [], previouslySelected: undefined }
+            const activeCreationMenuItems = menu.packages.flatMap((partyPackage) => [
+                <ListSubheader key={partyPackage.key}>{partyPackage.name}</ListSubheader>,
+                ...partyPackage.creations.map((creation) => (
+                    <MenuItem key={`${partyPackage.key}-${creation.key}`} value={creation.key}>
+                        {creation.name}
                     </MenuItem>
                 )),
-        ])
+            ])
 
-        const legacyCreationMenuItems: React.ReactNode[] = []
+            const previouslySelectedMenuItems: React.ReactNode[] = []
 
-        if (
-            selectedCreation &&
-            isObjKey(selectedCreation, CREATIONS) &&
-            !isObjKey(selectedCreation, ACTIVE_CREATIONS)
-        ) {
-            legacyCreationMenuItems.push(
-                <ListSubheader key="previously-selected">Previously Selected</ListSubheader>,
-                <MenuItem key={selectedCreation} value={selectedCreation}>
-                    {CREATIONS[selectedCreation]}
-                </MenuItem>
-            )
-        }
+            if (menu.previouslySelected) {
+                previouslySelectedMenuItems.push(
+                    <ListSubheader key="previously-selected">Previously selected</ListSubheader>,
+                    <MenuItem key={menu.previouslySelected.key} value={menu.previouslySelected.key}>
+                        {menu.previouslySelected.name}
+                    </MenuItem>
+                )
+            }
 
-        return [
-            <MenuItem key={''} value={''}>
-                <em>None</em>
-            </MenuItem>,
-            ...legacyCreationMenuItems,
-            ...activeCreationMenuItems,
-        ]
-    }, [])
+            return [
+                <MenuItem key="" value="">
+                    <em>None</em>
+                </MenuItem>,
+                ...previouslySelectedMenuItems,
+                ...(bookingCataloguePending
+                    ? [
+                          <MenuItem key="loading" disabled>
+                              Loading creations…
+                          </MenuItem>,
+                      ]
+                    : []),
+                ...(bookingCatalogueFailed
+                    ? [
+                          <MenuItem key="load-error" disabled>
+                              Unable to load current creations
+                          </MenuItem>,
+                      ]
+                    : []),
+                ...activeCreationMenuItems,
+            ]
+        },
+        [bookingCatalogue, bookingCatalogueFailed, bookingCataloguePending, formValues.type.value]
+    )
 
     function updateFormValues<K extends keyof FormBooking>(field: K, value: FormBooking[K]) {
         if (value !== null) {
