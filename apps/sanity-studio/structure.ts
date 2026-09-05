@@ -1,8 +1,13 @@
 import { ArchiveIcon } from '@sanity/icons/Archive'
+import { CalendarIcon } from '@sanity/icons/Calendar'
+import { ComponentIcon } from '@sanity/icons/Component'
+import { ConfettiIcon } from '@sanity/icons/Confetti'
 import { DocumentTextIcon } from '@sanity/icons/DocumentText'
 import { FolderIcon } from '@sanity/icons/Folder'
 import { ImagesIcon } from '@sanity/icons/Images'
+import { OlistIcon } from '@sanity/icons/Olist'
 import { SearchIcon } from '@sanity/icons/Search'
+import { SparklesIcon } from '@sanity/icons/Sparkles'
 import { UploadIcon } from '@sanity/icons/Upload'
 
 import { WebsiteImageBulkReplace } from './components/website-image-bulk-replace'
@@ -51,28 +56,23 @@ export const structure: StructureResolver = (S) =>
             S.divider(),
             S.listItem()
                 .title('Birthday Parties')
-                .icon(FolderIcon)
+                .icon(ConfettiIcon)
                 .child(
                     S.list()
                         .title('Birthday Parties')
                         .items([
-                            S.listItem()
-                                .title('Party packages')
-                                .icon(FolderIcon)
-                                .child(
-                                    S.list()
-                                        .title('Party packages')
-                                        .items([
-                                            S.documentTypeListItem('birthdayPartyPackage').title('Packages'),
-                                            S.documentTypeListItem('birthdayPartyCreationOffering').title('Creations'),
-                                        ])
-                                ),
-                            S.documentTypeListItem('birthdayPartyCreation').title('Creation instructions'),
+                            S.documentTypeListItem('birthdayPartyPackage').title('Packages').icon(ComponentIcon),
+                            S.documentTypeListItem('birthdayPartyCreationOffering')
+                                .title('Creations')
+                                .icon(SparklesIcon),
+                            S.documentTypeListItem('birthdayPartyCreation')
+                                .title('Creation instructions')
+                                .icon(OlistIcon),
                         ])
                 ),
             S.listItem()
                 .title('Holiday Programs')
-                .icon(FolderIcon)
+                .icon(CalendarIcon)
                 .child(
                     S.list()
                         .title('Holiday Programs')

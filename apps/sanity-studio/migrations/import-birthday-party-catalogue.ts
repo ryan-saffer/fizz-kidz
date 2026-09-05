@@ -3,6 +3,7 @@ import { isDeepStrictEqual } from 'node:util'
 
 import { getCliClient } from 'sanity/cli'
 
+import { getBirthdayPartyPackagePartyName } from '../../../packages/core/src/parties/birthday-party-catalogue'
 import {
     birthdayPartyCatalogueOfferings,
     birthdayPartyCataloguePackages,
@@ -142,15 +143,17 @@ for (const [key, sourceOffering] of Object.entries(sourceOfferings)) {
 }
 
 const desiredPackageDocuments = birthdayPartyCataloguePackages.map((sourcePackage) => {
-    const publishedPackage = packagesByName.get(sourcePackage.staffPackageName)
+    const publishedPackage =
+        packageDocuments.find((partyPackage) => partyPackage.key === sourcePackage.key) ??
+        packagesByName.get(getBirthdayPartyPackagePartyName(sourcePackage.name))
     if (!publishedPackage) {
-        throw new Error(`Missing published staff package "${sourcePackage.staffPackageName}".`)
+        throw new Error(`Missing published package "${sourcePackage.name}".`)
     }
 
     const existingDraft = packageDraftsByPublishedId.get(publishedPackage._id)
     if (existingDraft && !migrationOwned(existingDraft)) {
         throw new Error(
-            `Package "${sourcePackage.staffPackageName}" has an existing manual draft. Publish or discard it before applying this migration.`
+            `Package "${sourcePackage.name}" has an existing manual draft. Publish or discard it before applying this migration.`
         )
     }
 
@@ -192,13 +195,13 @@ const desiredPackageDocuments = birthdayPartyCataloguePackages.map((sourcePackag
         accentColour: sourcePackage.accentColour,
         blackBackground: sourcePackage.blackBackground ?? false,
         caption: sourcePackage.caption,
-        catalogueOrder: sourcePackage.catalogueOrder,
-        customerName: sourcePackage.customerName,
+        position: sourcePackage.position,
         hidePartyImage: sourcePackage.hidePartyImage ?? false,
         key: sourcePackage.key,
         migrationSource: MIGRATION_SOURCE,
+        packageName: sourcePackage.name,
+        primaryColour: sourcePackage.primaryColour,
         status: 'active',
-        summaryTitle: sourcePackage.summaryTitle,
         websiteCards: orderedSourceCards.map(({ availability, cardIndex, offeringKey, sourceCard }) => {
             const websiteImage = imagesByKey.get(sourceCard.imageKey)
             if (!websiteImage?.image) {

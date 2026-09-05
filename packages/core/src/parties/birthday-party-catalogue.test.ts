@@ -2,7 +2,14 @@ import { deepStrictEqual, throws } from 'assert'
 
 import { describe, it } from 'vite-plus/test'
 
-import { validateBirthdayPartyCatalogue, type BirthdayPartyCatalogue } from './birthday-party-catalogue'
+import {
+    getBirthdayPartyPackageCreationsTitle,
+    getBirthdayPartyPackageColourHex,
+    getBirthdayPartyPackageImageDescription,
+    getBirthdayPartyPackagePartyName,
+    validateBirthdayPartyCatalogue,
+    type BirthdayPartyCatalogue,
+} from './birthday-party-catalogue'
 
 const validCatalogue: BirthdayPartyCatalogue = {
     packages: [
@@ -11,8 +18,8 @@ const validCatalogue: BirthdayPartyCatalogue = {
             key: 'slime',
             name: 'Slime',
             status: 'active',
-            order: 1,
-            summaryTitle: 'Slime Creations',
+            position: 1,
+            primaryColour: 'purple',
             accentColour: '#9044E2',
             websitePage: {
                 slug: 'slime-parties',
@@ -25,7 +32,6 @@ const validCatalogue: BirthdayPartyCatalogue = {
                     title: 'Kids Slime Birthday Parties',
                     subtitle: 'Slime, slime and more slime!',
                     description: 'Together lets get messy and make the most perfect slimes!',
-                    theme: 'purple',
                     image: {
                         assetId: 'hero-image',
                         height: 800,
@@ -40,16 +46,10 @@ const validCatalogue: BirthdayPartyCatalogue = {
                     src: 'https://cdn.sanity.io/package-image.png',
                     width: 500,
                 },
-                creationsImageAlt: 'Slime Party Package',
                 navigation: {
-                    title: 'Slime Parties',
-                    order: 1,
                     isNew: false,
                 },
                 themeCard: {
-                    title: 'Slime Parties',
-                    order: 1,
-                    colour: '#9044E2',
                     image: {
                         assetId: 'theme-image',
                         height: 500,
@@ -105,6 +105,21 @@ describe('validateBirthdayPartyCatalogue', () => {
         deepStrictEqual(validateBirthdayPartyCatalogue(validCatalogue), validCatalogue)
     })
 
+    it('supports black as a package primary colour', () => {
+        const catalogue = structuredClone(validCatalogue)
+        catalogue.packages[0].primaryColour = 'black'
+
+        deepStrictEqual(validateBirthdayPartyCatalogue(catalogue), catalogue)
+        deepStrictEqual(getBirthdayPartyPackageColourHex('black'), '#000000')
+    })
+
+    it('derives repeated package labels from the package name', () => {
+        deepStrictEqual(getBirthdayPartyPackagePartyName('Slime'), 'Slime Parties')
+        deepStrictEqual(getBirthdayPartyPackagePartyName('Slime Parties'), 'Slime Parties')
+        deepStrictEqual(getBirthdayPartyPackageCreationsTitle('Slime'), 'Slime Creations')
+        deepStrictEqual(getBirthdayPartyPackageImageDescription('Slime'), 'Slime Party Package')
+    })
+
     it('requires exactly one booking card for every creation', () => {
         const catalogue = structuredClone(validCatalogue)
         catalogue.packages[0].cards[0].bookingChannels = []
@@ -143,7 +158,7 @@ describe('validateBirthdayPartyCatalogue', () => {
         throws(() => validateBirthdayPartyCatalogue(catalogue), /Duplicate package key "slime"/)
     })
 
-    it('rejects missing or conflicting Website routes and listing orders', () => {
+    it('rejects missing or conflicting Website routes and positions', () => {
         const missingPage = structuredClone(validCatalogue)
         missingPage.packages[0].websitePage = undefined as never
         throws(() => validateBirthdayPartyCatalogue(missingPage), /Package "slime" must have Website page content/)
@@ -153,15 +168,15 @@ describe('validateBirthdayPartyCatalogue', () => {
             ...structuredClone(duplicated.packages[0]),
             _id: 'package-2',
             key: 'science',
-            order: 2,
+            position: 2,
         })
         throws(() => validateBirthdayPartyCatalogue(duplicated), /Duplicate Website slug "slime-parties"/)
 
         duplicated.packages[1].websitePage.slug = 'science-parties'
-        throws(() => validateBirthdayPartyCatalogue(duplicated), /Duplicate navigation order "1"/)
+        deepStrictEqual(validateBirthdayPartyCatalogue(duplicated), duplicated)
 
-        duplicated.packages[1].websitePage.navigation.order = 2
-        throws(() => validateBirthdayPartyCatalogue(duplicated), /Duplicate theme-card order "1"/)
+        duplicated.packages[1].position = 1
+        throws(() => validateBirthdayPartyCatalogue(duplicated), /Duplicate Website position "1"/)
     })
 
     it('rejects reserved Website routes and incomplete page images', () => {
@@ -344,8 +359,16 @@ describe('validateBirthdayPartyCatalogue', () => {
                 mutate: (catalogue) => (catalogue.packages[0].key = ''),
             },
             {
-                expected: /Package "slime" must have a customer-facing name/,
+                expected: /Package "slime" must have a package name/,
                 mutate: (catalogue) => (catalogue.packages[0].name = ''),
+            },
+            {
+                expected: /Package "slime" must have a valid accent colour/,
+                mutate: (catalogue) => (catalogue.packages[0].accentColour = '#FFFFFF' as never),
+            },
+            {
+                expected: /Package "slime" must have a valid primary colour/,
+                mutate: (catalogue) => (catalogue.packages[0].primaryColour = 'white' as never),
             },
             {
                 expected: /Package "slime" must contain at least one Website card/,

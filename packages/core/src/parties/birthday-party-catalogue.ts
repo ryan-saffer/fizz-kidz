@@ -1,13 +1,21 @@
 export const BIRTHDAY_PARTY_CATALOGUE_STATUSES = ['active', 'retired'] as const
 export const BIRTHDAY_PARTY_BOOKING_CHANNELS = ['studio', 'mobile'] as const
 export const BIRTHDAY_PARTY_CARD_COLOURS = ['pink', 'yellow', 'green', 'purple', 'blue', 'white', 'red'] as const
-export const BIRTHDAY_PARTY_HERO_THEMES = ['purple', 'blue', 'pink', 'green', 'gold'] as const
+export const BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS = [
+    { hex: '#9044E2', title: 'Purple', value: 'purple' },
+    { hex: '#4DC5DA', title: 'Blue', value: 'blue' },
+    { hex: '#F24DA2', title: 'Pink', value: 'pink' },
+    { hex: '#4ED85F', title: 'Green', value: 'green' },
+    { hex: '#F6BA33', title: 'Gold', value: 'gold' },
+    { hex: '#000000', title: 'Black', value: 'black' },
+] as const
 export const BIRTHDAY_PARTY_RESERVED_SLUGS = ['at-home-parties', 'book-a-party', 'creations'] as const
 
 export type BirthdayPartyCatalogueStatus = (typeof BIRTHDAY_PARTY_CATALOGUE_STATUSES)[number]
 export type BirthdayPartyBookingChannel = (typeof BIRTHDAY_PARTY_BOOKING_CHANNELS)[number]
 export type BirthdayPartyCardColour = (typeof BIRTHDAY_PARTY_CARD_COLOURS)[number]
-export type BirthdayPartyHeroTheme = (typeof BIRTHDAY_PARTY_HERO_THEMES)[number]
+export type BirthdayPartyPackageColour = (typeof BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS)[number]['value']
+export type BirthdayPartyPackageColourHex = (typeof BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS)[number]['hex']
 
 export type BirthdayPartyCatalogueImage = {
     assetId: string
@@ -59,20 +67,16 @@ export type BirthdayPartyFeatureSection = {
 
 export type BirthdayPartyWebsitePage = {
     creationsImage?: BirthdayPartyCatalogueImage
-    creationsImageAlt?: string
     features: BirthdayPartyFeatureSection[]
     hero: {
         description: string
         image: BirthdayPartyCatalogueImage
         imageAlt: string
         subtitle: string
-        theme: BirthdayPartyHeroTheme
         title: string
     }
     navigation: {
         isNew: boolean
-        order: number
-        title: string
     }
     seo: {
         description: string
@@ -81,26 +85,23 @@ export type BirthdayPartyWebsitePage = {
     }
     slug: string
     themeCard: {
-        colour: string
         image: BirthdayPartyCatalogueImage
         imageAlt: string
-        order: number
-        title: string
     }
 }
 
 export type BirthdayPartyCataloguePackage = {
     _id: string
-    accentColour: string
+    accentColour: BirthdayPartyPackageColourHex
     blackBackground?: boolean
     caption?: string
     cards: BirthdayPartyCreationCard[]
     hidePartyImage?: boolean
     key: string
     name: string
-    order: number
+    position: number
+    primaryColour: BirthdayPartyPackageColour
     status: BirthdayPartyCatalogueStatus
-    summaryTitle: string
     websitePage: BirthdayPartyWebsitePage
 }
 
@@ -125,10 +126,8 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
     }
 
     const packageKeys = new Set<string>()
-    const packageOrders = new Set<number>()
-    const navigationOrders = new Set<number>()
+    const packagePositions = new Set<number>()
     const slugs = new Set<string>()
-    const themeCardOrders = new Set<number>()
     const creationIdsByKey = new Map<string, string>()
 
     for (const partyPackage of catalogue.packages) {
@@ -144,20 +143,20 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
             throw new Error(`Published catalogue package "${partyPackage.key}" must be active`)
         }
         if (!partyPackage.name?.trim()) {
-            throw new Error(`Package "${partyPackage.key}" must have a customer-facing name`)
+            throw new Error(`Package "${partyPackage.key}" must have a package name`)
         }
-        if (!Number.isInteger(partyPackage.order) || partyPackage.order < 0) {
-            throw new Error(`Package "${partyPackage.key}" must have a non-negative integer order`)
+        if (!Number.isInteger(partyPackage.position) || partyPackage.position < 1) {
+            throw new Error(`Package "${partyPackage.key}" must have a positive integer Website position`)
         }
-        if (packageOrders.has(partyPackage.order)) {
-            throw new Error(`Duplicate package order "${partyPackage.order}"`)
+        if (packagePositions.has(partyPackage.position)) {
+            throw new Error(`Duplicate Website position "${partyPackage.position}"`)
         }
-        packageOrders.add(partyPackage.order)
-        if (!partyPackage.summaryTitle?.trim()) {
-            throw new Error(`Package "${partyPackage.key}" must have a catalogue section title`)
+        packagePositions.add(partyPackage.position)
+        if (!isBirthdayPartyPackageColourHex(partyPackage.accentColour)) {
+            throw new Error(`Package "${partyPackage.key}" must have a valid accent colour`)
         }
-        if (!/^#[0-9A-F]{6}$/i.test(partyPackage.accentColour)) {
-            throw new Error(`Package "${partyPackage.key}" must have a six-digit hexadecimal accent colour`)
+        if (!isBirthdayPartyPackageColour(partyPackage.primaryColour)) {
+            throw new Error(`Package "${partyPackage.key}" must have a valid primary colour`)
         }
         const websitePage = partyPackage.websitePage
         if (!websitePage) {
@@ -192,14 +191,9 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
             ['hero subtitle', websitePage.hero?.subtitle],
             ['hero description', websitePage.hero?.description],
             ['hero image description', websitePage.hero?.imageAlt],
-            ['navigation title', websitePage.navigation?.title],
-            ['theme card title', websitePage.themeCard?.title],
             ['theme card image description', websitePage.themeCard?.imageAlt],
         ] as const) {
             if (!value?.trim()) throw new Error(`Package "${partyPackage.key}" must have a ${field}`)
-        }
-        if (!BIRTHDAY_PARTY_HERO_THEMES.includes(websitePage.hero.theme)) {
-            throw new Error(`Package "${partyPackage.key}" has an invalid hero theme`)
         }
         if (!hasCompleteImage(websitePage.hero.image)) {
             throw new Error(`Package "${partyPackage.key}" must have a hero image`)
@@ -208,29 +202,9 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
             if (!hasCompleteImage(websitePage.creationsImage)) {
                 throw new Error(`Package "${partyPackage.key}" must have a creations-section image`)
             }
-            if (!websitePage.creationsImageAlt?.trim()) {
-                throw new Error(`Package "${partyPackage.key}" must have a creations-section image description`)
-            }
         }
-        if (!Number.isInteger(websitePage.navigation.order) || websitePage.navigation.order < 0) {
-            throw new Error(`Package "${partyPackage.key}" must have a non-negative integer navigation order`)
-        }
-        if (navigationOrders.has(websitePage.navigation.order)) {
-            throw new Error(`Duplicate navigation order "${websitePage.navigation.order}"`)
-        }
-        navigationOrders.add(websitePage.navigation.order)
         if (typeof websitePage.navigation.isNew !== 'boolean') {
             throw new Error(`Package "${partyPackage.key}" must declare whether it is new`)
-        }
-        if (!Number.isInteger(websitePage.themeCard.order) || websitePage.themeCard.order < 0) {
-            throw new Error(`Package "${partyPackage.key}" must have a non-negative integer theme-card order`)
-        }
-        if (themeCardOrders.has(websitePage.themeCard.order)) {
-            throw new Error(`Duplicate theme-card order "${websitePage.themeCard.order}"`)
-        }
-        themeCardOrders.add(websitePage.themeCard.order)
-        if (!/^#[0-9A-F]{6}$/i.test(websitePage.themeCard.colour)) {
-            throw new Error(`Package "${partyPackage.key}" must have a six-digit hexadecimal theme-card colour`)
         }
         if (!hasCompleteImage(websitePage.themeCard.image)) {
             throw new Error(`Package "${partyPackage.key}" must have a theme-card image`)
@@ -407,4 +381,34 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
     }
 
     return catalogue
+}
+
+export function isBirthdayPartyPackageColour(value: unknown): value is BirthdayPartyPackageColour {
+    return BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS.some((option) => option.value === value)
+}
+
+export function isBirthdayPartyPackageColourHex(value: unknown): value is BirthdayPartyPackageColourHex {
+    return BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS.some((option) => option.hex === value)
+}
+
+export function getBirthdayPartyPackageColourHex(colour: BirthdayPartyPackageColour): BirthdayPartyPackageColourHex {
+    const option = BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS.find((item) => item.value === colour)
+    if (!option) throw new Error(`Unsupported birthday party package colour: ${colour}`)
+    return option.hex
+}
+
+export function getBirthdayPartyPackagePartyName(packageName: string) {
+    return `${getBirthdayPartyPackageBaseName(packageName)} Parties`
+}
+
+export function getBirthdayPartyPackageCreationsTitle(packageName: string) {
+    return `${getBirthdayPartyPackageBaseName(packageName)} Creations`
+}
+
+export function getBirthdayPartyPackageImageDescription(packageName: string) {
+    return `${getBirthdayPartyPackageBaseName(packageName)} Party Package`
+}
+
+function getBirthdayPartyPackageBaseName(packageName: string) {
+    return packageName.trim().replace(/\s+Parties$/i, '')
 }

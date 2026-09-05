@@ -1,18 +1,16 @@
 import { DocumentIcon } from '@sanity/icons/Document'
 import { defineArrayMember, defineField, defineType, type SanityDocument, type ValidationContext } from 'sanity'
 
+import {
+    BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS,
+    isBirthdayPartyPackageColour,
+    isBirthdayPartyPackageColourHex,
+} from '@fizz-kidz/core'
+
 import { BirthdayPartyCardsInput } from '../../components/birthday-party-cards-input'
 import { BIRTHDAY_PARTY_CATALOGUE_STATUSES } from '../birthday-party-catalogue-options'
 
 const API_VERSION = '2026-08-01'
-
-const colours = [
-    { title: 'Pink', value: 'pink' },
-    { title: 'Blue', value: 'blue' },
-    { title: 'Yellow', value: 'yellow' },
-    { title: 'Green', value: 'green' },
-    { title: 'Purple', value: 'purple' },
-]
 
 type CardValue = {
     bookingChannels?: string[]
@@ -56,6 +54,26 @@ async function isUniquePackageKey(key: string | undefined, context: ValidationCo
         return `The published package key "${result.publishedKey}" cannot be changed.`
     }
     return result.duplicateId ? `The package key "${key}" is already in use.` : true
+}
+
+async function isUniquePosition(position: number | undefined, context: ValidationContext) {
+    if (position === undefined) return true
+
+    const documentId = context.document?._id?.replace(/^drafts\./, '')
+    const duplicateId = await context.getClient({ apiVersion: API_VERSION }).fetch<string | null>(
+        `*[
+            _type == "birthdayPartyPackage" &&
+            status == "active" &&
+            coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order) == $position &&
+            !(_id in [$publishedId, $draftId])
+        ][0]._id`,
+        {
+            draftId: documentId ? `drafts.${documentId}` : '',
+            position,
+            publishedId: documentId ?? '',
+        }
+    )
+    return duplicateId ? `Website position ${position} is already in use.` : true
 }
 
 function hasConsistentCards(value: SanityDocument | undefined) {
@@ -104,12 +122,27 @@ export const birthdayPartyPackage = defineType({
     icon: DocumentIcon,
     initialValue: { status: 'active' },
     validation: (rule) => rule.custom(hasConsistentCards),
+    groups: [
+        { name: 'core', title: 'Core package information', default: true },
+        { name: 'website', title: 'Website' },
+    ],
+    orderings: [
+        {
+            title: 'Website position',
+            name: 'positionAsc',
+            by: [
+                { field: 'position', direction: 'asc' },
+                { field: 'packageName', direction: 'asc' },
+            ],
+        },
+    ],
     fields: [
         defineField({
             name: 'key',
             title: 'Catalogue key',
             type: 'string',
             description: 'Stable package identity used by the Website and booking system.',
+            group: 'core',
             readOnly: ({ document }) => Boolean(document?._id && !document._id.startsWith('drafts.')),
             validation: (rule) =>
                 rule
@@ -120,22 +153,40 @@ export const birthdayPartyPackage = defineType({
                     }),
         }),
         defineField({
-            name: 'name',
-            title: 'Staff package name',
+            name: 'packageName',
+            title: 'Package name',
             type: 'string',
-            description: 'Existing Portal instruction group name.',
-            validation: (rule) => rule.required(),
+            description: 'Base name only. Labels such as “Parties” and “Creations” are added automatically.',
+            group: 'core',
+            validation: (rule) =>
+                rule.custom((name, context) => {
+                    const packageName = name?.trim()
+                    const legacyName = [context.document?.customerName, context.document?.name].find(
+                        (value) => typeof value === 'string' && value.trim()
+                    )
+                    if (!packageName && !legacyName) return 'Packages must have a package name.'
+                    return packageName && /\s+Parties$/i.test(packageName)
+                        ? 'Enter the base package name without “Parties”; that label is added automatically.'
+                        : true
+                }),
+        }),
+        defineField({
+            name: 'name',
+            title: 'Staff package name (legacy compatibility)',
+            type: 'string',
+            group: 'core',
+            deprecated: { reason: 'Use Package name. Retained temporarily for the deployed Portal.' },
+            hidden: true,
+            readOnly: true,
         }),
         defineField({
             name: 'customerName',
-            title: 'Customer-facing name',
+            title: 'Customer-facing name (deprecated)',
             type: 'string',
-            validation: (rule) =>
-                rule.custom((name, context) =>
-                    context.document?.status && !name?.trim()
-                        ? 'Catalogue packages must have a customer-facing name.'
-                        : true
-                ),
+            group: 'core',
+            deprecated: { reason: 'Use Package name. Customer labels are derived automatically.' },
+            hidden: true,
+            readOnly: true,
         }),
         defineField({
             name: 'status',
@@ -149,81 +200,116 @@ export const birthdayPartyPackage = defineType({
                 })),
             },
             description: 'Leave blank only for a legacy staff package that is not part of Party packages.',
+            group: 'core',
+        }),
+        defineField({
+            name: 'primaryColour',
+            title: 'Primary colour',
+            type: 'string',
+            description: 'Used for the package page introduction and the Portal instruction group.',
+            group: 'core',
+            options: {
+                list: BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS.map(({ title, value }) => ({ title, value })),
+                layout: 'radio',
+            },
+            validation: (rule) =>
+                rule.custom((colour, context) => {
+                    const value = colour ?? context.document?.colour
+                    if (!value) return 'Packages must have a primary colour.'
+                    return isBirthdayPartyPackageColour(value) ? true : 'Select a valid primary colour.'
+                }),
         }),
         defineField({
             name: 'colour',
-            title: 'Portal colour',
+            title: 'Portal colour (deprecated)',
             type: 'string',
-            options: { list: colours, layout: 'radio' },
-            validation: (rule) => rule.required(),
+            group: 'core',
+            deprecated: { reason: 'Use Primary colour.' },
+            hidden: true,
+            readOnly: true,
         }),
         defineField({
             name: 'order',
-            title: 'Portal display order',
+            title: 'Portal instructions order',
             type: 'number',
             description: 'Existing Portal instruction order. Keep this intact until the Portal catalogue cutover.',
+            group: 'core',
             validation: (rule) => rule.required().integer().min(0),
         }),
         defineField({
-            name: 'catalogueOrder',
-            title: 'Website catalogue order',
+            name: 'position',
+            title: 'Position',
             type: 'number',
-            description: 'Packages with lower numbers appear first on the Website.',
+            description:
+                'Controls this package’s position in the Website menu, Party Themes cards, and all-creations catalogue. Lower numbers appear first.',
+            group: 'website',
             validation: (rule) =>
                 rule
                     .integer()
-                    .min(0)
-                    .custom((order, context) =>
-                        isActiveCataloguePackage(context) && order === undefined
-                            ? 'Active catalogue packages must have a Website order.'
-                            : true
-                    ),
+                    .min(1)
+                    .custom((position, context) => {
+                        if (isActiveCataloguePackage(context) && position === undefined) {
+                            return 'Active catalogue packages must have a Website position.'
+                        }
+                        return isUniquePosition(position, context)
+                    }),
+        }),
+        defineField({
+            name: 'catalogueOrder',
+            title: 'Website catalogue order (deprecated)',
+            type: 'number',
+            deprecated: { reason: 'Use Position. Retained temporarily for the deployed Website.' },
+            group: 'website',
+            hidden: true,
+            readOnly: true,
         }),
         defineField({
             name: 'summaryTitle',
-            title: 'Catalogue section title',
+            title: 'Catalogue section title (deprecated)',
             type: 'string',
-            description: 'Heading shown for this package on the all-creations page.',
-            validation: (rule) =>
-                rule.custom((title, context) =>
-                    isActiveCataloguePackage(context) && !title?.trim()
-                        ? 'Active catalogue packages must have a section title.'
-                        : true
-                ),
+            group: 'website',
+            deprecated: { reason: 'The heading is derived from Package name.' },
+            hidden: true,
+            readOnly: true,
         }),
         defineField({
             name: 'accentColour',
-            title: 'Catalogue accent colour',
+            title: 'Accent colour',
             type: 'string',
-            description: 'Six-digit hexadecimal colour used for the catalogue section title.',
+            description: 'Used for the all-creations heading and Party Themes card.',
+            group: 'core',
+            options: {
+                list: BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS.map(({ hex, title }) => ({ title, value: hex })),
+                layout: 'radio',
+            },
             validation: (rule) =>
-                rule
-                    .regex(/^#[0-9A-F]{6}$/i, {
-                        name: 'six-digit hexadecimal colour',
-                        invert: false,
-                    })
-                    .custom((colour, context) =>
-                        isActiveCataloguePackage(context) && !colour
-                            ? 'Active catalogue packages must have an accent colour.'
-                            : true
-                    ),
+                rule.custom((colour, context) => {
+                    if (isActiveCataloguePackage(context) && !colour) {
+                        return 'Active catalogue packages must have an accent colour.'
+                    }
+                    return !colour || isBirthdayPartyPackageColourHex(colour) ? true : 'Select a valid accent colour.'
+                }),
         }),
         defineField({
             name: 'caption',
             title: 'Party page creation caption',
             type: 'string',
+            group: 'website',
         }),
         defineField({
             name: 'hidePartyImage',
             title: 'Hide the party image beside creations',
             type: 'boolean',
             initialValue: false,
+            group: 'website',
         }),
         defineField({
             name: 'blackBackground',
             title: 'Use a black creations background',
             type: 'boolean',
+            description: 'Special presentation used for Fluid Bears parties.',
             initialValue: false,
+            group: 'website',
         }),
         defineField({
             name: 'websiteCards',
@@ -231,6 +317,7 @@ export const birthdayPartyPackage = defineType({
             type: 'array',
             description:
                 'This is the package creation list. Drag cards into Website order; configure booking channels on exactly one card per creation.',
+            group: 'core',
             components: { input: BirthdayPartyCardsInput },
             of: [defineArrayMember({ type: 'birthdayPartyCreationCard' })],
             validation: (rule) =>
@@ -246,6 +333,7 @@ export const birthdayPartyPackage = defineType({
             type: 'birthdayPartyWebsitePage',
             description:
                 'Controls this package’s generated page, menu item, Party Themes card, SEO, and optional feature sections.',
+            group: 'website',
             validation: (rule) =>
                 rule.custom((page, context) =>
                     isActiveCataloguePackage(context) && !page
@@ -259,6 +347,7 @@ export const birthdayPartyPackage = defineType({
             type: 'array',
             description:
                 'Existing Portal instruction order. Keep this intact until the Portal reads instructions through party-package creations.',
+            group: 'core',
             of: [defineArrayMember({ type: 'reference', to: [{ type: 'birthdayPartyCreation' }] })],
             validation: (rule) => rule.required().min(1).unique(),
         }),
@@ -266,6 +355,7 @@ export const birthdayPartyPackage = defineType({
             name: 'migrationSource',
             title: 'Migration source',
             type: 'string',
+            group: 'core',
             hidden: true,
             readOnly: true,
         }),
@@ -274,21 +364,38 @@ export const birthdayPartyPackage = defineType({
         select: {
             creationImage: 'websiteCards.0.creation.image',
             key: 'key',
+            legacyPosition: 'websitePage.navigation.order',
             media: 'websiteCards.0.image',
-            order: 'catalogueOrder',
-            staffTitle: 'name',
+            position: 'position',
             status: 'status',
-            title: 'customerName',
+            title: 'packageName',
+            legacyCustomerTitle: 'customerName',
+            legacyStaffTitle: 'name',
         },
-        prepare: ({ creationImage, key, media, order, staffTitle, status, title }) => ({
-            title: title ?? staffTitle ?? 'Untitled package',
-            subtitle: [
-                key && Number.isFinite(order) ? `${order}: ${key}` : 'Legacy staff-only package',
-                status === 'retired' ? 'Retired' : undefined,
-            ]
-                .filter(Boolean)
-                .join(' · '),
-            media: media ?? creationImage,
-        }),
+        prepare: ({
+            creationImage,
+            key,
+            legacyCustomerTitle,
+            legacyPosition,
+            legacyStaffTitle,
+            media,
+            position,
+            status,
+            title,
+        }) => {
+            const websitePosition = position ?? legacyPosition
+            return {
+                title: title ?? legacyCustomerTitle ?? legacyStaffTitle ?? 'Untitled package',
+                subtitle: [
+                    key && Number.isFinite(websitePosition)
+                        ? `${websitePosition}: ${key}`
+                        : 'Legacy staff-only package',
+                    status === 'retired' ? 'Retired' : undefined,
+                ]
+                    .filter(Boolean)
+                    .join(' · '),
+                media: media ?? creationImage,
+            }
+        },
     },
 })

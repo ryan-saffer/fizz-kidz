@@ -33,9 +33,9 @@ Keep the Studio standalone rather than embedding it in another app. Use kebab-ca
 
 The Birthday Party area separates customer content from staff instructions:
 
-- **Party packages > Packages** owns catalogue order, one ordered Website-card list, and the generated Website page. Page data includes the permanent route, SEO, hero, menu entry, Party Themes card, creations image, and optional feature sections. Every creation card references a creation; exactly one card per creation also owns its booking channels and booking-menu order.
-- **Party packages > Creations** owns stable booking keys, customer names, default images, previous Paperform labels, status, and the optional creation-instructions relationship.
-- **Creation instructions** remains the reusable instruction library consumed by the Portal.
+- **Packages** owns the canonical package name, primary and accent colours, one Website position, one ordered Website-card list, and the generated Website page. Position controls the package order in the Website menu, Party Themes cards, and all-creations catalogue. The form separates core package information from Website route, SEO, page content, and listing settings. Every creation card references a creation; exactly one card per creation also owns its booking channels and booking-menu order.
+- **Creations** owns stable booking keys, customer names, default images, previous Paperform labels, status, and the optional creation-instructions relationship. Each creation displays a derived, read-only list of every package whose Website cards reference it.
+- **Creation instructions** remains the reusable instruction library consumed by the Portal. Each instruction displays a derived, read-only list of every creation that references it; one instruction can be shared by multiple creations.
 
 The Phase 1 migration source is `migrations/birthday-party-catalogue-source.ts`. From `apps/sanity-studio`, validate it against the current production assets and creation instructions with a read-only dry run:
 
@@ -57,7 +57,16 @@ npx sanity exec migrations/verify-birthday-party-catalogue-drafts.ts --with-user
 
 `migrations/backfill-birthday-party-website-pages.ts` and `migrations/birthday-party-page-source.ts` record the one-time Website-authoritative page backfill. The production packages already contain and publish this data; do not treat the backfill as an ongoing content-sync tool.
 
-An active package can publish only with complete Website-page content. Its slug creates `/birthday-parties/{slug}/`, cannot change after first publication, and cannot use the reserved At Home, booking, or creations paths. Menu and Party Themes orders must be unique. Publishing triggers the existing Website rebuild; after that build succeeds, a new package appears in navigation, Party Themes, creations, and the sitemap without a code change. Retiring it removes those generated surfaces on the next successful build. Optional feature sections support package-specific content such as Slime Lab. At Home is still owned by Website code.
+Package labels are derived from **Package name**: the Portal, Website menu, and Party Themes use `{Package name} Parties`; the all-creations page uses `{Package name} Creations`; and the creations-section image description uses `{Package name} Party Package`. **Primary colour** and **Accent colour** are selected from the same shared named-colour list. Primary supplies the Website introduction and Portal instruction colour; accent supplies the all-creations heading and Party Themes card. The separate black-background toggle is the Fluid Bears presentation exception.
+
+`migrations/migrate-birthday-party-package-fields.ts` backfilled those canonical fields and the unified Website position in production. The old name, colour, and separate Website order fields remain hidden and read-only so currently deployed consumers keep working. After the compatible Website, server, and Portal code has deployed, preview and then remove those legacy values with:
+
+```bash
+npx sanity exec migrations/migrate-birthday-party-package-fields.ts --with-user-token -- --cleanup
+npx sanity exec migrations/migrate-birthday-party-package-fields.ts --with-user-token -- --cleanup --apply
+```
+
+An active package can publish only with complete Website-page content. Its slug creates `/birthday-parties/{slug}/`, cannot change after first publication, and cannot use the reserved At Home, booking, or creations paths. Website position must be unique across active packages. Publishing triggers the existing Website rebuild; after that build succeeds, a new package appears in navigation, Party Themes, creations, and the sitemap without a code change. Retiring it removes those generated surfaces on the next successful build. Optional feature sections support package-specific content such as Slime Lab. At Home is still owned by Website code.
 
 The shared `@fizz-kidz/ui` `CreationInstructions` component renders both the Studio preview and the Portal output. On wide screens the Portable Text editor and sticky Portal preview appear side by side, with editor scrolling mirrored proportionally in the preview; narrower screens use a stacked layout. The editor opens active at a tall viewport-based height and remains manually resizable. The Studio owns only the adapter that resolves unpublished Sanity image references.
 

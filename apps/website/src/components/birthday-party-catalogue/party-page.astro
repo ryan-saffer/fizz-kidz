@@ -34,7 +34,7 @@ const page = partyPackage.websitePage;
       imageAlt={page.hero.imageAlt}
       actionButtonText="Book a party"
       actionButtonPath="/birthday-parties/book-a-party/#book"
-      color={page.hero.theme}
+      color={partyPackage.primaryColour}
     >
       <span slot="title">{page.hero.title}</span>
       <span slot="content">{page.hero.description}</span>
@@ -43,7 +43,6 @@ const page = partyPackage.websitePage;
       partyPackage={partyPackage}
       variant="party"
       image={page.creationsImage}
-      imageAlt={page.creationsImageAlt}
     />
     {
       page.features.map((feature) => (

@@ -1,8 +1,6 @@
 import { DocumentIcon } from '@sanity/icons/Document'
 import { defineArrayMember, defineField, defineType, type ValidationContext } from 'sanity'
 
-import { BIRTHDAY_PARTY_HERO_THEMES } from '../birthday-party-catalogue-options'
-
 const API_VERSION = '2026-08-01'
 const RESERVED_SLUGS = ['at-home-parties', 'book-a-party', 'creations']
 
@@ -41,30 +39,6 @@ async function isValidWebsiteSlug(slug: SlugValue | undefined, context: Validati
     return result.duplicateId ? `The Website slug "${slug.current}" is already in use.` : true
 }
 
-async function isUniqueOrder(
-    order: number | undefined,
-    context: ValidationContext,
-    fieldPath: 'websitePage.navigation.order' | 'websitePage.themeCard.order',
-    description: string
-) {
-    if (order === undefined) return true
-    const documentId = context.document?._id?.replace(/^drafts\./, '')
-    const duplicateId = await context.getClient({ apiVersion: API_VERSION }).fetch<string | null>(
-        `*[
-            _type == "birthdayPartyPackage" &&
-            status == "active" &&
-            ${fieldPath} == $order &&
-            !(_id in [$publishedId, $draftId])
-        ][0]._id`,
-        {
-            draftId: documentId ? `drafts.${documentId}` : '',
-            order,
-            publishedId: documentId ?? '',
-        }
-    )
-    return duplicateId ? `${description} ${order} is already in use.` : true
-}
-
 export const birthdayPartyWebsitePage = defineType({
     name: 'birthdayPartyWebsitePage',
     title: 'Website page',
@@ -76,7 +50,7 @@ export const birthdayPartyWebsitePage = defineType({
             title: 'Page path',
             type: 'slug',
             description: 'Creates /birthday-parties/page-path/. This cannot change after publication.',
-            options: { source: 'customerName' },
+            options: { source: 'packageName' },
             validation: (rule) => rule.required().custom(isValidWebsiteSlug),
         }),
         defineField({
@@ -121,15 +95,11 @@ export const birthdayPartyWebsitePage = defineType({
                 }),
                 defineField({
                     name: 'theme',
+                    title: 'Theme (deprecated)',
                     type: 'string',
-                    options: {
-                        layout: 'radio',
-                        list: BIRTHDAY_PARTY_HERO_THEMES.map((theme) => ({
-                            title: theme[0].toUpperCase() + theme.slice(1),
-                            value: theme,
-                        })),
-                    },
-                    validation: (rule) => rule.required(),
+                    deprecated: { reason: 'Use the package Primary colour.' },
+                    hidden: true,
+                    readOnly: true,
                 }),
                 defineField({
                     name: 'image',
@@ -161,15 +131,11 @@ export const birthdayPartyWebsitePage = defineType({
         }),
         defineField({
             name: 'creationsImageAlt',
-            title: 'Creations-section image description',
+            title: 'Creations-section image description (deprecated)',
             type: 'string',
-            hidden: ({ document }) => Boolean(document?.hidePartyImage),
-            validation: (rule) =>
-                rule.custom((description, context) =>
-                    context.document?.hidePartyImage || description?.trim()
-                        ? true
-                        : 'Describe the creations-section image for assistive technology.'
-                ),
+            deprecated: { reason: 'The description is derived from Package name.' },
+            hidden: true,
+            readOnly: true,
         }),
         defineField({
             name: 'navigation',
@@ -177,18 +143,21 @@ export const birthdayPartyWebsitePage = defineType({
             type: 'object',
             initialValue: { isNew: false },
             fields: [
-                defineField({ name: 'title', type: 'string', validation: (rule) => rule.required() }),
+                defineField({
+                    name: 'title',
+                    title: 'Title (deprecated)',
+                    type: 'string',
+                    deprecated: { reason: 'The title is derived from Package name.' },
+                    hidden: true,
+                    readOnly: true,
+                }),
                 defineField({
                     name: 'order',
+                    title: 'Website menu order (deprecated)',
                     type: 'number',
-                    validation: (rule) =>
-                        rule
-                            .required()
-                            .integer()
-                            .min(0)
-                            .custom((order, context) =>
-                                isUniqueOrder(order, context, 'websitePage.navigation.order', 'Website menu order')
-                            ),
+                    deprecated: { reason: 'Use the package Position field.' },
+                    hidden: true,
+                    readOnly: true,
                 }),
                 defineField({
                     name: 'isNew',
@@ -204,28 +173,29 @@ export const birthdayPartyWebsitePage = defineType({
             title: 'Party Themes card',
             type: 'object',
             fields: [
-                defineField({ name: 'title', type: 'string', validation: (rule) => rule.required() }),
+                defineField({
+                    name: 'title',
+                    title: 'Title (deprecated)',
+                    type: 'string',
+                    deprecated: { reason: 'The title is derived from Package name.' },
+                    hidden: true,
+                    readOnly: true,
+                }),
                 defineField({
                     name: 'order',
+                    title: 'Party Themes order (deprecated)',
                     type: 'number',
-                    validation: (rule) =>
-                        rule
-                            .required()
-                            .integer()
-                            .min(0)
-                            .custom((order, context) =>
-                                isUniqueOrder(order, context, 'websitePage.themeCard.order', 'Party Themes order')
-                            ),
+                    deprecated: { reason: 'Use the package Position field.' },
+                    hidden: true,
+                    readOnly: true,
                 }),
                 defineField({
                     name: 'colour',
-                    title: 'Accent colour',
+                    title: 'Accent colour (deprecated)',
                     type: 'string',
-                    validation: (rule) =>
-                        rule.required().regex(/^#[0-9A-F]{6}$/i, {
-                            name: 'six-digit hexadecimal colour',
-                            invert: false,
-                        }),
+                    deprecated: { reason: 'Use the package Accent colour.' },
+                    hidden: true,
+                    readOnly: true,
                 }),
                 defineField({
                     name: 'image',

@@ -20,14 +20,16 @@ const BIRTHDAY_PARTY_IMAGE_PROJECTION = `{
 }`
 
 const BIRTHDAY_PARTY_CATALOGUE_QUERY = `
-    *[_type == "birthdayPartyPackage" && status == "active"] | order(catalogueOrder asc) {
+    *[_type == "birthdayPartyPackage" && status == "active"]
+        | order(coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order) asc) {
         _id,
         accentColour,
         blackBackground,
         caption,
         hidePartyImage,
         key,
-        "name": customerName,
+        "name": coalesce(packageName, customerName, name),
+        "primaryColour": coalesce(primaryColour, websitePage.hero.theme, colour),
         "cards": websiteCards[] {
             _key,
             alt,
@@ -47,9 +49,8 @@ const BIRTHDAY_PARTY_CATALOGUE_QUERY = `
             image ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
             label
         },
-        "order": catalogueOrder,
+        "position": coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order),
         status,
-        summaryTitle,
         websitePage {
             "slug": slug.current,
             seo,
@@ -58,18 +59,15 @@ const BIRTHDAY_PARTY_CATALOGUE_QUERY = `
                 image ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
                 imageAlt,
                 subtitle,
-                theme,
                 title
             },
             creationsImage ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
-            creationsImageAlt,
-            navigation,
+            navigation {
+                isNew
+            },
             themeCard {
-                colour,
                 image ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
                 imageAlt,
-                order,
-                title
             },
             features[] {
                 _key,

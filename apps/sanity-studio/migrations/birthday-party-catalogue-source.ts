@@ -1,4 +1,9 @@
-import type { BirthdayPartyBookingChannel, BirthdayPartyCardColour } from '@fizz-kidz/core'
+import type {
+    BirthdayPartyBookingChannel,
+    BirthdayPartyCardColour,
+    BirthdayPartyPackageColour,
+    BirthdayPartyPackageColourHex,
+} from '@fizz-kidz/core'
 
 export type CatalogueSourceCard = {
     alt: string
@@ -21,16 +26,15 @@ export type CatalogueSourcePackageOffering = {
 }
 
 export type CatalogueSourcePackage = {
-    accentColour: string
+    accentColour: BirthdayPartyPackageColourHex
     blackBackground?: boolean
     caption?: string
-    catalogueOrder: number
-    customerName: string
+    position: number
     hidePartyImage?: boolean
     key: string
+    name: string
     offerings: CatalogueSourcePackageOffering[]
-    staffPackageName: string
-    summaryTitle: string
+    primaryColour: BirthdayPartyPackageColour
     websiteCardOrder?: string[]
 }
 
@@ -140,11 +144,10 @@ export const birthdayPartyCatalogueOfferings = {
 export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
     {
         accentColour: '#F24DA2',
-        catalogueOrder: 0,
-        customerName: 'K-Pop Power',
+        position: 4,
         key: 'kPopPower',
-        staffPackageName: 'K-Pop Power Parties',
-        summaryTitle: 'Kpop Power Creations',
+        name: 'K-Pop Power',
+        primaryColour: 'purple',
         offerings: [
             {
                 availability: both,
@@ -192,11 +195,10 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
     },
     {
         accentColour: '#F24DA2',
-        catalogueOrder: 1,
-        customerName: 'Glam',
+        position: 1,
         key: 'glam',
-        staffPackageName: 'Glam Parties',
-        summaryTitle: 'Glam Creations',
+        name: 'Glam',
+        primaryColour: 'pink',
         offerings: [
             {
                 availability: both,
@@ -251,12 +253,11 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         ],
     },
     {
-        accentColour: '#43D4F3',
-        catalogueOrder: 2,
-        customerName: 'Science',
+        accentColour: '#4DC5DA',
+        position: 2,
         key: 'science',
-        staffPackageName: 'Science Parties',
-        summaryTitle: 'Science Creations',
+        name: 'Science',
+        primaryColour: 'blue',
         offerings: [
             {
                 availability: both,
@@ -307,12 +308,11 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
     },
     {
         accentColour: '#9044E2',
-        catalogueOrder: 3,
-        customerName: 'Slime',
+        position: 3,
         hidePartyImage: true,
         key: 'slime',
-        staffPackageName: 'Slime Parties',
-        summaryTitle: 'Slime Creations',
+        name: 'Slime',
+        primaryColour: 'purple',
         offerings: [
             {
                 availability: both,
@@ -373,11 +373,10 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
     },
     {
         accentColour: '#4ED85F',
-        catalogueOrder: 4,
-        customerName: 'Fairy',
+        position: 5,
         key: 'fairy',
-        staffPackageName: 'Fairy Parties',
-        summaryTitle: 'Fairy Creations',
+        name: 'Fairy',
+        primaryColour: 'pink',
         offerings: [
             {
                 availability: both,
@@ -435,11 +434,10 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         accentColour: '#4ED85F',
         blackBackground: true,
         caption: 'Drizzle, Drop ad Paint your Bear your way!',
-        catalogueOrder: 5,
-        customerName: 'Fluid Bears',
+        position: 6,
         key: 'fluidBears',
-        staffPackageName: 'Fluid Bear Parties',
-        summaryTitle: 'Fluid Bear Creations',
+        name: 'Fluid Bears',
+        primaryColour: 'black',
         offerings: [
             {
                 availability: both,
@@ -474,11 +472,10 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
     },
     {
         accentColour: '#4ED85F',
-        catalogueOrder: 6,
-        customerName: 'Jungle Safari',
+        position: 7,
         key: 'safari',
-        staffPackageName: 'Jungle Safari Parties',
-        summaryTitle: 'Jungle Safari Creations',
+        name: 'Jungle Safari',
+        primaryColour: 'green',
         websiteCardOrder: [
             'websiteCreationsMonsterSlimePurplePng',
             'websiteCreationsMonsterExplosionsPng',
@@ -534,11 +531,10 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
     },
     {
         accentColour: '#F24DA2',
-        catalogueOrder: 7,
-        customerName: 'Unicorn',
+        position: 8,
         key: 'unicorn',
-        staffPackageName: 'Unicorn Parties',
-        summaryTitle: 'Unicorn Creations',
+        name: 'Unicorn',
+        primaryColour: 'pink',
         offerings: [
             {
                 availability: both,
@@ -578,12 +574,11 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         ],
     },
     {
-        accentColour: '#F7BB35',
-        catalogueOrder: 8,
-        customerName: 'Tie Dye',
+        accentColour: '#F6BA33',
+        position: 9,
         key: 'tieDye',
-        staffPackageName: 'Tie Dye Parties',
-        summaryTitle: 'Tie Dye Creations',
+        name: 'Tie Dye',
+        primaryColour: 'pink',
         offerings: [
             {
                 availability: both,
@@ -609,11 +604,10 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
     },
     {
         accentColour: '#9044E2',
-        catalogueOrder: 9,
-        customerName: 'Taylor Swift',
+        position: 10,
         key: 'taylorSwift',
-        staffPackageName: 'Taylor Swift Parties',
-        summaryTitle: 'Taylor Swift Creations',
+        name: 'Taylor Swift',
+        primaryColour: 'purple',
         offerings: [
             {
                 availability: both,

@@ -14,7 +14,6 @@ type FeatureSource = {
 }
 
 export type BirthdayPartyPageSource = {
-    creationsImageAlt: string
     creationsImageKey?: string
     features?: readonly FeatureSource[]
     hero: {
@@ -22,14 +21,11 @@ export type BirthdayPartyPageSource = {
         imageAlt: string
         imageKey: string
         subtitle: string
-        theme: 'purple' | 'blue' | 'pink' | 'green' | 'gold'
         title: string
     }
     key: string
     navigation: {
         isNew: boolean
-        order: number
-        title: string
     }
     seo: {
         description: string
@@ -38,11 +34,8 @@ export type BirthdayPartyPageSource = {
     }
     slug: string
     themeCard: {
-        colour: string
         imageAlt: string
         imageKey: string
-        order: number
-        title: string
     }
 }
 
@@ -61,17 +54,12 @@ export const birthdayPartyPageSource = [
             subtitle: "Bring the glitter, sparkles and fun to your child's next party!",
             description:
                 'Make your very own sparkling and dazzling pamper products to take home with you after the party!',
-            theme: 'pink',
             imageKey: 'websitePagesPartiesGlamPartiesJpg',
             imageAlt: 'hands holding colourful body glitter containers',
         },
         creationsImageKey: 'websitePagesPartiesPackagesGlitzAndGlamPng',
-        creationsImageAlt: 'Three girls smiling',
-        navigation: { title: 'Glam Parties', order: 1, isNew: false },
+        navigation: { isNew: false },
         themeCard: {
-            title: 'Glam Parties',
-            order: 1,
-            colour: '#F24C9F',
             imageKey: 'websitePagesPartiesPackagesGlitzAndGlamPng',
             imageAlt: 'hands with lip balm',
         },
@@ -89,17 +77,12 @@ export const birthdayPartyPageSource = [
             title: 'Kids Science Birthday Parties',
             subtitle: 'Fizz, Bubble, Explode! For all the little scientists out there, this is for you!',
             description: 'Fizz Kidz science birthday parties are scientifically proven to be fizzing fantastic!',
-            theme: 'blue',
             imageKey: 'websitePagesPartiesSciencePartyJpg',
             imageAlt: 'a kid in awe as her science experiment bubbles',
         },
         creationsImageKey: 'websitePagesPartiesPackagesSciencePng',
-        creationsImageAlt: 'Science Party Package',
-        navigation: { title: 'Science Parties', order: 2, isNew: false },
+        navigation: { isNew: false },
         themeCard: {
-            title: 'Science Parties',
-            order: 2,
-            colour: '#43D4F3',
             imageKey: 'websitePagesPartiesPackagesSciencePng',
             imageAlt: 'bubbling volcano',
         },
@@ -118,17 +101,12 @@ export const birthdayPartyPageSource = [
             subtitle: 'Slime, slime and more slime!',
             description:
                 'For all the slime lovers out there, we love slime just as much! Together lets get messy and make the most perfect slimes!',
-            theme: 'purple',
             imageKey: 'websitePagesPartiesSlimePartyJpg',
             imageAlt: 'a kid holding a long stretch of slime and smiling',
         },
         creationsImageKey: 'websitePagesPartiesSlimeCreationsHeroPng',
-        creationsImageAlt: 'Slime Party Package',
-        navigation: { title: 'Slime Parties', order: 3, isNew: false },
+        navigation: { isNew: false },
         themeCard: {
-            title: 'Slime Parties',
-            order: 3,
-            colour: '#9044E2',
             imageKey: 'websitePagesPartiesPackagesSlimePng',
             imageAlt: 'girl holding slime and smiling',
         },
@@ -175,17 +153,12 @@ export const birthdayPartyPageSource = [
             title: 'Kids K-Pop Power Parties',
             subtitle: 'The ultimate K-Pop party experience!',
             description: 'Step into a world of magic and music where K-Pop energy meets fantasy adventure!',
-            theme: 'purple',
             imageKey: 'websitePagesPartiesKPopDemonHuntersPartyPng',
             imageAlt: 'Colourful K-Pop Power party creations',
         },
         creationsImageKey: 'websitePagesPartiesPackagesKPopDemonHuntersPng',
-        creationsImageAlt: 'K-Pop Power Party Package',
-        navigation: { title: 'K-Pop Power Parties', order: 4, isNew: true },
+        navigation: { isNew: true },
         themeCard: {
-            title: 'K-Pop Power Parties',
-            order: 7,
-            colour: '#F24C9F',
             imageKey: 'websitePagesPartiesPackagesKPopDemonHuntersPng',
             imageAlt: 'k-pop power wand',
         },
@@ -203,17 +176,12 @@ export const birthdayPartyPageSource = [
             title: 'Fairy Kids Birthday Parties',
             subtitle: 'Welcome to the magical world of fairies!',
             description: 'Here we love everything sparkles, glitter and magic!',
-            theme: 'pink',
             imageKey: 'websitePagesPartiesFairyPartyWebp',
             imageAlt: 'Colourful fairy-themed soaps and craft creations',
         },
         creationsImageKey: 'websitePagesPartiesPackagesFairiesPng',
-        creationsImageAlt: 'Fairy Party Package',
-        navigation: { title: 'Fairy Parties', order: 5, isNew: false },
+        navigation: { isNew: false },
         themeCard: {
-            title: 'Fairy Parties',
-            order: 9,
-            colour: '#4EE16D',
             imageKey: 'websitePagesPartiesPackagesFairiesPng',
             imageAlt: 'colourful fairy creations',
         },
@@ -232,17 +200,12 @@ export const birthdayPartyPageSource = [
             subtitle: 'Mesmerizing Drip Art Fun!',
             description:
                 "Design your very own awesome bear keyring by dripping vibrant paint for a one-of-a-kind masterpiece that's yours to take home!",
-            theme: 'gold',
             imageKey: 'websitePagesPartiesFluidBearsPartyPng',
             imageAlt: 'A child creating colourful fluid bear drip art',
         },
         creationsImageKey: 'websitePagesPartiesPackagesFluidBearsWhitePng',
-        creationsImageAlt: 'Fluid Bears Party Package',
-        navigation: { title: 'Fluid Bears Parties', order: 6, isNew: true },
+        navigation: { isNew: true },
         themeCard: {
-            title: 'Fluid Bears Party',
-            order: 8,
-            colour: '#000000',
             imageKey: 'websitePagesPartiesPackagesFluidBearsBlackPng',
             imageAlt: 'A Fizz kids staff holding a box',
         },
@@ -260,17 +223,12 @@ export const birthdayPartyPageSource = [
             title: 'Jungle Safari Kids Birthday Parties',
             subtitle: 'Roar! Welcome to the jungle!',
             description: 'Join the safari adventure and make your own jungle creations!',
-            theme: 'green',
             imageKey: 'websitePagesPartiesSafariPartyJpg',
             imageAlt: 'Children enjoying a jungle-themed Fizz Kidz party',
         },
         creationsImageKey: 'websiteCreationsBubblingVolcanoesPng',
-        creationsImageAlt: 'Jungle Safari Party Package',
-        navigation: { title: 'Jungle Safari Parties', order: 7, isNew: false },
+        navigation: { isNew: false },
         themeCard: {
-            title: 'Jungle Safari Parties',
-            order: 5,
-            colour: '#4EE16D',
             imageKey: 'websitePagesPartiesPackagesSafariPng',
             imageAlt: 'a frog in a bath bomb',
         },
@@ -288,17 +246,12 @@ export const birthdayPartyPageSource = [
             title: 'Unicorn Kids Birthday Parties',
             subtitle: 'Welcome to the magical world of Unicorns!',
             description: 'Here we love everything sparkles, glitter and magic!',
-            theme: 'pink',
             imageKey: 'websitePagesPartiesUnicornPartyJpg',
             imageAlt: 'Colourful unicorn-themed soaps and craft creations',
         },
         creationsImageKey: 'websitePagesPartiesPackagesUnicornPng',
-        creationsImageAlt: 'Unicorn Party Package',
-        navigation: { title: 'Unicorn Parties', order: 8, isNew: false },
+        navigation: { isNew: false },
         themeCard: {
-            title: 'Unicorn Parties',
-            order: 10,
-            colour: '#F24C9F',
             imageKey: 'websitePagesPartiesPackagesUnicornPng',
             imageAlt: 'colourful unicorn creations',
         },
@@ -316,17 +269,12 @@ export const birthdayPartyPageSource = [
             title: 'Tie Dye Kids Birthday Party',
             subtitle: 'Tie Dye birthday parties are the best kids parties!',
             description: 'Enjoy the process of Tie Dying your favourite items and take the item home to enjoy!',
-            theme: 'pink',
             imageKey: 'websitePagesPartiesTieDyePartyJpg',
             imageAlt: 'tie dyed shoelaces',
         },
         creationsImageKey: 'websitePagesPartiesPackagesTieDyePng',
-        creationsImageAlt: 'Tie Dye Party Package',
-        navigation: { title: 'Tie Dye Parties', order: 9, isNew: false },
+        navigation: { isNew: false },
         themeCard: {
-            title: 'Tie Dye Parties',
-            order: 4,
-            colour: '#F6BA33',
             imageKey: 'websitePagesPartiesPackagesTieDyePng',
             imageAlt: 'tie dye shoelaces',
         },
@@ -345,17 +293,12 @@ export const birthdayPartyPageSource = [
             subtitle: 'Join us for the best Swiftie Party!',
             description:
                 'Make your very own sparkling and dazzling Swiftie creations to take home with you after the party!',
-            theme: 'purple',
             imageKey: 'websitePagesPartiesTaylorSwiftPartyJpg',
             imageAlt: 'Sparkling Swiftie-inspired party creations',
         },
         creationsImageKey: 'websitePagesPartiesPackagesSwiftiePng',
-        creationsImageAlt: 'Taylor Swift Party Package',
-        navigation: { title: 'Taylor Swift Parties', order: 10, isNew: false },
+        navigation: { isNew: false },
         themeCard: {
-            title: 'Swiftie Parties',
-            order: 6,
-            colour: '#9044E2',
             imageKey: 'websitePagesPartiesPackagesSwiftiePng',
             imageAlt: 'Taylor Swift',
         },

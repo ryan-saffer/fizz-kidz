@@ -19,3 +19,7 @@
 .vscode/*
 
 /apps/server/scripts/.credentials/
+
+# mempalace
+entities.json
+mempalace.yaml

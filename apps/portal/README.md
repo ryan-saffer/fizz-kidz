@@ -28,6 +28,8 @@ The Portal batches tRPC requests through `/api/trpc`. The client is created in `
 
 Birthday Party and Holiday Program creation instructions come from Sanity through server tRPC endpoints. Their Portable Text renderer lives in `@fizz-kidz/ui` and is shared with the Sanity Studio preview.
 
+Birthday-party instruction group labels and colours are package-owned: the server derives the `Parties` label from Sanity's canonical package name and returns its primary colour to the Portal.
+
 ## Run It
 
 ```bash

@@ -4,6 +4,9 @@ import {
   birthdayPartyThemePackages,
   getBirthdayPartyPackagePath,
 } from "@/data/birthday-party-catalogue";
+import {
+  getBirthdayPartyPackagePartyName,
+} from "@fizz-kidz/core";
 ---
 
 <section class="mt-12 md:mt-24">
@@ -26,8 +29,8 @@ import {
     {
       birthdayPartyThemePackages.map((partyPackage) => (
         <PartyPackage
-          title={partyPackage.websitePage.themeCard.title}
-          color={partyPackage.websitePage.themeCard.colour}
+          title={getBirthdayPartyPackagePartyName(partyPackage.name)}
+          color={partyPackage.accentColour}
           image={partyPackage.websitePage.themeCard.image}
           imageAlt={partyPackage.websitePage.themeCard.imageAlt}
           path={getBirthdayPartyPackagePath(partyPackage.websitePage.slug)}

@@ -70,7 +70,7 @@ const catalogue = await client.withConfig({ perspective: 'drafts' }).fetch<Birth
             _type == "birthdayPartyPackage" &&
             status == "active" &&
             migrationSource == "${MIGRATION_SOURCE}"
-        ] | order(catalogueOrder asc) {
+        ] | order(coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order) asc) {
             _id,
             accentColour,
             blackBackground,
@@ -111,10 +111,70 @@ const catalogue = await client.withConfig({ perspective: 'drafts' }).fetch<Birth
             },
             hidePartyImage,
             key,
-            "name": customerName,
-            "order": catalogueOrder,
+            "name": coalesce(packageName, customerName, name),
+            "position": coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order),
+            "primaryColour": coalesce(primaryColour, websitePage.hero.theme, colour),
             status,
-            summaryTitle
+            websitePage {
+                "slug": slug.current,
+                seo,
+                hero {
+                    description,
+                    "image": {
+                        "assetId": image.asset->_id,
+                        "height": image.asset->metadata.dimensions.height,
+                        "src": image.asset->url,
+                        "width": image.asset->metadata.dimensions.width
+                    },
+                    imageAlt,
+                    subtitle,
+                    title
+                },
+                "creationsImage": select(
+                    defined(creationsImage.asset) => {
+                        "assetId": creationsImage.asset->_id,
+                        "height": creationsImage.asset->metadata.dimensions.height,
+                        "src": creationsImage.asset->url,
+                        "width": creationsImage.asset->metadata.dimensions.width
+                    }
+                ),
+                navigation { isNew },
+                themeCard {
+                    "image": {
+                        "assetId": image.asset->_id,
+                        "height": image.asset->metadata.dimensions.height,
+                        "src": image.asset->url,
+                        "width": image.asset->metadata.dimensions.width
+                    },
+                    imageAlt
+                },
+                "features": coalesce(features[] {
+                    _key,
+                    title,
+                    "headingImage": select(
+                        defined(headingImage.asset) => {
+                            "assetId": headingImage.asset->_id,
+                            "height": headingImage.asset->metadata.dimensions.height,
+                            "src": headingImage.asset->url,
+                            "width": headingImage.asset->metadata.dimensions.width
+                        }
+                    ),
+                    headingImageAlt,
+                    description,
+                    cards[] {
+                        _key,
+                        "alt": imageAlt,
+                        colour,
+                        "image": {
+                            "assetId": image.asset->_id,
+                            "height": image.asset->metadata.dimensions.height,
+                            "src": image.asset->url,
+                            "width": image.asset->metadata.dimensions.width
+                        },
+                        label
+                    }
+                }, [])
+            }
         }
     }
 `)

@@ -53,7 +53,7 @@ const [packageDrafts, creationDrafts] = await Promise.all([
             _type == "birthdayPartyPackage" &&
             _id in path("drafts.**") &&
             migrationSource == $migrationSource
-        ] | order(catalogueOrder asc) {
+        ] | order(coalesce(position, catalogueOrder) asc) {
             _id,
             key,
             offeringEntries,

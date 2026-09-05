@@ -1,18 +1,20 @@
+import { getBirthdayPartyPackagePartyName } from '@fizz-kidz/core'
+
 import { sanityClient } from '@/utils/sanity-api-client'
 
 export const birthdayPartyCatalogue = await sanityClient.getBirthdayPartyCatalogue()
 
 export const birthdayPartyPackageNavigationLinks = birthdayPartyCatalogue.packages
-    .toSorted((left, right) => left.websitePage.navigation.order - right.websitePage.navigation.order)
+    .toSorted((left, right) => left.position - right.position)
     .map((partyPackage) => ({
         isNew: partyPackage.websitePage.navigation.isNew,
         path: getBirthdayPartyPackagePath(partyPackage.websitePage.slug),
-        title: partyPackage.websitePage.navigation.title,
+        title: getBirthdayPartyPackagePartyName(partyPackage.name),
         type: 'link' as const,
     }))
 
 export const birthdayPartyThemePackages = birthdayPartyCatalogue.packages.toSorted(
-    (left, right) => left.websitePage.themeCard.order - right.websitePage.themeCard.order
+    (left, right) => left.position - right.position
 )
 
 export function getBirthdayPartyPackagePath(slug: string) {

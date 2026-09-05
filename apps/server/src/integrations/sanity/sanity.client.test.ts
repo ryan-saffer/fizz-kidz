@@ -79,8 +79,8 @@ describe('SanityClient', () => {
         const packages = [
             {
                 _id: 'package-1',
-                name: 'Slime Parties',
-                colour: 'yellow',
+                name: 'Slime',
+                colour: 'purple',
                 creations: [
                     {
                         _id: 'creation-1',
@@ -97,6 +97,10 @@ describe('SanityClient', () => {
 
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('| order(order asc)'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('creations[]->'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(packageName, name)'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(primaryColour, colour)'))
+        expect(result[0].name).toBe('Slime Parties')
+        expect(result[0].colour).toBe('purple')
         expect(result[0].creations[0].instructions[0]).toEqual({
             _key: 'image-1',
             _type: 'image',

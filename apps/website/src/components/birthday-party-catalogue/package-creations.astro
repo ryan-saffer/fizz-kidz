@@ -4,21 +4,19 @@ import CreationsSummary from "@/components/creations-summary.astro";
 import PartyPackageCreations from "@/components/party-package-creations.astro";
 import type { ImageSource } from "@/types/images";
 
-import type { BirthdayPartyCataloguePackage } from "@fizz-kidz/core";
+import {
+  getBirthdayPartyPackageCreationsTitle,
+  getBirthdayPartyPackageImageDescription,
+  type BirthdayPartyCataloguePackage,
+} from "@fizz-kidz/core";
 
 type Props = {
   partyPackage: BirthdayPartyCataloguePackage;
   variant?: "summary" | "party";
   image?: ImageSource;
-  imageAlt?: string;
 };
 
-const {
-  partyPackage,
-  variant = "summary",
-  image,
-  imageAlt = `${partyPackage.name} Party Package`,
-} = Astro.props;
+const { partyPackage, variant = "summary", image } = Astro.props;
 
 if (variant === "party" && !image && !partyPackage.hidePartyImage) {
   throw new Error(`Missing party image for Sanity package: ${partyPackage.key}`);
@@ -31,7 +29,7 @@ if (variant === "party" && !image && !partyPackage.hidePartyImage) {
       partyPackage={partyPackage.name}
       caption={partyPackage.caption}
       image={image!}
-      imageAlt={imageAlt}
+      imageAlt={getBirthdayPartyPackageImageDescription(partyPackage.name)}
       hideLeftImage={partyPackage.hidePartyImage}
       blackBackground={partyPackage.blackBackground}
       useDefaultSlot
@@ -44,7 +42,7 @@ if (variant === "party" && !image && !partyPackage.hidePartyImage) {
     </PartyPackageCreations>
   ) : (
     <CreationsSummary
-      title={partyPackage.summaryTitle}
+      title={getBirthdayPartyPackageCreationsTitle(partyPackage.name)}
       color={partyPackage.accentColour}
       useDefaultSlot
     >

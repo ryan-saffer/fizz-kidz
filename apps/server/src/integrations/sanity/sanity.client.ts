@@ -4,6 +4,7 @@ import type {
     HolidayProgramCreationInstructions,
     HolidayProgramScheduleWeek,
 } from '@fizz-kidz/core'
+import { getBirthdayPartyPackagePartyName } from '@fizz-kidz/core'
 
 import type { SanityClient as Client } from '@sanity/client'
 import type { ImageUrlBuilder, SanityImageSource } from '@sanity/image-url'
@@ -22,8 +23,8 @@ const HOLIDAY_PROGRAM_CREATIONS_QUERY = `
 const BIRTHDAY_PARTY_CREATIONS_QUERY = `
     *[_type == "birthdayPartyPackage"] | order(order asc) {
         _id,
-        name,
-        colour,
+        "name": coalesce(packageName, name),
+        "colour": coalesce(primaryColour, colour),
         creations[]-> {
             _id,
             name,
@@ -136,6 +137,7 @@ export class SanityClient {
         const groups = await this.#sanity.fetch<BirthdayPartyCreationInstructionGroup[]>(BIRTHDAY_PARTY_CREATIONS_QUERY)
         return groups.map((group) => ({
             ...group,
+            name: getBirthdayPartyPackagePartyName(group.name),
             creations: group.creations.map((creation) => ({
                 ...creation,
                 instructions: this.#resolveInstructionImages(creation.instructions),

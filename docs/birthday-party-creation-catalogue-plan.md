@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress across the full catalogue programme. Phase 1 is implemented: the reviewed catalogue and page data are published in Sanity, the Studio is deployed, and the Website builds every package route and catalogue surface from Sanity. The Website code still needs to pass through its normal deployment before production uses the dynamic routes. Paperform API investigation and Phases 2–4 remain.
+In progress across the full catalogue programme. Phase 1 is implemented: the reviewed catalogue and page data are published in Sanity, the Studio is deployed, and the Website builds every package route and catalogue surface from Sanity. A post-migration simplification has also added one canonical package name, primary colour, and accent colour; legacy stored fields remain temporarily for deployed-consumer compatibility. The Website code still needs to pass through its normal deployment before production uses the dynamic routes. Paperform API investigation and Phases 2–4 remain.
 
 ## Goal
 
@@ -24,6 +24,9 @@ The Website is the authority for the initial migration. Its current names, packa
 - Use each package's ordered Website cards as its only creation-membership source. Exactly one card per creation owns booking channels and booking order; additional cards are presentation variants.
 - Generate package pages from one fixed template. Sanity owns each package's route, SEO, hero, menu entry, Party Themes card, creations image, and optional feature sections; shared pricing, party information, FAQs, reviews, and values remain in Website code.
 - Include every active package in Party Themes, including Fairy and Unicorn. Keep At Home as a dedicated static Website page.
+- Store one canonical package name. Derive `{Package name} Parties`, `{Package name} Creations`, and `{Package name} Party Package` where those labels are rendered.
+- Store one primary colour for the Website introduction and Portal, plus one accent colour for the all-creations heading and Party Themes card. Both fields use one shared supported-colour palette. Keep the Fluid Bears black creations background as a separate presentation setting.
+- Store one Website position per package. It controls the package order in the menu, Party Themes cards, and all-creations catalogue.
 
 ## Current state
 
@@ -74,10 +77,10 @@ Continue using `birthdayPartyPackage`, but add one ordered Website-card array ra
 Each package contains:
 
 - Stable package key or slug.
-- Customer-facing name.
+- Canonical package name.
 - Active or retired status.
-- Display order.
-- Package colour or theme where still required by the current design.
+- One Website position shared by the menu, Party Themes cards, and all-creations catalogue.
+- Primary and accent colours where required by the current design.
 - One ordered list of Website cards.
 - Website-page data for its permanent slug, SEO, hero, navigation entry, Party Themes card, creations image, and optional package-specific feature sections.
 
@@ -140,6 +143,7 @@ Phase 0 is complete when every Website card has an explicit destination in the n
 - [x] Reuse the Sanity assets behind the current Website image slots where possible.
 - [x] Review and publish the imported catalogue only after it matches the Website inventory.
 - [x] Add and publish validated Website-page fields for all active packages.
+- [x] Split package editing into Core package information and Website tabs, and deduplicate package names, labels, and colour fields.
 
 ### Website
 
@@ -219,6 +223,7 @@ Submission handling should use package context when resolving labels. This avoid
 - [ ] Retain the minimum legacy key mapping needed for historical records, or migrate those records before deleting it.
 - [ ] Remove old Paperform label-to-key code after the oldest resubmittable form data no longer needs it.
 - [ ] Deprecate the old recipe-reference field on `birthdayPartyPackage` only after Portal instruction queries use the new offering-to-recipe relationship.
+- [ ] Run the package-field migration's `--cleanup --apply` mode after the compatible Website, server, and Portal code is deployed, then remove the hidden legacy schema fields.
 - [ ] Update the Website, Studio, server, Portal, and core READMEs to describe the final ownership model.
 
 ## Verification

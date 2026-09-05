@@ -1,6 +1,7 @@
 import { ComposeSparklesIcon } from '@sanity/icons/ComposeSparkles'
 import { defineArrayMember, defineField, defineType, type ValidationContext } from 'sanity'
 
+import { BirthdayPartyCreationOfferingInput } from '../../components/birthday-party-creation-offering-input'
 import { BIRTHDAY_PARTY_CATALOGUE_STATUSES } from '../birthday-party-catalogue-options'
 
 const API_VERSION = '2026-08-01'
@@ -39,6 +40,7 @@ export const birthdayPartyCreationOffering = defineType({
     title: 'Creation',
     type: 'document',
     icon: ComposeSparklesIcon,
+    components: { input: BirthdayPartyCreationOfferingInput },
     initialValue: { status: 'active' },
     fields: [
         defineField({

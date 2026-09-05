@@ -29,6 +29,7 @@ The `api` function owns `/api/trpc`, `/api/webhooks/**`, public endpoints such a
 - Keep browser origins in `src/app/http/cors-origins.ts`; Firebase handles preflight before lazily loading Express.
 - Keep credentials, SDK clients, Firestore, and network calls here.
 - Sanity Content Lake reads belong in `src/integrations/sanity`; the Birthday Party and Holiday Program creation pages receive normalized content through tRPC, and Holiday Program Acuity classes are enriched from the same Sanity schedule.
+- Birthday-party instruction groups read each package's canonical name and primary colour from Sanity. The server adds the `Parties` suffix expected by the Portal rather than storing that duplicate label in Sanity.
 - Name integration client modules `<provider-or-service>.client.ts`; use similarly descriptive dot-qualified names for reference registries and helpers where appropriate.
 - Load heavyweight SDKs lazily; Firebase cold starts notice everything.
 - Register new tRPC routers in `app/trpc/app.trpc.ts` and new background handlers in `app/background/function.ts`.

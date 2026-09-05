@@ -66,7 +66,6 @@ function websitePageFor(source: BirthdayPartyPageSource) {
         seo: source.seo,
         hero: { ...hero, image: imageFor(heroImageKey) },
         ...(source.creationsImageKey ? { creationsImage: imageFor(source.creationsImageKey) } : {}),
-        creationsImageAlt: source.creationsImageAlt,
         navigation: source.navigation,
         themeCard: { ...themeCard, image: imageFor(themeCardImageKey) },
         features: (source.features ?? []).map((feature) => ({

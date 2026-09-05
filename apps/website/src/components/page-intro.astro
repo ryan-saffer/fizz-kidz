@@ -3,12 +3,16 @@ import Image from "@/components/image.astro";
 import PrimaryButton from "@/components/primary-button.astro";
 import type { ImageSource } from "@/types/images";
 import { cn } from "./react/lib/utils";
+import {
+  getBirthdayPartyPackageColourHex,
+  type BirthdayPartyPackageColour,
+} from "@fizz-kidz/core";
 
 type Props = {
   subtitle: string;
   actionButtonText: string;
   actionButtonPath: string;
-  color: "purple" | "blue" | "pink" | "green" | "gold";
+  color: BirthdayPartyPackageColour;
 } & (
   | { type: "image"; image: ImageSource; imageAlt: string }
   | { type: "video"; videoUrl: string }
@@ -17,16 +21,7 @@ type Props = {
 const { subtitle, actionButtonPath, actionButtonText, color, ...props } =
   Astro.props;
 
-const colourHex =
-  color === "purple"
-    ? "#9044E2"
-    : color === "pink"
-      ? "#F24DA2"
-      : color === "green"
-        ? "#4ED85F"
-        : color === "blue"
-          ? "#4DC5DA"
-          : "#F6BA33	"; // gold
+const colourHex = getBirthdayPartyPackageColourHex(color);
 ---
 
 <section class="min-[1200px]:mt-12">
