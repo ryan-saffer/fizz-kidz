@@ -463,7 +463,7 @@ describe('birthday party booking catalogue', () => {
         )
     })
 
-    it('resolves current keys, names, and legacy labels within a package and channel', () => {
+    it('resolves package choices by channel and unique archived values globally', () => {
         deepStrictEqual(
             resolveBirthdayPartyBookingCreation(bookingCatalogue, {
                 channel: 'mobile',
@@ -493,8 +493,8 @@ describe('birthday party booking catalogue', () => {
                 channel: 'studio',
                 packageKey: 'fairy',
                 submittedValue: 'Chocolate Slime',
-            }),
-            undefined
+            })?.key,
+            'nutellaSlime'
         )
         deepStrictEqual(getBirthdayPartyBookingCreationName(bookingCatalogue, 'fairySlime'), 'Fairy Slime')
     })

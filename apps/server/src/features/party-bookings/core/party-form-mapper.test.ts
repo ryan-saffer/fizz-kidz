@@ -183,16 +183,7 @@ describe('PartyFormMapper', () => {
         const mapper = new PartyFormMapper(submission, bookingCatalogue)
 
         deepStrictEqual(mapper.getCreationDisplayValues('studio'), ['Nutella Slime'])
-        deepStrictEqual(loggerWarn.mock.calls[0], [
-            'Resolved Paperform value through the pre-catalogue mapping',
-            {
-                bookingId: 'booking-id',
-                channel: 'studio',
-                legacyCreationKey: 'nutellaSlime',
-                packageKey: 'slime',
-                submittedValue: 'Nutella Slime',
-            },
-        ])
+        strictEqual(loggerWarn.mock.calls.length, 0)
     })
 
     it('rejects an unknown Paperform creation value', () => {

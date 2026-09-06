@@ -88,7 +88,7 @@ describe('SanityClient', () => {
                     {
                         _key: 'card-1',
                         bookingOrder: 1,
-                        recipe: {
+                        creationInstructions: {
                             _id: 'creation-1',
                             name: 'Fairy Slime',
                             instructions: [{ _key: 'image-1', _type: 'image', asset: { _ref: 'image-1' } }],
@@ -97,7 +97,7 @@ describe('SanityClient', () => {
                     {
                         _key: 'card-2',
                         bookingOrder: 2,
-                        recipe: {
+                        creationInstructions: {
                             _id: 'creation-1',
                             name: 'Fairy Slime',
                             instructions: [{ _key: 'image-1', _type: 'image', asset: { _ref: 'image-1' } }],
@@ -118,8 +118,8 @@ describe('SanityClient', () => {
         const result = await sanity.getBirthdayPartyCreations()
 
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('| order(coalesce(position, order) asc)'))
-        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('websiteCards[defined(bookingOrder)'))
-        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('creation->recipe->'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('"creationCards": websiteCards['))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('creation->creationInstructions->'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(packageName, name)'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(primaryColour, colour)'))
         expect(result[0].name).toBe('Slime Parties')

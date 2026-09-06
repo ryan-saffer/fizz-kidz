@@ -19,6 +19,7 @@ The Website is the authority for the initial migration. Its current names, packa
 - Keep customer-facing creations separate from creation instructions. Several themed creations can share one set of instructions, and one creation can use different imagery in different packages.
 - Give every creation a stable business key. Let Sanity generate ordinary document `_id` values.
 - Archive creations instead of deleting them once a booking or Paperform submission may refer to them.
+- Resolve current submissions within their package and channel. If historical package membership no longer exists, resolve an archived key or label only when it identifies exactly one archived creation globally.
 - Keep Paperform field IDs and other provider configuration in the server integration, not in Sanity content.
 - Store operational studio/mobile availability on the creation. Availability applies consistently in every package and must not be inferred from a Website card.
 - Use each package's ordered Website cards as its only creation-membership source. Exactly one card per creation owns package-specific booking order; additional cards are presentation variants.
@@ -42,7 +43,7 @@ The cutover keeps these fallbacks until production verification:
 - `apps/server/src/features/party-bookings/core/party-form-mapper.ts` resolves submitted values through Sanity, with a temporary package-and-channel mapping for known pre-cutover Paperform drift.
 - `apps/portal/src/features/bookings/parties/forms/ExistingBookingForm/index.tsx` reads current creation menus through server tRPC and uses the old map only to label an unknown historical selection.
 
-The catalogues have already drifted. Sanity includes a Sweet Kitty package that the public Website catalogue does not render. The Website also has themed choices such as Taylor Swift lip balm while the matching staff instructions are stored as a generic Lip Balm recipe.
+The catalogues have already drifted. Sanity includes a Sweet Kitty package that the public Website catalogue does not render. The Website also has themed choices such as Taylor Swift lip balm while the matching staff directions are stored as generic Lip Balm creation instructions.
 
 ## Domain model
 
@@ -68,7 +69,7 @@ A creation contains:
 - `name`: the customer-facing default name.
 - `status`: `active` or `retired`.
 - Operational availability: studio, mobile, or both. Live Jelly Soap and Unicorn Soap are studio-only; every other current creation supports both.
-- `recipe`: an optional reference to a `birthdayPartyCreation` instruction document.
+- `creationInstructions`: an optional reference to a `birthdayPartyCreation` instruction document.
 - `legacyLabels`: previous Paperform labels that must still resolve to this creation.
 
 A creation's key is stored on new bookings. Names can change without changing booking identity.
@@ -123,8 +124,8 @@ The normalized result should contain enough data for callers to render packages,
 
 - [x] Export the current Website package order, cards, labels, images, colours, and package memberships into a reviewable matrix.
 - [x] Export the current Paperform creation questions, option labels, images, selection limits, conditional logic, and studio/mobile differences.
-- [x] Export the current published Sanity packages and recipes.
-- [x] Match each Website creation to its current booking key and optional Sanity recipe.
+- [x] Export the current published Sanity packages and creation instructions.
+- [x] Match each Website creation to its current booking key and optional Sanity instructions.
 - [x] Record discrepancies. Resolve them in favour of the Website for public content.
 - [x] Record the current studio/mobile differences in the matrix and carry forward the repeated mobile soap restriction.
 - [x] Identify Website cards that are presentation variants rather than separate selectable creations, including the Fluid Bear sequence and Jungle Safari Monster Slime cards.
@@ -139,7 +140,7 @@ The catalogue inventory is complete. Paperform option-image mutation testing is 
 
 - [x] Add the customer creation document schema with validation and a useful preview.
 - [x] Extend the package schema with one ordered Website-card list that also derives booking choices.
-- [x] Keep existing recipe references intact during migration.
+- [x] Keep existing creation-instruction references intact during migration.
 - [x] Add Studio structure entries that make packages, customer creations, and instructions easy to distinguish.
 - [x] Add a package preview that shows the same creation cards and order as the Website where practical.
 - [x] Import Website content as drafts using generated Sanity document IDs and explicit stable creation keys.
@@ -199,7 +200,7 @@ The manual update must:
 - Preserve every Multiple Choice image, desktop/mobile column count, selection calculation, field ID, and visibility rule.
 - Replace the copied mobile Science list with the mobile-capable Science creations.
 - Rename Fairy Glitter Slime to Fairy Slime and remove Nutella Slime from studio Slime.
-- Verify every package on desktop and mobile and submit one studio and one mobile test before the coordinated application cutover.
+- When Paperform is updated manually, verify every package on desktop and mobile and submit one studio and one mobile test independently of the application cutover.
 
 ## Phase 4: cleanup
 
@@ -207,6 +208,7 @@ The manual update must:
 - [ ] Retain the minimum legacy key mapping needed for historical records, or migrate those records before deleting it.
 - [ ] Remove old Paperform label-to-key code after the oldest resubmittable form data no longer needs it.
 - [ ] Run the creation-availability migration's `--cleanup-cards --apply` mode, then remove stored card-level availability.
+- [ ] Run the creation-instruction migration's `--cleanup --apply` mode, then remove stored `recipe` references.
 - [ ] Remove the migration-only Portal order after the coordinated production cutover is verified.
 - [ ] Migrate Sweet Kitty to the new creation relationships, then remove the migration-only package instruction references.
 - [ ] Run the package-field migration's `--cleanup --apply` mode after the compatible Website, server, and Portal code is deployed, then remove the hidden legacy schema fields.
@@ -240,7 +242,7 @@ Run the relevant repository checks at the end of each phase. Phase 1 must includ
 - Temporary static fallback modules: `apps/website/src/components/creation-packages` and `apps/website/src/components/creations`
 - Website Sanity adapter: `apps/website/src/utils/sanity-api-client.ts`
 - Sanity package schema: `apps/sanity-studio/schemaTypes/documents/birthday-party-package.ts`
-- Sanity recipe schema: `apps/sanity-studio/schemaTypes/documents/birthday-party-creation.ts`
+- Sanity creation-instruction schema: `apps/sanity-studio/schemaTypes/documents/birthday-party-creation.ts`
 - Shared hardcoded catalogue: `packages/core/src/parties/creations.ts`
 - Server Sanity adapter: `apps/server/src/integrations/sanity/sanity.client.ts`
 - Paperform client and field mapping: `apps/server/src/integrations/paperforms/paperform.client.ts`

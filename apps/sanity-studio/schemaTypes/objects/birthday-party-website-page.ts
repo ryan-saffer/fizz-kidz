@@ -1,8 +1,9 @@
 import { DocumentIcon } from '@sanity/icons/Document'
 import { defineArrayMember, defineField, defineType, type ValidationContext } from 'sanity'
 
+import { BIRTHDAY_PARTY_RESERVED_SLUGS } from '@fizz-kidz/core'
+
 const API_VERSION = '2026-08-01'
-const RESERVED_SLUGS = ['at-home-parties', 'book-a-party', 'creations']
 
 type SlugValue = { current?: string }
 
@@ -11,7 +12,9 @@ async function isValidWebsiteSlug(slug: SlugValue | undefined, context: Validati
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug.current)) {
         return 'Use lowercase words separated by single hyphens.'
     }
-    if (RESERVED_SLUGS.includes(slug.current)) return `"${slug.current}" is reserved by another Website page.`
+    if (BIRTHDAY_PARTY_RESERVED_SLUGS.includes(slug.current as (typeof BIRTHDAY_PARTY_RESERVED_SLUGS)[number])) {
+        return `"${slug.current}" is reserved by another Website page.`
+    }
 
     const documentId = context.document?._id?.replace(/^drafts\./, '')
     const result = await context.getClient({ apiVersion: API_VERSION }).fetch<{

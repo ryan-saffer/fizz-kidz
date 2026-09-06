@@ -2,7 +2,7 @@ import { strictEqual } from 'node:assert'
 
 import { getCliClient } from 'sanity/cli'
 
-import { ACTIVE_CREATIONS, CREATIONS } from '../../../packages/core/src/parties/creations'
+import { ACTIVE_CREATIONS, CREATIONS } from '@fizz-kidz/core'
 
 const API_VERSION = '2026-08-01'
 const MIGRATION_SOURCE = 'legacy-retired-creations-2026-09'

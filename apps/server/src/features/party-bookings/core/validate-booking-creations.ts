@@ -27,11 +27,21 @@ export function getInvalidBookingCreationKeys(
     existingBooking?: BookingCreations
 ) {
     const activeKeys = getActiveBirthdayPartyBookingCreationKeys(catalogue, booking.type)
-    const previousKeys = new Set(existingBooking?.type === booking.type ? selectedCreationKeys(existingBooking) : [])
+    const previousKeyCounts = new Map<string, number>()
+    if (existingBooking?.type === booking.type) {
+        for (const creationKey of selectedCreationKeys(existingBooking)) {
+            previousKeyCounts.set(creationKey, (previousKeyCounts.get(creationKey) ?? 0) + 1)
+        }
+    }
 
-    return selectedCreationKeys(booking).filter(
-        (creationKey) => !activeKeys.has(creationKey) && !previousKeys.has(creationKey)
-    )
+    return selectedCreationKeys(booking).filter((creationKey) => {
+        if (activeKeys.has(creationKey)) return false
+
+        const previousCount = previousKeyCounts.get(creationKey) ?? 0
+        if (previousCount === 0) return true
+        previousKeyCounts.set(creationKey, previousCount - 1)
+        return false
+    })
 }
 
 export async function validateBookingCreations(booking: BookingCreations, existingBooking?: BookingCreations) {

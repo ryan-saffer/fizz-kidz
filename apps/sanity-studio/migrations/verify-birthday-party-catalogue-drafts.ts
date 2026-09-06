@@ -2,10 +2,8 @@ import { deepStrictEqual, strictEqual } from 'node:assert'
 
 import { getCliClient } from 'sanity/cli'
 
-import {
-    validateBirthdayPartyCatalogue,
-    type BirthdayPartyCatalogue,
-} from '../../../packages/core/src/parties/birthday-party-catalogue'
+import { validateBirthdayPartyCatalogue, type BirthdayPartyCatalogue } from '@fizz-kidz/core'
+
 import { birthdayPartyCatalogueOfferings, birthdayPartyCataloguePackages } from './birthday-party-catalogue-source'
 
 const API_VERSION = '2026-08-01'
@@ -92,7 +90,10 @@ const catalogue = await client.withConfig({ perspective: 'drafts' }).fetch<Birth
                     key,
                     "legacyLabels": coalesce(legacyLabels, []),
                     name,
-                    recipe->{_id, name},
+                    "creationInstructions": coalesce(
+                        creationInstructions->{_id, name},
+                        recipe->{_id, name}
+                    ),
                     status
                 },
                 "image": {

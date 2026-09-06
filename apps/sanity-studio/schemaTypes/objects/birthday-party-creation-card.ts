@@ -1,6 +1,6 @@
 import { defineArrayMember, defineField, defineType } from 'sanity'
 
-import { BIRTHDAY_PARTY_CARD_COLOURS } from '../birthday-party-catalogue-options'
+import { BIRTHDAY_PARTY_CARD_COLOURS } from '@fizz-kidz/core'
 
 export const birthdayPartyCreationCard = defineType({
     name: 'birthdayPartyCreationCard',

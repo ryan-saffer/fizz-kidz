@@ -3,7 +3,8 @@ import { isDeepStrictEqual } from 'node:util'
 
 import { getCliClient } from 'sanity/cli'
 
-import { getBirthdayPartyPackagePartyName } from '../../../packages/core/src/parties/birthday-party-catalogue'
+import { getBirthdayPartyPackagePartyName } from '@fizz-kidz/core'
+
 import {
     birthdayPartyCatalogueOfferings,
     birthdayPartyCataloguePackages,
@@ -139,7 +140,7 @@ for (const [key, sourceOffering] of Object.entries(sourceOfferings)) {
         legacyLabels: sourceOffering.legacyLabels ?? [],
         migrationSource: MIGRATION_SOURCE,
         name: sourceOffering.name,
-        ...(recipe ? { recipe: { _ref: recipe._id, _type: 'reference' } } : {}),
+        ...(recipe ? { creationInstructions: { _ref: recipe._id, _type: 'reference' } } : {}),
         status: 'active',
     })
 }

@@ -6,12 +6,14 @@ import {
 } from '@fizz-kidz/core'
 
 export function getBirthdayPartyCreationMenu(
-    catalogue: BirthdayPartyBookingCatalogue,
+    catalogue: BirthdayPartyBookingCatalogue | undefined,
     channel: BirthdayPartyBookingChannel,
     selectedCreation?: string
 ) {
-    const packages = getActiveBirthdayPartyBookingPackages(catalogue, channel)
-    const activeCreationKeys = getActiveBirthdayPartyBookingCreationKeys(catalogue, channel)
+    const packages = catalogue ? getActiveBirthdayPartyBookingPackages(catalogue, channel) : []
+    const activeCreationKeys = catalogue
+        ? getActiveBirthdayPartyBookingCreationKeys(catalogue, channel)
+        : new Set<string>()
 
     return {
         packages,

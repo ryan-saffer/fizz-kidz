@@ -8,7 +8,7 @@ import {
     isBirthdayPartyPackageColourHex,
     type BirthdayPartyPackageColour,
     type BirthdayPartyPackageColourHex,
-} from '../../../packages/core/src/parties/birthday-party-catalogue'
+} from '@fizz-kidz/core'
 
 const API_VERSION = '2026-08-01'
 const apply = process.argv.includes('--apply')

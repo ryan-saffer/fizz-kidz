@@ -28,16 +28,28 @@ const BIRTHDAY_PARTY_CREATIONS_QUERY = `
         "name": coalesce(packageName, name),
         "colour": coalesce(primaryColour, colour),
         status,
-        "creationCards": websiteCards[defined(bookingOrder) && defined(creation->recipe)] {
+        "creationCards": websiteCards[
+            defined(bookingOrder) &&
+            defined(coalesce(creation->creationInstructions, creation->recipe))
+        ] {
             _key,
             bookingOrder,
-            "recipe": creation->recipe-> {
-                _id,
-                name,
-                instructions[] {
-                    ...
+            "creationInstructions": coalesce(
+                creation->creationInstructions-> {
+                    _id,
+                    name,
+                    instructions[] {
+                        ...
+                    }
+                },
+                creation->recipe-> {
+                    _id,
+                    name,
+                    instructions[] {
+                        ...
+                    }
                 }
-            }
+            )
         },
         "legacyCreations": creations[]-> {
             _id,
@@ -53,7 +65,7 @@ type BirthdayPartyInstructionGroupRecord = Omit<BirthdayPartyCreationInstruction
     creationCards?: Array<{
         _key: string
         bookingOrder?: number
-        recipe?: BirthdayPartyCreationInstructionGroup['creations'][number]
+        creationInstructions?: BirthdayPartyCreationInstructionGroup['creations'][number]
     }>
     legacyCreations?: BirthdayPartyCreationInstructionGroup['creations']
     status?: string
@@ -195,7 +207,7 @@ export class SanityClient {
                     (group.status === 'active'
                         ? (group.creationCards ?? [])
                               .sort((left, right) => (left.bookingOrder ?? 0) - (right.bookingOrder ?? 0))
-                              .flatMap((card) => (card.recipe ? [card.recipe] : []))
+                              .flatMap((card) => (card.creationInstructions ? [card.creationInstructions] : []))
                         : (group.legacyCreations ?? [])
                     ).map((creation) => [creation._id, creation] as const)
                 ).values()

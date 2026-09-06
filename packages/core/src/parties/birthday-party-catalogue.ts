@@ -42,7 +42,7 @@ export type BirthdayPartyCatalogueCreation = {
     key: string
     legacyLabels: string[]
     name: string
-    recipe?: {
+    creationInstructions?: {
         _id: string
         name: string
     }
@@ -533,7 +533,11 @@ export function resolveBirthdayPartyBookingCreation(
     }
     if (packageMatches.length > 1) return undefined
 
-    return undefined
+    const archivedMatches = catalogue.creations.filter(
+        (creation) =>
+            creation.status === 'retired' && birthdayPartyCreationMatchesSubmittedValue(creation, normalizedValue)
+    )
+    return archivedMatches.length === 1 ? archivedMatches[0] : undefined
 }
 
 export function getActiveBirthdayPartyBookingPackages(
