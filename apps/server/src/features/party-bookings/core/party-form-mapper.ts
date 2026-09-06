@@ -1,17 +1,69 @@
 import { logger } from 'firebase-functions/v2'
 
-import type { Booking, Studio } from '@fizz-kidz/core'
-import { ADDITIONS, CREATIONS, getKeyByValue, ObjectEntries, type PartyForm, STUDIOS } from '@fizz-kidz/core'
+import type { BirthdayPartyBookingCatalogue, Booking, Studio } from '@fizz-kidz/core'
+import {
+    ADDITIONS,
+    getBirthdayPartyCreationDisplayName,
+    ObjectEntries,
+    resolveBirthdayPartyBookingCreation,
+    type PartyForm,
+    STUDIOS,
+} from '@fizz-kidz/core'
 
 import type { PaperformSubmission } from '@/integrations/paperforms/paperform.client'
+
+const PAPERFORM_CREATION_FIELDS = [
+    { mobile: 'glam_creations_mobile', packageKey: 'glam', studio: 'glam_creations' },
+    { mobile: 'science_creations_mobile', packageKey: 'science', studio: 'science_creations' },
+    { mobile: 'slime_creations_mobile', packageKey: 'slime', studio: 'slime_creations' },
+    { mobile: 'fairy_creations_mobile', packageKey: 'fairy', studio: 'fairy_creations' },
+    { mobile: 'fluid_bear_creations_mobile', packageKey: 'fluidBears', studio: 'fluid_bear_creations' },
+    { mobile: 'safari_creations_mobile', packageKey: 'safari', studio: 'safari_creations' },
+    { mobile: 'unicorn_creations_mobile', packageKey: 'unicorn', studio: 'unicorn_creations' },
+    { mobile: 'tie_dye_creations_mobile', packageKey: 'tieDye', studio: 'tie_dye_creations' },
+    {
+        mobile: 'taylor_swift_creations_mobile',
+        packageKey: 'taylorSwift',
+        studio: 'taylor_swift_creations',
+    },
+    { mobile: 'demon_hunters_creations_mobile', packageKey: 'kPopPower', studio: 'demon_hunters_creations' },
+] as const
+
+type PaperformPackageKey = (typeof PAPERFORM_CREATION_FIELDS)[number]['packageKey']
+type PaperformCreationTransition = { allowArchived?: boolean; creationKey: string }
+
+function transition(creationKey: string, allowArchived = false): PaperformCreationTransition {
+    return { creationKey, ...(allowArchived ? { allowArchived } : {}) }
+}
+
+const PRE_CATALOGUE_PAPERFORM_CREATIONS: Partial<
+    Record<PaperformPackageKey, Partial<Record<Booking['type'], Record<string, PaperformCreationTransition>>>>
+> = {
+    science: {
+        mobile: {
+            'Fairy Slime': transition('fairySlime'),
+            'Birthday Cake Slime': transition('birthdayCakeSlime'),
+            'Candy Slime': transition('candySlime'),
+            'Unicorn Cloud Slime': transition('unicornCloudSlime'),
+            'Spiderman Slime': transition('spidermanSlime'),
+            'Marshmallow Slime': transition('marshmallowSlime'),
+            'Swiftie Slime': transition('swiftieSlime'),
+            'Rainbow Slime': transition('rainbowSlime'),
+            'Frozen Sparkle Slime': transition('frozenSparkleSlime'),
+        },
+    },
+    slime: { studio: { 'Nutella Slime': transition('nutellaSlime', true) } },
+}
 
 export class PartyFormMapper {
     responses: PaperformSubmission<PartyForm>
     bookingId: string
+    catalogue: BirthdayPartyBookingCatalogue
 
-    constructor(responses: PaperformSubmission<PartyForm>) {
+    constructor(responses: PaperformSubmission<PartyForm>, catalogue: BirthdayPartyBookingCatalogue) {
         this.responses = responses
         this.bookingId = this.responses.getFieldValue('id')
+        this.catalogue = catalogue
     }
 
     mapToBooking(type: Booking['type'], location: Studio) {
@@ -39,11 +91,7 @@ export class PartyFormMapper {
 
     getCreationDisplayValues(type: Booking['type']) {
         const creationKeys = this.getCreations(type)
-        const creations: string[] = []
-        creationKeys.forEach((creation) => {
-            creations.push(CREATIONS[creation])
-        })
-        return creations
+        return creationKeys.map((creation) => getBirthdayPartyCreationDisplayName(creation, this.catalogue))
     }
 
     getAdditionDisplayValues(showPrices: boolean) {
@@ -61,56 +109,51 @@ export class PartyFormMapper {
     /**
      * Returns an array of SKUs for all selected creations.
      */
-    private getCreations(type: Booking['type']) {
-        /**
-         * Currently creations are separated in PaperForms. This is for the case that a creation
-         * is offered only in-studio. To remove it as an option, just remove it from the '_mobile' version in Paperform and done.
-         * It means maintaining PaperForm is a bit more effort... but worth it for these cases.
-         */
-        const creationKeys =
-            type === 'studio'
-                ? ([
-                      'glam_creations',
-                      'science_creations',
-                      'slime_creations',
-                      'fairy_creations',
-                      'fluid_bear_creations',
-                      'safari_creations',
-                      'unicorn_creations',
-                      'tie_dye_creations',
-                      'taylor_swift_creations',
-                      'demon_hunters_creations',
-                  ] as const)
-                : ([
-                      'glam_creations_mobile',
-                      'science_creations_mobile',
-                      'slime_creations_mobile',
-                      'fairy_creations_mobile',
-                      'fluid_bear_creations_mobile',
-                      'safari_creations_mobile',
-                      'unicorn_creations_mobile',
-                      'tie_dye_creations_mobile',
-                      'taylor_swift_creations_mobile',
-                      'demon_hunters_creations_mobile',
-                  ] as const)
-
-        const creations = creationKeys.reduce(
-            (acc, curr) => [...acc, ...(this.responses.getFieldValue(curr) ?? [])],
-            [] as string[]
+    private getCreations(channel: Booking['type']) {
+        // Paperform keeps separate studio and mobile fields. Sanity owns whether each creation is valid for that channel.
+        const creationFields = PAPERFORM_CREATION_FIELDS.map(
+            ({ mobile, packageKey, studio }) => [channel === 'studio' ? studio : mobile, packageKey] as const
         )
 
-        const creationSkus = creations.map((creation) => {
-            const creationSku = getKeyByValue(CREATIONS, creation)
-            if (creationSku) {
-                return creationSku
-            } else {
-                logger.log(`Invalid creation form value found: '${creation}'`)
-                throw new Error(`Invalid creation form value found: '${creation}'`)
-            }
-        })
+        const creationKeys = creationFields.flatMap(([field, packageKey]) =>
+            (this.responses.getFieldValue(field) ?? []).map((submittedValue) => {
+                const creation = resolveBirthdayPartyBookingCreation(this.catalogue, {
+                    channel,
+                    packageKey,
+                    submittedValue,
+                })
+                if (creation) return creation.key
+
+                const creationTransition = PRE_CATALOGUE_PAPERFORM_CREATIONS[packageKey]?.[channel]?.[submittedValue]
+                const legacyCreation = creationTransition
+                    ? this.catalogue.creations.find((candidate) => candidate.key === creationTransition.creationKey)
+                    : undefined
+                if (
+                    (legacyCreation?.status === 'active' && legacyCreation.bookingChannels.includes(channel)) ||
+                    (legacyCreation?.status === 'retired' && creationTransition?.allowArchived)
+                ) {
+                    logger.warn('Resolved Paperform value through the pre-catalogue mapping', {
+                        bookingId: this.bookingId,
+                        channel,
+                        legacyCreationKey: legacyCreation.key,
+                        packageKey,
+                        submittedValue,
+                    })
+                    return legacyCreation.key
+                }
+
+                logger.error('Invalid creation form value', {
+                    bookingId: this.bookingId,
+                    channel,
+                    packageKey,
+                    submittedValue,
+                })
+                throw new Error(`Invalid creation form value found: '${submittedValue}'`)
+            })
+        )
 
         // filter out any duplicate creation selections
-        const uniqueSkus = [...new Set(creationSkus)]
+        const uniqueSkus = [...new Set(creationKeys)]
 
         return uniqueSkus
     }

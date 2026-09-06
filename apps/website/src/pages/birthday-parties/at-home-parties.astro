@@ -13,13 +13,18 @@ import forwardArrow from "@/assets/images/pages/parties/forward-arrow.png";
 import PrimaryButton from "@/components/primary-button.astro";
 import MixAndMatchParties from "@/components/mix-and-match-parties.astro";
 
-import { menu } from "../../components/react/navigation/navigation-menu";
+import { createBirthdayPartyMenuLinks } from "@/react-components/navigation/navigation-menu-data";
+import { birthdayPartyPackageNavigationLinks } from "@/data/birthday-party-catalogue";
 import AtHomePartyFaq from "@/components/at-home-party-faq.astro";
 import Values from "@/components/values.astro";
 import { createBreadcrumbSchema, createServiceSchema } from "@/utils/seo";
 
 const description =
   "Fizz Kidz brings a hosted kids birthday party to your Melbourne home or venue, with guided slime, science and craft activities and take-home creations.";
+
+const partyMenuLinks = createBirthdayPartyMenuLinks(
+  birthdayPartyPackageNavigationLinks,
+);
 
 const schema = [
   createServiceSchema({
@@ -77,7 +82,7 @@ const { default: purpleDrop } = await import(
         {
           type: "dropdown",
           title: "At Home Parties",
-          items: menu[0].items,
+          items: partyMenuLinks,
         },
       ]}
     />

@@ -3,10 +3,12 @@ import Fuse from 'fuse.js'
 import { X } from 'lucide-react'
 import { type CSSProperties, useDeferredValue, useState } from 'react'
 
-import type {
-    BirthdayPartyCreationInstructionGroup,
-    BirthdayPartyCreationInstructions,
-    PartyPackageColour,
+import {
+    BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS,
+    type BirthdayPartyCreationInstructionGroup,
+    type BirthdayPartyCreationInstructions,
+    type BirthdayPartyPackageColour,
+    type PartyPackageColour,
 } from '@fizz-kidz/core'
 import { CreationInstructions } from '@fizz-kidz/ui'
 
@@ -22,15 +24,16 @@ type SearchableCreation = {
     name: string
 }
 
+const canonicalPackageAccents = Object.fromEntries(
+    BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS.map(({ hex, value }) => [value, { accent: hex, accentSoft: `${hex}24` }])
+) as Record<BirthdayPartyPackageColour, { accent: string; accentSoft: string }>
+
 const packageAccentByColour: Record<PartyPackageColour, { accent: string; accentSoft: string }> = {
-    pink: { accent: '#ff4f9c', accentSoft: 'rgba(255, 79, 156, 0.14)' },
-    blue: { accent: '#00c2e3', accentSoft: 'rgba(0, 194, 227, 0.16)' },
-    yellow: { accent: '#f6ba34', accentSoft: 'rgba(246, 186, 52, 0.18)' },
-    green: { accent: '#9ecc48', accentSoft: 'rgba(158, 204, 72, 0.16)' },
-    purple: { accent: '#b14594', accentSoft: 'rgba(177, 69, 148, 0.14)' },
+    ...canonicalPackageAccents,
+    yellow: canonicalPackageAccents.gold,
 }
 
-const fallbackPackageColours: PartyPackageColour[] = ['pink', 'blue', 'yellow', 'green', 'purple']
+const fallbackPackageColours: PartyPackageColour[] = BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS.map(({ value }) => value)
 
 export const PartyCreationsPage = () => {
     const trpc = useTRPC()

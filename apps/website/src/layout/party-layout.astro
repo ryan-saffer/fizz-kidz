@@ -2,7 +2,8 @@
 import PartyInformation from "@/components/party-information.astro";
 import Pricing from "@/components/pricing.astro";
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import { menu } from "../components/react/navigation/navigation-menu";
+import { createBirthdayPartyMenuLinks } from "@/react-components/navigation/navigation-menu-data";
+import { birthdayPartyPackageNavigationLinks } from "@/data/birthday-party-catalogue";
 import MixAndMatchParties from "@/components/mix-and-match-parties.astro";
 // import PartyPacks from "@/components/party-packs.astro";
 import PartyReviews from "@/components/party-reviews.astro";
@@ -15,6 +16,9 @@ type Props = {
 };
 
 const { partyPackage } = Astro.props;
+const partyMenuLinks = createBirthdayPartyMenuLinks(
+  birthdayPartyPackageNavigationLinks,
+);
 ---
 
 <main>
@@ -30,7 +34,7 @@ const { partyPackage } = Astro.props;
         {
           type: "dropdown",
           title: `${partyPackage} Party`,
-          items: menu[0].items,
+          items: partyMenuLinks,
         },
       ]}
     />

@@ -2,7 +2,11 @@
 import Image from "@/components/image.astro";
 import logoHorizontal from "@/assets/images/logo-horizontal.png";
 import NavigationMenu from "@/react-components/navigation/navigation-menu";
+import { createNavigationMenu } from "@/react-components/navigation/navigation-menu-data";
 import { Button } from "@/components/react/ui/button";
+import { birthdayPartyPackageNavigationLinks } from "@/data/birthday-party-catalogue";
+
+const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
 ---
 
 <header
@@ -40,7 +44,7 @@ import { Button } from "@/components/react/ui/button";
       />
     </a>
     <div class="flex items-center">
-      <NavigationMenu client:load />
+      <NavigationMenu menu={menu} client:load />
       <div class="flex gap-2">
         <a class="hidden min-[1440px]:inline-flex" href="/franchising">
           <Button

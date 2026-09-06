@@ -18,7 +18,7 @@ import { websitePagesLocationsKingsvilleKingsville2Jpg as carousel2Image } from 
 import { websitePagesLocationsKingsvilleKingsville3Jpg as carousel3Image } from "@/data/website-images";
 import { websitePagesLocationsKingsvilleKingsville4Jpg as carousel4Image } from "@/data/website-images";
 import { websitePagesLocationsKingsvilleKingsville5Jpg as carousel5Image } from "@/data/website-images";
-import { menu } from "@/components/react/navigation/navigation-menu";
+import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
 import { createLocationSchemas } from "@/utils/seo";
 
 const description =
@@ -43,7 +43,7 @@ const description =
         {
           type: "dropdown",
           title: "Kingsville",
-          items: menu[5].items,
+          items: locationMenuLinks,
         },
       ]}
     />

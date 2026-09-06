@@ -1,11 +1,14 @@
 import { DocumentTextIcon } from '@sanity/icons/DocumentText'
 import { defineField, defineType } from 'sanity'
 
+import { BirthdayPartyCreationInput } from '../../components/birthday-party-creation-input'
+
 export const birthdayPartyCreation = defineType({
     name: 'birthdayPartyCreation',
-    title: 'Birthday Party creations',
+    title: 'Birthday Party creation instructions',
     type: 'document',
     icon: DocumentTextIcon,
+    components: { input: BirthdayPartyCreationInput },
     fields: [
         defineField({
             name: 'name',

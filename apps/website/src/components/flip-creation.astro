@@ -11,12 +11,19 @@ import { cn } from "./react/lib/utils";
 
 type Props = {
   image: ImageSource;
+  imageAlt?: string;
   color: "pink" | "yellow" | "green" | "purple" | "blue" | "white" | "red";
   text?: string[];
   flippable?: boolean;
 };
 
-const { image, color, text = [], flippable = true } = Astro.props;
+const {
+  image,
+  imageAlt = "Birthday party creation",
+  color,
+  text = [],
+  flippable = true,
+} = Astro.props;
 
 const textLines = text.map((line) => `${line}`);
 const textHtml = textLines.join("<br />");
@@ -92,7 +99,7 @@ const hex =
       <Image
         class="min-h-40 min-w-40 object-contain"
         src={image}
-        alt="Back Image"
+        alt={imageAlt}
       />
       {
         !flippable && (

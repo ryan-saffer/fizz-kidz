@@ -1,3 +1,5 @@
+import { BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS, type BirthdayPartyPackageColour } from './birthday-party-catalogue'
+
 import type { PortableTextBlock, TypedObject } from '@portabletext/types'
 
 const GLAM_CREATIONS = {
@@ -254,9 +256,12 @@ export type HolidayProgramCreationInstructions = {
     instructions: CreationInstructionsContent
 }
 
-export const PARTY_PACKAGE_COLOURS = ['pink', 'blue', 'yellow', 'green', 'purple'] as const
+export const PARTY_PACKAGE_COLOURS = [
+    ...BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS.map((option) => option.value),
+    'yellow',
+] as const
 
-export type PartyPackageColour = (typeof PARTY_PACKAGE_COLOURS)[number]
+export type PartyPackageColour = BirthdayPartyPackageColour | 'yellow'
 
 export type BirthdayPartyCreationInstructions = {
     _id: string

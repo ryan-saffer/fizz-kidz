@@ -13,7 +13,7 @@ import GoogleReviews from "@/components/google-reviews.astro";
 import LocationDetails from "@/components/location-details.astro";
 import Container from "@/components/container.astro";
 
-import { menu } from "@/components/react/navigation/navigation-menu";
+import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
 import { createLocationSchemas } from "@/utils/seo";
 
 const description =
@@ -38,7 +38,7 @@ const description =
         {
           type: "dropdown",
           title: "Geelong",
-          items: menu[5].items,
+          items: locationMenuLinks,
         },
       ]}
     />

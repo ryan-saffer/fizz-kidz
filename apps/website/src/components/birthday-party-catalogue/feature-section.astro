@@ -1,0 +1,49 @@
+---
+import Image from "@/components/image.astro";
+import FlipCreation from "@/components/flip-creation.astro";
+import blackWave from "@/assets/images/pages/parties/black-wave.svg";
+
+import type { BirthdayPartyFeatureSection } from "@fizz-kidz/core";
+
+type Props = {
+  feature: BirthdayPartyFeatureSection;
+};
+
+const { feature } = Astro.props;
+---
+
+<Image src={blackWave} alt="" class="w-screen" />
+<section class="bg-black">
+  <div class="m-auto block max-w-[1380px] px-5 pt-4">
+    {
+      feature.headingImage ? (
+        <Image
+          src={feature.headingImage}
+          alt={feature.headingImageAlt ?? ""}
+          height="300"
+        />
+      ) : (
+        <h2 class="py-4 text-center font-lilita text-5xl text-white">
+          {feature.title}
+        </h2>
+      )
+    }
+    <p class="py-4 font-lilita text-xl text-white md:text-3xl">
+      {feature.description}
+    </p>
+    <div class="m-auto flex flex-col justify-center md:flex-row lg:max-w-5xl">
+      {
+        feature.cards.map((card) => (
+          <FlipCreation
+            flippable={false}
+            image={card.image}
+            imageAlt={card.alt}
+            text={card.label}
+            color={card.colour}
+          />
+        ))
+      }
+    </div>
+  </div>
+</section>
+<Image src={blackWave} alt="" class="-mt-1 w-screen rotate-180" />

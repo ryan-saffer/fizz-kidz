@@ -18,7 +18,7 @@ import { websitePagesLocationsBalwynBalwyn2Jpg as carousel2Image } from "@/data/
 import { websitePagesLocationsBalwynBalwyn3Jpg as carousel3Image } from "@/data/website-images";
 import { websitePagesLocationsBalwynBalwyn4Jpg as carousel4Image } from "@/data/website-images";
 import { websitePagesLocationsBalwynBalwyn5Jpg as carousel5Image } from "@/data/website-images";
-import { menu } from "@/components/react/navigation/navigation-menu";
+import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
 import { createLocationSchemas } from "@/utils/seo";
 
 const description =
@@ -43,7 +43,7 @@ const description =
         {
           type: "dropdown",
           title: "Balwyn",
-          items: menu[5].items,
+          items: locationMenuLinks,
         },
       ]}
     />

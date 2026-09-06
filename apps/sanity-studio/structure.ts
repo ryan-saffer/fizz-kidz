@@ -1,8 +1,12 @@
 import { ArchiveIcon } from '@sanity/icons/Archive'
-import { DocumentTextIcon } from '@sanity/icons/DocumentText'
+import { BlockContentIcon } from '@sanity/icons/BlockContent'
+import { CalendarIcon } from '@sanity/icons/Calendar'
+import { ComponentIcon } from '@sanity/icons/Component'
+import { ConfettiIcon } from '@sanity/icons/Confetti'
 import { FolderIcon } from '@sanity/icons/Folder'
 import { ImagesIcon } from '@sanity/icons/Images'
 import { SearchIcon } from '@sanity/icons/Search'
+import { SparklesIcon } from '@sanity/icons/Sparkles'
 import { UploadIcon } from '@sanity/icons/Upload'
 
 import { WebsiteImageBulkReplace } from './components/website-image-bulk-replace'
@@ -51,18 +55,59 @@ export const structure: StructureResolver = (S) =>
             S.divider(),
             S.listItem()
                 .title('Birthday Parties')
-                .icon(FolderIcon)
+                .icon(ConfettiIcon)
                 .child(
                     S.list()
                         .title('Birthday Parties')
                         .items([
-                            S.documentTypeListItem('birthdayPartyCreation'),
-                            S.documentTypeListItem('birthdayPartyPackage'),
+                            S.documentTypeListItem('birthdayPartyPackage').title('Packages').icon(ComponentIcon),
+                            S.listItem()
+                                .title('Creations')
+                                .icon(SparklesIcon)
+                                .child(
+                                    S.list()
+                                        .title('Creations')
+                                        .items([
+                                            S.listItem()
+                                                .title('Live')
+                                                .icon(SparklesIcon)
+                                                .child(
+                                                    S.documentList()
+                                                        .id('birthday-party-live-creations')
+                                                        .title('Live creations')
+                                                        .schemaType('birthdayPartyCreationOffering')
+                                                        .filter(
+                                                            '_type == "birthdayPartyCreationOffering" && status == "active"'
+                                                        )
+                                                        .defaultOrdering([{ field: 'name', direction: 'asc' }])
+                                                        .initialValueTemplates([
+                                                            S.initialValueTemplateItem('birthdayPartyCreationOffering'),
+                                                        ])
+                                                ),
+                                            S.listItem()
+                                                .title('Archived')
+                                                .icon(ArchiveIcon)
+                                                .child(
+                                                    S.documentList()
+                                                        .id('birthday-party-archived-creations')
+                                                        .title('Archived creations')
+                                                        .schemaType('birthdayPartyCreationOffering')
+                                                        .filter(
+                                                            '_type == "birthdayPartyCreationOffering" && status == "retired"'
+                                                        )
+                                                        .defaultOrdering([{ field: 'name', direction: 'asc' }])
+                                                        .initialValueTemplates([])
+                                                ),
+                                        ])
+                                ),
+                            S.documentTypeListItem('birthdayPartyCreation')
+                                .title('Creation instructions')
+                                .icon(BlockContentIcon),
                         ])
                 ),
             S.listItem()
                 .title('Holiday Programs')
-                .icon(FolderIcon)
+                .icon(CalendarIcon)
                 .child(
                     S.list()
                         .title('Holiday Programs')
@@ -82,7 +127,7 @@ export const structure: StructureResolver = (S) =>
                             S.divider(),
                             S.listItem()
                                 .title('Live instructions')
-                                .icon(DocumentTextIcon)
+                                .icon(BlockContentIcon)
                                 .child(
                                     S.documentList()
                                         .id('holiday-program-live-instructions')

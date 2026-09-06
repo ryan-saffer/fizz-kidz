@@ -92,7 +92,7 @@ export class PaperformSubmission<T extends PaperForm> {
  *
  * This maps the custom keys (legacy) to the actual keys. It's useful to know which field you are accessing from the form.
  */
-const PARTY_FORM_FIELD_MAPPING: Record<keyof PartyForm, string> = {
+export const PARTY_FORM_FIELD_MAPPING: Record<keyof PartyForm, string> = {
     id: 'aedj8',
     location: 'ntbn',
     party_or_cake_form: '4o1f1',

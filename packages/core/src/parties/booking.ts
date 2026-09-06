@@ -2,8 +2,8 @@ import { addOrdinalSuffix, combineStrings } from '../utilities/stringUtilities'
 
 import type { Studio } from '../core/studio'
 import type { Addition } from './additions'
+import type { BirthdayPartyCreationKey } from './birthday-party-catalogue'
 import type { CakeFlavours } from './CakeFlavours'
-import type { Creation } from './creations'
 import type { ProductType } from './products'
 import type { TakeHomeBagType } from './take-home-bags'
 /// <reference lib="dom" />
@@ -32,9 +32,9 @@ export type BaseBooking = AdditionKeyValues & {
     address: string
     numberOfChildren: string
     notes: string
-    creation1: Creation | undefined
-    creation2: Creation | undefined
-    creation3: Creation | undefined
+    creation1: BirthdayPartyCreationKey | undefined
+    creation2: BirthdayPartyCreationKey | undefined
+    creation3: BirthdayPartyCreationKey | undefined
     menu: 'standard' | 'glutenFree' | 'vegan' | undefined
     cakeFlavour: CakeFlavours | undefined
     questions: string

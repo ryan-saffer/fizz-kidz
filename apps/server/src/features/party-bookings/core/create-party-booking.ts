@@ -4,6 +4,7 @@ import type { FirestoreBooking } from '@fizz-kidz/core'
 import { getApplicationDomain, getStudioAddress, getPartyEndDate, getPartyBirthdayChildDisplay } from '@fizz-kidz/core'
 
 import { sendPartyBookingConfirmationEmail } from './send-party-booking-confirmation-email'
+import { validateBookingCreations } from './validate-booking-creations'
 
 import type { CreatePartyBooking } from '../functions/trpc/parties.trpc'
 
@@ -17,6 +18,8 @@ import { ZohoClient } from '@/integrations/zoho/zoho.client'
 import { isUsingEmulator } from '@/shared/runtime/is-using-emulator'
 
 export async function createPartyBooking(_booking: CreatePartyBooking) {
+    await validateBookingCreations(_booking)
+
     const booking = {
         ..._booking,
         dateTime: Timestamp.fromDate(new Date(_booking.dateTime)),

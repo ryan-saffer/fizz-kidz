@@ -1,14 +1,12 @@
 ---
 import PartyPackage from "./party-package.astro";
-
-import { websitePagesPartiesPackagesGlitzAndGlamPng as glitzAndGlam } from "@/data/website-images";
-import { websitePagesPartiesPackagesSciencePng as science } from "@/data/website-images";
-import { websitePagesPartiesPackagesSlimePng as slime } from "@/data/website-images";
-import { websitePagesPartiesPackagesTieDyePng as tieDye } from "@/data/website-images";
-import { websitePagesPartiesPackagesSafariPng as safari } from "@/data/website-images";
-import { websitePagesPartiesPackagesSwiftiePng as swiftie } from "@/data/website-images";
-import { websitePagesPartiesPackagesKPopDemonHuntersPng as kpop } from "@/data/website-images";
-import { websitePagesPartiesPackagesFluidBearsBlackPng as fluidBears } from "@/data/website-images";
+import {
+  birthdayPartyThemePackages,
+  getBirthdayPartyPackagePath,
+} from "@/data/birthday-party-catalogue";
+import {
+  getBirthdayPartyPackagePartyName,
+} from "@fizz-kidz/core";
 ---
 
 <section class="mt-12 md:mt-24">
@@ -28,61 +26,17 @@ import { websitePagesPartiesPackagesFluidBearsBlackPng as fluidBears } from "@/d
   <div
     class="mb-24 grid grid-cols-2 justify-center gap-y-4 min-[900px]:grid-cols-4"
   >
-    <PartyPackage
-      title="Glam Parties"
-      color="#F24C9F"
-      image={glitzAndGlam}
-      imageAlt="hands with lip balm"
-      path="/birthday-parties/glam-parties/"
-    />
-    <PartyPackage
-      title="Science Parties"
-      color="#43D4F3"
-      image={science}
-      imageAlt="bubbling volcano"
-      path="/birthday-parties/science-parties/"
-    />
-    <PartyPackage
-      title="Slime Parties"
-      color="#9044E2"
-      image={slime}
-      imageAlt="girl holding slime and smiling"
-      path="/birthday-parties/slime-parties/"
-    />
-    <PartyPackage
-      title="Tie Dye Parties"
-      color="#F6BA33"
-      image={tieDye}
-      imageAlt="tie dye shoelaces"
-      path="/birthday-parties/tie-dye-parties/"
-    />
-    <PartyPackage
-      title="Jungle Safari Parties"
-      color="#4EE16D"
-      image={safari}
-      imageAlt="a frog in a bath bomb"
-      path="/birthday-parties/jungle-safari-parties/"
-    />
-    <PartyPackage
-      title="Swiftie Parties"
-      color="#9044E2"
-      image={swiftie}
-      imageAlt="Taylor Swift"
-      path="/birthday-parties/taylor-swift-parties/"
-    />
-    <PartyPackage
-      title="K-Pop Power Parties"
-      color="#F24C9F"
-      image={kpop}
-      imageAlt="k-pop power wand"
-      path="/birthday-parties/k-pop-power-parties/"
-    />
-    <PartyPackage
-      title="Fluid Bears Party"
-      color="#000000"
-      image={fluidBears}
-      imageAlt="A Fizz kids staff holding a box"
-      path="/birthday-parties/fluid-bears-parties/"
-    />
+    {
+      birthdayPartyThemePackages.map((partyPackage) => (
+        <PartyPackage
+          title={getBirthdayPartyPackagePartyName(partyPackage.name)}
+          color={partyPackage.accentColour}
+          image={partyPackage.websitePage.themeCard.image}
+          imageAlt={partyPackage.websitePage.themeCard.imageAlt}
+          isNew={partyPackage.websitePage.navigation.isNew}
+          path={getBirthdayPartyPackagePath(partyPackage.websitePage.slug)}
+        />
+      ))
+    }
   </div>
 </section>

@@ -1,5 +1,6 @@
 ---
 import Image from "@/components/image.astro";
+import NewPackageImageBadge from "@/components/new-package-image-badge.astro";
 import type { ImageSource } from "@/types/images";
 import PrimaryButton from "./primary-button.astro";
 import { cn } from "./react/lib/utils";
@@ -13,6 +14,7 @@ type Props = {
   hideLeftImage?: boolean;
   blackBackground?: boolean;
   useDefaultSlot?: boolean;
+  isNew?: boolean;
 };
 
 const {
@@ -23,6 +25,7 @@ const {
   hideLeftImage = false,
   blackBackground = false,
   useDefaultSlot = false,
+  isNew = false,
 } = Astro.props;
 ---
 
@@ -60,7 +63,10 @@ const {
       {
         !hideLeftImage && (
           <div class="hidden w-2/5 flex-col items-center justify-center gap-8 lg:flex">
-            <Image src={image} alt={imageAlt} />
+            <div class="relative w-full [container-type:inline-size]">
+              <Image src={image} alt={imageAlt} class="w-full" />
+              {isNew && <NewPackageImageBadge variant="package" />}
+            </div>
             <PrimaryButton
               className="w-fit mb-4"
               text="View all creations"

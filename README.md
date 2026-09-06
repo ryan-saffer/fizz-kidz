@@ -20,6 +20,8 @@ It is one npm workspace powered by [Vite+](https://viteplus.dev/), with deployab
 
 ## The Mental Model
 
+Project-specific domain terms are defined in [`CONTEXT.md`](CONTEXT.md).
+
 - The Portal and public website call the server through tRPC at `/api/trpc`.
 - The server exports one Express function (`api`) and one background dispatcher (`pubsub`).
 - Portal, server, and website import `@fizz-kidz/core` directly from source. No publish step is involved.

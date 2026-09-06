@@ -1,0 +1,53 @@
+---
+import FeatureSection from "@/components/birthday-party-catalogue/feature-section.astro";
+import PackageCreations from "@/components/birthday-party-catalogue/package-creations.astro";
+import PageIntro from "@/components/page-intro.astro";
+import Layout from "@/layout/Layout.astro";
+import PartyLayout from "@/layout/party-layout.astro";
+import { createPartySchemas } from "@/utils/seo";
+
+import type { BirthdayPartyCataloguePackage } from "@fizz-kidz/core";
+
+type Props = {
+  partyPackage: BirthdayPartyCataloguePackage;
+};
+
+const { partyPackage } = Astro.props;
+const page = partyPackage.websitePage;
+---
+
+<Layout
+  title={page.seo.title}
+  description={page.seo.description}
+  schema={createPartySchemas({
+    name: page.seo.serviceName,
+    description: page.seo.description,
+    slug: page.slug,
+  })}
+>
+  <PartyLayout partyPackage={partyPackage.name}>
+    <PageIntro
+      slot="intro"
+      subtitle={page.hero.subtitle}
+      type="image"
+      image={page.hero.image}
+      imageAlt={page.hero.imageAlt}
+      actionButtonText="Book a party"
+      actionButtonPath="/birthday-parties/book-a-party/#book"
+      color={partyPackage.primaryColour}
+    >
+      <span slot="title">{page.hero.title}</span>
+      <span slot="content">{page.hero.description}</span>
+    </PageIntro>
+    <PackageCreations
+      partyPackage={partyPackage}
+      variant="party"
+      image={page.creationsImage}
+    />
+    {
+      page.features.map((feature) => (
+        <FeatureSection feature={feature} />
+      ))
+    }
+  </PartyLayout>
+</Layout>

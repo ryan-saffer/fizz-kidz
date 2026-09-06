@@ -1,5 +1,6 @@
 export * from './additions'
 export * from './booking'
+export * from './birthday-party-catalogue'
 export * from './CakeFlavours'
 export * from './creations'
 export * from './Invitations'
