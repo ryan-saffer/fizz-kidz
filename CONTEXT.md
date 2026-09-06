@@ -10,7 +10,7 @@ _Avoid_: Category, creation package
 
 **Creation**:
 A customer-selectable activity that can be offered at studio parties, mobile parties, or both.
-_Avoid_: Offering except for the legacy `birthdayPartyCreationOffering` schema name and one-time migration identifiers that mirror it, recipe, Website card
+_Avoid_: Offering except for the legacy `birthdayPartyCreationOffering` schema name, recipe, Website card
 
 **Creation instruction**:
 Reusable staff directions for delivering a creation. Several creations may share the same instructions.

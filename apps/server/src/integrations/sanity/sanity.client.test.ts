@@ -109,7 +109,7 @@ describe('SanityClient', () => {
                 _id: 'package-2',
                 name: 'Sweet Kitty',
                 colour: 'pink',
-                legacyCreations: [{ _id: 'creation-2', name: 'Kitty Slime', instructions: [] }],
+                staffCreationInstructions: [{ _id: 'creation-2', name: 'Kitty Slime', instructions: [] }],
             },
         ]
         fetch.mockResolvedValue(packages)
@@ -117,11 +117,11 @@ describe('SanityClient', () => {
         const sanity = await getSanityClient()
         const result = await sanity.getBirthdayPartyCreations()
 
-        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('| order(coalesce(position, order) asc)'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('| order(position asc)'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('"creationCards": websiteCards['))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('creation->creationInstructions->'))
-        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(packageName, name)'))
-        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(primaryColour, colour)'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('"name": packageName'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('"colour": primaryColour'))
         expect(result[0].name).toBe('Slime Parties')
         expect(result[0].colour).toBe('purple')
         expect(result[0].creations).toHaveLength(1)

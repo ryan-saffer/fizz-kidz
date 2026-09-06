@@ -57,17 +57,6 @@ export const birthdayPartyCreationCard = defineType({
             validation: (rule) => rule.required(),
         }),
         defineField({
-            name: 'bookingChannels',
-            title: 'Booking channels (migration only)',
-            type: 'array',
-            description:
-                'Retained only for undeployed compatibility code. Creation availability is the source of truth.',
-            deprecated: { reason: 'Use the creation’s Offered at field. Delete after the coordinated cutover.' },
-            hidden: true,
-            readOnly: true,
-            of: [defineArrayMember({ type: 'string' })],
-        }),
-        defineField({
             name: 'bookingOrder',
             title: 'Booking choice order',
             type: 'number',

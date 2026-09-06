@@ -5,10 +5,7 @@ import type { ObjectInputProps } from 'sanity'
 const REFERENCING_CREATIONS_QUERY = `
     *[
         _type == "birthdayPartyCreationOffering" &&
-        (
-            creationInstructions._ref in [$publishedId, $draftId] ||
-            recipe._ref in [$publishedId, $draftId]
-        )
+        creationInstructions._ref in [$publishedId, $draftId]
     ]{
         _id,
         key,

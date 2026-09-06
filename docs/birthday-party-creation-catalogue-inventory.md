@@ -179,6 +179,6 @@ The Standard API field response exposes only `choices`, `custom_key`, `descripti
 - Paperform automation is deferred. Creation options will be updated manually.
 - No production Paperform fields were changed during this inventory.
 
-## Import safety
+## Migration record
 
-The migration source is `apps/sanity-studio/migrations/birthday-party-catalogue-source.ts`. The importer performs a read-only dry run by default, refuses to replace unrelated drafts, and only creates catalogue drafts when passed `--apply`. It never publishes documents.
+The Website-authoritative migration was completed, deployed, and verified before its one-time source and importer were removed. Git history retains the original source, reconciliation matrix, and import implementation.

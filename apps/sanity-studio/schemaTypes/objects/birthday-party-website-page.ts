@@ -97,14 +97,6 @@ export const birthdayPartyWebsitePage = defineType({
                     validation: (rule) => rule.required(),
                 }),
                 defineField({
-                    name: 'theme',
-                    title: 'Theme (deprecated)',
-                    type: 'string',
-                    deprecated: { reason: 'Use the package Primary colour.' },
-                    hidden: true,
-                    readOnly: true,
-                }),
-                defineField({
                     name: 'image',
                     type: 'image',
                     options: { hotspot: true },
@@ -134,35 +126,11 @@ export const birthdayPartyWebsitePage = defineType({
                 ),
         }),
         defineField({
-            name: 'creationsImageAlt',
-            title: 'Creations-section image description (deprecated)',
-            type: 'string',
-            deprecated: { reason: 'The description is derived from Package name.' },
-            hidden: true,
-            readOnly: true,
-        }),
-        defineField({
             name: 'navigation',
             title: 'Website menu',
             type: 'object',
             initialValue: { isNew: false },
             fields: [
-                defineField({
-                    name: 'title',
-                    title: 'Title (deprecated)',
-                    type: 'string',
-                    deprecated: { reason: 'The title is derived from Package name.' },
-                    hidden: true,
-                    readOnly: true,
-                }),
-                defineField({
-                    name: 'order',
-                    title: 'Website menu order (deprecated)',
-                    type: 'number',
-                    deprecated: { reason: 'Use the package Position field.' },
-                    hidden: true,
-                    readOnly: true,
-                }),
                 defineField({
                     name: 'isNew',
                     title: 'Show the New badge',
@@ -179,30 +147,6 @@ export const birthdayPartyWebsitePage = defineType({
             title: 'Party Themes card',
             type: 'object',
             fields: [
-                defineField({
-                    name: 'title',
-                    title: 'Title (deprecated)',
-                    type: 'string',
-                    deprecated: { reason: 'The title is derived from Package name.' },
-                    hidden: true,
-                    readOnly: true,
-                }),
-                defineField({
-                    name: 'order',
-                    title: 'Party Themes order (deprecated)',
-                    type: 'number',
-                    deprecated: { reason: 'Use the package Position field.' },
-                    hidden: true,
-                    readOnly: true,
-                }),
-                defineField({
-                    name: 'colour',
-                    title: 'Accent colour (deprecated)',
-                    type: 'string',
-                    deprecated: { reason: 'Use the package Accent colour.' },
-                    hidden: true,
-                    readOnly: true,
-                }),
                 defineField({
                     name: 'image',
                     type: 'image',

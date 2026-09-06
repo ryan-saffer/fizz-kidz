@@ -121,29 +121,12 @@ export const birthdayPartyCreationOffering = defineType({
             description: 'Optional reusable instructions shown to staff. This does not control customer presentation.',
         }),
         defineField({
-            name: 'recipe',
-            title: 'Creation instructions reference (migration only)',
-            type: 'reference',
-            to: [{ type: 'birthdayPartyCreation' }],
-            description:
-                'Used only by undeployed compatibility code. Do not edit. Delete after the coordinated production cutover is verified.',
-            deprecated: { reason: 'Replaced by Creation instructions.' },
-            readOnly: true,
-        }),
-        defineField({
             name: 'legacyLabels',
             title: 'Previous Paperform labels',
             type: 'array',
             description: 'Keep old submitted labels here so historical submissions can still be resolved.',
             of: [defineArrayMember({ type: 'string', validation: (rule) => rule.required() })],
             validation: (rule) => rule.unique(),
-        }),
-        defineField({
-            name: 'migrationSource',
-            title: 'Migration source',
-            type: 'string',
-            hidden: true,
-            readOnly: true,
         }),
     ],
     preview: {

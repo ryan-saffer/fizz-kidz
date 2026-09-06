@@ -10,8 +10,8 @@ const REFERENCING_PACKAGES_QUERY = `
         _id,
         key,
         status,
-        "sortOrder": coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order),
-        "title": coalesce(packageName, customerName, name)
+        "sortOrder": position,
+        "title": packageName
     }
 `
 

@@ -72,6 +72,6 @@ describe('getBirthdayPartyCreationMenu', () => {
         const menu = getBirthdayPartyCreationMenu(undefined, 'studio', 'unicornSoap')
 
         deepStrictEqual(menu.packages, [])
-        deepStrictEqual(menu.previouslySelected, { key: 'unicornSoap', name: 'Unicorn Soap' })
+        deepStrictEqual(menu.previouslySelected, { key: 'unicornSoap', name: 'unicornSoap' })
     })
 })
