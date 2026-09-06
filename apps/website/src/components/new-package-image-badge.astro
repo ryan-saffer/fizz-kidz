@@ -1,0 +1,29 @@
+---
+import { cn } from "./react/lib/utils";
+
+type Props = {
+  variant?: "theme" | "package";
+};
+
+const { variant = "theme" } = Astro.props;
+---
+
+<span
+  data-package-new-badge
+  class={cn(
+    "absolute -skew-x-6 bg-[#A900FF] shadow-sm",
+    variant === "package"
+      ? "bottom-[12%] right-[1%] px-[8%] py-[4%]"
+      : "bottom-[8%] right-[3%] px-[8%] py-[3%]",
+  )}
+>
+  <span
+    class={
+      variant === "package"
+        ? "block skew-x-6 font-lilita text-[16cqi] leading-none text-white italic"
+        : "block skew-x-6 font-lilita text-[clamp(1.5rem,20cqi,3rem)] leading-none text-white italic"
+    }
+  >
+    NEW
+  </span>
+</span>

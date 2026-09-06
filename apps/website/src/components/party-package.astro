@@ -1,5 +1,6 @@
 ---
 import Image from "@/components/image.astro";
+import NewPackageImageBadge from "@/components/new-package-image-badge.astro";
 import type { ImageSource } from "@/types/images";
 
 type Props = {
@@ -8,9 +9,10 @@ type Props = {
   imageAlt: string;
   title: string;
   path: string;
+  isNew?: boolean;
 };
 
-const { color, image, imageAlt, path, title } = Astro.props;
+const { color, image, imageAlt, isNew = false, path, title } = Astro.props;
 ---
 
 <style define:vars={{ color: color }}>
@@ -23,11 +25,12 @@ const { color, image, imageAlt, path, title } = Astro.props;
   class="package max-w-96 cursor-pointer rounded-2xl border border-transparent py-0 hover:border-solid"
 >
   <a href={path} class="flex flex-col items-center">
-    <Image
-      src={image}
-      alt={imageAlt}
-      class="w-full min-w-32 object-contain sm:min-w-52"
-    />
+    <div
+      class="relative w-full min-w-32 [container-type:inline-size] sm:min-w-52"
+    >
+      <Image src={image} alt={imageAlt} class="w-full object-contain" />
+      {isNew && <NewPackageImageBadge />}
+    </div>
     <p
       class="my-4 max-w-32 text-wrap text-center font-lilita text-2xl sm:max-w-96 sm:text-3xl"
       style={{ color }}

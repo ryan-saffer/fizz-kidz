@@ -37,6 +37,8 @@ The Birthday Party area separates customer content from staff instructions:
 - **Creations > Live** owns current booking choices, including stable keys, customer names, operational studio/mobile availability, default images, previous Paperform labels, and optional creation instructions. Availability belongs to the creation and applies everywhere it is used. **Creations > Archived** contains historical choices retained for old bookings; archived creations are not offered for new bookings and do not require availability or Website images. Each creation displays a derived, read-only list of every package whose Website cards reference it.
 - **Creation instructions** remains the reusable instruction library consumed by the Portal. Each instruction displays a derived, read-only list of every creation that references it; one instruction can be shared by multiple creations.
 
+Package Party Themes and creations-section images must use clean artwork without a baked-in **New** graphic. **Website page > Website menu > Show the New badge** controls the menu badge and both Website image overlays.
+
 The Phase 1 migration source is `migrations/birthday-party-catalogue-source.ts`. From `apps/sanity-studio`, validate it against the current production assets and creation instructions with a read-only dry run:
 
 ```bash

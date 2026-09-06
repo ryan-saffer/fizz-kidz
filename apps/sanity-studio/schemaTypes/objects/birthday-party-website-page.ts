@@ -120,7 +120,8 @@ export const birthdayPartyWebsitePage = defineType({
             name: 'creationsImage',
             title: 'Creations-section image',
             type: 'image',
-            description: 'Shown beside the creation cards unless the package hides this image.',
+            description:
+                'Shown beside the creation cards unless the package hides this image. Use clean artwork without a baked-in New badge; the Website adds that badge automatically.',
             options: { hotspot: true },
             validation: (rule) =>
                 rule.custom((image, context) =>
@@ -163,6 +164,8 @@ export const birthdayPartyWebsitePage = defineType({
                     name: 'isNew',
                     title: 'Show the New badge',
                     type: 'boolean',
+                    description:
+                        'Shows a New badge in the Website menu, on the Party Themes image, and on the creations-section image.',
                     validation: (rule) => rule.required(),
                 }),
             ],
@@ -200,6 +203,8 @@ export const birthdayPartyWebsitePage = defineType({
                 defineField({
                     name: 'image',
                     type: 'image',
+                    description:
+                        'Use clean artwork without a baked-in New badge; the Website adds that badge automatically.',
                     options: { hotspot: true },
                     validation: (rule) => rule.required(),
                 }),

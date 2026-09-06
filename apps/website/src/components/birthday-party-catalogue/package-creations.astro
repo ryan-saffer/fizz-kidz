@@ -32,6 +32,7 @@ if (variant === "party" && !image && !partyPackage.hidePartyImage) {
       imageAlt={getBirthdayPartyPackageImageDescription(partyPackage.name)}
       hideLeftImage={partyPackage.hidePartyImage}
       blackBackground={partyPackage.blackBackground}
+      isNew={partyPackage.websitePage.navigation.isNew}
       useDefaultSlot
     >
       {partyPackage.cards.map((card) => (

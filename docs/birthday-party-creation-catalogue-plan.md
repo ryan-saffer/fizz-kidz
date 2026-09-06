@@ -27,6 +27,7 @@ The Website is the authority for the initial migration. Its current names, packa
 - Store one canonical package name. Derive `{Package name} Parties`, `{Package name} Creations`, and `{Package name} Party Package` where those labels are rendered.
 - Store one primary colour for the Website introduction and Portal, plus one accent colour for the all-creations heading and Party Themes card. Both fields use one shared supported-colour palette. Keep the Fluid Bears black creations background as a separate presentation setting.
 - Store one package position. It controls Portal creation-instruction groups and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue.
+- Store whether a package is new as data, but render the New graphic as a Website overlay on Party Themes and creations-section images. Keep the underlying Sanity artwork free of baked-in badges.
 - Complete and test the Website, Portal, and server work before one coordinated production cutover. Paperform will be updated manually and is outside the automated migration scope. Remove legacy Sanity fields only after that cutover is verified.
 
 ## Remaining legacy state
