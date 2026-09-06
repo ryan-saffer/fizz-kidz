@@ -13,7 +13,35 @@ import {
     isPartyAdditionKey,
 } from './party.utils'
 
+import type { BirthdayPartyBookingCatalogue } from './birthday-party-catalogue'
 import type { BaseBooking, Booking } from './booking'
+
+const creationNames: BirthdayPartyBookingCatalogue = {
+    creations: [
+        {
+            bookingChannels: ['studio', 'mobile'],
+            key: 'sparklingLipBalm',
+            legacyLabels: [],
+            name: 'Sparkling Lip Balm',
+            status: 'active',
+        },
+        {
+            bookingChannels: ['studio'],
+            key: 'jellySoap',
+            legacyLabels: [],
+            name: 'Jelly Soap',
+            status: 'active',
+        },
+        {
+            bookingChannels: ['studio', 'mobile'],
+            key: 'fluffySlime',
+            legacyLabels: [],
+            name: 'Fluffy Slime',
+            status: 'active',
+        },
+    ],
+    packages: [],
+}
 
 describe('party utilities', () => {
     describe('getBookingCreationDisplayValues', () => {
@@ -24,7 +52,7 @@ describe('party utilities', () => {
                 creation3: 'fluffySlime',
             } as BaseBooking
 
-            deepStrictEqual(getBookingCreationDisplayValues(booking), [
+            deepStrictEqual(getBookingCreationDisplayValues(booking, creationNames), [
                 'Sparkling Lip Balm',
                 'Jelly Soap',
                 'Fluffy Slime',
@@ -38,7 +66,7 @@ describe('party utilities', () => {
                 creation3: 'jellySoap',
             } as BaseBooking
 
-            deepStrictEqual(getBookingCreationDisplayValues(booking), ['Jelly Soap'])
+            deepStrictEqual(getBookingCreationDisplayValues(booking, creationNames), ['Jelly Soap'])
         })
 
         it('returns an empty list when no creations are selected', () => {
@@ -51,7 +79,7 @@ describe('party utilities', () => {
             deepStrictEqual(getBookingCreationDisplayValues(booking), [])
         })
 
-        it('uses the stable key when a historical creation is not in the legacy map', () => {
+        it('uses the stable key when a historical creation is not in Sanity', () => {
             const booking = {
                 creation1: 'futureCatalogueCreation',
                 creation2: undefined,
@@ -61,7 +89,7 @@ describe('party utilities', () => {
             deepStrictEqual(getBookingCreationDisplayValues(booking), ['futureCatalogueCreation'])
         })
 
-        it('prefers the current catalogue name over the legacy map', () => {
+        it('uses the current catalogue name', () => {
             const booking = {
                 creation1: 'sparklingLipBalm',
                 creation2: undefined,

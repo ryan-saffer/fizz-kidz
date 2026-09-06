@@ -23,35 +23,26 @@ const HOLIDAY_PROGRAM_CREATIONS_QUERY = `
 
 const BIRTHDAY_PARTY_CREATIONS_QUERY = `
     *[_type == "birthdayPartyPackage" && (!defined(status) || status == "active")]
-        | order(coalesce(position, order) asc) {
+        | order(position asc) {
         _id,
-        "name": coalesce(packageName, name),
-        "colour": coalesce(primaryColour, colour),
+        "name": packageName,
+        "colour": primaryColour,
         status,
         "creationCards": websiteCards[
             defined(bookingOrder) &&
-            defined(coalesce(creation->creationInstructions, creation->recipe))
+            defined(creation->creationInstructions)
         ] {
             _key,
             bookingOrder,
-            "creationInstructions": coalesce(
-                creation->creationInstructions-> {
-                    _id,
-                    name,
-                    instructions[] {
-                        ...
-                    }
-                },
-                creation->recipe-> {
-                    _id,
-                    name,
-                    instructions[] {
-                        ...
-                    }
+            "creationInstructions": creation->creationInstructions-> {
+                _id,
+                name,
+                instructions[] {
+                    ...
                 }
-            )
+            }
         },
-        "legacyCreations": creations[]-> {
+        "staffCreationInstructions": creations[]-> {
             _id,
             name,
             instructions[] {
@@ -67,7 +58,7 @@ type BirthdayPartyInstructionGroupRecord = Omit<BirthdayPartyCreationInstruction
         bookingOrder?: number
         creationInstructions?: BirthdayPartyCreationInstructionGroup['creations'][number]
     }>
-    legacyCreations?: BirthdayPartyCreationInstructionGroup['creations']
+    staffCreationInstructions?: BirthdayPartyCreationInstructionGroup['creations']
     status?: string
 }
 
@@ -84,15 +75,15 @@ const BIRTHDAY_PARTY_BOOKING_CATALOGUE_QUERY = `
             _type == "birthdayPartyPackage" &&
             defined(key) &&
             status in ["active", "retired"]
-        ] | order(coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order) asc) {
+        ] | order(position asc) {
             "creations": websiteCards[defined(bookingOrder)] {
                 _key,
                 bookingOrder,
                 "key": creation->key
             },
             key,
-            "name": coalesce(packageName, customerName, name),
-            "position": coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order),
+            "name": packageName,
+            position,
             status
         }
     }
@@ -208,7 +199,7 @@ export class SanityClient {
                         ? (group.creationCards ?? [])
                               .sort((left, right) => (left.bookingOrder ?? 0) - (right.bookingOrder ?? 0))
                               .flatMap((card) => (card.creationInstructions ? [card.creationInstructions] : []))
-                        : (group.legacyCreations ?? [])
+                        : (group.staffCreationInstructions ?? [])
                     ).map((creation) => [creation._id, creation] as const)
                 ).values()
             ).map((creation) => ({

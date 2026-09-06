@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress across the catalogue programme. Phases 1 and 2 are implemented locally: Sanity owns the reviewed catalogue and package pages, including live and archived creation keys plus creation-owned studio/mobile availability; the Website builds every catalogue surface from it; and the server and Portal use the same catalogue for booking choices and submission resolution. The Studio and canonical Sanity content are live, but the Website, Portal, and server changes will remain undeployed until the complete coordinated cutover. Paperform automation is deferred and its choices will be updated manually. Final cleanup remains.
+Complete for the Website, Portal, server, and Sanity catalogue. The coordinated production cutover was deployed and verified, then migration-only Sanity fields and obsolete fallback code were removed. Paperform automation remains deferred; its choices continue to be managed manually.
 
 ## Goal
 
@@ -31,17 +31,15 @@ The Website is the authority for the initial migration. Its current names, packa
 - Store whether a package is new as data, but render the New graphic as a Website overlay on Party Themes and creations-section images. Keep the underlying Sanity artwork free of baked-in badges.
 - Complete and test the Website, Portal, and server work before one coordinated production cutover. Paperform will be updated manually and is outside the automated migration scope. Remove legacy Sanity fields only after that cutover is verified.
 
-## Remaining legacy state
+## Remaining deferred state
 
-The cutover keeps these fallbacks until production verification:
+The catalogue migration is complete. These intentionally remain:
 
-- `apps/website/src/components/creation-packages` has 10 package-specific Astro modules.
-- `apps/website/src/components/creations` has 61 card modules containing names, images, and colours.
-- `packages/core/src/parties/creations.ts` retains the old active and retired creation maps for historical booking and pre-catalogue Paperform values.
-- `apps/sanity-studio` retains old package fields for the currently deployed consumers and the Sweet Kitty staff-only instruction package.
+- The homepage Slime Lab keeps its three dedicated static creation cards.
+- Sweet Kitty keeps a direct staff-only instruction list because it is not a customer catalogue package.
 - `apps/server/src/integrations/paperforms/paperform.client.ts` maps 20 package/channel fields by Paperform field ID.
 - `apps/server/src/features/party-bookings/core/party-form-mapper.ts` resolves submitted values through Sanity, with a temporary package-and-channel mapping for known pre-cutover Paperform drift.
-- `apps/portal/src/features/bookings/parties/forms/ExistingBookingForm/index.tsx` reads current creation menus through server tRPC and uses the old map only to label an unknown historical selection.
+- Unknown historical keys remain preserved and display their raw stable key if Sanity has no matching archived creation.
 
 The catalogues have already drifted. Sanity includes a Sweet Kitty package that the public Website catalogue does not render. The Website also has themed choices such as Taylor Swift lip balm while the matching staff directions are stored as generic Lip Balm creation instructions.
 
@@ -158,7 +156,7 @@ The catalogue inventory is complete. Paperform option-image mutation testing is 
 - [x] Generate all active package routes from one `[slug].astro` template and the published catalogue.
 - [x] Derive package navigation, breadcrumbs, Party Themes, SEO, and sitemap routes from the same package data.
 - [x] Preserve current names, order, images, responsive layout, links, and page copy at cutover; include Fairy and Unicorn in Party Themes.
-- [ ] Remove obsolete package and creation modules after visual comparison and production verification.
+- [x] Remove obsolete package and creation modules after visual comparison and production verification.
 - [x] Confirm package and creation publishes use the existing automatic Website rebuild path.
 
 ### Phase 1 acceptance criteria
@@ -170,7 +168,7 @@ The catalogue inventory is complete. Paperform option-image mutation testing is 
 - The creation-instructions and Portal instruction experience still works.
 - Paperform and booking submission behavior is unchanged.
 
-Phase 1 verification completed with the root checks and 507 tests, Website and Studio checks/builds, generated-route and sitemap assertions, rendered HTML parity for all ten package pages, and pixel-identical desktop/mobile hero screenshots against the static build. Static package and creation modules remain temporarily as a production-verification fallback; the ten static route files have been replaced by the dynamic route.
+Phase 1 verification completed with the root checks and 507 tests, Website and Studio checks/builds, generated-route and sitemap assertions, rendered HTML parity for all ten package pages, and pixel-identical desktop/mobile hero screenshots against the static build. The ten static route files were replaced by the dynamic route; the temporary package and creation fallback modules were removed after production verification.
 
 ## Phase 2: server catalogue and Portal compatibility
 
@@ -188,7 +186,7 @@ Move the booking system before changing Paperform. This lets the server understa
 - [x] Derive active package instruction groups through creation-to-instruction references while retaining Sweet Kitty's staff-only fallback.
 - [x] Import deprecated hardcoded creation keys into Sanity as archived creations for historical bookings.
 
-Phase 2 is implemented locally. The server and Portal handle current Paperform labels, future stable keys, renamed labels, channel availability, and previously selected retired or unknown creations. Production remains unchanged until the coordinated cutover.
+Phase 2 was deployed and verified. The server and Portal handle current Paperform labels, future stable keys, renamed labels, channel availability, and previously selected retired or unknown creations.
 
 ## Deferred: Paperform automation
 
@@ -204,15 +202,16 @@ The manual update must:
 
 ## Phase 4: cleanup
 
-- [ ] Remove the active `CREATION_PACKAGES`, `CREATION_PACKAGE_DISPLAY_NAMES`, and `ACTIVE_CREATIONS` catalogue after all consumers have moved.
-- [ ] Retain the minimum legacy key mapping needed for historical records, or migrate those records before deleting it.
+- [x] Remove the active `CREATION_PACKAGES`, `CREATION_PACKAGE_DISPLAY_NAMES`, and `ACTIVE_CREATIONS` catalogue after all consumers have moved.
+- [x] Import known historical creation keys into Sanity and fall back to the raw stable key for any unknown booking.
 - [ ] Remove old Paperform label-to-key code after the oldest resubmittable form data no longer needs it.
-- [ ] Run the creation-availability migration's `--cleanup-cards --apply` mode, then remove stored card-level availability.
-- [ ] Run the creation-instruction migration's `--cleanup --apply` mode, then remove stored `recipe` references.
-- [ ] Remove the migration-only Portal order after the coordinated production cutover is verified.
-- [ ] Migrate Sweet Kitty to the new creation relationships, then remove the migration-only package instruction references.
-- [ ] Run the package-field migration's `--cleanup --apply` mode after the compatible Website, server, and Portal code is deployed, then remove the hidden legacy schema fields.
-- [ ] Update the Website, Studio, server, Portal, and core READMEs to describe the final ownership model.
+- [x] Remove stored card-level availability after the coordinated production cutover.
+- [x] Remove stored `recipe` references after the coordinated production cutover.
+- [x] Remove migration-only package names, colours, positions, active-package instruction arrays, and migration markers.
+- [x] Preserve Sweet Kitty's direct list as the canonical staff-only instruction model.
+- [x] Remove completed one-time migration scripts and source fixtures.
+- [x] Update the Website, Studio, server, Portal, and core READMEs to describe the final ownership model.
+- [ ] Remove the 56 unused **Website images > Creations** slot documents after this cleanup code is deployed; the referenced Sanity image assets remain in use by creation and package documents.
 
 ## Verification
 
@@ -239,11 +238,10 @@ Run the relevant repository checks at the end of each phase. Phase 1 must includ
 - Website catalogue page: `apps/website/src/pages/birthday-parties/creations.astro`
 - Website package route template: `apps/website/src/pages/birthday-parties/[slug].astro`
 - Website package renderers: `apps/website/src/components/birthday-party-catalogue`
-- Temporary static fallback modules: `apps/website/src/components/creation-packages` and `apps/website/src/components/creations`
+- Homepage Slime Lab cards: `apps/website/src/components/creations`
 - Website Sanity adapter: `apps/website/src/utils/sanity-api-client.ts`
 - Sanity package schema: `apps/sanity-studio/schemaTypes/documents/birthday-party-package.ts`
 - Sanity creation-instruction schema: `apps/sanity-studio/schemaTypes/documents/birthday-party-creation.ts`
-- Shared hardcoded catalogue: `packages/core/src/parties/creations.ts`
 - Server Sanity adapter: `apps/server/src/integrations/sanity/sanity.client.ts`
 - Paperform client and field mapping: `apps/server/src/integrations/paperforms/paperform.client.ts`
 - Submission mapping: `apps/server/src/features/party-bookings/core/party-form-mapper.ts`

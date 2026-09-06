@@ -2,7 +2,7 @@
 
 The content studio for Fizz Kidz. It is a standalone Sanity app in the npm workspace and connects to project `rjsv3y4b`, dataset `production`.
 
-The Studio manages public Website images, the Birthday Party package catalogue and package pages, and the Holiday Program schedule plus Birthday Party and Holiday Program creation instructions. `holidayProgramWeek` documents contain the schedule cards and show a live Website preview. Birthday Party packages keep their existing ordered creation-instruction references while using one ordered Website-card list for customer-facing creations. Each creation can point to one reusable `birthdayPartyCreation` instruction document. Published changes are read by the Website or server and shown in their respective interfaces.
+The Studio manages public Website images, the Birthday Party package catalogue and package pages, and the Holiday Program schedule plus Birthday Party and Holiday Program creation instructions. `holidayProgramWeek` documents contain the schedule cards and show a live Website preview. Customer Birthday Party packages derive their ordered instructions through creation references in one ordered Website-card list; staff-only packages such as Sweet Kitty own a direct instruction list. Each creation can point to one reusable `birthdayPartyCreation` instruction document. Published changes are read by the Website or server and shown in their respective interfaces.
 
 Holiday Program instructions have `live` and `archived` statuses. Only published live instructions appear in Portal. Use **Holiday Programs > Search instructions** to search across both statuses without changing the global search type filter. The archive remains searchable so editors can reuse previous instructions when preparing a new schedule; move the previous live set to archived after each program period.
 
@@ -39,59 +39,11 @@ The Birthday Party area separates customer content from staff instructions:
 
 Package Party Themes and creations-section images must use clean artwork without a baked-in **New** graphic. **Website page > Website menu > Show the New badge** controls the menu badge and both Website image overlays.
 
-The Phase 1 migration source is `migrations/birthday-party-catalogue-source.ts`. From `apps/sanity-studio`, validate it against the current production assets and creation instructions with a read-only dry run:
-
-```bash
-npx sanity exec migrations/import-birthday-party-catalogue.ts --with-user-token
-```
-
-Pass `-- --apply` only after reviewing `docs/birthday-party-creation-catalogue-inventory.md`. Apply creates or replaces migration-owned drafts and never publishes them. It refuses to overwrite unrelated package or creation drafts. **Do not rerun the full importer after editing migration-owned documents:** it replaces those documents and can remove newer page content.
-
-For an existing import created before creation images were added, pass `-- --apply-images` to fill only missing image fields from **Website images > Creations**. This leaves every other reviewed draft field—and any image already selected by an editor—unchanged.
-
-The one-time `migrate-birthday-party-package-cards.ts` migration collapses the old duplicate package-creation list into the Website cards. It is dry-run by default; pass `-- --apply` to patch only card fields and remove the obsolete list. It never publishes documents.
-
-`migrations/import-retired-birthday-party-creations.ts` imports the deprecated hardcoded creation keys as published archived creations with Sanity-generated document IDs. It is idempotent and refuses conflicting keys or draft-only documents. Preview it before applying:
-
-```bash
-npx sanity exec migrations/import-retired-birthday-party-creations.ts --with-user-token
-npx sanity exec migrations/import-retired-birthday-party-creations.ts --with-user-token -- --apply
-```
-
-`migrations/migrate-birthday-party-creation-booking-channels.ts` performed the one-time creation-owned availability backfill. It only fills missing availability and refuses to replace an editor's existing choice. Jelly Soap and Unicorn Soap were marked studio-only and every other live creation was made available for both studio and mobile parties. Legacy card-level availability remains stored for the currently undeployed consumers and can be previewed and removed after the coordinated cutover; cleanup validates current creation availability without reapplying the migration source:
-
-```bash
-npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token
-npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token -- --apply
-npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token -- --cleanup-cards
-npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token -- --cleanup-cards --apply
-```
-
-`migrations/migrate-birthday-party-creation-instructions.ts` moves each creation's old `recipe` reference to the canonical **Creation instructions** field. The old field remains visible and read-only for migration compatibility until the coordinated cutover is verified:
-
-```bash
-npx sanity exec migrations/migrate-birthday-party-creation-instructions.ts --with-user-token
-npx sanity exec migrations/migrate-birthday-party-creation-instructions.ts --with-user-token -- --apply
-npx sanity exec migrations/migrate-birthday-party-creation-instructions.ts --with-user-token -- --cleanup
-npx sanity exec migrations/migrate-birthday-party-creation-instructions.ts --with-user-token -- --cleanup --apply
-```
-
-Before publishing an initial import, validate its draft graph, including booking order and the non-contiguous Jungle Safari card sequence, with:
-
-```bash
-npx sanity exec migrations/verify-birthday-party-catalogue-drafts.ts --with-user-token
-```
-
-`migrations/backfill-birthday-party-website-pages.ts` and `migrations/birthday-party-page-source.ts` record the one-time Website-authoritative page backfill. The production packages already contain and publish this data; do not treat the backfill as an ongoing content-sync tool.
+The catalogue migration and post-deployment field cleanup are complete. Production Sanity contains 50 live creations, 66 archived historical creations, and no migration markers, duplicate package fields, card-level availability, or old instruction references. The completed one-time migration scripts were removed; Git history retains the audit trail.
 
 Package labels are derived from **Package name**: the Portal, Website menu, and Party Themes use `{Package name} Parties`; the all-creations page uses `{Package name} Creations`; and the creations-section image description uses `{Package name} Party Package`. **Primary colour** and **Accent colour** are selected from the same shared named-colour list. Primary supplies the Website introduction and Portal instruction colour; accent supplies the all-creations heading and Party Themes card. The separate black-background toggle is the Fluid Bears presentation exception.
 
-`migrations/migrate-birthday-party-package-fields.ts` backfilled those canonical fields and the unified package position in production. The old name, colour, Website order, Portal order, and direct instruction fields remain read-only migration fields so currently deployed consumers keep working. The direct instruction field also supports Sweet Kitty until its staff-only relationships are migrated. After the coordinated Website, server, and Portal cutover is verified, preview and then remove eligible legacy values with:
-
-```bash
-npx sanity exec migrations/migrate-birthday-party-package-fields.ts --with-user-token -- --cleanup
-npx sanity exec migrations/migrate-birthday-party-package-fields.ts --with-user-token -- --cleanup --apply
-```
+Customer catalogue packages derive their Portal instructions through their creation references. Sweet Kitty remains a staff-only package and therefore owns a direct **Staff-only creation instructions** list.
 
 An active package can publish only with complete Website-page content. Its slug creates `/birthday-parties/{slug}/`, cannot change after first publication, and cannot use the reserved At Home, booking, or creations paths. Website position must be unique across active packages. Publishing triggers the existing Website rebuild; after that build succeeds, a new package appears in navigation, Party Themes, creations, and the sitemap without a code change. Retiring it removes those generated surfaces on the next successful build. Optional feature sections support package-specific content such as Slime Lab. At Home is still owned by Website code.
 
@@ -105,7 +57,7 @@ External image blocks remain supported for content hosted outside Sanity. New im
 
 `websiteImage` documents are stable Website slots grouped into category folders under **Website images**. Replacing the image in a slot does not change Website code. The Website resolves every required slot from Sanity once during its build and fails clearly if a slot is missing.
 
-Use **Website images > Bulk replace images** to replace a folder in one operation. Select the folder and all replacement files; the tool matches files against the slots' original filenames and reports matched, missing, unmatched, and ambiguous names. Replacements are staged as drafts, can be reviewed across multiple folders, and only update production when **Publish staged images** is pressed. Existing manual drafts are never included automatically. Creation filenames are unique, so all 59 Creation images can be selected, reviewed, and published together. Published image changes appear after the next Website build.
+Use **Website images > Bulk replace images** to replace a folder in one operation. Select the folder and all replacement files; the tool matches files against the slots' original filenames and reports matched, missing, unmatched, and ambiguous names. Replacements are staged as drafts, can be reviewed across multiple folders, and only update production when **Publish staged images** is pressed. Existing manual drafts are never included automatically. Birthday-party catalogue imagery now belongs to creation, package-card, and package-page documents; only the three homepage Slime Lab cards still consume **Website images > Creations** slots. Published image changes appear after the next Website build.
 
 ## Deployment
 

@@ -64,7 +64,7 @@ async function isUniquePosition(position: number | undefined, context: Validatio
         `*[
             _type == "birthdayPartyPackage" &&
             status == "active" &&
-            coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order) == $position &&
+            position == $position &&
             !(_id in [$publishedId, $draftId])
         ][0]._id`,
         {
@@ -157,34 +157,13 @@ export const birthdayPartyPackage = defineType({
             description: 'Base name only. Labels such as “Parties” and “Creations” are added automatically.',
             group: 'core',
             validation: (rule) =>
-                rule.custom((name, context) => {
+                rule.custom((name) => {
                     const packageName = name?.trim()
-                    const legacyName = [context.document?.customerName, context.document?.name].find(
-                        (value) => typeof value === 'string' && value.trim()
-                    )
-                    if (!packageName && !legacyName) return 'Packages must have a package name.'
+                    if (!packageName) return 'Packages must have a package name.'
                     return packageName && /\s+Parties$/i.test(packageName)
                         ? 'Enter the base package name without “Parties”; that label is added automatically.'
                         : true
                 }),
-        }),
-        defineField({
-            name: 'name',
-            title: 'Staff package name (legacy compatibility)',
-            type: 'string',
-            group: 'core',
-            deprecated: { reason: 'Use Package name. Retained temporarily for the deployed Portal.' },
-            hidden: true,
-            readOnly: true,
-        }),
-        defineField({
-            name: 'customerName',
-            title: 'Customer-facing name (deprecated)',
-            type: 'string',
-            group: 'core',
-            deprecated: { reason: 'Use Package name. Customer labels are derived automatically.' },
-            hidden: true,
-            readOnly: true,
         }),
         defineField({
             name: 'status',
@@ -197,7 +176,7 @@ export const birthdayPartyPackage = defineType({
                     value: status,
                 })),
             },
-            description: 'Leave blank only for a legacy staff package that is not part of Party packages.',
+            description: 'Leave blank only for a staff-only package that is not part of the customer catalogue.',
             group: 'core',
         }),
         defineField({
@@ -211,30 +190,11 @@ export const birthdayPartyPackage = defineType({
                 layout: 'radio',
             },
             validation: (rule) =>
-                rule.custom((colour, context) => {
-                    const value = colour ?? context.document?.colour
-                    if (!value) return 'Packages must have a primary colour.'
-                    return isBirthdayPartyPackageColour(value) ? true : 'Select a valid primary colour.'
-                }),
-        }),
-        defineField({
-            name: 'colour',
-            title: 'Portal colour (deprecated)',
-            type: 'string',
-            group: 'core',
-            deprecated: { reason: 'Use Primary colour.' },
-            hidden: true,
-            readOnly: true,
-        }),
-        defineField({
-            name: 'order',
-            title: 'Portal instructions order (migration only)',
-            type: 'number',
-            description:
-                'Used only by the currently deployed Portal. Do not edit. Delete this field after the coordinated production cutover is verified.',
-            deprecated: { reason: 'Replaced by Position. Retained temporarily for the deployed Portal.' },
-            group: 'core',
-            readOnly: true,
+                rule
+                    .required()
+                    .custom((colour) =>
+                        isBirthdayPartyPackageColour(colour) ? true : 'Select a valid primary colour.'
+                    ),
         }),
         defineField({
             name: 'position',
@@ -253,24 +213,6 @@ export const birthdayPartyPackage = defineType({
                         }
                         return isUniquePosition(position, context)
                     }),
-        }),
-        defineField({
-            name: 'catalogueOrder',
-            title: 'Website catalogue order (deprecated)',
-            type: 'number',
-            deprecated: { reason: 'Use Position. Retained temporarily for the deployed Website.' },
-            group: 'website',
-            hidden: true,
-            readOnly: true,
-        }),
-        defineField({
-            name: 'summaryTitle',
-            title: 'Catalogue section title (deprecated)',
-            type: 'string',
-            group: 'website',
-            deprecated: { reason: 'The heading is derived from Package name.' },
-            hidden: true,
-            readOnly: true,
         }),
         defineField({
             name: 'accentColour',
@@ -343,56 +285,37 @@ export const birthdayPartyPackage = defineType({
         }),
         defineField({
             name: 'creations',
-            title: 'Creation instructions (migration only)',
+            title: 'Staff-only creation instructions',
             type: 'array',
             description:
-                'Used by the currently deployed Portal and the Sweet Kitty staff-only fallback. Do not edit. Delete after the coordinated cutover is verified and Sweet Kitty uses the new creation relationships.',
-            deprecated: {
-                reason: 'Active packages now derive instructions through Website card creations. Retained temporarily for migration.',
-            },
+                'Direct instruction list for staff-only packages such as Sweet Kitty. Customer catalogue packages derive instructions through their creations.',
             group: 'core',
-            readOnly: true,
+            hidden: ({ document }) => Boolean(document?.status),
             of: [defineArrayMember({ type: 'reference', to: [{ type: 'birthdayPartyCreation' }] })],
-        }),
-        defineField({
-            name: 'migrationSource',
-            title: 'Migration source',
-            type: 'string',
-            group: 'core',
-            hidden: true,
-            readOnly: true,
+            validation: (rule) =>
+                rule
+                    .unique()
+                    .custom((instructions, context) =>
+                        context.document?.status || instructions?.length
+                            ? true
+                            : 'Staff-only packages must contain at least one creation instruction.'
+                    ),
         }),
     ],
     preview: {
         select: {
             creationImage: 'websiteCards.0.creation.image',
             key: 'key',
-            legacyPosition: 'websitePage.navigation.order',
             media: 'websiteCards.0.image',
             position: 'position',
             status: 'status',
             title: 'packageName',
-            legacyCustomerTitle: 'customerName',
-            legacyStaffTitle: 'name',
         },
-        prepare: ({
-            creationImage,
-            key,
-            legacyCustomerTitle,
-            legacyPosition,
-            legacyStaffTitle,
-            media,
-            position,
-            status,
-            title,
-        }) => {
-            const websitePosition = position ?? legacyPosition
+        prepare: ({ creationImage, key, media, position, status, title }) => {
             return {
-                title: title ?? legacyCustomerTitle ?? legacyStaffTitle ?? 'Untitled package',
+                title: title ?? 'Untitled package',
                 subtitle: [
-                    key && Number.isFinite(websitePosition)
-                        ? `${websitePosition}: ${key}`
-                        : 'Legacy staff-only package',
+                    key && Number.isFinite(position) ? `${position}: ${key}` : 'Staff-only package',
                     status === 'retired' ? 'Retired' : undefined,
                 ]
                     .filter(Boolean)
