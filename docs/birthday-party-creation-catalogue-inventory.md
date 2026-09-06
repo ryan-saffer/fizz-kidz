@@ -88,7 +88,7 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 |   8 | `marshmallowSlime`   | Marshmallow Slime     | `websiteCreationsMarshmallowSlimePng`        | yellow    | studio + mobile       | Marshmallow Slime              | Yes              | Yes              |
 |   9 | `swiftieSlime`       | Swiftie Slime         | `websiteCreationsSwiftieSlimePng`            | pink      | studio + mobile       | Taylor Swift 'Swiftie' Parties | Yes              | Yes              |
 |  10 | `rainbowSlime`       | Rainbow Slime         | `websiteCreationsRainbowSlimePng`            | purple    | studio + mobile       | Rainbow Slime                  | Yes              | Yes              |
-|  11 | `frozenSparkleSlime` | Frozen Sparkle Slime  | `websiteCreationsFrozenSparkleSlimeGreenPng` | green     | studio + mobile       | —                              | Yes              | Yes              |
+|  11 | `frozenSparkleSlime` | Frozen Sparkle Slime  | `websiteCreationsFrozenSparkleSlimeGreenPng` | green     | studio + mobile       | Instant Snow Slime             | Yes              | Yes              |
 
 ### Fairy
 
@@ -169,7 +169,7 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 - **Science mobile drift:** The production `science_creations_mobile` field currently contains Slime choices rather than the Science list. Six Science choices missing there are offered in mobile Jungle Safari and are therefore mobile-capable. Jelly Soap is the only Science creation consistently absent from mobile parties.
 - **Slime studio drift:** The production studio field contains Nutella Slime, which is absent from the Website, and calls Fairy Slime “Fairy Glitter Slime.” Nutella remains historical only; `Fairy Glitter Slime` is retained as a legacy label for `fairySlime`.
 - **Sanity drift:** Published Sanity includes Sweet Kitty, but the Website does not. Sweet Kitty is not imported into the active customer catalogue. Its staff package and creation instructions remain untouched.
-- **Creation instructions:** Several customer creations intentionally share one instruction document, including themed lip balms, shimmer products, Taylor Swift bath bombs, and both Tie Dye items. `frozenSparkleSlime` has no matching published instructions and keeps an empty optional reference.
+- **Creation instructions:** Several customer creations intentionally share one instruction document, including themed lip balms, shimmer products, Taylor Swift bath bombs, and both Tie Dye items. `frozenSparkleSlime` intentionally uses the published Instant Snow Slime instructions.
 
 ## Paperform inspection
 
