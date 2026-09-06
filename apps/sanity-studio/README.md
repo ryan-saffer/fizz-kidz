@@ -4,7 +4,7 @@ The content studio for Fizz Kidz. It is a standalone Sanity app in the npm works
 
 The Studio manages public Website images, the Birthday Party package catalogue and package pages, and the Holiday Program schedule plus Birthday Party and Holiday Program creation instructions. `holidayProgramWeek` documents contain the schedule cards and show a live Website preview. Birthday Party packages keep their existing ordered creation-instruction references while using one ordered Website-card list for customer-facing creations. Each creation can point to one reusable `birthdayPartyCreation` instruction document. Published changes are read by the Website or server and shown in their respective interfaces.
 
-Holiday Program instructions have `live` and `archived` statuses. Only published live instructions appear in Portal. Use **Holiday Programs > Search instructions** to search across both statuses without changing the global search type filter. The archive remains searchable so editors can reuse previous recipes when preparing a new schedule; move the previous live set to archived after each program period.
+Holiday Program instructions have `live` and `archived` statuses. Only published live instructions appear in Portal. Use **Holiday Programs > Search instructions** to search across both statuses without changing the global search type filter. The archive remains searchable so editors can reuse previous instructions when preparing a new schedule; move the previous live set to archived after each program period.
 
 ## Commands
 
@@ -65,6 +65,15 @@ npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts -
 npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token -- --apply
 npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token -- --cleanup-cards
 npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token -- --cleanup-cards --apply
+```
+
+`migrations/migrate-birthday-party-creation-instructions.ts` moves each creation's old `recipe` reference to the canonical **Creation instructions** field. The old field remains visible and read-only for migration compatibility until the coordinated cutover is verified:
+
+```bash
+npx sanity exec migrations/migrate-birthday-party-creation-instructions.ts --with-user-token
+npx sanity exec migrations/migrate-birthday-party-creation-instructions.ts --with-user-token -- --apply
+npx sanity exec migrations/migrate-birthday-party-creation-instructions.ts --with-user-token -- --cleanup
+npx sanity exec migrations/migrate-birthday-party-creation-instructions.ts --with-user-token -- --cleanup --apply
 ```
 
 Before publishing an initial import, validate its draft graph, including booking order and the non-contiguous Jungle Safari card sequence, with:

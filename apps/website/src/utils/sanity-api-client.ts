@@ -42,7 +42,10 @@ const BIRTHDAY_PARTY_CATALOGUE_QUERY = `
                 key,
                 "legacyLabels": coalesce(legacyLabels, []),
                 name,
-                recipe->{_id, name},
+                "creationInstructions": coalesce(
+                    creationInstructions->{_id, name},
+                    recipe->{_id, name}
+                ),
                 status
             },
             hideLabel,

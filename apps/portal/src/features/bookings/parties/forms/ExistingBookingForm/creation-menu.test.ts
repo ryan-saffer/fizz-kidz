@@ -67,4 +67,11 @@ describe('getBirthdayPartyCreationMenu', () => {
 
         deepStrictEqual(menu.previouslySelected, { key: 'historicalKey', name: 'historicalKey' })
     })
+
+    it('retains the historical selection when the catalogue cannot be loaded', () => {
+        const menu = getBirthdayPartyCreationMenu(undefined, 'studio', 'unicornSoap')
+
+        deepStrictEqual(menu.packages, [])
+        deepStrictEqual(menu.previouslySelected, { key: 'unicornSoap', name: 'Unicorn Soap' })
+    })
 })

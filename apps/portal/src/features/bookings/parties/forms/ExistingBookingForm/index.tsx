@@ -156,9 +156,7 @@ const InnerExistingBookingForm: React.FC<ExistingBookingFormProps> = ({
 
     const getCreationMenuItems = useCallback(
         (selectedCreation: string | undefined) => {
-            const menu = bookingCatalogue
-                ? getBirthdayPartyCreationMenu(bookingCatalogue, formValues.type.value, selectedCreation)
-                : { packages: [], previouslySelected: undefined }
+            const menu = getBirthdayPartyCreationMenu(bookingCatalogue, formValues.type.value, selectedCreation)
             const activeCreationMenuItems = menu.packages.flatMap((partyPackage) => [
                 <ListSubheader key={partyPackage.key}>{partyPackage.name}</ListSubheader>,
                 ...partyPackage.creations.map((creation) => (

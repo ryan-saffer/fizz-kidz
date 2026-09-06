@@ -1,8 +1,10 @@
 import { ComposeSparklesIcon } from '@sanity/icons/ComposeSparkles'
 import { defineArrayMember, defineField, defineType, type ValidationContext } from 'sanity'
 
+import { BIRTHDAY_PARTY_BOOKING_CHANNELS, BIRTHDAY_PARTY_CATALOGUE_STATUSES } from '@fizz-kidz/core'
+
 import { BirthdayPartyCreationOfferingInput } from '../../components/birthday-party-creation-offering-input'
-import { BIRTHDAY_PARTY_BOOKING_CHANNELS, BIRTHDAY_PARTY_CATALOGUE_STATUSES } from '../birthday-party-catalogue-options'
+import { hasValidCreationPackageRelationships } from '../birthday-party-catalogue-validation'
 
 const API_VERSION = '2026-08-01'
 
@@ -42,6 +44,7 @@ export const birthdayPartyCreationOffering = defineType({
     icon: ComposeSparklesIcon,
     components: { input: BirthdayPartyCreationOfferingInput },
     initialValue: { status: 'active' },
+    validation: (rule) => rule.custom(hasValidCreationPackageRelationships),
     fields: [
         defineField({
             name: 'key',
@@ -111,11 +114,21 @@ export const birthdayPartyCreationOffering = defineType({
                 }),
         }),
         defineField({
-            name: 'recipe',
+            name: 'creationInstructions',
             title: 'Creation instructions',
             type: 'reference',
             to: [{ type: 'birthdayPartyCreation' }],
             description: 'Optional reusable instructions shown to staff. This does not control customer presentation.',
+        }),
+        defineField({
+            name: 'recipe',
+            title: 'Creation instructions reference (migration only)',
+            type: 'reference',
+            to: [{ type: 'birthdayPartyCreation' }],
+            description:
+                'Used only by undeployed compatibility code. Do not edit. Delete after the coordinated production cutover is verified.',
+            deprecated: { reason: 'Replaced by Creation instructions.' },
+            readOnly: true,
         }),
         defineField({
             name: 'legacyLabels',

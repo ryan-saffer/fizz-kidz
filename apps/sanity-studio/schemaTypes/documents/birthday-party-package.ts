@@ -2,13 +2,14 @@ import { DocumentIcon } from '@sanity/icons/Document'
 import { defineArrayMember, defineField, defineType, type SanityDocument, type ValidationContext } from 'sanity'
 
 import {
+    BIRTHDAY_PARTY_CATALOGUE_STATUSES,
     BIRTHDAY_PARTY_PACKAGE_COLOUR_OPTIONS,
     isBirthdayPartyPackageColour,
     isBirthdayPartyPackageColourHex,
 } from '@fizz-kidz/core'
 
 import { BirthdayPartyCardsInput } from '../../components/birthday-party-cards-input'
-import { BIRTHDAY_PARTY_CATALOGUE_STATUSES } from '../birthday-party-catalogue-options'
+import { hasValidPackageCreationReferences } from '../birthday-party-catalogue-validation'
 
 const API_VERSION = '2026-08-01'
 
@@ -118,7 +119,7 @@ export const birthdayPartyPackage = defineType({
     type: 'document',
     icon: DocumentIcon,
     initialValue: { status: 'active' },
-    validation: (rule) => rule.custom(hasConsistentCards),
+    validation: (rule) => rule.custom(hasConsistentCards).custom(hasValidPackageCreationReferences),
     groups: [
         { name: 'core', title: 'Core package information', default: true },
         { name: 'website', title: 'Website' },

@@ -76,7 +76,7 @@ export const birthdayPartyCatalogueOfferings = {
     fluidBears: { name: 'Fluid Bears', recipeName: 'Fluid Bears' },
     fluffySlime: { name: 'Fluffy Slime', recipeName: 'Fluffy Slime' },
     friendshipBracelets: { name: 'Friendship Bracelets', recipeName: 'Friendship Bracelets' },
-    frozenSparkleSlime: { name: 'Frozen Sparkle Slime' },
+    frozenSparkleSlime: { name: 'Frozen Sparkle Slime', recipeName: 'Instant Snow Slime' },
     glitterFaceShimmer: {
         name: 'Glitter Face Shimmer',
         recipeName: 'Glitter Shimmer / Glitter Hair Shimmer / Pixie Glitter',

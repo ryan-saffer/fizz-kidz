@@ -30,29 +30,23 @@ const PAPERFORM_CREATION_FIELDS = [
 ] as const
 
 type PaperformPackageKey = (typeof PAPERFORM_CREATION_FIELDS)[number]['packageKey']
-type PaperformCreationTransition = { allowArchived?: boolean; creationKey: string }
-
-function transition(creationKey: string, allowArchived = false): PaperformCreationTransition {
-    return { creationKey, ...(allowArchived ? { allowArchived } : {}) }
-}
 
 const PRE_CATALOGUE_PAPERFORM_CREATIONS: Partial<
-    Record<PaperformPackageKey, Partial<Record<Booking['type'], Record<string, PaperformCreationTransition>>>>
+    Record<PaperformPackageKey, Partial<Record<Booking['type'], Record<string, string>>>>
 > = {
     science: {
         mobile: {
-            'Fairy Slime': transition('fairySlime'),
-            'Birthday Cake Slime': transition('birthdayCakeSlime'),
-            'Candy Slime': transition('candySlime'),
-            'Unicorn Cloud Slime': transition('unicornCloudSlime'),
-            'Spiderman Slime': transition('spidermanSlime'),
-            'Marshmallow Slime': transition('marshmallowSlime'),
-            'Swiftie Slime': transition('swiftieSlime'),
-            'Rainbow Slime': transition('rainbowSlime'),
-            'Frozen Sparkle Slime': transition('frozenSparkleSlime'),
+            'Fairy Slime': 'fairySlime',
+            'Birthday Cake Slime': 'birthdayCakeSlime',
+            'Candy Slime': 'candySlime',
+            'Unicorn Cloud Slime': 'unicornCloudSlime',
+            'Spiderman Slime': 'spidermanSlime',
+            'Marshmallow Slime': 'marshmallowSlime',
+            'Swiftie Slime': 'swiftieSlime',
+            'Rainbow Slime': 'rainbowSlime',
+            'Frozen Sparkle Slime': 'frozenSparkleSlime',
         },
     },
-    slime: { studio: { 'Nutella Slime': transition('nutellaSlime', true) } },
 }
 
 export class PartyFormMapper {
@@ -124,14 +118,11 @@ export class PartyFormMapper {
                 })
                 if (creation) return creation.key
 
-                const creationTransition = PRE_CATALOGUE_PAPERFORM_CREATIONS[packageKey]?.[channel]?.[submittedValue]
-                const legacyCreation = creationTransition
-                    ? this.catalogue.creations.find((candidate) => candidate.key === creationTransition.creationKey)
+                const legacyCreationKey = PRE_CATALOGUE_PAPERFORM_CREATIONS[packageKey]?.[channel]?.[submittedValue]
+                const legacyCreation = legacyCreationKey
+                    ? this.catalogue.creations.find((candidate) => candidate.key === legacyCreationKey)
                     : undefined
-                if (
-                    (legacyCreation?.status === 'active' && legacyCreation.bookingChannels.includes(channel)) ||
-                    (legacyCreation?.status === 'retired' && creationTransition?.allowArchived)
-                ) {
+                if (legacyCreation?.status === 'active' && legacyCreation.bookingChannels.includes(channel)) {
                     logger.warn('Resolved Paperform value through the pre-catalogue mapping', {
                         bookingId: this.bookingId,
                         channel,

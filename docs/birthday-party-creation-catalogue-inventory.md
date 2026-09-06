@@ -9,7 +9,7 @@ Captured 4 September 2026. The Website package modules and creation cards are au
 | Website migration source             |       10 |                           77 |                                         83 |
 | Unique customer creations            |        — |                           50 |                                          — |
 | Production Paperform creation fields |       10 | 154 across studio and mobile | Images are not exposed by the Standard API |
-| Published Sanity staff catalogue     |       11 |                   54 recipes |                                          — |
+| Published Sanity staff catalogue     |       11 |     54 creation instructions |                                          — |
 
 The Website contains 61 creation-card modules; 56 are used by the 10 package modules, while five older customization cards are not part of the catalogue. Reuse across packages and the six-card Fluid Bears sequence produce 83 rendered card placements. In the new single-list model, 77 of those cards carry booking configuration and the other six are presentation-only variants.
 
@@ -34,7 +34,7 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 
 ### K-Pop Power
 
-|   # | Creation key            | Website card label(s)                   | Website image slot(s)                    | Colour(s) | Channels in migration | Recipe                                 | Paperform studio | Paperform mobile |
+|   # | Creation key            | Website card label(s)                   | Website image slot(s)                    | Colour(s) | Channels in migration | Creation instructions                  | Paperform studio | Paperform mobile |
 | --: | ----------------------- | --------------------------------------- | ---------------------------------------- | --------- | --------------------- | -------------------------------------- | ---------------- | ---------------- |
 |   1 | `starhexWands`          | Starhex Wands                           | `websiteCreationsStarhexWandsPng`        | pink      | studio + mobile       | Starhex Wands                          | Yes              | Yes              |
 |   2 | `squishyPockets`        | Squishy Kitty Pockets / (Slime Inside!) | `websiteCreationsSquishyPocketsPng`      | purple    | studio + mobile       | Squishy Kitty Pockets                  | Yes              | Yes              |
@@ -47,7 +47,7 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 
 ### Glam
 
-|   # | Creation key          | Website card label(s) | Website image slot(s)                   | Colour(s) | Channels in migration | Recipe                                                 | Paperform studio | Paperform mobile |
+|   # | Creation key          | Website card label(s) | Website image slot(s)                   | Colour(s) | Channels in migration | Creation instructions                                  | Paperform studio | Paperform mobile |
 | --: | --------------------- | --------------------- | --------------------------------------- | --------- | --------------------- | ------------------------------------------------------ | ---------------- | ---------------- |
 |   1 | `sparklingLipBalm`    | Sparkling Lip Balm    | `websiteCreationsSparklingLipBalmPng`   | purple    | studio + mobile       | Lip Balm                                               | Yes              | Yes              |
 |   2 | `glitterFaceShimmer`  | Glitter Face Shimmer  | `websiteCreationsGlitterFaceShimmerPng` | yellow    | studio + mobile       | Glitter Shimmer / Glitter Hair Shimmer / Pixie Glitter | Yes              | Yes              |
@@ -62,7 +62,7 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 
 ### Science
 
-|   # | Creation key        | Website card label(s)    | Website image slot(s)                  | Colour(s) | Channels in migration | Recipe                   | Paperform studio | Paperform mobile |
+|   # | Creation key        | Website card label(s)    | Website image slot(s)                  | Colour(s) | Channels in migration | Creation instructions    | Paperform studio | Paperform mobile |
 | --: | ------------------- | ------------------------ | -------------------------------------- | --------- | --------------------- | ------------------------ | ---------------- | ---------------- |
 |   1 | `jellySoap`         | Jelly Soap               | `websiteCreationsJellySoapPng`         | yellow    | studio                | Jelly Soap               | Yes              | No               |
 |   2 | `monsterExplosions` | Monster Explosions       | `websiteCreationsMonsterExplosionsPng` | green     | studio + mobile       | Monster Explosions       | Yes              | No               |
@@ -76,7 +76,7 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 
 ### Slime
 
-|   # | Creation key         | Website card label(s) | Website image slot(s)                        | Colour(s) | Channels in migration | Recipe                         | Paperform studio | Paperform mobile |
+|   # | Creation key         | Website card label(s) | Website image slot(s)                        | Colour(s) | Channels in migration | Creation instructions          | Paperform studio | Paperform mobile |
 | --: | -------------------- | --------------------- | -------------------------------------------- | --------- | --------------------- | ------------------------------ | ---------------- | ---------------- |
 |   1 | `fairySlime`         | Fairy Slime           | `websiteCreationsFairySlimePng`              | pink      | studio + mobile       | Fairy Slime                    | Yes              | Yes              |
 |   2 | `birthdayCakeSlime`  | Birthday Cake Slime   | `websiteCreationsBirthdayCakeSlimePng`       | purple    | studio + mobile       | Birthday Cake Slime            | Yes              | Yes              |
@@ -88,11 +88,11 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 |   8 | `marshmallowSlime`   | Marshmallow Slime     | `websiteCreationsMarshmallowSlimePng`        | yellow    | studio + mobile       | Marshmallow Slime              | Yes              | Yes              |
 |   9 | `swiftieSlime`       | Swiftie Slime         | `websiteCreationsSwiftieSlimePng`            | pink      | studio + mobile       | Taylor Swift 'Swiftie' Parties | Yes              | Yes              |
 |  10 | `rainbowSlime`       | Rainbow Slime         | `websiteCreationsRainbowSlimePng`            | purple    | studio + mobile       | Rainbow Slime                  | Yes              | Yes              |
-|  11 | `frozenSparkleSlime` | Frozen Sparkle Slime  | `websiteCreationsFrozenSparkleSlimeGreenPng` | green     | studio + mobile       | —                              | Yes              | Yes              |
+|  11 | `frozenSparkleSlime` | Frozen Sparkle Slime  | `websiteCreationsFrozenSparkleSlimeGreenPng` | green     | studio + mobile       | Instant Snow Slime             | Yes              | Yes              |
 
 ### Fairy
 
-|   # | Creation key          | Website card label(s) | Website image slot(s)                   | Colour(s) | Channels in migration | Recipe                                                 | Paperform studio | Paperform mobile |
+|   # | Creation key          | Website card label(s) | Website image slot(s)                   | Colour(s) | Channels in migration | Creation instructions                                  | Paperform studio | Paperform mobile |
 | --: | --------------------- | --------------------- | --------------------------------------- | --------- | --------------------- | ------------------------------------------------------ | ---------------- | ---------------- |
 |   1 | `fairyWands`          | Fairy Wands           | `websiteCreationsFairyWandsPng`         | pink      | studio + mobile       | Fairy Wands                                            | Yes              | Yes              |
 |   2 | `pixieGlitterShimmer` | Pixie Glitter Shimmer | `websiteCreationsPixieGlitterPng`       | purple    | studio + mobile       | Glitter Shimmer / Glitter Hair Shimmer / Pixie Glitter | Yes              | Yes              |
@@ -107,13 +107,13 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 
 ### Fluid Bears
 
-|   # | Creation key | Website card label(s)                                                                        | Website image slot(s)                                                                                                                                                                                                | Colour(s)                                | Channels in migration | Recipe      | Paperform studio | Paperform mobile |
-| --: | ------------ | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | --------------------- | ----------- | ---------------- | ---------------- |
-|   1 | `fluidBears` | (image only)<br>(image only)<br>(image only)<br>(image only)<br>(image only)<br>(image only) | `websiteCreationsFluidBears1Png`<br>`websiteCreationsFluidBears2Png`<br>`websiteCreationsFluidBears3Png`<br>`websiteCreationsFluidBears4Png`<br>`websiteCreationsFluidBears5Png`<br>`websiteCreationsFluidBears6Png` | green, purple, pink, blue, green, yellow | studio + mobile       | Fluid Bears | Yes              | Yes              |
+|   # | Creation key | Website card label(s)                                                                        | Website image slot(s)                                                                                                                                                                                                | Colour(s)                                | Channels in migration | Creation instructions | Paperform studio | Paperform mobile |
+| --: | ------------ | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | --------------------- | --------------------- | ---------------- | ---------------- |
+|   1 | `fluidBears` | (image only)<br>(image only)<br>(image only)<br>(image only)<br>(image only)<br>(image only) | `websiteCreationsFluidBears1Png`<br>`websiteCreationsFluidBears2Png`<br>`websiteCreationsFluidBears3Png`<br>`websiteCreationsFluidBears4Png`<br>`websiteCreationsFluidBears5Png`<br>`websiteCreationsFluidBears6Png` | green, purple, pink, blue, green, yellow | studio + mobile       | Fluid Bears           | Yes              | Yes              |
 
 ### Jungle Safari
 
-|   # | Creation key        | Website card label(s)          | Website image slot(s)                                                             | Colour(s)     | Channels in migration | Recipe                   | Paperform studio | Paperform mobile |
+|   # | Creation key        | Website card label(s)          | Website image slot(s)                                                             | Colour(s)     | Channels in migration | Creation instructions    | Paperform studio | Paperform mobile |
 | --: | ------------------- | ------------------------------ | --------------------------------------------------------------------------------- | ------------- | --------------------- | ------------------------ | ---------------- | ---------------- |
 |   1 | `monsterSlime`      | Monster Slime<br>Monster Slime | `websiteCreationsMonsterSlimePurplePng`<br>`websiteCreationsMonsterSlimeGreenPng` | purple, green | studio + mobile       | Monster Slime            | Yes              | Yes              |
 |   2 | `monsterExplosions` | Monster Explosions             | `websiteCreationsMonsterExplosionsPng`                                            | green         | studio + mobile       | Monster Explosions       | Yes              | Yes              |
@@ -125,28 +125,28 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 
 ### Unicorn
 
-|   # | Creation key                | Website card label(s)            | Website image slot(s)                   | Colour(s) | Channels in migration | Recipe               | Paperform studio | Paperform mobile |
-| --: | --------------------------- | -------------------------------- | --------------------------------------- | --------- | --------------------- | -------------------- | ---------------- | ---------------- |
-|   1 | `fairyWands`                | Fairy Wands                      | `websiteCreationsFairyWandsPng`         | pink      | studio + mobile       | Fairy Wands          | Yes              | Yes              |
-|   2 | `unicornLipBalm`            | Unicorn Lip Balm                 | `websiteCreationsSparklingLipBalmPng`   | purple    | studio + mobile       | Lip Balm             | Yes              | Yes              |
-|   3 | `unicornBathCrumble`        | Unicorn Fizz Crumble             | `websiteCreationsUnicornBathCrumblePng` | blue      | studio + mobile       | Unicorn Fizz Crumble | Yes              | Yes              |
-|   4 | `unicornSoap`               | Unicorn Soap                     | `websiteCreationsUnicornSoapPng`        | pink      | studio                | Unicorn Soap         | Yes              | No               |
-|   5 | `unicornBathBombsWithHorns` | Unicorn Bath Bombs (With horns!) | `websiteCreationsUnicornBathBombsPng`   | blue      | studio + mobile       | Unicorn Bath Bombs   | Yes              | Yes              |
-|   6 | `unicornCloudSlime`         | Unicorn Cloud Slime              | `websiteCreationsUnicornCloudSlimePng`  | pink      | studio + mobile       | Unicorn Cloud Slime  | Yes              | Yes              |
-|   7 | `sparkleCrowns`             | Sparkle Crowns                   | `websiteCreationsSparkleCrownsPng`      | purple    | studio + mobile       | Sparkle Crowns       | Yes              | Yes              |
+|   # | Creation key                | Website card label(s)            | Website image slot(s)                   | Colour(s) | Channels in migration | Creation instructions | Paperform studio | Paperform mobile |
+| --: | --------------------------- | -------------------------------- | --------------------------------------- | --------- | --------------------- | --------------------- | ---------------- | ---------------- |
+|   1 | `fairyWands`                | Fairy Wands                      | `websiteCreationsFairyWandsPng`         | pink      | studio + mobile       | Fairy Wands           | Yes              | Yes              |
+|   2 | `unicornLipBalm`            | Unicorn Lip Balm                 | `websiteCreationsSparklingLipBalmPng`   | purple    | studio + mobile       | Lip Balm              | Yes              | Yes              |
+|   3 | `unicornBathCrumble`        | Unicorn Fizz Crumble             | `websiteCreationsUnicornBathCrumblePng` | blue      | studio + mobile       | Unicorn Fizz Crumble  | Yes              | Yes              |
+|   4 | `unicornSoap`               | Unicorn Soap                     | `websiteCreationsUnicornSoapPng`        | pink      | studio                | Unicorn Soap          | Yes              | No               |
+|   5 | `unicornBathBombsWithHorns` | Unicorn Bath Bombs (With horns!) | `websiteCreationsUnicornBathBombsPng`   | blue      | studio + mobile       | Unicorn Bath Bombs    | Yes              | Yes              |
+|   6 | `unicornCloudSlime`         | Unicorn Cloud Slime              | `websiteCreationsUnicornCloudSlimePng`  | pink      | studio + mobile       | Unicorn Cloud Slime   | Yes              | Yes              |
+|   7 | `sparkleCrowns`             | Sparkle Crowns                   | `websiteCreationsSparkleCrownsPng`      | purple    | studio + mobile       | Sparkle Crowns        | Yes              | Yes              |
 
 ### Tie Dye
 
-|   # | Creation key      | Website card label(s) | Website image slot(s)                | Colour(s) | Channels in migration | Recipe           | Paperform studio | Paperform mobile |
-| --: | ----------------- | --------------------- | ------------------------------------ | --------- | --------------------- | ---------------- | ---------------- | ---------------- |
-|   1 | `tieDyeToteBags`  | Tie Dye Tote Bags     | `websiteCreationsTieDyeToteBagsPng`  | blue      | studio + mobile       | Tie Dye          | Yes              | Yes              |
-|   2 | `tieDyePillow`    | Tie Dye Pillow        | `websiteCreationsTieDyePillowPng`    | green     | studio + mobile       | Tie Dye          | Yes              | Yes              |
-|   3 | `rainbowCrystals` | Rainbow Crystals      | `websiteCreationsRainbowCrystalsPng` | purple    | studio + mobile       | Rainbow Crystals | Yes              | Yes              |
-|   4 | `rainbowSlime`    | Rainbow Slime         | `websiteCreationsRainbowSlimePng`    | purple    | studio + mobile       | Rainbow Slime    | Yes              | Yes              |
+|   # | Creation key      | Website card label(s) | Website image slot(s)                | Colour(s) | Channels in migration | Creation instructions | Paperform studio | Paperform mobile |
+| --: | ----------------- | --------------------- | ------------------------------------ | --------- | --------------------- | --------------------- | ---------------- | ---------------- |
+|   1 | `tieDyeToteBags`  | Tie Dye Tote Bags     | `websiteCreationsTieDyeToteBagsPng`  | blue      | studio + mobile       | Tie Dye               | Yes              | Yes              |
+|   2 | `tieDyePillow`    | Tie Dye Pillow        | `websiteCreationsTieDyePillowPng`    | green     | studio + mobile       | Tie Dye               | Yes              | Yes              |
+|   3 | `rainbowCrystals` | Rainbow Crystals      | `websiteCreationsRainbowCrystalsPng` | purple    | studio + mobile       | Rainbow Crystals      | Yes              | Yes              |
+|   4 | `rainbowSlime`    | Rainbow Slime         | `websiteCreationsRainbowSlimePng`    | purple    | studio + mobile       | Rainbow Slime         | Yes              | Yes              |
 
 ### Taylor Swift
 
-|   # | Creation key              | Website card label(s)         | Website image slot(s)                   | Colour(s) | Channels in migration | Recipe                                                 | Paperform studio | Paperform mobile |
+|   # | Creation key              | Website card label(s)         | Website image slot(s)                   | Colour(s) | Channels in migration | Creation instructions                                  | Paperform studio | Paperform mobile |
 | --: | ------------------------- | ----------------------------- | --------------------------------------- | --------- | --------------------- | ------------------------------------------------------ | ---------------- | ---------------- |
 |   1 | `speakNowPurpleBathbombs` | 'Speak Now' Purple Bath Bombs | `websiteCreationsTsBathBombsPng`        | yellow    | studio + mobile       | Fizzy Bath Bombs                                       | Yes              | Yes              |
 |   2 | `friendshipBracelets`     | Friendship Bracelets          | `websiteCreationsTsBraceletsPng`        | pink      | studio + mobile       | Friendship Bracelets                                   | Yes              | Yes              |
@@ -168,8 +168,8 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 - **Mobile soap restriction:** Production Paperform consistently omits Unicorn Soap from Glam, Fairy, and Unicorn mobile questions, confirming its creation-level studio-only availability.
 - **Science mobile drift:** The production `science_creations_mobile` field currently contains Slime choices rather than the Science list. Six Science choices missing there are offered in mobile Jungle Safari and are therefore mobile-capable. Jelly Soap is the only Science creation consistently absent from mobile parties.
 - **Slime studio drift:** The production studio field contains Nutella Slime, which is absent from the Website, and calls Fairy Slime “Fairy Glitter Slime.” Nutella remains historical only; `Fairy Glitter Slime` is retained as a legacy label for `fairySlime`.
-- **Sanity drift:** Published Sanity includes Sweet Kitty, but the Website does not. Sweet Kitty is not imported into the active customer catalogue. Its staff package and recipes remain untouched.
-- **Creation instructions:** Several customer creations intentionally share one instruction document, including themed lip balms, shimmer products, Taylor Swift bath bombs, and both Tie Dye items. `frozenSparkleSlime` has no matching published instructions and keeps an empty optional reference.
+- **Sanity drift:** Published Sanity includes Sweet Kitty, but the Website does not. Sweet Kitty is not imported into the active customer catalogue. Its staff package and creation instructions remain untouched.
+- **Creation instructions:** Several customer creations intentionally share one instruction document, including themed lip balms, shimmer products, Taylor Swift bath bombs, and both Tie Dye items. `frozenSparkleSlime` intentionally uses the published Instant Snow Slime instructions.
 
 ## Paperform inspection
 

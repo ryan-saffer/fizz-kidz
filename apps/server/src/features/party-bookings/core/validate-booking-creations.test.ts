@@ -83,6 +83,22 @@ describe('getInvalidBookingCreationKeys', () => {
         )
     })
 
+    it('does not allow one historical selection to be duplicated into another slot', () => {
+        deepStrictEqual(
+            getInvalidBookingCreationKeys(
+                catalogue,
+                {
+                    creation1: 'oldSlime',
+                    creation2: 'oldSlime',
+                    creation3: undefined,
+                    type: 'studio',
+                },
+                booking('studio', 'oldSlime')
+            ),
+            ['oldSlime']
+        )
+    })
+
     it('rejects a newly selected retired or unknown creation', () => {
         deepStrictEqual(getInvalidBookingCreationKeys(catalogue, booking('studio', 'oldSlime')), ['oldSlime'])
         deepStrictEqual(getInvalidBookingCreationKeys(catalogue, booking('studio', 'missingKey')), ['missingKey'])
