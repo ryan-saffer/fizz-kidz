@@ -70,7 +70,7 @@ const Card = styled.article`
     }
 `
 
-const BookingChannels = styled.span`
+const CardRole = styled.span`
     color: #64748b;
     font-size: 12px;
     margin-top: 4px;
@@ -85,7 +85,6 @@ type CreationPreview = {
 type CardValue = {
     _key?: string
     alt?: string
-    bookingChannels?: string[]
     bookingOrder?: number
     colour?: string
     creation?: { _ref?: string }
@@ -178,11 +177,11 @@ export function BirthdayPartyCardsInput(props: ArrayOfObjectsInputProps) {
                                         />
                                     ) : null}
                                     <p style={{ color: CARD_COLOURS[card.colour ?? ''] ?? '#0f172a' }}>{label}</p>
-                                    <BookingChannels>
-                                        {card.bookingChannels?.length
-                                            ? `Booking choice ${card.bookingOrder ?? '?'}: ${card.bookingChannels.join(' + ')}`
+                                    <CardRole>
+                                        {card.bookingOrder
+                                            ? `Booking choice ${card.bookingOrder}`
                                             : 'Additional display card'}
-                                    </BookingChannels>
+                                    </CardRole>
                                 </Card>
                             )
                         })}

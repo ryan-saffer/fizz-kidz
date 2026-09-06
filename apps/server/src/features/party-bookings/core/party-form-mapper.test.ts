@@ -15,22 +15,33 @@ vi.mock('firebase-functions/v2', () => ({ logger: { error: loggerError, warn: lo
 const bookingCatalogue: BirthdayPartyBookingCatalogue = {
     creations: [
         {
+            bookingChannels: ['studio', 'mobile'],
             key: 'fairySlime',
             legacyLabels: ['Fairy Glitter Slime'],
             name: 'Fairy Slime',
             status: 'active',
+        },
+        {
+            bookingChannels: ['studio', 'mobile'],
+            key: 'birthdayCakeSlime',
+            legacyLabels: [],
+            name: 'Birthday Cake Slime',
+            status: 'active',
+        },
+        {
+            bookingChannels: [],
+            key: 'nutellaSlime',
+            legacyLabels: [],
+            name: 'Nutella Slime',
+            status: 'retired',
         },
     ],
     packages: [
         {
             creations: [
                 {
-                    bookingChannels: ['studio', 'mobile'],
                     bookingOrder: 1,
                     key: 'fairySlime',
-                    legacyLabels: ['Fairy Glitter Slime'],
-                    name: 'Fairy Slime',
-                    status: 'active',
                 },
             ],
             key: 'fairy',
@@ -150,7 +161,24 @@ describe('PartyFormMapper', () => {
         deepStrictEqual(mapper.getCreationDisplayValues('studio'), ['Fairy Slime'])
     })
 
-    it('temporarily resolves a pre-catalogue Paperform option through the legacy map', () => {
+    it('temporarily resolves the copied mobile Science Slime options', () => {
+        const submission = creationSubmission({ cujle: ['Birthday Cake Slime'] })
+        const mapper = new PartyFormMapper(submission, bookingCatalogue)
+
+        deepStrictEqual(mapper.getCreationDisplayValues('mobile'), ['Birthday Cake Slime'])
+        deepStrictEqual(loggerWarn.mock.calls[0], [
+            'Resolved Paperform value through the pre-catalogue mapping',
+            {
+                bookingId: 'booking-id',
+                channel: 'mobile',
+                legacyCreationKey: 'birthdayCakeSlime',
+                packageKey: 'science',
+                submittedValue: 'Birthday Cake Slime',
+            },
+        ])
+    })
+
+    it('retains the exact archived Nutella option from the current studio Slime field', () => {
         const submission = creationSubmission({ c2b0a: ['Nutella Slime'] })
         const mapper = new PartyFormMapper(submission, bookingCatalogue)
 

@@ -29,8 +29,30 @@ const PAPERFORM_CREATION_FIELDS = [
     { mobile: 'demon_hunters_creations_mobile', packageKey: 'kPopPower', studio: 'demon_hunters_creations' },
 ] as const
 
-const PRE_CATALOGUE_PAPERFORM_CREATIONS: Partial<Record<string, Record<string, string>>> = {
-    slime: { 'Nutella Slime': 'nutellaSlime' },
+type PaperformPackageKey = (typeof PAPERFORM_CREATION_FIELDS)[number]['packageKey']
+type PaperformCreationTransition = { allowArchived?: boolean; creationKey: string }
+
+function transition(creationKey: string, allowArchived = false): PaperformCreationTransition {
+    return { creationKey, ...(allowArchived ? { allowArchived } : {}) }
+}
+
+const PRE_CATALOGUE_PAPERFORM_CREATIONS: Partial<
+    Record<PaperformPackageKey, Partial<Record<Booking['type'], Record<string, PaperformCreationTransition>>>>
+> = {
+    science: {
+        mobile: {
+            'Fairy Slime': transition('fairySlime'),
+            'Birthday Cake Slime': transition('birthdayCakeSlime'),
+            'Candy Slime': transition('candySlime'),
+            'Unicorn Cloud Slime': transition('unicornCloudSlime'),
+            'Spiderman Slime': transition('spidermanSlime'),
+            'Marshmallow Slime': transition('marshmallowSlime'),
+            'Swiftie Slime': transition('swiftieSlime'),
+            'Rainbow Slime': transition('rainbowSlime'),
+            'Frozen Sparkle Slime': transition('frozenSparkleSlime'),
+        },
+    },
+    slime: { studio: { 'Nutella Slime': transition('nutellaSlime', true) } },
 }
 
 export class PartyFormMapper {
@@ -87,40 +109,42 @@ export class PartyFormMapper {
     /**
      * Returns an array of SKUs for all selected creations.
      */
-    private getCreations(type: Booking['type']) {
-        /**
-         * Currently creations are separated in PaperForms. This is for the case that a creation
-         * is offered only in-studio. To remove it as an option, just remove it from the '_mobile' version in Paperform and done.
-         * It means maintaining PaperForm is a bit more effort... but worth it for these cases.
-         */
+    private getCreations(channel: Booking['type']) {
+        // Paperform keeps separate studio and mobile fields. Sanity owns whether each creation is valid for that channel.
         const creationFields = PAPERFORM_CREATION_FIELDS.map(
-            ({ mobile, packageKey, studio }) => [type === 'studio' ? studio : mobile, packageKey] as const
+            ({ mobile, packageKey, studio }) => [channel === 'studio' ? studio : mobile, packageKey] as const
         )
 
         const creationKeys = creationFields.flatMap(([field, packageKey]) =>
             (this.responses.getFieldValue(field) ?? []).map((submittedValue) => {
                 const creation = resolveBirthdayPartyBookingCreation(this.catalogue, {
-                    channel: type,
+                    channel,
                     packageKey,
                     submittedValue,
                 })
                 if (creation) return creation.key
 
-                const legacyCreationKey = PRE_CATALOGUE_PAPERFORM_CREATIONS[packageKey]?.[submittedValue]
-                if (legacyCreationKey) {
+                const creationTransition = PRE_CATALOGUE_PAPERFORM_CREATIONS[packageKey]?.[channel]?.[submittedValue]
+                const legacyCreation = creationTransition
+                    ? this.catalogue.creations.find((candidate) => candidate.key === creationTransition.creationKey)
+                    : undefined
+                if (
+                    (legacyCreation?.status === 'active' && legacyCreation.bookingChannels.includes(channel)) ||
+                    (legacyCreation?.status === 'retired' && creationTransition?.allowArchived)
+                ) {
                     logger.warn('Resolved Paperform value through the pre-catalogue mapping', {
                         bookingId: this.bookingId,
-                        channel: type,
-                        legacyCreationKey,
+                        channel,
+                        legacyCreationKey: legacyCreation.key,
                         packageKey,
                         submittedValue,
                     })
-                    return legacyCreationKey
+                    return legacyCreation.key
                 }
 
                 logger.error('Invalid creation form value', {
                     bookingId: this.bookingId,
-                    channel: type,
+                    channel,
                     packageKey,
                     submittedValue,
                 })

@@ -13,7 +13,6 @@ import { BIRTHDAY_PARTY_CATALOGUE_STATUSES } from '../birthday-party-catalogue-o
 const API_VERSION = '2026-08-01'
 
 type CardValue = {
-    bookingChannels?: string[]
     bookingOrder?: number
     creation?: { _ref?: string }
 }
@@ -86,23 +85,21 @@ function hasConsistentCards(value: SanityDocument | undefined) {
         if (!card.creation?._ref) return 'Every Website card must reference a creation.'
         creationReferences.add(card.creation._ref)
 
-        if ((card.bookingChannels?.length ?? 0) > 0) {
+        if (card.bookingOrder !== undefined) {
             if (!Number.isInteger(card.bookingOrder) || (card.bookingOrder ?? 0) < 1) {
-                return 'Every booking card must have a positive integer booking choice order.'
+                return 'Every booking choice order must be a positive integer.'
             }
             if (bookingOrders.has(card.bookingOrder!)) return 'Booking choice order must be unique within a package.'
             bookingOrders.add(card.bookingOrder!)
-        } else if (card.bookingOrder !== undefined) {
-            return 'Additional display cards cannot have a booking choice order.'
         }
     }
 
     for (const creationReference of creationReferences) {
         const bookingChoiceCount = cards.filter(
-            (card) => card.creation?._ref === creationReference && (card.bookingChannels?.length ?? 0) > 0
+            (card) => card.creation?._ref === creationReference && card.bookingOrder !== undefined
         ).length
         if (bookingChoiceCount !== 1) {
-            return 'Every creation must have exactly one Website card with booking channels.'
+            return 'Every creation must have exactly one Website card with a booking choice order.'
         }
     }
     if (
@@ -318,7 +315,7 @@ export const birthdayPartyPackage = defineType({
             title: 'Website cards',
             type: 'array',
             description:
-                'This is the package creation list. Drag cards into Website order; configure booking channels on exactly one card per creation.',
+                'This is the package creation list. Drag cards into Website order; set a booking choice order on exactly one card per creation. Availability is controlled by the creation.',
             group: 'core',
             components: { input: BirthdayPartyCardsInput },
             of: [defineArrayMember({ type: 'birthdayPartyCreationCard' })],

@@ -28,7 +28,7 @@ const BIRTHDAY_PARTY_CREATIONS_QUERY = `
         "name": coalesce(packageName, name),
         "colour": coalesce(primaryColour, colour),
         status,
-        "creationCards": websiteCards[count(bookingChannels) > 0 && defined(creation->recipe)] {
+        "creationCards": websiteCards[defined(bookingOrder) && defined(creation->recipe)] {
             _key,
             bookingOrder,
             "recipe": creation->recipe-> {
@@ -62,6 +62,7 @@ type BirthdayPartyInstructionGroupRecord = Omit<BirthdayPartyCreationInstruction
 const BIRTHDAY_PARTY_BOOKING_CATALOGUE_QUERY = `
     {
         "creations": *[_type == "birthdayPartyCreationOffering"] | order(name asc) {
+            "bookingChannels": coalesce(bookingChannels, []),
             key,
             "legacyLabels": coalesce(legacyLabels, []),
             name,
@@ -72,14 +73,10 @@ const BIRTHDAY_PARTY_BOOKING_CATALOGUE_QUERY = `
             defined(key) &&
             status in ["active", "retired"]
         ] | order(coalesce(position, websitePage.navigation.order, catalogueOrder, websitePage.themeCard.order) asc) {
-            "creations": websiteCards[count(bookingChannels) > 0] {
+            "creations": websiteCards[defined(bookingOrder)] {
                 _key,
-                "bookingChannels": coalesce(bookingChannels, []),
                 bookingOrder,
-                "key": creation->key,
-                "legacyLabels": coalesce(creation->legacyLabels, []),
-                "name": creation->name,
-                "status": creation->status
+                "key": creation->key
             },
             key,
             "name": coalesce(packageName, customerName, name),

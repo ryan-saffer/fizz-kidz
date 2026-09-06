@@ -7,6 +7,7 @@ import { getBirthdayPartyPackagePartyName } from '../../../packages/core/src/par
 import {
     birthdayPartyCatalogueOfferings,
     birthdayPartyCataloguePackages,
+    getBirthdayPartyCatalogueBookingChannels,
     type CatalogueSourceOffering,
 } from './birthday-party-catalogue-source'
 
@@ -132,6 +133,7 @@ for (const [key, sourceOffering] of Object.entries(sourceOfferings)) {
     desiredOfferingDocuments.set(key, {
         _id: `drafts.${documentId}`,
         _type: 'birthdayPartyCreationOffering',
+        bookingChannels: getBirthdayPartyCatalogueBookingChannels(key as keyof typeof birthdayPartyCatalogueOfferings),
         image: websiteImage.image,
         key,
         legacyLabels: sourceOffering.legacyLabels ?? [],
@@ -159,7 +161,6 @@ const desiredPackageDocuments = birthdayPartyCataloguePackages.map((sourcePackag
 
     const sourceCards = sourcePackage.offerings.flatMap((packageOffering) =>
         packageOffering.cards.map((sourceCard, cardIndex) => ({
-            availability: packageOffering.availability,
             cardIndex,
             offeringKey: packageOffering.offeringKey,
             sourceCard,
@@ -202,7 +203,7 @@ const desiredPackageDocuments = birthdayPartyCataloguePackages.map((sourcePackag
         packageName: sourcePackage.name,
         primaryColour: sourcePackage.primaryColour,
         status: 'active',
-        websiteCards: orderedSourceCards.map(({ availability, cardIndex, offeringKey, sourceCard }) => {
+        websiteCards: orderedSourceCards.map(({ cardIndex, offeringKey, sourceCard }) => {
             const websiteImage = imagesByKey.get(sourceCard.imageKey)
             if (!websiteImage?.image) {
                 throw new Error(
@@ -219,7 +220,8 @@ const desiredPackageDocuments = birthdayPartyCataloguePackages.map((sourcePackag
                 ...(sourceCard.alt === `${creationName} creation` ? {} : { alt: sourceCard.alt }),
                 ...(sourceCard.useForBookingChoice
                     ? {
-                          bookingChannels: availability,
+                          // Retained only so pre-cutover consumers can still read card-level availability.
+                          bookingChannels: getBirthdayPartyCatalogueBookingChannels(offeringKey),
                           bookingOrder: bookingOrderByOfferingKey.get(offeringKey),
                       }
                     : {}),

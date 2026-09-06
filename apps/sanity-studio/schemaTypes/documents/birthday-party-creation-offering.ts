@@ -2,7 +2,7 @@ import { ComposeSparklesIcon } from '@sanity/icons/ComposeSparkles'
 import { defineArrayMember, defineField, defineType, type ValidationContext } from 'sanity'
 
 import { BirthdayPartyCreationOfferingInput } from '../../components/birthday-party-creation-offering-input'
-import { BIRTHDAY_PARTY_CATALOGUE_STATUSES } from '../birthday-party-catalogue-options'
+import { BIRTHDAY_PARTY_BOOKING_CHANNELS, BIRTHDAY_PARTY_CATALOGUE_STATUSES } from '../birthday-party-catalogue-options'
 
 const API_VERSION = '2026-08-01'
 
@@ -88,6 +88,29 @@ export const birthdayPartyCreationOffering = defineType({
             validation: (rule) => rule.required(),
         }),
         defineField({
+            name: 'bookingChannels',
+            title: 'Offered at',
+            type: 'array',
+            description:
+                'Where this creation can be delivered operationally. Select Studio, Mobile, or both. Package cards inherit this availability.',
+            hidden: ({ document }) => document?.status === 'retired',
+            of: [defineArrayMember({ type: 'string' })],
+            options: {
+                layout: 'grid',
+                list: BIRTHDAY_PARTY_BOOKING_CHANNELS.map((channel) => ({
+                    title: channel === 'studio' ? 'Studio' : 'Mobile',
+                    value: channel,
+                })),
+            },
+            validation: (rule) =>
+                rule.unique().custom((channels, context) => {
+                    if (context.document?.status === 'active' && !channels?.length) {
+                        return 'Live creations must be offered at Studio, Mobile, or both.'
+                    }
+                    return true
+                }),
+        }),
+        defineField({
             name: 'recipe',
             title: 'Creation instructions',
             type: 'reference',
@@ -111,10 +134,19 @@ export const birthdayPartyCreationOffering = defineType({
         }),
     ],
     preview: {
-        select: { key: 'key', media: 'image', status: 'status', title: 'name' },
-        prepare: ({ key, media, status, title }) => ({
+        select: { bookingChannels: 'bookingChannels', key: 'key', media: 'image', status: 'status', title: 'name' },
+        prepare: ({ bookingChannels, key, media, status, title }) => ({
             title,
-            subtitle: [key, status === 'retired' ? 'Archived' : undefined].filter(Boolean).join(' · '),
+            subtitle: [
+                key,
+                status === 'retired'
+                    ? 'Archived'
+                    : Array.isArray(bookingChannels)
+                      ? bookingChannels.map((channel) => (channel === 'studio' ? 'Studio' : 'Mobile')).join(' + ')
+                      : undefined,
+            ]
+                .filter(Boolean)
+                .join(' · '),
             media,
         }),
     },

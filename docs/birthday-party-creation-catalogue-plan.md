@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress across the full catalogue programme. Phases 1 and 2 are implemented locally: Sanity owns the reviewed catalogue and package pages, including live and archived creation keys; the Website builds every catalogue surface from it; and the server and Portal use the same catalogue for booking choices and submission resolution. The Studio and canonical Sanity content are live, but the Website, Portal, and server changes will remain undeployed until the complete coordinated cutover. Paperform integration and final cleanup remain.
+In progress across the catalogue programme. Phases 1 and 2 are implemented locally: Sanity owns the reviewed catalogue and package pages, including live and archived creation keys plus creation-owned studio/mobile availability; the Website builds every catalogue surface from it; and the server and Portal use the same catalogue for booking choices and submission resolution. The Studio and canonical Sanity content are live, but the Website, Portal, and server changes will remain undeployed until the complete coordinated cutover. Paperform automation is deferred and its choices will be updated manually. Final cleanup remains.
 
 ## Goal
 
@@ -16,18 +16,18 @@ The Website is the authority for the initial migration. Its current names, packa
 - Phase 1 changes the Website and Sanity Studio. It does not change the live Paperform or booking submission path.
 - Preserve Paperform's package-specific Multiple Choice questions. Their option images and layout are part of the customer experience.
 - Preserve the existing Sanity-triggered Website rebuild. Creation and package publishes must continue to trigger it.
-- Keep public creation offerings separate from creation instructions. Several themed customer choices can share one set of instructions, and one creation can use different imagery in different packages.
-- Give every offering a stable business key. Let Sanity generate ordinary document `_id` values.
-- Retire offerings instead of deleting them once a booking or Paperform submission may refer to them.
+- Keep customer-facing creations separate from creation instructions. Several themed creations can share one set of instructions, and one creation can use different imagery in different packages.
+- Give every creation a stable business key. Let Sanity generate ordinary document `_id` values.
+- Archive creations instead of deleting them once a booking or Paperform submission may refer to them.
 - Keep Paperform field IDs and other provider configuration in the server integration, not in Sanity content.
-- Treat intentional studio/mobile differences as catalogue data. They must not live only as manual changes inside Paperform.
-- Use each package's ordered Website cards as its only creation-membership source. Exactly one card per creation owns booking channels and booking order; additional cards are presentation variants.
+- Store operational studio/mobile availability on the creation. Availability applies consistently in every package and must not be inferred from a Website card.
+- Use each package's ordered Website cards as its only creation-membership source. Exactly one card per creation owns package-specific booking order; additional cards are presentation variants.
 - Generate package pages from one fixed template. Sanity owns each package's route, SEO, hero, menu entry, Party Themes card, creations image, and optional feature sections; shared pricing, party information, FAQs, reviews, and values remain in Website code.
 - Include every active package in Party Themes, including Fairy and Unicorn. Keep At Home as a dedicated static Website page.
 - Store one canonical package name. Derive `{Package name} Parties`, `{Package name} Creations`, and `{Package name} Party Package` where those labels are rendered.
 - Store one primary colour for the Website introduction and Portal, plus one accent colour for the all-creations heading and Party Themes card. Both fields use one shared supported-colour palette. Keep the Fluid Bears black creations background as a separate presentation setting.
 - Store one package position. It controls Portal creation-instruction groups and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue.
-- Complete and test the Website, Portal, server, and Paperform work before one coordinated production cutover. Remove legacy Sanity fields only after that cutover is verified.
+- Complete and test the Website, Portal, and server work before one coordinated production cutover. Paperform will be updated manually and is outside the automated migration scope. Remove legacy Sanity fields only after that cutover is verified.
 
 ## Remaining legacy state
 
@@ -38,7 +38,7 @@ The cutover keeps these fallbacks until production verification:
 - `packages/core/src/parties/creations.ts` retains the old active and retired creation maps for historical booking and pre-catalogue Paperform values.
 - `apps/sanity-studio` retains old package fields for the currently deployed consumers and the Sweet Kitty staff-only instruction package.
 - `apps/server/src/integrations/paperforms/paperform.client.ts` maps 20 package/channel fields by Paperform field ID.
-- `apps/server/src/features/party-bookings/core/party-form-mapper.ts` resolves submitted values through Sanity, with a temporary fallback to a unique old-map value.
+- `apps/server/src/features/party-bookings/core/party-form-mapper.ts` resolves submitted values through Sanity, with a temporary package-and-channel mapping for known pre-cutover Paperform drift.
 - `apps/portal/src/features/bookings/parties/forms/ExistingBookingForm/index.tsx` reads current creation menus through server tRPC and uses the old map only to label an unknown historical selection.
 
 The catalogues have already drifted. Sanity includes a Sweet Kitty package that the public Website catalogue does not render. The Website also has themed choices such as Taylor Swift lip balm while the matching staff instructions are stored as a generic Lip Balm recipe.
@@ -57,19 +57,20 @@ An instruction document contains:
 
 The Portal's existing creation-instruction page continues to read these documents.
 
-### Customer offering
+### Creation
 
-Add a document type, tentatively `birthdayPartyCreationOffering`, for a creation a customer can see and select.
+`birthdayPartyCreationOffering` is the legacy internal schema name for a creation a customer can see and select. Studio and domain documentation call it a creation.
 
-An offering contains:
+A creation contains:
 
 - `key`: required, unique, stable, and read-only after first publication.
 - `name`: the customer-facing default name.
 - `status`: `active` or `retired`.
+- Operational availability: studio, mobile, or both. Live Jelly Soap and Unicorn Soap are studio-only; every other current creation supports both.
 - `recipe`: an optional reference to a `birthdayPartyCreation` instruction document.
-- `legacyLabels`: previous Paperform labels that must still resolve to this offering.
+- `legacyLabels`: previous Paperform labels that must still resolve to this creation.
 
-An offering's key is stored on new bookings. Names can change without changing booking identity.
+A creation's key is stored on new bookings. Names can change without changing booking identity.
 
 ### Party package
 
@@ -87,11 +88,11 @@ Each package contains:
 
 Each Website card contains:
 
-- A reference to the customer offering it represents.
+- A reference to the creation it represents.
 - Optional package-specific image, alt text, and label overrides plus its colour treatment.
-- Booking channels and booking-menu order when it is the creation's booking card.
+- Booking-menu order when it is the creation's booking card.
 
-Exactly one card per creation has booking channels. Filtering and sorting those cards by booking order derives the selectable creations without a second synchronized list. Website array order still preserves both Fluid Bears' six contiguous cards for one creation and Jungle Safari's two non-contiguous Monster Slime cards. Booking order remains independent where needed, such as Fairy's Marshmallow Slime placement. A card defaults to its creation's image and name and stores overrides only where presentation differs.
+Exactly one card per creation has a booking order. Filtering those cards, then applying the referenced creation's availability, derives selectable studio and mobile creations without a second synchronized list. Website array order still preserves both Fluid Bears' six contiguous cards for one creation and Jungle Safari's two non-contiguous Monster Slime cards. Booking order remains independent where needed, such as Fairy's Marshmallow Slime placement. A card defaults to its creation's image and name and stores overrides only where presentation differs.
 
 Every array projection must include its Sanity `_key`.
 
@@ -100,13 +101,13 @@ Every array projection must include its Sanity `_key`.
 Sanity validation and automated checks should enforce these rules:
 
 - Active packages have a key, name, Website position, and at least one Website card.
-- Active offerings have a unique stable key and customer-facing name.
-- Every creation represented in a package has exactly one card with at least one booking channel and a unique consecutive booking order.
+- Live creations have a unique stable key, customer-facing name, and at least one operational booking channel.
+- Every creation represented in a package has exactly one card with a unique consecutive booking order.
 - Every active Website card resolves an image, useful alt text, and creation reference.
-- Active Website entries appear in the corresponding Paperform package question once the Paperform phase is live.
+- Active Website entries appear in the corresponding Paperform package question after the manual Paperform update.
 - One package may contain multiple cards for a creation, but only one can be its booking card.
-- Retired offerings remain queryable for historical bookings and old submissions.
-- A legacy Paperform label resolves to exactly one offering within its package.
+- Archived creations remain queryable for historical bookings and old submissions.
+- A legacy Paperform label resolves to exactly one creation within its package.
 - Publishing a broken reference or ambiguous Paperform label is blocked.
 
 ## Shared catalogue shape
@@ -120,27 +121,27 @@ The normalized result should contain enough data for callers to render packages,
 ## Phase 0: inventory and migration preparation
 
 - [x] Export the current Website package order, cards, labels, images, colours, and package memberships into a reviewable matrix.
-- [ ] Export the current Paperform creation questions, option labels, images, selection limits, conditional logic, and studio/mobile differences.
+- [x] Export the current Paperform creation questions, option labels, images, selection limits, conditional logic, and studio/mobile differences.
 - [x] Export the current published Sanity packages and recipes.
 - [x] Match each Website creation to its current booking key and optional Sanity recipe.
 - [x] Record discrepancies. Resolve them in favour of the Website for public content.
 - [x] Record the current studio/mobile differences in the matrix and carry forward the repeated mobile soap restriction.
 - [x] Identify Website cards that are presentation variants rather than separate selectable creations, including the Fluid Bear sequence and Jungle Safari Monster Slime cards.
 - [ ] Confirm whether a Paperform Multiple Choice field update through the Standard API preserves its option-image associations.
-- [ ] Confirm whether Paperform exposes a supported way to set option images from Sanity asset URLs. The documented field update accepts option strings but does not document image updates.
+- [x] Confirm whether Paperform exposes a supported way to set option images from Sanity asset URLs. The Standard API does not expose choice-image updates.
 
-Phase 0 is complete when every Website card has an explicit destination in the new model and the Paperform image-sync limitation has a tested answer on a safe copy of the form.
+The catalogue inventory is complete. Paperform option-image mutation testing is deferred with Paperform automation.
 
 ## Phase 1: Sanity and Website
 
 ### Sanity Studio
 
-- [x] Add the customer offering document schema with validation and a useful preview.
+- [x] Add the customer creation document schema with validation and a useful preview.
 - [x] Extend the package schema with one ordered Website-card list that also derives booking choices.
 - [x] Keep existing recipe references intact during migration.
-- [x] Add Studio structure entries that make packages, customer offerings, and recipes easy to distinguish.
+- [x] Add Studio structure entries that make packages, customer creations, and instructions easy to distinguish.
 - [x] Add a package preview that shows the same creation cards and order as the Website where practical.
-- [x] Import Website content as drafts using generated Sanity document IDs and explicit stable offering keys.
+- [x] Import Website content as drafts using generated Sanity document IDs and explicit stable creation keys.
 - [x] Reuse the Sanity assets behind the current Website image slots where possible.
 - [x] Review and publish the imported catalogue only after it matches the Website inventory.
 - [x] Add and publish validated Website-page fields for all active packages.
@@ -156,7 +157,7 @@ Phase 0 is complete when every Website card has an explicit destination in the n
 - [x] Derive package navigation, breadcrumbs, Party Themes, SEO, and sitemap routes from the same package data.
 - [x] Preserve current names, order, images, responsive layout, links, and page copy at cutover; include Fairy and Unicorn in Party Themes.
 - [ ] Remove obsolete package and creation modules after visual comparison and production verification.
-- [x] Confirm package and offering publishes use the existing automatic Website rebuild path.
+- [x] Confirm package and creation publishes use the existing automatic Website rebuild path.
 
 ### Phase 1 acceptance criteria
 
@@ -173,12 +174,12 @@ Phase 1 verification completed with the root checks and 507 tests, Website and S
 
 Move the booking system before changing Paperform. This lets the server understand both old and new submissions during the form cutover.
 
-- [x] Add server catalogue reads for active and retired offerings.
-- [x] Resolve an offering by package plus stable key, current label, or legacy label.
+- [x] Add server catalogue reads for live and archived creations.
+- [x] Resolve a creation by package plus stable key, current label, or legacy label.
 - [x] Change new booking creation fields from a compile-time union to validated stable catalogue keys.
 - [x] Keep the old `CREATIONS` map as a temporary fallback for historical Firestore data.
 - [x] Update booking display helpers and emails to resolve catalogue names, with a safe fallback for old keys.
-- [x] Expose active package offerings to the Portal through tRPC.
+- [x] Expose live package creations to the Portal through tRPC.
 - [x] Move the Existing Booking form's creation menus from hardcoded constants to the server catalogue.
 - [x] Preserve retired selections when editing an old booking, but do not offer them for a new selection.
 - [x] Add structured logging for unknown Paperform values rather than silently dropping them.
@@ -187,44 +188,24 @@ Move the booking system before changing Paperform. This lets the server understa
 
 Phase 2 is implemented locally. The server and Portal handle current Paperform labels, future stable keys, renamed labels, channel availability, and previously selected retired or unknown creations. Production remains unchanged until the coordinated cutover.
 
-## Phase 3: Paperform
+## Deferred: Paperform automation
 
-Keep one Multiple Choice question per package and preserve option images, columns, selection limits, and conditional logic.
+Paperform synchronization, CI changes, and Sanity-to-server webhooks are out of scope for this migration. The existing image-backed Multiple Choice fields, duplicated studio/mobile sections, calculations, layout, and conditional logic remain unchanged. Paperform choices will be updated manually from the reviewed Sanity catalogue. The server continues to resolve current and legacy labels during the transition.
 
-The preferred implementation is a Sanity publish sync handled by the server Paperform adapter:
+The manual update must:
 
-1. Receive the existing Sanity publish signal or run from the same publication workflow.
-2. Query and validate the complete published catalogue without the Sanity CDN.
-3. Build the studio and mobile option lists for each package.
-4. Compare them with the existing Paperform fields.
-5. Update only changed fields through Paperform's field update endpoint.
-6. Verify the resulting labels, order, limits, and option images.
-7. Report a failed or partial sync with enough detail to retry safely.
-
-The sync must be idempotent. It must keep Paperform field IDs in server configuration and map them by stable package key.
-
-The exact image update method remains conditional on the Phase 0 Paperform test:
-
-- If the supported field update preserves and can update image associations safely, automate labels, order, and images.
-- If it preserves images only when labels and order stay fixed, add a guarded workflow that blocks unsafe changes and explains the required manual Paperform step.
-- If the API cannot support image-backed choices reliably, do not replace the current form with dropdowns. Keep the customer experience and implement a drift report plus a documented manual image-sync step while checking with Paperform for a supported image API.
-
-Submission handling should use package context when resolving labels. This avoids collisions between packages and lets renamed options resolve through `legacyLabels`. Once Paperform can submit a stable value independently of its visible label, prefer that stable value.
-
-### Phase 3 acceptance criteria
-
-- Every active Website creation appears in the matching Paperform package question for each applicable channel.
-- Paperform displays the same image as the Website package entry.
-- Package order, option order, selection limits, and conditional visibility remain correct.
-- A Paperform submission stores stable offering keys on the booking.
-- Renaming or retiring an offering does not break old submissions or bookings.
-- A failed sync is visible and retryable. It does not silently leave the team believing Paperform matches Sanity.
+- Build each studio list from live creations offered at studios and each mobile list from live creations offered at mobile parties.
+- Preserve every Multiple Choice image, desktop/mobile column count, selection calculation, field ID, and visibility rule.
+- Replace the copied mobile Science list with the mobile-capable Science creations.
+- Rename Fairy Glitter Slime to Fairy Slime and remove Nutella Slime from studio Slime.
+- Verify every package on desktop and mobile and submit one studio and one mobile test before the coordinated application cutover.
 
 ## Phase 4: cleanup
 
 - [ ] Remove the active `CREATION_PACKAGES`, `CREATION_PACKAGE_DISPLAY_NAMES`, and `ACTIVE_CREATIONS` catalogue after all consumers have moved.
 - [ ] Retain the minimum legacy key mapping needed for historical records, or migrate those records before deleting it.
 - [ ] Remove old Paperform label-to-key code after the oldest resubmittable form data no longer needs it.
+- [ ] Run the creation-availability migration's `--cleanup-cards --apply` mode, then remove stored card-level availability.
 - [ ] Remove the migration-only Portal order after the coordinated production cutover is verified.
 - [ ] Migrate Sweet Kitty to the new creation relationships, then remove the migration-only package instruction references.
 - [ ] Run the package-field migration's `--cleanup --apply` mode after the compatible Website, server, and Portal code is deployed, then remove the hidden legacy schema fields.
@@ -235,17 +216,15 @@ Submission handling should use package context when resolving labels. This avoid
 Automated coverage should include:
 
 - Catalogue normalization and validation tests in core.
-- Website query fixtures for reused offerings, package-specific presentation, and retired content.
+- Website query fixtures for reused creations, package-specific presentation, and archived content.
 - Website build coverage for missing assets and broken references.
 - Server lookup tests for stable keys, current labels, legacy labels, package context, and unknown values.
 - Portal tests for active options and retained retired selections.
-- Paperform diff and update tests with the provider client mocked.
-- A read-only drift check comparing Sanity with Paperform after Phase 3.
 
 Manual verification should include:
 
 - Side-by-side desktop and mobile screenshots of every package on the old and new Website builds. Phase 1 verified the hero viewport for all ten routes; complete rendered HTML was compared for the remaining package content.
-- Desktop and mobile Paperform checks for every package question.
+- Desktop and mobile Paperform checks for every package question after the manual update.
 - A test submission containing creations from more than one package.
 - Reprocessing an old submission after one option has been renamed.
 - Editing a booking whose creation has been retired.

@@ -19,18 +19,21 @@ import {
 const bookingCatalogue: BirthdayPartyBookingCatalogue = {
     creations: [
         {
+            bookingChannels: ['studio', 'mobile'],
             key: 'fairySlime',
             legacyLabels: ['Fairy Glitter Slime'],
             name: 'Fairy Slime',
             status: 'active',
         },
         {
+            bookingChannels: ['studio'],
             key: 'unicornSoap',
             legacyLabels: [],
             name: 'Unicorn Soap',
             status: 'active',
         },
         {
+            bookingChannels: [],
             key: 'nutellaSlime',
             legacyLabels: ['Chocolate Slime'],
             name: 'Nutella Slime',
@@ -41,20 +44,12 @@ const bookingCatalogue: BirthdayPartyBookingCatalogue = {
         {
             creations: [
                 {
-                    bookingChannels: ['studio', 'mobile'],
                     bookingOrder: 2,
                     key: 'fairySlime',
-                    legacyLabels: ['Fairy Glitter Slime'],
-                    name: 'Fairy Slime',
-                    status: 'active',
                 },
                 {
-                    bookingChannels: ['studio'],
                     bookingOrder: 1,
                     key: 'unicornSoap',
-                    legacyLabels: [],
-                    name: 'Unicorn Soap',
-                    status: 'active',
                 },
             ],
             key: 'fairy',
@@ -118,11 +113,11 @@ const validCatalogue: BirthdayPartyCatalogue = {
                 {
                     _key: 'card-1',
                     alt: 'Green monster slime in a jar',
-                    bookingChannels: ['studio', 'mobile'],
                     bookingOrder: 1,
                     colour: 'green',
                     creation: {
                         _id: 'creation-1',
+                        bookingChannels: ['studio', 'mobile'],
                         image: {
                             assetId: 'image-1',
                             height: 500,
@@ -176,7 +171,6 @@ describe('validateBirthdayPartyCatalogue', () => {
 
     it('requires exactly one booking card for every creation', () => {
         const catalogue = structuredClone(validCatalogue)
-        catalogue.packages[0].cards[0].bookingChannels = []
         catalogue.packages[0].cards[0].bookingOrder = undefined
 
         throws(
@@ -185,13 +179,13 @@ describe('validateBirthdayPartyCatalogue', () => {
         )
     })
 
-    it('rejects invalid booking channels', () => {
+    it('rejects invalid creation availability', () => {
         const catalogue = structuredClone(validCatalogue)
-        catalogue.packages[0].cards[0].bookingChannels = ['studio', 'studio']
+        catalogue.packages[0].cards[0].creation.bookingChannels = ['studio', 'studio']
 
         throws(
             () => validateBirthdayPartyCatalogue(catalogue),
-            /Package "slime" creation "monsterSlime" has invalid booking channels/
+            /Package "slime" creation "monsterSlime" has invalid availability/
         )
     })
 
@@ -290,7 +284,6 @@ describe('validateBirthdayPartyCatalogue', () => {
         catalogue.packages[0].cards.push({
             ...structuredClone(catalogue.packages[0].cards[0]),
             _key: 'card-2',
-            bookingChannels: [],
             bookingOrder: undefined,
             creation: {
                 ...structuredClone(catalogue.packages[0].cards[0].creation),
@@ -306,10 +299,10 @@ describe('validateBirthdayPartyCatalogue', () => {
         catalogue.packages[0].cards.push({
             ...structuredClone(catalogue.packages[0].cards[0]),
             _key: 'card-2',
-            bookingChannels: ['studio'],
             bookingOrder: 2,
             creation: {
                 _id: 'creation-2',
+                bookingChannels: ['studio', 'mobile'],
                 image: {
                     assetId: 'image-2',
                     height: 500,
@@ -342,10 +335,10 @@ describe('validateBirthdayPartyCatalogue', () => {
             {
                 ...structuredClone(catalogue.packages[0].cards[0]),
                 _key: 'card-2',
-                bookingChannels: ['studio'],
                 bookingOrder: 2,
                 creation: {
                     _id: 'creation-2',
+                    bookingChannels: ['studio', 'mobile'],
                     image: {
                         assetId: 'image-2',
                         height: 500,
@@ -368,14 +361,12 @@ describe('validateBirthdayPartyCatalogue', () => {
             {
                 ...structuredClone(catalogue.packages[0].cards[0]),
                 _key: 'card-3',
-                bookingChannels: [],
                 bookingOrder: undefined,
             }
         )
 
         deepStrictEqual(validateBirthdayPartyCatalogue(catalogue), catalogue)
 
-        catalogue.packages[0].cards[2].bookingChannels = ['mobile']
         catalogue.packages[0].cards[2].bookingOrder = 3
         throws(
             () => validateBirthdayPartyCatalogue(catalogue),

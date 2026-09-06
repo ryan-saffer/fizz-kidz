@@ -8,27 +8,25 @@ import { getBirthdayPartyCreationMenu } from './creation-menu'
 
 const catalogue: BirthdayPartyBookingCatalogue = {
     creations: [
-        { key: 'fairySlime', legacyLabels: [], name: 'Fairy Slime', status: 'active' },
-        { key: 'unicornSoap', legacyLabels: [], name: 'Unicorn Soap', status: 'retired' },
+        {
+            bookingChannels: ['studio', 'mobile'],
+            key: 'fairySlime',
+            legacyLabels: [],
+            name: 'Fairy Slime',
+            status: 'active',
+        },
+        { bookingChannels: [], key: 'unicornSoap', legacyLabels: [], name: 'Unicorn Soap', status: 'retired' },
     ],
     packages: [
         {
             creations: [
                 {
-                    bookingChannels: ['studio', 'mobile'],
                     bookingOrder: 2,
                     key: 'fairySlime',
-                    legacyLabels: [],
-                    name: 'Fairy Slime',
-                    status: 'active',
                 },
                 {
-                    bookingChannels: ['studio'],
                     bookingOrder: 1,
                     key: 'unicornSoap',
-                    legacyLabels: [],
-                    name: 'Unicorn Soap',
-                    status: 'retired',
                 },
             ],
             key: 'fairy',

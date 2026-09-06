@@ -33,11 +33,11 @@ const BIRTHDAY_PARTY_CATALOGUE_QUERY = `
         "cards": websiteCards[] {
             _key,
             alt,
-            "bookingChannels": coalesce(bookingChannels, []),
             bookingOrder,
             colour,
             creation->{
                 _id,
+                "bookingChannels": coalesce(bookingChannels, []),
                 image ${BIRTHDAY_PARTY_IMAGE_PROJECTION},
                 key,
                 "legacyLabels": coalesce(legacyLabels, []),
@@ -137,12 +137,8 @@ type WebsiteImageRecord = {
 
 type SanityCatalogueCreation = Omit<BirthdayPartyCatalogueCreation, 'image'> & { image?: SanityImage }
 
-type SanityCreationCard = Omit<
-    BirthdayPartyCreationCard,
-    'alt' | 'bookingChannels' | 'creation' | 'image' | 'label'
-> & {
+type SanityCreationCard = Omit<BirthdayPartyCreationCard, 'alt' | 'creation' | 'image' | 'label'> & {
     alt?: string
-    bookingChannels?: BirthdayPartyCreationCard['bookingChannels']
     creation?: SanityCatalogueCreation
     hideLabel?: boolean
     image?: SanityImage
@@ -251,7 +247,6 @@ export const sanityClient = {
                     return {
                         _key: card._key,
                         alt: card.alt?.trim() || (creation?.name ? `${creation.name} creation` : ''),
-                        bookingChannels: card.bookingChannels ?? [],
                         bookingOrder: card.bookingOrder ?? undefined,
                         colour: card.colour,
                         creation: creation as BirthdayPartyCatalogueCreation,

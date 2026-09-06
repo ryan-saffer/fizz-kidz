@@ -28,7 +28,6 @@ export type BirthdayPartyCatalogueImage = {
 export type BirthdayPartyCreationCard = {
     _key: string
     alt: string
-    bookingChannels: BirthdayPartyBookingChannel[]
     bookingOrder?: number
     colour: BirthdayPartyCardColour
     creation: BirthdayPartyCatalogueCreation
@@ -38,6 +37,7 @@ export type BirthdayPartyCreationCard = {
 
 export type BirthdayPartyCatalogueCreation = {
     _id: string
+    bookingChannels: BirthdayPartyBookingChannel[]
     image: BirthdayPartyCatalogueImage
     key: string
     legacyLabels: string[]
@@ -111,15 +111,16 @@ export type BirthdayPartyCatalogue = {
 }
 
 export type BirthdayPartyBookingCatalogueCreation = {
+    bookingChannels: BirthdayPartyBookingChannel[]
     key: string
     legacyLabels: string[]
     name: string
     status: BirthdayPartyCatalogueStatus
 }
 
-export type BirthdayPartyBookingCataloguePackageCreation = BirthdayPartyBookingCatalogueCreation & {
-    bookingChannels: BirthdayPartyBookingChannel[]
+export type BirthdayPartyBookingCataloguePackageCreation = {
     bookingOrder: number
+    key: string
 }
 
 export type BirthdayPartyBookingCataloguePackage = {
@@ -149,6 +150,15 @@ function hasCompleteImage(image: BirthdayPartyCatalogueImage | undefined) {
         image.width > 0 &&
         Number.isFinite(image.height) &&
         image.height > 0
+    )
+}
+
+function hasValidBookingChannels(value: unknown, allowEmpty = false): value is BirthdayPartyBookingChannel[] {
+    return (
+        Array.isArray(value) &&
+        (allowEmpty || value.length > 0) &&
+        new Set(value).size === value.length &&
+        value.every((channel) => BIRTHDAY_PARTY_BOOKING_CHANNELS.includes(channel))
     )
 }
 
@@ -337,6 +347,9 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
                 if (!hasCompleteImage(creation.image)) {
                     throw new Error(`Package "${partyPackage.key}" creation "${creation.key}" must have an image`)
                 }
+                if (!hasValidBookingChannels(creation.bookingChannels)) {
+                    throw new Error(`Package "${partyPackage.key}" creation "${creation.key}" has invalid availability`)
+                }
 
                 for (const label of [creation.name, ...creation.legacyLabels]) {
                     const normalizedLabel = label.trim().toLocaleLowerCase('en-AU')
@@ -355,17 +368,9 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
                 }
             }
 
-            const bookingChannels = Array.isArray(card.bookingChannels) ? card.bookingChannels : []
-            if (
-                !Array.isArray(card.bookingChannels) ||
-                new Set(bookingChannels).size !== bookingChannels.length ||
-                bookingChannels.some((channel) => !BIRTHDAY_PARTY_BOOKING_CHANNELS.includes(channel))
-            ) {
-                throw new Error(`Package "${partyPackage.key}" creation "${creation.key}" has invalid booking channels`)
-            }
-            if (bookingChannels.length > 0) {
+            if (card.bookingOrder != null) {
                 bookingCardCounts.set(creation.key, (bookingCardCounts.get(creation.key) ?? 0) + 1)
-                if (!Number.isInteger(card.bookingOrder) || (card.bookingOrder ?? 0) < 1) {
+                if (!Number.isInteger(card.bookingOrder) || card.bookingOrder < 1) {
                     throw new Error(
                         `Package "${partyPackage.key}" creation "${creation.key}" booking card must have a positive integer order`
                     )
@@ -373,11 +378,7 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
                 if (bookingOrders.has(card.bookingOrder!)) {
                     throw new Error(`Package "${partyPackage.key}" has duplicate booking order "${card.bookingOrder}"`)
                 }
-                bookingOrders.add(card.bookingOrder!)
-            } else if (card.bookingOrder != null) {
-                throw new Error(
-                    `Package "${partyPackage.key}" creation "${creation.key}" display card cannot have a booking order`
-                )
+                bookingOrders.add(card.bookingOrder)
             }
 
             if (!card.alt?.trim()) {
@@ -426,6 +427,9 @@ export function validateBirthdayPartyBookingCatalogue(
         if (!BIRTHDAY_PARTY_CATALOGUE_STATUSES.includes(creation.status)) {
             throw new Error(`Creation "${creation.key}" must have a valid status`)
         }
+        if (!hasValidBookingChannels(creation.bookingChannels, creation.status === 'retired')) {
+            throw new Error(`Creation "${creation.key}" has invalid availability`)
+        }
         if (!Array.isArray(creation.legacyLabels) || creation.legacyLabels.some((label) => !label.trim())) {
             throw new Error(`Creation "${creation.key}" has invalid legacy labels`)
         }
@@ -466,14 +470,19 @@ export function validateBirthdayPartyBookingCatalogue(
         const packageCreationKeysBySubmittedValue = new Map<string, string>()
         const bookingOrders = new Set<number>()
         for (const creation of partyPackage.creations) {
-            if (!creationsByKey.has(creation.key)) {
+            const catalogueCreation = creationsByKey.get(creation.key)
+            if (!catalogueCreation) {
                 throw new Error(`Package "${partyPackage.key}" references unknown creation "${creation.key}"`)
             }
             if (packageCreationKeys.has(creation.key)) {
                 throw new Error(`Package "${partyPackage.key}" contains duplicate creation "${creation.key}"`)
             }
             packageCreationKeys.add(creation.key)
-            for (const submittedValue of [creation.key, creation.name, ...creation.legacyLabels]) {
+            for (const submittedValue of [
+                catalogueCreation.key,
+                catalogueCreation.name,
+                ...catalogueCreation.legacyLabels,
+            ]) {
                 const normalizedValue = normalizeBirthdayPartyCreationValue(submittedValue)
                 const existingCreationKey = packageCreationKeysBySubmittedValue.get(normalizedValue)
                 if (existingCreationKey && existingCreationKey !== creation.key) {
@@ -483,14 +492,6 @@ export function validateBirthdayPartyBookingCatalogue(
                 }
                 packageCreationKeysBySubmittedValue.set(normalizedValue, creation.key)
             }
-            if (
-                !Array.isArray(creation.bookingChannels) ||
-                creation.bookingChannels.length === 0 ||
-                new Set(creation.bookingChannels).size !== creation.bookingChannels.length ||
-                creation.bookingChannels.some((channel) => !BIRTHDAY_PARTY_BOOKING_CHANNELS.includes(channel))
-            ) {
-                throw new Error(`Package "${partyPackage.key}" creation "${creation.key}" has invalid booking channels`)
-            }
             if (!Number.isInteger(creation.bookingOrder) || creation.bookingOrder < 1) {
                 throw new Error(`Package "${partyPackage.key}" creation "${creation.key}" has an invalid booking order`)
             }
@@ -498,7 +499,7 @@ export function validateBirthdayPartyBookingCatalogue(
                 throw new Error(`Package "${partyPackage.key}" has duplicate booking order "${creation.bookingOrder}"`)
             }
             bookingOrders.add(creation.bookingOrder)
-            if (partyPackage.status === 'active' && creation.status !== 'active') {
+            if (partyPackage.status === 'active' && catalogueCreation.status !== 'active') {
                 throw new Error(`Active package "${partyPackage.key}" contains retired creation "${creation.key}"`)
             }
         }
@@ -522,13 +523,14 @@ export function resolveBirthdayPartyBookingCreation(
     const normalizedValue = normalizeBirthdayPartyCreationValue(submittedValue)
     const partyPackage = catalogue.packages.find((candidate) => candidate.key === packageKey)
     const packageMatches =
-        partyPackage?.creations.filter(
-            (creation) =>
-                creation.bookingChannels.includes(channel) &&
-                birthdayPartyCreationMatchesSubmittedValue(creation, normalizedValue)
-        ) ?? []
+        partyPackage?.creations.flatMap((packageCreation) => {
+            const creation = catalogue.creations.find((candidate) => candidate.key === packageCreation.key)
+            return creation && birthdayPartyCreationMatchesSubmittedValue(creation, normalizedValue) ? [creation] : []
+        }) ?? []
 
-    if (packageMatches.length === 1) return packageMatches[0]
+    if (packageMatches.length === 1) {
+        return packageMatches[0].bookingChannels.includes(channel) ? packageMatches[0] : undefined
+    }
     if (packageMatches.length > 1) return undefined
 
     return undefined
@@ -538,13 +540,20 @@ export function getActiveBirthdayPartyBookingPackages(
     catalogue: BirthdayPartyBookingCatalogue,
     channel: BirthdayPartyBookingChannel
 ) {
+    const creationsByKey = new Map(catalogue.creations.map((creation) => [creation.key, creation] as const))
+
     return catalogue.packages
         .filter((partyPackage) => partyPackage.status === 'active')
         .sort((left, right) => left.position! - right.position!)
         .map((partyPackage) => ({
             ...partyPackage,
             creations: partyPackage.creations
-                .filter((creation) => creation.status === 'active' && creation.bookingChannels.includes(channel))
+                .flatMap((packageCreation) => {
+                    const creation = creationsByKey.get(packageCreation.key)
+                    return creation?.status === 'active' && creation.bookingChannels.includes(channel)
+                        ? [{ ...creation, bookingOrder: packageCreation.bookingOrder }]
+                        : []
+                })
                 .sort((left, right) => left.bookingOrder - right.bookingOrder),
         }))
         .filter((partyPackage) => partyPackage.creations.length > 0)
@@ -566,7 +575,7 @@ export function getBirthdayPartyBookingCreationName(catalogue: BirthdayPartyBook
 }
 
 function birthdayPartyCreationMatchesSubmittedValue(
-    creation: BirthdayPartyBookingCatalogueCreation,
+    creation: Pick<BirthdayPartyBookingCatalogueCreation, 'key' | 'legacyLabels' | 'name'>,
     normalizedValue: string
 ) {
     return [creation.key, creation.name, ...creation.legacyLabels].some(

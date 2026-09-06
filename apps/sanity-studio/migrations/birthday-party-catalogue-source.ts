@@ -20,7 +20,6 @@ export type CatalogueSourceOffering = {
 }
 
 export type CatalogueSourcePackageOffering = {
-    availability: BirthdayPartyBookingChannel[]
     cards: CatalogueSourceCard[]
     offeringKey: keyof typeof birthdayPartyCatalogueOfferings
 }
@@ -37,9 +36,6 @@ export type CatalogueSourcePackage = {
     primaryColour: BirthdayPartyPackageColour
     websiteCardOrder?: string[]
 }
-
-const both: BirthdayPartyBookingChannel[] = ['studio', 'mobile']
-const studioOnly: BirthdayPartyBookingChannel[] = ['studio']
 
 function card(
     imageKey: string,
@@ -141,6 +137,21 @@ export const birthdayPartyCatalogueOfferings = {
     volcanoes: { name: 'Bubbling Volcanoes', recipeName: 'Bubbling Volcanoes' },
 } satisfies Record<string, CatalogueSourceOffering>
 
+export const birthdayPartyCatalogueStudioOnlyCreationKeys = [
+    'jellySoap',
+    'unicornSoap',
+] as const satisfies readonly (keyof typeof birthdayPartyCatalogueOfferings)[]
+
+const studioOnlyCreationKeys = new Set<keyof typeof birthdayPartyCatalogueOfferings>(
+    birthdayPartyCatalogueStudioOnlyCreationKeys
+)
+
+export function getBirthdayPartyCatalogueBookingChannels(
+    creationKey: keyof typeof birthdayPartyCatalogueOfferings
+): BirthdayPartyBookingChannel[] {
+    return studioOnlyCreationKeys.has(creationKey) ? ['studio'] : ['studio', 'mobile']
+}
+
 export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
     {
         accentColour: '#F24DA2',
@@ -150,44 +161,36 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         primaryColour: 'purple',
         offerings: [
             {
-                availability: both,
                 cards: [card('websiteCreationsStarhexWandsPng', 'pink', 'Starhex Wands')],
                 offeringKey: 'starhexWands',
             },
             {
-                availability: both,
                 cards: [
                     card('websiteCreationsSquishyPocketsPng', 'purple', ['Squishy Kitty Pockets', '(Slime Inside!)']),
                 ],
                 offeringKey: 'squishyPockets',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsHendrixGlitterShinePng', 'blue', 'Huntrix Glitter Shimmer')],
                 offeringKey: 'huntrixGlitterShimmer',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsGoldenSlimePng', 'yellow', 'Golden Slime')],
                 offeringKey: 'goldenSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsHeroPowerChargersPng', 'blue', 'Hero Power Chargers')],
                 offeringKey: 'heroPowerChargers',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsMoonBeamBraceletsPng', 'pink', 'Moon Beam Bracelets')],
                 offeringKey: 'moonBeamBracelets',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsCharmKeyringsPng', 'purple', 'Charm Keyrings')],
                 offeringKey: 'charmKeyrings',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSparkleCrownsPng', 'purple', 'Sparkle Crowns')],
                 offeringKey: 'sparkleCrowns',
             },
@@ -201,52 +204,42 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         primaryColour: 'pink',
         offerings: [
             {
-                availability: both,
                 cards: [card('websiteCreationsSparklingLipBalmPng', 'purple', 'Sparkling Lip Balm')],
                 offeringKey: 'sparklingLipBalm',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsGlitterFaceShimmerPng', 'yellow', 'Glitter Face Shimmer')],
                 offeringKey: 'glitterFaceShimmer',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsRainbowCrystalsPng', 'purple', 'Rainbow Crystals')],
                 offeringKey: 'rainbowCrystals',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsTsBraceletsPng', 'pink', 'Friendship Bracelets')],
                 offeringKey: 'friendshipBracelets',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsCharmKeyringsPng', 'purple', 'Charm Keyrings')],
                 offeringKey: 'charmKeyrings',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsFairySlimePng', 'pink', 'Fairy Slime')],
                 offeringKey: 'fairySlime',
             },
             {
-                availability: studioOnly,
                 cards: [card('websiteCreationsUnicornSoapPng', 'pink', 'Unicorn Soap')],
                 offeringKey: 'unicornSoap',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsRainbowBathBombsPng', 'yellow', 'Rainbow Bath Bombs')],
                 offeringKey: 'rainbowBathBombs',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsUnicornBathCrumblePng', 'blue', 'Unicorn Fizz Crumble')],
                 offeringKey: 'unicornBathCrumble',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsGlitterHairShimmerPng', 'blue', 'Glitter Hair Shimmer')],
                 offeringKey: 'glitterHairShimmer',
             },
@@ -260,47 +253,38 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         primaryColour: 'blue',
         offerings: [
             {
-                availability: both,
                 cards: [card('websiteCreationsJellySoapPng', 'yellow', 'Jelly Soap')],
                 offeringKey: 'jellySoap',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsMonsterExplosionsPng', 'green', 'Monster Explosions')],
                 offeringKey: 'monsterExplosions',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsFluffySlimeBluePng', 'blue', 'Fluffy Slime')],
                 offeringKey: 'fluffySlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsBugsInBathBombsPng', 'green', 'Bugs in Bath Bombs')],
                 offeringKey: 'bugsInBathBombs',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsBubblingVolcanoesPng', 'red', 'Bubbling Volcanoes')],
                 offeringKey: 'volcanoes',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsDinosaurBathBombsPng', 'green', 'Dinosaur Bath Bombs')],
                 offeringKey: 'dinosaurBathBombs',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsFirePotionsPng', 'red', 'Dragon Fire Potions')],
                 offeringKey: 'firePotions',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsMonsterSlimeGreenPng', 'green', 'Monster Slime')],
                 offeringKey: 'monsterSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSnakePotionsPng', 'green', 'Slithering Snake Potions')],
                 offeringKey: 'snakePotions',
             },
@@ -315,57 +299,46 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         primaryColour: 'purple',
         offerings: [
             {
-                availability: both,
                 cards: [card('websiteCreationsFairySlimePng', 'pink', 'Fairy Slime')],
                 offeringKey: 'fairySlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsBirthdayCakeSlimePng', 'purple', 'Birthday Cake Slime')],
                 offeringKey: 'birthdayCakeSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsMonsterSlimeGreenPng', 'green', 'Monster Slime')],
                 offeringKey: 'monsterSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsCandySlimePng', 'blue', 'Candy Slime')],
                 offeringKey: 'candySlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsUnicornCloudSlimePng', 'pink', 'Unicorn Cloud Slime')],
                 offeringKey: 'unicornCloudSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsFluffySlimeBluePng', 'blue', 'Fluffy Slime')],
                 offeringKey: 'fluffySlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSpidermanSlimePng', 'red', 'Spiderman Slime')],
                 offeringKey: 'spidermanSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsMarshmallowSlimePng', 'yellow', 'Marshmallow Slime')],
                 offeringKey: 'marshmallowSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSwiftieSlimePng', 'pink', 'Swiftie Slime')],
                 offeringKey: 'swiftieSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsRainbowSlimePng', 'purple', 'Rainbow Slime')],
                 offeringKey: 'rainbowSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsFrozenSparkleSlimeGreenPng', 'green', 'Frozen Sparkle Slime')],
                 offeringKey: 'frozenSparkleSlime',
             },
@@ -379,52 +352,42 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         primaryColour: 'pink',
         offerings: [
             {
-                availability: both,
                 cards: [card('websiteCreationsFairyWandsPng', 'pink', 'Fairy Wands')],
                 offeringKey: 'fairyWands',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsPixieGlitterPng', 'purple', 'Pixie Glitter Shimmer')],
                 offeringKey: 'pixieGlitterShimmer',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsFairyBraceletsPng', 'blue', 'Fairy Bracelets')],
                 offeringKey: 'fairyBracelets',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSparklingLipBalmPng', 'purple', 'Fairy Lip Balm')],
                 offeringKey: 'fairyLipBalm',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsFairySlimePng', 'pink', 'Fairy Slime')],
                 offeringKey: 'fairySlime',
             },
             {
-                availability: studioOnly,
                 cards: [card('websiteCreationsUnicornSoapPng', 'pink', 'Unicorn Soap')],
                 offeringKey: 'unicornSoap',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsFairyBathBombsPng', 'purple', 'Fairy Bath Bombs')],
                 offeringKey: 'fairyBathBombs',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsMarshmallowSlimePng', 'yellow', 'Marshmallow Slime')],
                 offeringKey: 'marshmallowSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsGlitterHairShimmerPng', 'blue', 'Fairy Hair Shimmer')],
                 offeringKey: 'fairyHairShimmer',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSparkleCrownsPng', 'purple', 'Sparkle Crowns')],
                 offeringKey: 'sparkleCrowns',
             },
@@ -440,7 +403,6 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         primaryColour: 'black',
         offerings: [
             {
-                availability: both,
                 cards: [
                     card('websiteCreationsFluidBears1Png', 'green', '', {
                         alt: 'Green fluid bear example',
@@ -488,7 +450,6 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         ],
         offerings: [
             {
-                availability: both,
                 cards: [
                     card('websiteCreationsMonsterSlimePurplePng', 'purple', 'Monster Slime'),
                     card('websiteCreationsMonsterSlimeGreenPng', 'green', 'Monster Slime', {
@@ -498,32 +459,26 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
                 offeringKey: 'monsterSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsMonsterExplosionsPng', 'green', 'Monster Explosions')],
                 offeringKey: 'monsterExplosions',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsBugsInBathBombsPng', 'green', 'Bugs in Bath Bombs')],
                 offeringKey: 'bugsInBathBombs',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsDinosaurBathBombsPng', 'green', 'Dinosaur Bath Bombs')],
                 offeringKey: 'dinosaurBathBombs',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsBubblingVolcanoesPng', 'red', 'Bubbling Volcanoes')],
                 offeringKey: 'volcanoes',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsFirePotionsPng', 'red', 'Dragon Fire Potions')],
                 offeringKey: 'firePotions',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSnakePotionsPng', 'green', 'Slithering Snake Potions')],
                 offeringKey: 'snakePotions',
             },
@@ -537,37 +492,30 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         primaryColour: 'pink',
         offerings: [
             {
-                availability: both,
                 cards: [card('websiteCreationsFairyWandsPng', 'pink', 'Fairy Wands')],
                 offeringKey: 'fairyWands',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSparklingLipBalmPng', 'purple', 'Unicorn Lip Balm')],
                 offeringKey: 'unicornLipBalm',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsUnicornBathCrumblePng', 'blue', 'Unicorn Fizz Crumble')],
                 offeringKey: 'unicornBathCrumble',
             },
             {
-                availability: studioOnly,
                 cards: [card('websiteCreationsUnicornSoapPng', 'pink', 'Unicorn Soap')],
                 offeringKey: 'unicornSoap',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsUnicornBathBombsPng', 'blue', 'Unicorn Bath Bombs (With horns!)')],
                 offeringKey: 'unicornBathBombsWithHorns',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsUnicornCloudSlimePng', 'pink', 'Unicorn Cloud Slime')],
                 offeringKey: 'unicornCloudSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSparkleCrownsPng', 'purple', 'Sparkle Crowns')],
                 offeringKey: 'sparkleCrowns',
             },
@@ -581,22 +529,18 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         primaryColour: 'pink',
         offerings: [
             {
-                availability: both,
                 cards: [card('websiteCreationsTieDyeToteBagsPng', 'blue', 'Tie Dye Tote Bags')],
                 offeringKey: 'tieDyeToteBags',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsTieDyePillowPng', 'green', 'Tie Dye Pillow')],
                 offeringKey: 'tieDyePillow',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsRainbowCrystalsPng', 'purple', 'Rainbow Crystals')],
                 offeringKey: 'rainbowCrystals',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsRainbowSlimePng', 'purple', 'Rainbow Slime')],
                 offeringKey: 'rainbowSlime',
             },
@@ -610,52 +554,42 @@ export const birthdayPartyCataloguePackages: CatalogueSourcePackage[] = [
         primaryColour: 'purple',
         offerings: [
             {
-                availability: both,
                 cards: [card('websiteCreationsTsBathBombsPng', 'yellow', "'Speak Now' Purple Bath Bombs")],
                 offeringKey: 'speakNowPurpleBathbombs',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsTsBraceletsPng', 'pink', 'Friendship Bracelets')],
                 offeringKey: 'friendshipBracelets',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsTsRainbowBathBombsPng', 'blue', "'Lover' Rainbow Bath Bombs")],
                 offeringKey: 'loverRainbowBathBombs',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsTsMidnightsSlimePng', 'purple', 'Midnights Slime')],
                 offeringKey: 'midnightsSlime',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsTsLipBalmPng', 'pink', 'Red 1989 Lip Balm')],
                 offeringKey: 'red1989LipBalm',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsTsFacePaintPng', 'blue', "'Lover' Glitter Face Paint")],
                 offeringKey: 'loverGlitterFacePaint',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsGlitterFaceShimmerPng', 'yellow', 'Glitter Face Shimmer')],
                 offeringKey: 'glitterFaceShimmer',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSparklingLipBalmPng', 'purple', 'Sparkling Lip Balm')],
                 offeringKey: 'sparklingLipBalm',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsSparkleCrownsPng', 'purple', 'Sparkle Crowns')],
                 offeringKey: 'sparkleCrowns',
             },
             {
-                availability: both,
                 cards: [card('websiteCreationsCharmKeyringsPng', 'purple', 'Charm Keyrings')],
                 offeringKey: 'charmKeyrings',
             },

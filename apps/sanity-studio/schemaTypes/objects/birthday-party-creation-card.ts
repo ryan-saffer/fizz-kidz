@@ -1,6 +1,6 @@
 import { defineArrayMember, defineField, defineType } from 'sanity'
 
-import { BIRTHDAY_PARTY_BOOKING_CHANNELS, BIRTHDAY_PARTY_CARD_COLOURS } from '../birthday-party-catalogue-options'
+import { BIRTHDAY_PARTY_CARD_COLOURS } from '../birthday-party-catalogue-options'
 
 export const birthdayPartyCreationCard = defineType({
     name: 'birthdayPartyCreationCard',
@@ -58,46 +58,26 @@ export const birthdayPartyCreationCard = defineType({
         }),
         defineField({
             name: 'bookingChannels',
-            title: 'Booking channels',
+            title: 'Booking channels (migration only)',
             type: 'array',
             description:
-                'Select channels on exactly one card for each creation. Leave empty on additional presentation cards.',
+                'Retained only for undeployed compatibility code. Creation availability is the source of truth.',
+            deprecated: { reason: 'Use the creation’s Offered at field. Delete after the coordinated cutover.' },
+            hidden: true,
+            readOnly: true,
             of: [defineArrayMember({ type: 'string' })],
-            options: {
-                layout: 'grid',
-                list: BIRTHDAY_PARTY_BOOKING_CHANNELS.map((channel) => ({
-                    title: channel === 'studio' ? 'Studio' : 'Mobile',
-                    value: channel,
-                })),
-            },
-            validation: (rule) => rule.unique(),
         }),
         defineField({
             name: 'bookingOrder',
             title: 'Booking choice order',
             type: 'number',
-            description: 'Controls Paperform and booking-menu order without changing the Website card order.',
-            hidden: ({ parent, value }) =>
-                (!Array.isArray(parent?.bookingChannels) || parent.bookingChannels.length === 0) && value === undefined,
-            validation: (rule) =>
-                rule
-                    .integer()
-                    .min(1)
-                    .custom((order, context) => {
-                        const parent = context.parent as { bookingChannels?: string[] } | undefined
-                        if (parent?.bookingChannels?.length && order === undefined) {
-                            return 'A booking card must have a booking choice order.'
-                        }
-                        if (!parent?.bookingChannels?.length && order !== undefined) {
-                            return 'Remove the booking choice order from an additional display card.'
-                        }
-                        return true
-                    }),
+            description:
+                'Set this on exactly one card for each creation. It controls booking-menu order without changing Website card order. Leave empty on additional presentation cards.',
+            validation: (rule) => rule.integer().min(1),
         }),
     ],
     preview: {
         select: {
-            bookingChannels: 'bookingChannels',
             bookingOrder: 'bookingOrder',
             creation: 'creation.name',
             creationImage: 'creation.image',
@@ -105,19 +85,15 @@ export const birthdayPartyCreationCard = defineType({
             labels: 'label',
             media: 'image',
         },
-        prepare: ({ bookingChannels, bookingOrder, creation, creationImage, hideLabel, labels, media }) => {
+        prepare: ({ bookingOrder, creation, creationImage, hideLabel, labels, media }) => {
             const title = hideLabel
                 ? 'Image-only card'
                 : Array.isArray(labels) && labels.length > 0
                   ? labels.join(' / ')
                   : creation
-            const channels = Array.isArray(bookingChannels) ? bookingChannels.join(' + ') : ''
             return {
                 title: title ?? 'Untitled card',
-                subtitle: [
-                    creation,
-                    channels ? `Booking choice ${bookingOrder ?? '?'}: ${channels}` : 'Additional display card',
-                ]
+                subtitle: [creation, bookingOrder ? `Booking choice ${bookingOrder}` : 'Additional display card']
                     .filter(Boolean)
                     .join(' · '),
                 media: media ?? creationImage,

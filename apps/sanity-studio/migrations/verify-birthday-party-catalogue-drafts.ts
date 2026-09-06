@@ -78,11 +78,11 @@ const catalogue = await client.withConfig({ perspective: 'drafts' }).fetch<Birth
             "cards": websiteCards[] {
                 _key,
                 "alt": coalesce(alt, creation->name + " creation"),
-                "bookingChannels": coalesce(bookingChannels, []),
                 bookingOrder,
                 colour,
                 creation->{
                     _id,
+                    "bookingChannels": coalesce(bookingChannels, []),
                     "image": {
                         "assetId": image.asset->_id,
                         "height": image.asset->metadata.dimensions.height,
@@ -190,7 +190,7 @@ strictEqual(
 )
 strictEqual(
     catalogue.packages.reduce(
-        (count, partyPackage) => count + partyPackage.cards.filter((card) => card.bookingChannels.length > 0).length,
+        (count, partyPackage) => count + partyPackage.cards.filter((card) => card.bookingOrder !== undefined).length,
         0
     ),
     77
@@ -199,7 +199,7 @@ for (const sourcePackage of birthdayPartyCataloguePackages) {
     deepStrictEqual(
         catalogue.packages
             .find((partyPackage) => partyPackage.key === sourcePackage.key)
-            ?.cards.filter((card) => card.bookingChannels.length > 0)
+            ?.cards.filter((card) => card.bookingOrder !== undefined)
             .sort((left, right) => left.bookingOrder! - right.bookingOrder!)
             .map((card) => card.creation.key),
         sourcePackage.offerings.map((offering) => offering.offeringKey)

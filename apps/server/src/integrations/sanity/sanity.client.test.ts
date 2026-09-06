@@ -118,7 +118,7 @@ describe('SanityClient', () => {
         const result = await sanity.getBirthdayPartyCreations()
 
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('| order(coalesce(position, order) asc)'))
-        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('websiteCards[count(bookingChannels) > 0'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('websiteCards[defined(bookingOrder)'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('creation->recipe->'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(packageName, name)'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(primaryColour, colour)'))
@@ -143,6 +143,7 @@ describe('SanityClient', () => {
         fetch.mockResolvedValue({
             creations: [
                 {
+                    bookingChannels: ['studio', 'mobile'],
                     key: 'fairySlime',
                     legacyLabels: ['Fairy Glitter Slime'],
                     name: 'Fairy Slime',
@@ -154,12 +155,8 @@ describe('SanityClient', () => {
                     creations: [
                         {
                             _key: 'card-1',
-                            bookingChannels: ['studio', 'mobile'],
                             bookingOrder: 1,
                             key: 'fairySlime',
-                            legacyLabels: ['Fairy Glitter Slime'],
-                            name: 'Fairy Slime',
-                            status: 'active',
                         },
                     ],
                     key: 'fairy',
@@ -174,7 +171,7 @@ describe('SanityClient', () => {
         const result = await sanity.getBirthdayPartyBookingCatalogue()
 
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('birthdayPartyCreationOffering'))
-        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('websiteCards[count(bookingChannels) > 0]'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('websiteCards[defined(bookingOrder)]'))
         expect(withConfig).toHaveBeenCalledWith({ useCdn: false })
         expect(result.packages[0].creations[0].key).toBe('fairySlime')
     })

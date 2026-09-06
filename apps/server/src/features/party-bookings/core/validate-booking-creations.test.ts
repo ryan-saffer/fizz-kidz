@@ -8,28 +8,32 @@ import { getInvalidBookingCreationKeys } from './validate-booking-creations'
 
 const catalogue: BirthdayPartyBookingCatalogue = {
     creations: [
-        { key: 'fairySlime', legacyLabels: [], name: 'Fairy Slime', status: 'active' },
-        { key: 'unicornSoap', legacyLabels: [], name: 'Unicorn Soap', status: 'active' },
-        { key: 'oldSlime', legacyLabels: [], name: 'Old Slime', status: 'retired' },
+        {
+            bookingChannels: ['studio', 'mobile'],
+            key: 'fairySlime',
+            legacyLabels: [],
+            name: 'Fairy Slime',
+            status: 'active',
+        },
+        {
+            bookingChannels: ['studio'],
+            key: 'unicornSoap',
+            legacyLabels: [],
+            name: 'Unicorn Soap',
+            status: 'active',
+        },
+        { bookingChannels: [], key: 'oldSlime', legacyLabels: [], name: 'Old Slime', status: 'retired' },
     ],
     packages: [
         {
             creations: [
                 {
-                    bookingChannels: ['studio', 'mobile'],
                     bookingOrder: 1,
                     key: 'fairySlime',
-                    legacyLabels: [],
-                    name: 'Fairy Slime',
-                    status: 'active',
                 },
                 {
-                    bookingChannels: ['studio'],
                     bookingOrder: 2,
                     key: 'unicornSoap',
-                    legacyLabels: [],
-                    name: 'Unicorn Soap',
-                    status: 'active',
                 },
             ],
             key: 'fairy',

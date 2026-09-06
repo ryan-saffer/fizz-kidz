@@ -72,6 +72,7 @@ describe('party utilities', () => {
                 getBookingCreationDisplayValues(booking, {
                     creations: [
                         {
+                            bookingChannels: ['studio', 'mobile'],
                             key: 'sparklingLipBalm',
                             legacyLabels: [],
                             name: 'Sparkle Lip Balm',

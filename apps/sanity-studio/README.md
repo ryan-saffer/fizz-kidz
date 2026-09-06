@@ -33,8 +33,8 @@ Keep the Studio standalone rather than embedding it in another app. Use kebab-ca
 
 The Birthday Party area separates customer content from staff instructions:
 
-- **Packages** owns the canonical package name, primary and accent colours, one position, one ordered Website-card list, and the generated Website page. Position controls Portal instruction groups and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue. The form separates core package information from Website route, SEO, page content, and listing settings. Every creation card references a creation; exactly one card per creation also owns its booking channels and booking-menu order.
-- **Creations > Live** owns current booking choices, including stable keys, customer names, default images, previous Paperform labels, and optional creation instructions. **Creations > Archived** contains historical choices retained for old bookings; archived creations are not offered for new bookings and do not require Website images. Each creation displays a derived, read-only list of every package whose Website cards reference it.
+- **Packages** owns the canonical package name, primary and accent colours, one position, one ordered Website-card list, and the generated Website page. Position controls Portal instruction groups and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue. The form separates core package information from Website route, SEO, page content, and listing settings. Every creation card references a creation; exactly one card per creation owns its booking-menu order.
+- **Creations > Live** owns current booking choices, including stable keys, customer names, operational studio/mobile availability, default images, previous Paperform labels, and optional creation instructions. Availability belongs to the creation and applies everywhere it is used. **Creations > Archived** contains historical choices retained for old bookings; archived creations are not offered for new bookings and do not require availability or Website images. Each creation displays a derived, read-only list of every package whose Website cards reference it.
 - **Creation instructions** remains the reusable instruction library consumed by the Portal. Each instruction displays a derived, read-only list of every creation that references it; one instruction can be shared by multiple creations.
 
 The Phase 1 migration source is `migrations/birthday-party-catalogue-source.ts`. From `apps/sanity-studio`, validate it against the current production assets and creation instructions with a read-only dry run:
@@ -54,6 +54,15 @@ The one-time `migrate-birthday-party-package-cards.ts` migration collapses the o
 ```bash
 npx sanity exec migrations/import-retired-birthday-party-creations.ts --with-user-token
 npx sanity exec migrations/import-retired-birthday-party-creations.ts --with-user-token -- --apply
+```
+
+`migrations/migrate-birthday-party-creation-booking-channels.ts` performed the one-time creation-owned availability backfill. It only fills missing availability and refuses to replace an editor's existing choice. Jelly Soap and Unicorn Soap were marked studio-only and every other live creation was made available for both studio and mobile parties. Legacy card-level availability remains stored for the currently undeployed consumers and can be previewed and removed after the coordinated cutover; cleanup validates current creation availability without reapplying the migration source:
+
+```bash
+npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token
+npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token -- --apply
+npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token -- --cleanup-cards
+npx sanity exec migrations/migrate-birthday-party-creation-booking-channels.ts --with-user-token -- --cleanup-cards --apply
 ```
 
 Before publishing an initial import, validate its draft graph, including booking order and the non-contiguous Jungle Safari card sequence, with:
