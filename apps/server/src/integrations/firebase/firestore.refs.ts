@@ -19,6 +19,7 @@ import type {
     InventoryStockMovement,
     InventoryUsageRule,
     PartyFormV2,
+    PartyFormV2Checkout,
     Studio,
 } from '@fizz-kidz/core'
 
@@ -28,6 +29,19 @@ import type { FieldValue, CollectionGroup } from 'firebase-admin/firestore'
 
 export type Collection<T> = FirebaseFirestore.CollectionReference<T>
 export type Document<T> = FirebaseFirestore.DocumentReference<T>
+
+export type PartyFormV2PaymentRecord = {
+    summary: PartyFormV2Checkout
+    orderId: string | null
+    giftCardId: string
+    discount: Pick<DiscountCode, 'id' | 'code' | 'discountType' | 'discountAmount'> | null
+    state: 'ready' | 'paying' | 'paid' | 'completed' | 'failed'
+    leaseUntil: number
+    receiptUrl: string | null
+    createdAt: number
+    discountReserved?: boolean
+    validated?: boolean
+}
 
 export class FirestoreRefs {
     static async partyBookings() {
@@ -137,6 +151,12 @@ export class FirestoreRefs {
         ) as Collection<DiscountCodeRedemption>
     }
 
+    static async partyFormDiscountReservations() {
+        return (await FirestoreClient.getInstance()).collection('partyFormDiscountReservations') as Collection<{
+            redemptionKey: string
+        }>
+    }
+
     static async users() {
         return (await FirestoreClient.getInstance()).collection('users') as Collection<AuthUser>
     }
@@ -178,6 +198,10 @@ export class FirestoreRefs {
         return (await FirestoreClient.getInstance()).collection('partyFormV2Submissions') as Collection<{
             bookingId: string
             payload: PartyFormV2
+            payment?: PartyFormV2PaymentRecord
+            bookingApplied?: boolean
+            previousBooking?: Booking
+            notifications?: Record<string, boolean>
             createdAt: FieldValue
         }>
     }

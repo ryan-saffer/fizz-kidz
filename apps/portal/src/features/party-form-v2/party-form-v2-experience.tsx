@@ -9,13 +9,11 @@ import {
     orderedQuantities,
     PRODUCTS,
     PROD_ADDITIONS,
-    TAKE_HOME_BAG_PRICE,
 } from '@fizz-kidz/core'
 
 import { Button } from '@shared/components/ui/button'
 
 import { TAKE_HOME_BAG_LABELS } from './party-form-v2-copy'
-import { PRODUCT_PRICE } from './party-form-v2-pricing'
 
 import type { FormValues } from './party-form-v2-form'
 import type { PartyFormV2Config } from './party-form-v2-page'
@@ -124,12 +122,10 @@ export function PartyWelcome({ config, onStart }: { config: PartyFormV2Config; o
 export function PartyReview({
     config,
     values,
-    total,
     onEdit,
 }: {
     config: PartyFormV2Config
     values: FormValues
-    total: number
     onEdit: (step: string) => void
 }) {
     const cake = config.canOrderCake && values.cakeSelection && values.cakeSelection !== BRING_OWN_CAKE
@@ -223,58 +219,10 @@ export function PartyReview({
                     </>
                 )}
             </ReviewSection>
-            <div className="party-payment-summary">
-                <div>
-                    <span>To pay today</span>
-                    <strong>{money(total)}</strong>
-                </div>
-                {cake && (
-                    <>
-                        {values.cakeSize && (
-                            <PaymentLine label="Ice-cream cake" amount={CAKE_SIZES[values.cakeSize].price} />
-                        )}
-                        {values.cakeServed && CAKE_SERVED_OPTIONS[values.cakeServed].price > 0 && (
-                            <PaymentLine
-                                label="Cake serving option"
-                                amount={CAKE_SERVED_OPTIONS[values.cakeServed].price}
-                            />
-                        )}
-                        {values.cakeCandles && CAKE_CANDLES_OPTIONS[values.cakeCandles].price > 0 && (
-                            <PaymentLine label="Candles" amount={CAKE_CANDLES_OPTIONS[values.cakeCandles].price} />
-                        )}
-                    </>
-                )}
-                {orderedQuantities(values.takeHomeBags).map(([key, quantity]) => (
-                    <PaymentLine
-                        key={key}
-                        label={`${quantity} × ${TAKE_HOME_BAG_LABELS[key]}`}
-                        amount={quantity * TAKE_HOME_BAG_PRICE}
-                    />
-                ))}
-                {orderedQuantities(values.products).map(([key, quantity]) => (
-                    <PaymentLine
-                        key={key}
-                        label={`${quantity} × ${PRODUCTS[key].displayValue}`}
-                        amount={quantity * PRODUCT_PRICE}
-                    />
-                ))}
-                <p>The rest of your party payment will be made at the end of the party.</p>
-            </div>
         </div>
     )
 }
 
-function money(amount: number) {
-    return `$${amount.toFixed(2)}`
-}
-function PaymentLine({ label, amount }: { label: string; amount: number }) {
-    return (
-        <div className="party-payment-line">
-            <span>{label}</span>
-            <span>{money(amount)}</span>
-        </div>
-    )
-}
 function ReviewSection({ title, onEdit, children }: { title: string; onEdit: () => void; children: React.ReactNode }) {
     return (
         <section className="party-review-section">

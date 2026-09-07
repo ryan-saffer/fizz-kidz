@@ -11,9 +11,37 @@ import { PartyFormV2Form } from './party-form-v2-form'
 
 import type { PartyFormV2Config } from './party-form-v2-page'
 
-const submit = vi.hoisted(() => vi.fn())
+const { submit, prepare } = vi.hoisted(() => ({ submit: vi.fn(), prepare: vi.fn() }))
 vi.mock('@integrations/trpc', () => ({
-    useTRPC: () => ({ parties: { submitPartyFormV2: { mutationOptions: () => ({ mutationFn: submit }) } } }),
+    useTRPC: () => ({
+        parties: {
+            submitPartyFormV2: { mutationOptions: () => ({ mutationFn: submit }) },
+            preparePartyFormV2: { mutationOptions: () => ({ mutationFn: prepare }) },
+        },
+    }),
+}))
+vi.mock('react-square-web-payments-sdk', () => ({
+    PaymentForm: ({
+        cardTokenizeResponseReceived,
+    }: {
+        cardTokenizeResponseReceived: (
+            result: { status: string; token: string },
+            verification: { token: string }
+        ) => Promise<void>
+    }) => (
+        <button
+            type="button"
+            onClick={() =>
+                void cardTokenizeResponseReceived(
+                    { status: 'OK', token: 'card-token' },
+                    { token: 'verification-token' }
+                )
+            }
+        >
+            Pay card
+        </button>
+    ),
+    CreditCard: () => null,
 }))
 
 const config: PartyFormV2Config = {
@@ -49,7 +77,22 @@ const config: PartyFormV2Config = {
 }
 
 beforeEach(() => {
-    submit.mockReset().mockRejectedValue(new Error('Offline'))
+    submit
+        .mockReset()
+        .mockRejectedValue(Object.assign(new Error('Payment failed'), { data: { code: 'PAYMENT_METHOD_INVALID' } }))
+    prepare.mockReset().mockImplementation(async ({ payload }) => ({
+        submissionId: 'e0ba9409-d01b-4eb7-bceb-bab50a562898',
+        locationId: 'location',
+        parentEmail: 'alex@example.com',
+        subtotalCents: (payload.takeHomeBags.lollyBags ?? 0) * 640,
+        totalCents: (payload.takeHomeBags.lollyBags ?? 0) * 640,
+        cardCents: (payload.takeHomeBags.lollyBags ?? 0) * 640,
+        items: [],
+        discountCents: 0,
+        discountCode: '',
+        giftCardCents: 0,
+        giftCardLast4: '',
+    }))
     vi.stubGlobal('scrollTo', vi.fn())
     vi.stubGlobal(
         'ResizeObserver',
@@ -149,19 +192,24 @@ describe('Party form guided journey', () => {
         await user.type(screen.getByLabelText('Fun Facts'), 'Loves dancing')
         await user.click(screen.getByRole('button', { name: 'Next' }))
         expect(await screen.findByRole('heading', { name: 'Review' })).toBeTruthy()
-        expect(screen.getAllByText('$6.40').length).toBeGreaterThan(0)
+        expect((await screen.findAllByText('$6.40')).length).toBeGreaterThan(0)
         expect(screen.getByText('Loves dancing', { selector: 'p' })).toBeTruthy()
-        await user.click(screen.getByRole('button', { name: 'Submit' }))
+        await user.click(screen.getByRole('button', { name: 'Pay card' }))
         await waitFor(() => expect(submit).toHaveBeenCalledOnce())
-        expect(submit.mock.calls[0][0]).toMatchObject({
+        expect(prepare.mock.calls[0][0].payload).toMatchObject({
             bookingId: 'test-party',
             parentFirstName: 'Alex',
             creations: [{ packageKey: 'slime', creationKeys: ['fluffySlime', 'crunchySlime'] }],
             takeHomeBags: { lollyBags: 1 },
             funFacts: 'Loves dancing',
         })
-        expect(submit.mock.calls[0][0]).not.toHaveProperty('cake')
-        expect(await screen.findByText('Something went wrong')).toBeTruthy()
+        expect(prepare.mock.calls[0][0].payload).not.toHaveProperty('cake')
+        expect(submit.mock.calls[0][0]).toEqual({
+            submissionId: 'e0ba9409-d01b-4eb7-bceb-bab50a562898',
+            token: 'card-token',
+            buyerVerificationToken: 'verification-token',
+        })
+        expect(await screen.findByText('Payment failed')).toBeTruthy()
         await user.click(screen.getByRole('button', { name: 'Edit take home goodies' }))
         expect(within(screen.getByRole('group', { name: /Lolly Bag quantity/i })).getByRole('status').textContent).toBe(
             '1'

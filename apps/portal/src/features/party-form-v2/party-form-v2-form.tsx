@@ -1,5 +1,4 @@
 import { useForm } from '@tanstack/react-form'
-import { useMutation } from '@tanstack/react-query'
 import { ArrowLeft, ArrowRight, Minus, Plus } from 'lucide-react'
 import { useRef, useState } from 'react'
 
@@ -24,11 +23,8 @@ import {
     PROD_ADDITIONS,
     TAKE_HOME_BAGS,
     TAKE_HOME_BAG_PRICE,
-    type PartyFormV2,
 } from '@fizz-kidz/core'
 
-import { useTRPC } from '@integrations/trpc'
-import { Alert, AlertDescription, AlertTitle } from '@shared/components/ui/alert'
 import { Button } from '@shared/components/ui/button'
 import { Checkbox } from '@shared/components/ui/checkbox'
 import { Input } from '@shared/components/ui/input'
@@ -41,6 +37,9 @@ import { cn } from '@shared/lib/tailwind'
 import { TAKE_HOME_BAG_LABELS } from './party-form-v2-copy'
 import { CreationPicker } from './party-form-v2-creations'
 import { PartyProgress, PartyReview, PartyWelcome, StepHeading, type PartyStep } from './party-form-v2-experience'
+import { buildPartyFormPayload } from './party-form-v2-payload'
+import { PartyPayment, PartyPaymentRecovery } from './party-form-v2-payment'
+import { readPartyPaymentAttempt } from './party-form-v2-payment-attempt'
 import { calculateTotal, formatPrice, PRODUCT_PRICE } from './party-form-v2-pricing'
 
 import type { PartyFormV2Config } from './party-form-v2-page'
@@ -73,14 +72,14 @@ function required(message: string) {
 }
 
 export function PartyFormV2Form({ config }: { config: PartyFormV2Config }) {
-    const trpc = useTRPC()
-    const [submitError, setSubmitError] = useState(false)
+    const [completed, setCompleted] = useState<{ receiptUrl: string | null } | null>(null)
+    const [checkoutLocked, setCheckoutLocked] = useState(false)
+    const [recovery, setRecovery] = useState(() => readPartyPaymentAttempt(config.bookingId))
+    const paymentAction = useRef<(() => Promise<void>) | null>(null)
     const [currentStep, setCurrentStep] = useState(-1)
     const [stepError, setStepError] = useState(false)
     const [isAdvancing, setIsAdvancing] = useState(false)
     const errorRef = useRef<HTMLDivElement>(null)
-
-    const submitMutation = useMutation(trpc.parties.submitPartyFormV2.mutationOptions())
 
     const isStudio = config.type === 'studio'
     const steps: PartyStep[] = [
@@ -146,7 +145,6 @@ export function PartyFormV2Form({ config }: { config: PartyFormV2Config }) {
 
     function navigate(index: number) {
         setStepError(false)
-        setSubmitError(false)
         setCurrentStep(index)
     }
 
@@ -178,60 +176,8 @@ export function PartyFormV2Form({ config }: { config: PartyFormV2Config }) {
             if (invalidStep >= 0) setCurrentStep(invalidStep)
             setStepError(true)
         },
-        onSubmit: async ({ value }) => {
-            setSubmitError(false)
-
-            const creations = new Map<string, string[]>()
-            for (const selection of value.creations) {
-                creations.set(selection.packageKey, [
-                    ...(creations.get(selection.packageKey) ?? []),
-                    selection.creationKey,
-                ])
-            }
-
-            const orderedCake = config.canOrderCake && value.cakeSelection && value.cakeSelection !== BRING_OWN_CAKE
-
-            const payload: PartyFormV2 = {
-                bookingId: config.bookingId,
-                parentFirstName: value.parentFirstName.trim(),
-                parentLastName: value.parentLastName.trim(),
-                childName: value.childName.trim(),
-                childAge: value.childAge.trim(),
-                numberOfChildren: value.numberOfChildren,
-                creations: [...creations.entries()].map(([packageKey, creationKeys]) => ({
-                    packageKey,
-                    creationKeys,
-                })),
-                ...(isStudio && { foodPackage: value.foodPackage === 'include' ? 'include' : 'self-cater' }),
-                additions: isStudio ? value.additions : [],
-                ...(orderedCake && {
-                    cake: {
-                        selection: value.cakeSelection as (typeof PARTY_FORM_CAKES)[number],
-                        size: value.cakeSize as keyof typeof CAKE_SIZES,
-                        flavours: value.cakeFlavours,
-                        served: value.cakeServed as keyof typeof CAKE_SERVED_OPTIONS,
-                        candles: value.cakeCandles as keyof typeof CAKE_CANDLES_OPTIONS,
-                        ...(value.cakeMessage.trim() && { message: value.cakeMessage.trim() }),
-                    },
-                }),
-                takeHomeBags: Object.fromEntries(
-                    Object.entries(value.takeHomeBags).filter(([, quantity]) => quantity > 0)
-                ),
-                products: Object.fromEntries(Object.entries(value.products).filter(([, quantity]) => quantity > 0)),
-                ...(value.funFacts.trim() && { funFacts: value.funFacts.trim() }),
-                ...(value.questions.trim() && { questions: value.questions.trim() }),
-            }
-
-            try {
-                const result = await submitMutation.mutateAsync(payload)
-                if (result.action === 'payment') {
-                    window.location.assign(result.paymentUrl)
-                } else {
-                    window.location.assign(result.redirectUrl)
-                }
-            } catch {
-                setSubmitError(true)
-            }
+        onSubmit: async () => {
+            await paymentAction.current?.()
         },
     })
 
@@ -276,6 +222,38 @@ export function PartyFormV2Form({ config }: { config: PartyFormV2Config }) {
         }
     }
 
+    if (completed)
+        return (
+            <div className="party-form py-10">
+                <Section title="Done!">
+                    <p>
+                        Thank you! You should have an email confirming your choices, and detailing the next steps. The
+                        Fizz Kidz team 🙂
+                    </p>
+                    {completed.receiptUrl && (
+                        <a
+                            className="mt-4 inline-block underline"
+                            href={completed.receiptUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            View payment receipt
+                        </a>
+                    )}
+                </Section>
+            </div>
+        )
+    if (recovery)
+        return (
+            <div className="party-form py-10">
+                <PartyPaymentRecovery
+                    bookingId={config.bookingId}
+                    input={recovery}
+                    onCompleted={(receiptUrl) => setCompleted({ receiptUrl })}
+                    onReset={() => setRecovery(null)}
+                />
+            </div>
+        )
     if (currentStep === -1) return <PartyWelcome config={config} onStart={() => navigate(0)} />
 
     return (
@@ -289,7 +267,7 @@ export function PartyFormV2Form({ config }: { config: PartyFormV2Config }) {
                             current={currentStep}
                             onNavigate={(index) => (index < currentStep ? navigate(index) : void advance(index))}
                             lastReachable={firstIncomplete === -1 ? steps.length - 1 : firstIncomplete}
-                            disabled={isSubmitting || isAdvancing}
+                            disabled={isSubmitting || isAdvancing || checkoutLocked}
                         />
                     )
                 }}
@@ -299,8 +277,7 @@ export function PartyFormV2Form({ config }: { config: PartyFormV2Config }) {
                 onSubmit={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    if (isReview) void form.handleSubmit()
-                    else void advance()
+                    if (!isReview) void advance()
                 }}
             >
                 <div className="party-enter" key={step.key}>
@@ -949,25 +926,32 @@ export function PartyFormV2Form({ config }: { config: PartyFormV2Config }) {
                 {isReview && (
                     <form.Subscribe selector={(state) => [state.values, state.isSubmitting] as const}>
                         {([values, isSubmitting]) => (
-                            <fieldset disabled={isSubmitting} aria-label="Review party details" className="min-w-0">
-                                <PartyReview
-                                    config={config}
-                                    values={values}
-                                    total={calculateTotal(values, config.canOrderCake)}
-                                    onEdit={(key) => navigate(steps.findIndex((item) => item.key === key))}
-                                />
-                            </fieldset>
+                            <>
+                                <fieldset
+                                    disabled={isSubmitting || checkoutLocked}
+                                    aria-label="Review party details"
+                                    className="min-w-0"
+                                >
+                                    <PartyReview
+                                        config={config}
+                                        values={values}
+                                        onEdit={(key) => navigate(steps.findIndex((item) => item.key === key))}
+                                    />
+                                </fieldset>
+                                <div className="mt-6">
+                                    <PartyPayment
+                                        payload={buildPartyFormPayload(config, values)}
+                                        onSubmit={async (action) => {
+                                            paymentAction.current = action
+                                            await form.handleSubmit()
+                                        }}
+                                        onCompleted={(receiptUrl) => setCompleted({ receiptUrl })}
+                                        onLockChange={setCheckoutLocked}
+                                    />
+                                </div>
+                            </>
                         )}
                     </form.Subscribe>
-                )}
-
-                {submitError && (
-                    <Alert variant="destructive" role="alert">
-                        <AlertTitle>Something went wrong</AlertTitle>
-                        <AlertDescription>
-                            Something went wrong while trying to submit. Please try again.
-                        </AlertDescription>
-                    </Alert>
                 )}
 
                 <form.Subscribe selector={(state) => [state.values, state.isSubmitting] as const}>
@@ -979,25 +963,27 @@ export function PartyFormV2Form({ config }: { config: PartyFormV2Config }) {
                                     type="button"
                                     variant="ghost"
                                     onClick={() => navigate(currentStep - 1)}
-                                    disabled={isSubmitting || isAdvancing}
+                                    disabled={isSubmitting || isAdvancing || checkoutLocked}
                                 >
                                     <ArrowLeft size={16} aria-hidden="true" /> Back
                                 </Button>
                                 <div className="party-navigation-next">
-                                    {total > 0 && (
+                                    {total > 0 && !isReview && (
                                         <span className="party-navigation-total">
                                             To pay today <strong>{formatPrice(total)}</strong>
                                         </span>
                                     )}
-                                    <Button
-                                        type="submit"
-                                        size="lg"
-                                        className="party-primary"
-                                        disabled={isSubmitting || isAdvancing}
-                                    >
-                                        {isSubmitting ? 'Submitting...' : !isReview ? 'Next' : 'Submit'}
-                                        {!isSubmitting && <ArrowRight size={17} aria-hidden="true" />}
-                                    </Button>
+                                    {!isReview && (
+                                        <Button
+                                            type="submit"
+                                            size="lg"
+                                            className="party-primary"
+                                            disabled={isSubmitting || isAdvancing}
+                                        >
+                                            Next
+                                            {!isSubmitting && <ArrowRight size={17} aria-hidden="true" />}
+                                        </Button>
+                                    )}
                                 </div>
                             </footer>
                         )

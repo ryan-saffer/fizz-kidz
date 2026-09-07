@@ -28,7 +28,7 @@ import type {
 } from '@fizz-kidz/core'
 
 import { FirestoreClient } from './firestore.client'
-import { FirestoreRefs, type Document } from './firestore.refs'
+import { FirestoreRefs, type Document, type PartyFormV2PaymentRecord } from './firestore.refs'
 
 import type { CreateEvent } from '@/features/events/core/create-event'
 import type { DocumentReference, Query } from 'firebase-admin/firestore'
@@ -467,16 +467,141 @@ class Client {
         return this.#updateDocument(FirestoreRefs.zohoAccessToken(), { accessToken, isRefreshing: false })
     }
 
-    async createPartyFormV2Submission(submissionId: string, bookingId: string, payload: PartyFormV2) {
+    async createPartyFormV2Submission(
+        submissionId: string,
+        bookingId: string,
+        payload: PartyFormV2,
+        payment: PartyFormV2PaymentRecord
+    ) {
         const ref = await FirestoreRefs.partyFormV2Submission(submissionId)
-        await ref.set({ bookingId, payload, createdAt: FieldValue.serverTimestamp() })
+        await ref.create({ bookingId, payload, payment, createdAt: FieldValue.serverTimestamp() })
+    }
+
+    async updatePartyFormV2Payment(
+        submissionId: string,
+        buildUpdate: (current: PartyFormV2PaymentRecord) => Partial<PartyFormV2PaymentRecord>
+    ) {
+        const firestore = await FirestoreClient.getInstance()
+        const ref = await FirestoreRefs.partyFormV2Submission(submissionId)
+        return firestore.runTransaction(async (tx) => {
+            const current = (await tx.get(ref)).data()?.payment
+            if (!current) throw new Error('Party payment not found')
+            const payment = { ...current, ...buildUpdate(current) }
+            tx.update(ref, { payment })
+            return payment
+        })
+    }
+
+    async claimPartyFormV2Payment(
+        submissionId: string,
+        transition: (payment: PartyFormV2PaymentRecord | undefined) => PartyFormV2PaymentRecord | null
+    ) {
+        const firestore = await FirestoreClient.getInstance()
+        const ref = await FirestoreRefs.partyFormV2Submission(submissionId)
+        return firestore.runTransaction(async (tx) => {
+            const payment = (await tx.get(ref)).data()?.payment
+            const next = transition(payment)
+            if (!next) return false
+            tx.update(ref, { payment: next })
+            return true
+        })
+    }
+
+    async recordPartyFormV2DiscountRedemption(submissionId: string, redemption: WithoutId<DiscountCodeRedemption>) {
+        const firestore = await FirestoreClient.getInstance()
+        const ref = (await FirestoreRefs.discountCodeRedemptions()).doc(submissionId)
+        const reservationRef = (await FirestoreRefs.partyFormDiscountReservations()).doc(submissionId)
+        await firestore.runTransaction(async (tx) => {
+            if ((await tx.get(ref)).exists) return
+            if (!(await tx.get(reservationRef)).exists)
+                throw new Error('Missing discount reservation for paid party form')
+            tx.create(ref, { ...redemption, id: submissionId })
+            tx.delete(reservationRef)
+        })
+    }
+
+    async reservePartyFormV2Discount(
+        submissionId: string,
+        discountId: string,
+        redemptionKey: string,
+        validate: (discount: DiscountCode | undefined, alreadyRedeemed: boolean) => void
+    ) {
+        const firestore = await FirestoreClient.getInstance()
+        const submissionRef = await FirestoreRefs.partyFormV2Submission(submissionId)
+        const discountRef = await FirestoreRefs.discountCode(discountId)
+        const reservations = await FirestoreRefs.partyFormDiscountReservations()
+        const redemptions = await FirestoreRefs.discountCodeRedemptions()
+        await firestore.runTransaction(async (tx) => {
+            const payment = (await tx.get(submissionRef)).data()?.payment
+            if (!payment || payment.discountReserved) return
+            const discount = (await tx.get(discountRef)).data()
+            const used = await tx.get(redemptions.where('redemptionKey', '==', redemptionKey))
+            const pending = await tx.get(reservations.where('redemptionKey', '==', redemptionKey))
+            validate(discount ? await this.#convertTimestamps(discount) : undefined, !used.empty || !pending.empty)
+            tx.update(discountRef, { numberOfUses: FieldValue.increment(1) })
+            tx.create(reservations.doc(submissionId), { redemptionKey })
+            tx.update(submissionRef, { 'payment.discountReserved': true })
+        })
+    }
+
+    async releasePartyFormV2Discount(submissionId: string, discountId: string) {
+        const firestore = await FirestoreClient.getInstance()
+        const reservationRef = (await FirestoreRefs.partyFormDiscountReservations()).doc(submissionId)
+        const discountRef = await FirestoreRefs.discountCode(discountId)
+        const submissionRef = await FirestoreRefs.partyFormV2Submission(submissionId)
+        await firestore.runTransaction(async (tx) => {
+            if (!(await tx.get(reservationRef)).exists) return
+            tx.delete(reservationRef)
+            tx.update(discountRef, { numberOfUses: FieldValue.increment(-1) })
+            tx.update(submissionRef, { 'payment.discountReserved': false })
+        })
     }
 
     async getPartyFormV2Submission(submissionId: string) {
         return this.#getDocument(FirestoreRefs.partyFormV2Submission(submissionId))
     }
 
-    async claimPartyFormSubmissionProcessing(submissionId: string, bookingId: string) {
+    async getPartyFormV2BookingSnapshot(submissionId: string, bookingId: string) {
+        const firestore = await FirestoreClient.getInstance()
+        const submissionRef = await FirestoreRefs.partyFormV2Submission(submissionId)
+        const bookingRef = await FirestoreRefs.partyBooking(bookingId)
+        return firestore.runTransaction(async (tx) => {
+            const previous = (await tx.get(submissionRef)).data()?.previousBooking
+            if (previous) return this.#convertTimestamps(previous)
+            const booking = (await tx.get(bookingRef)).data()
+            if (!booking) throw new Error('Party booking not found')
+            tx.update(submissionRef, { previousBooking: booking })
+            return this.#convertTimestamps(booking)
+        })
+    }
+
+    async markPartyFormV2NotificationSent(submissionId: string, notification: string) {
+        const ref = await FirestoreRefs.partyFormV2Submission(submissionId)
+        await ref.update({ [`notifications.${notification}`]: true })
+    }
+
+    async applyPartyFormV2BookingUpdate(
+        submissionId: string,
+        bookingId: string,
+        buildUpdate: (booking: Booking) => Partial<Booking>
+    ) {
+        const firestore = await FirestoreClient.getInstance()
+        const submissionRef = await FirestoreRefs.partyFormV2Submission(submissionId)
+        const bookingRef = await FirestoreRefs.partyBooking(bookingId)
+        await firestore.runTransaction(async (tx) => {
+            if ((await tx.get(submissionRef)).data()?.bookingApplied) return
+            const booking = (await tx.get(bookingRef)).data()
+            if (!booking) throw new Error('Party booking not found')
+            tx.update(bookingRef, buildUpdate(await this.#convertTimestamps(booking)))
+            tx.update(submissionRef, { bookingApplied: true })
+        })
+    }
+
+    async claimPartyFormSubmissionProcessing(
+        submissionId: string,
+        bookingId: string,
+        shouldRetry?: (record: { status: 'processing' | 'completed' | 'failed'; updatedAt: Date }) => boolean
+    ) {
         const firestore = await FirestoreClient.getInstance()
         const ref = await FirestoreRefs.partyFormSubmissionProcessingDoc(submissionId)
 
@@ -486,6 +611,15 @@ class Client {
 
             if (snap.exists) {
                 const data = snap.data()!
+                if (
+                    shouldRetry?.({
+                        status: data.status,
+                        updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(0),
+                    })
+                ) {
+                    tx.update(ref, { status: 'processing', updatedAt: FieldValue.serverTimestamp() })
+                    return { shouldProcess: true }
+                }
                 return {
                     shouldProcess: false,
                     status: data.status,

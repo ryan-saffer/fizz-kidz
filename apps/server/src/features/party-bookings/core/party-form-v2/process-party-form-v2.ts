@@ -1,5 +1,3 @@
-import { randomUUID } from 'crypto'
-
 import {
     getSquareLocationId,
     mapProductToSquareVariation,
@@ -22,14 +20,22 @@ import { SquareClient } from '@/integrations/square/square.client'
  * Paperform '/party-form/form-complete' webhook (idempotency lock, Square inventory
  * reversal, database updates, emails, analytics).
  *
- * Idempotent based on submissionId — safe to call from a Square redirect URL.
+ * Only prepared submissions whose payment has completed may enter this workflow.
  */
 export async function processPartyFormV2Submission(submissionId: string): Promise<'completed' | 'already-completed'> {
-    const { bookingId, payload } = await DatabaseClient.getPartyFormV2Submission(submissionId)
+    const { bookingId, payload, payment } = await DatabaseClient.getPartyFormV2Submission(submissionId)
+    if (!payment || (payment.state !== 'paid' && payment.state !== 'completed'))
+        throw new Error('Party form payment has not completed')
     const booking = await DatabaseClient.getPartyBooking(bookingId)
     const responses = buildPartyFormV2Submission(payload, booking, submissionId)
 
-    const claim = await DatabaseClient.claimPartyFormSubmissionProcessing(submissionId, bookingId)
+    const claim = await DatabaseClient.claimPartyFormSubmissionProcessing(
+        submissionId,
+        bookingId,
+        (record) =>
+            record.status === 'failed' ||
+            (record.status === 'processing' && record.updatedAt.getTime() < Date.now() - 120_000)
+    )
     if (!claim.shouldProcess) {
         if (claim.status === 'completed') {
             return 'already-completed'
@@ -62,11 +68,11 @@ export async function processPartyFormV2Submission(submissionId: string): Promis
                     quantity,
                     fromState: 'NONE' as const,
                     toState: 'IN_STOCK' as const,
-                    occurredAt: new Date().toISOString(),
+                    occurredAt: new Date(payment.createdAt).toISOString(),
                 },
             }))
             try {
-                await square.inventory.batchCreateChanges({ idempotencyKey: randomUUID(), changes })
+                await square.inventory.batchCreateChanges({ idempotencyKey: `${submissionId}-inventory`, changes })
             } catch (err) {
                 logError('Error adjusting inventory for square item during party form v2 payment', err, {
                     bookingId,
@@ -75,7 +81,7 @@ export async function processPartyFormV2Submission(submissionId: string): Promis
             }
         }
 
-        await handlePartyFormSubmission(responses)
+        await handlePartyFormSubmission(responses, submissionId)
         await DatabaseClient.completePartyFormSubmissionProcessing(submissionId)
         return 'completed'
     } catch (err) {

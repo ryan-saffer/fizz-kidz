@@ -660,6 +660,19 @@
     color: #665271;
     font-size: 13px;
 }
+.party-checkout-totals {
+    margin-top: 24px;
+    display: grid;
+    gap: 12px;
+}
+.party-checkout-totals > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+.party-checkout-totals dd {
+    white-space: nowrap;
+}
 .party-navigation {
     position: sticky;
     bottom: 0;

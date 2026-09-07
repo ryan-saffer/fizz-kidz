@@ -6,7 +6,6 @@ import { appRouter } from '@/app/trpc/app.trpc'
 import { createContext } from '@/app/trpc/trpc'
 import { getErrorCode, type AppErrorCode } from '@/app/trpc/trpc.errors'
 import { googleReviewsRoute } from '@/features/google-business-profile/functions/routes/google-reviews'
-import { partyFormV2Routes } from '@/features/party-bookings/functions/routes/party-form-v2-complete'
 import { invitationEntryRedirect } from '@/features/party-bookings/functions/webhooks/invitation-redirect'
 import { acuityWebhook } from '@/integrations/acuity/functions/acuity.webhook'
 import { esignaturesWebhook } from '@/integrations/esignatures.io/functions/esignatures.webhook'
@@ -40,7 +39,10 @@ apiRouter.use(
             const errorCode = getErrorCode(error.cause ?? error, error.code)
             const payload = {
                 path,
-                input,
+                input:
+                    path === 'parties.submitPartyFormV2' || path === 'parties.preparePartyFormV2'
+                        ? '[payment input redacted]'
+                        : input,
                 errorCode,
                 cause: error.cause,
             }
@@ -73,7 +75,6 @@ webhooks.use((req, _, next) => {
 
 // ------ PUBLIC API ENDPOINTS -------
 apiRouter.use(googleReviewsRoute)
-apiRouter.use(partyFormV2Routes)
 
 // Mount all webhooks under /webhooks
 webhooks.use('/webhooks', [

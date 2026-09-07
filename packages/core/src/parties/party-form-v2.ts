@@ -139,6 +139,35 @@ export const partyFormV2Schema = z.object({
 
 export type PartyFormV2 = z.infer<typeof partyFormV2Schema>
 
+export const preparePartyFormV2Schema = z.object({
+    payload: partyFormV2Schema,
+    discountCode: z.string().trim().max(100).default(''),
+    giftCardNumber: z.string().trim().max(40).default(''),
+})
+
+export const submitPartyFormV2Schema = z.object({
+    submissionId: z.string().uuid(),
+    token: z.string().max(500).default(''),
+    buyerVerificationToken: z.string().max(500).default(''),
+})
+
+export type PreparePartyFormV2 = z.infer<typeof preparePartyFormV2Schema>
+export type SubmitPartyFormV2 = z.infer<typeof submitPartyFormV2Schema>
+
+export type PartyFormV2Checkout = {
+    submissionId: string
+    locationId: string
+    parentEmail: string
+    subtotalCents: number
+    discountCents: number
+    discountCode: string
+    totalCents: number
+    giftCardCents: number
+    giftCardLast4: string
+    cardCents: number
+    items: { label: string; amountCents: number }[]
+}
+
 /**
  * Returns the entries of a quantity record (take home bags, products) with a quantity above zero.
  */
