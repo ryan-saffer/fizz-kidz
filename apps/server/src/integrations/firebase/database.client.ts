@@ -17,6 +17,7 @@ import type {
     InventoryStockLevel,
     InventoryStockMovement,
     InventoryUsageRule,
+    PartyFormV2,
     PreschoolProgramEnrolment,
     RecursivePartial,
     Rsvp,
@@ -464,6 +465,15 @@ class Client {
 
     setZohoAccessToken(accessToken: string) {
         return this.#updateDocument(FirestoreRefs.zohoAccessToken(), { accessToken, isRefreshing: false })
+    }
+
+    async createPartyFormV2Submission(submissionId: string, bookingId: string, payload: PartyFormV2) {
+        const ref = await FirestoreRefs.partyFormV2Submission(submissionId)
+        await ref.set({ bookingId, payload, createdAt: FieldValue.serverTimestamp() })
+    }
+
+    async getPartyFormV2Submission(submissionId: string) {
+        return this.#getDocument(FirestoreRefs.partyFormV2Submission(submissionId))
     }
 
     async claimPartyFormSubmissionProcessing(submissionId: string, bookingId: string) {

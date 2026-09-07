@@ -207,4 +207,27 @@ describe('SanityClient', () => {
         expect(imageUrlBuilder.fit).toHaveBeenCalledWith('crop')
         expect(result[0].programs[0].image.url).toBe('https://cdn.sanity.io/cropped-image.jpg')
     })
+
+    it('resolves party form photos with their crop data and tolerates missing photos', async () => {
+        const image = { asset: { _ref: 'image-1' }, crop: { bottom: 0.1 }, hotspot: { x: 0.4, y: 0.5 } }
+        fetch.mockResolvedValue([
+            {
+                key: 'fairy',
+                creations: [
+                    { key: 'fairySlime', image, alt: 'Pink fairy slime' },
+                    { key: 'soap', image: null, alt: 'Soap' },
+                ],
+            },
+        ])
+        const sanity = await getSanityClient()
+        const result = await sanity.getBirthdayPartyFormImages()
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(image, creation->image)'))
+        expect(imageUrlBuilder.image).toHaveBeenCalledWith(image)
+        expect(imageUrlBuilder.width).toHaveBeenCalledWith(720)
+        expect(imageUrlBuilder.height).toHaveBeenCalledWith(720)
+        expect(result[0].creations).toEqual([
+            { key: 'fairySlime', image: { url: 'https://cdn.sanity.io/cropped-image.jpg', alt: 'Pink fairy slime' } },
+            { key: 'soap', image: null },
+        ])
+    })
 })

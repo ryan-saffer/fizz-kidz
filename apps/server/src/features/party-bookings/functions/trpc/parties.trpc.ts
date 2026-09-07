@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { partyFormV2Schema } from '@fizz-kidz/core'
 import type {
     Booking,
     GenerateInvitation,
@@ -18,6 +19,8 @@ import { createPartyBooking } from '@/features/party-bookings/core/create-party-
 import { deletePartyBooking } from '@/features/party-bookings/core/delete-party-booking'
 import { generateInvitation } from '@/features/party-bookings/core/generate-invitation'
 import { getCakeFormUrl, getPartyFormUrl } from '@/features/party-bookings/core/party-form-urls'
+import { getPartyFormV2Config } from '@/features/party-bookings/core/party-form-v2/get-party-form-v2-config'
+import { submitPartyFormV2 } from '@/features/party-bookings/core/party-form-v2/submit-party-form-v2'
 import { generateAndLinkInvitation } from '@/features/party-bookings/core/rsvp/edit-invitation-v2'
 import { generateInvitationUrl } from '@/features/party-bookings/core/rsvp/generate-invitation-url'
 import { generateInvitationV2 } from '@/features/party-bookings/core/rsvp/generate-invitation-v2'
@@ -86,6 +89,10 @@ export const partiesRouter = router({
     getPaperformEmbedConfig: publicProcedure
         .input(z.object({ bookingId: z.string(), partyOrCakeForm: z.enum(['party', 'cake']) }))
         .query(({ input }) => getPartyFormEmbedConfig(input.bookingId, input.partyOrCakeForm)),
+    getPartyFormV2Config: publicProcedure
+        .input(z.object({ bookingId: z.string() }))
+        .query(({ input }) => getPartyFormV2Config(input.bookingId)),
+    submitPartyFormV2: publicProcedure.input(partyFormV2Schema).mutation(({ input }) => submitPartyFormV2(input)),
     generateInvitation: publicProcedure
         .input((input: unknown) => input as GenerateInvitation)
         .mutation(({ input }) => generateInvitation(input)),

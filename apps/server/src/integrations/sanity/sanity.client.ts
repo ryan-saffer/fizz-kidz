@@ -109,6 +109,22 @@ const HOLIDAY_PROGRAM_SCHEDULE_QUERY = `
     }
 `
 
+const BIRTHDAY_PARTY_FORM_IMAGES_QUERY = `
+    *[_type == "birthdayPartyPackage" && status == "active" && defined(key)] {
+        key,
+        "creations": websiteCards[defined(bookingOrder)] {
+            "key": creation->key,
+            "image": coalesce(image, creation->image),
+            "alt": coalesce(alt, creation->name)
+        }
+    }
+`
+
+type PartyFormImageRecord = {
+    key: string
+    creations: { key: string; image: SanityImageSource | null; alt: string }[]
+}
+
 export class SanityClient {
     private static instance: SanityClient
 
@@ -238,6 +254,28 @@ export class SanityClient {
                         .auto('format')
                         .url(),
                 },
+            })),
+        }))
+    }
+
+    async getBirthdayPartyFormImages() {
+        const packages = await this.#sanity.fetch<PartyFormImageRecord[]>(BIRTHDAY_PARTY_FORM_IMAGES_QUERY)
+        return packages.map((partyPackage) => ({
+            key: partyPackage.key,
+            creations: partyPackage.creations.map((creation) => ({
+                key: creation.key,
+                image: creation.image
+                    ? {
+                          alt: creation.alt,
+                          url: this.#imageUrls
+                              .image(creation.image)
+                              .width(720)
+                              .height(720)
+                              .fit('crop')
+                              .auto('format')
+                              .url(),
+                      }
+                    : null,
             })),
         }))
     }
