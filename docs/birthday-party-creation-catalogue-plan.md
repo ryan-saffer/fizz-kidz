@@ -211,8 +211,8 @@ The manual update must:
 - [x] Preserve Sweet Kitty's direct list as the canonical staff-only instruction model.
 - [x] Remove completed one-time migration scripts and source fixtures.
 - [x] Update the Website, Studio, server, Portal, and core READMEs to describe the final ownership model.
-- [ ] Remove stored legacy per-card booking-order values after the card-order release is deployed and verified.
-- [ ] Remove the 56 unused **Website images > Creations** slot documents after this cleanup code is deployed; the referenced Sanity image assets remain in use by creation and package documents.
+- [x] Remove stored legacy per-card booking-order values after the card-order release is deployed and verified.
+- [x] Remove the 56 unused **Website images > Creations** slot documents after the cleanup code is deployed; the referenced Sanity image assets remain in use by creation and package documents.
 
 ## Verification
 

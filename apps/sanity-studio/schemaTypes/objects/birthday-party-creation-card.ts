@@ -56,14 +56,6 @@ export const birthdayPartyCreationCard = defineType({
             },
             validation: (rule) => rule.required(),
         }),
-        defineField({
-            name: 'bookingOrder',
-            title: 'Legacy booking choice order',
-            type: 'number',
-            deprecated: { reason: 'Booking menus now follow Website card order.' },
-            hidden: true,
-            readOnly: true,
-        }),
     ],
     preview: {
         select: {
