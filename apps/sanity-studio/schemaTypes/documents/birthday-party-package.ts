@@ -60,19 +60,23 @@ async function isUniquePosition(position: number | undefined, context: Validatio
     if (position === undefined) return true
 
     const documentId = context.document?._id?.replace(/^drafts\./, '')
-    const duplicateId = await context.getClient({ apiVersion: API_VERSION }).fetch<string | null>(
-        `*[
-            _type == "birthdayPartyPackage" &&
-            status == "active" &&
-            position == $position &&
-            !(_id in [$publishedId, $draftId])
-        ][0]._id`,
-        {
-            draftId: documentId ? `drafts.${documentId}` : '',
-            position,
-            publishedId: documentId ?? '',
-        }
-    )
+    const perspective = context.document?._id?.startsWith('drafts.') ? 'drafts' : 'published'
+    const duplicateId = await context
+        .getClient({ apiVersion: API_VERSION })
+        .withConfig({ perspective, useCdn: false })
+        .fetch<string | null>(
+            `*[
+                _type == "birthdayPartyPackage" &&
+                status == "active" &&
+                position == $position &&
+                !(_id in [$publishedId, $draftId])
+            ][0]._id`,
+            {
+                draftId: documentId ? `drafts.${documentId}` : '',
+                position,
+                publishedId: documentId ?? '',
+            }
+        )
     return duplicateId ? `Website position ${position} is already in use.` : true
 }
 
@@ -201,14 +205,15 @@ export const birthdayPartyPackage = defineType({
             title: 'Position',
             type: 'number',
             description:
-                'Controls this package’s position in Portal creation instructions and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue. Lower numbers appear first.',
+                'Controls this package’s position in Portal creation instructions and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue. Use Birthday Parties > Reorder and publish packages to insert or move packages without renumbering them individually.',
             group: 'core',
             validation: (rule) =>
                 rule
                     .integer()
                     .min(1)
                     .custom((position, context) => {
-                        if (isActiveCataloguePackage(context) && position === undefined) {
+                        if (!isActiveCataloguePackage(context)) return true
+                        if (position === undefined) {
                             return 'Active catalogue packages must have a Website position.'
                         }
                         return isUniquePosition(position, context)

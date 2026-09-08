@@ -212,7 +212,7 @@ function normalizeWebsitePage(page: SanityWebsitePage | undefined): BirthdayPart
                       : (undefined as never),
                   headingImage: feature.headingImage ? resolveCatalogueImage(feature.headingImage) : undefined,
               }))
-            : (undefined as never),
+            : [],
         hero: page.hero
             ? {
                   ...page.hero,

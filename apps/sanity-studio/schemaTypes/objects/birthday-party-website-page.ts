@@ -171,7 +171,6 @@ export const birthdayPartyWebsitePage = defineType({
             description: 'Optional package-specific sections shown after the creation cards.',
             of: [defineArrayMember({ type: 'birthdayPartyFeatureSection' })],
             initialValue: [],
-            validation: (rule) => rule.required(),
         }),
     ],
     preview: {
