@@ -40,7 +40,6 @@ const bookingCatalogue: BirthdayPartyBookingCatalogue = {
         {
             creations: [
                 {
-                    bookingOrder: 1,
                     key: 'fairySlime',
                 },
             ],

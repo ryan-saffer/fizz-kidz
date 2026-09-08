@@ -22,7 +22,7 @@ The Website is the authority for the initial migration. Its current names, packa
 - Resolve current submissions within their package and channel. If historical package membership no longer exists, resolve an archived key or label only when it identifies exactly one archived creation globally.
 - Keep Paperform field IDs and other provider configuration in the server integration, not in Sanity content.
 - Store operational studio/mobile availability on the creation. Availability applies consistently in every package and must not be inferred from a Website card.
-- Use each package's ordered Website cards as its only creation-membership source. Exactly one card per creation owns package-specific booking order; additional cards are presentation variants.
+- Use each package's ordered Website cards as its only creation-membership and ordering source. Booking menus and Portal instructions follow first card occurrence; additional cards for the same creation are presentation variants.
 - Generate package pages from one fixed template. Sanity owns each package's route, SEO, hero, menu entry, Party Themes card, creations image, and optional feature sections; shared pricing, party information, FAQs, reviews, and values remain in Website code.
 - Include every active package in Party Themes, including Fairy and Unicorn. Keep At Home as a dedicated static Website page.
 - Store one canonical package name. Derive `{Package name} Parties`, `{Package name} Creations`, and `{Package name} Party Package` where those labels are rendered.
@@ -90,9 +90,9 @@ Each Website card contains:
 
 - A reference to the creation it represents.
 - Optional package-specific image, alt text, and label overrides plus its colour treatment.
-- Booking-menu order when it is the creation's booking card.
+- Booking-menu and Portal-instruction order from the card's position.
 
-Exactly one card per creation has a booking order. Filtering those cards, then applying the referenced creation's availability, derives selectable studio and mobile creations without a second synchronized list. Website array order still preserves both Fluid Bears' six contiguous cards for one creation and Jungle Safari's two non-contiguous Monster Slime cards. Booking order remains independent where needed, such as Fairy's Marshmallow Slime placement. A card defaults to its creation's image and name and stores overrides only where presentation differs.
+The first card for each creation determines its booking-menu and Portal-instruction position. Deduplicating by creation, then applying the referenced creation's availability, derives selectable studio and mobile creations without another order field or synchronized list. Website array order still preserves both Fluid Bears' six contiguous cards for one creation and Jungle Safari's two non-contiguous Monster Slime cards. A card defaults to its creation's image and name and stores overrides only where presentation differs.
 
 Every array projection must include its Sanity `_key`.
 
@@ -102,10 +102,10 @@ Sanity validation and automated checks should enforce these rules:
 
 - Active packages have a key, name, Website position, and at least one Website card.
 - Live creations have a unique stable key, customer-facing name, and at least one operational booking channel.
-- Every creation represented in a package has exactly one card with a unique consecutive booking order.
+- Every creation represented in a package appears once in booking menus at its first Website-card position.
 - Every active Website card resolves an image, useful alt text, and creation reference.
 - Active Website entries appear in the corresponding Paperform package question after the manual Paperform update.
-- One package may contain multiple cards for a creation, but only one can be its booking card.
+- One package may contain multiple cards for a creation; later cards are presentation-only duplicates.
 - Archived creations remain queryable for historical bookings and old submissions.
 - A legacy Paperform label resolves to exactly one creation within its package.
 - Publishing a broken reference or ambiguous Paperform label is blocked.
@@ -211,6 +211,7 @@ The manual update must:
 - [x] Preserve Sweet Kitty's direct list as the canonical staff-only instruction model.
 - [x] Remove completed one-time migration scripts and source fixtures.
 - [x] Update the Website, Studio, server, Portal, and core READMEs to describe the final ownership model.
+- [ ] Remove stored legacy per-card booking-order values after the card-order release is deployed and verified.
 - [ ] Remove the 56 unused **Website images > Creations** slot documents after this cleanup code is deployed; the referenced Sanity image assets remain in use by creation and package documents.
 
 ## Verification

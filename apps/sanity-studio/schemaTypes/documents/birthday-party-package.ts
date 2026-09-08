@@ -14,7 +14,6 @@ import { hasValidPackageCreationReferences } from '../birthday-party-catalogue-v
 const API_VERSION = '2026-08-01'
 
 type CardValue = {
-    bookingOrder?: number
     creation?: { _ref?: string }
 }
 
@@ -83,35 +82,9 @@ async function isUniquePosition(position: number | undefined, context: Validatio
 function hasConsistentCards(value: SanityDocument | undefined) {
     const partyPackage = value as PartyPackageValue | undefined
     const cards = partyPackage?.websiteCards ?? []
-    const creationReferences = new Set<string>()
-    const bookingOrders = new Set<number>()
 
     for (const card of cards) {
         if (!card.creation?._ref) return 'Every Website card must reference a creation.'
-        creationReferences.add(card.creation._ref)
-
-        if (card.bookingOrder !== undefined) {
-            if (!Number.isInteger(card.bookingOrder) || (card.bookingOrder ?? 0) < 1) {
-                return 'Every booking choice order must be a positive integer.'
-            }
-            if (bookingOrders.has(card.bookingOrder!)) return 'Booking choice order must be unique within a package.'
-            bookingOrders.add(card.bookingOrder!)
-        }
-    }
-
-    for (const creationReference of creationReferences) {
-        const bookingChoiceCount = cards.filter(
-            (card) => card.creation?._ref === creationReference && card.bookingOrder !== undefined
-        ).length
-        if (bookingChoiceCount !== 1) {
-            return 'Every creation must have exactly one Website card with a booking choice order.'
-        }
-    }
-    if (
-        bookingOrders.size !== creationReferences.size ||
-        !Array.from(bookingOrders).every((order) => order <= creationReferences.size)
-    ) {
-        return 'Booking choice order must be consecutive from 1.'
     }
 
     return true
@@ -263,7 +236,7 @@ export const birthdayPartyPackage = defineType({
             title: 'Website cards',
             type: 'array',
             description:
-                'This is the package creation list. Drag cards into Website order; set a booking choice order on exactly one card per creation. Availability is controlled by the creation.',
+                'This is the package creation list. Drag cards into the order used by both the Website and booking menus. If a creation has multiple presentation cards, its first card sets its booking-menu position. Availability is controlled by the creation.',
             group: 'core',
             components: { input: BirthdayPartyCardsInput },
             of: [defineArrayMember({ type: 'birthdayPartyCreationCard' })],

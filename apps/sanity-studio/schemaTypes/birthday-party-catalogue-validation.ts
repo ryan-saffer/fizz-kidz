@@ -126,7 +126,7 @@ export async function hasValidCreationPackageRelationships(
                 $creationId in websiteCards[].creation._ref
             ]{
                 key,
-                "creations": websiteCards[defined(bookingOrder)].creation->{
+                "creations": websiteCards[].creation->{
                     _id,
                     bookingChannels,
                     key,

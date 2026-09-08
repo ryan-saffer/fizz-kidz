@@ -85,7 +85,6 @@ type CreationPreview = {
 type CardValue = {
     _key?: string
     alt?: string
-    bookingOrder?: number
     colour?: string
     creation?: { _ref?: string }
     hideLabel?: boolean
@@ -116,6 +115,13 @@ export function BirthdayPartyCardsInput(props: ArrayOfObjectsInputProps) {
             .join(',')
     }, [props.value])
     const [creationsById, setCreationsById] = useState<Map<string, CreationPreview>>(new Map())
+    const bookingChoiceOrders = new Map<string, number>()
+    for (const card of cards) {
+        const reference = card.creation?._ref ?? card.offering?._ref
+        if (!reference) continue
+        const creationId = publishedId(reference)
+        if (!bookingChoiceOrders.has(creationId)) bookingChoiceOrders.set(creationId, bookingChoiceOrders.size + 1)
+    }
 
     useEffect(() => {
         let cancelled = false
@@ -162,7 +168,8 @@ export function BirthdayPartyCardsInput(props: ArrayOfObjectsInputProps) {
                     <CardGrid>
                         {cards.map((card, index) => {
                             const reference = card.creation?._ref ?? card.offering?._ref
-                            const creation = reference ? creationsById.get(publishedId(reference)) : undefined
+                            const creationId = reference ? publishedId(reference) : undefined
+                            const creation = creationId ? creationsById.get(creationId) : undefined
                             const image = card.image ?? creation?.image
                             const label = card.hideLabel
                                 ? 'Image-only card'
@@ -178,8 +185,14 @@ export function BirthdayPartyCardsInput(props: ArrayOfObjectsInputProps) {
                                     ) : null}
                                     <p style={{ color: CARD_COLOURS[card.colour ?? ''] ?? '#0f172a' }}>{label}</p>
                                     <CardRole>
-                                        {card.bookingOrder
-                                            ? `Booking choice ${card.bookingOrder}`
+                                        {creationId &&
+                                        cards.findIndex(
+                                            (candidate) =>
+                                                publishedId(
+                                                    candidate.creation?._ref ?? candidate.offering?._ref ?? ''
+                                                ) === creationId
+                                        ) === index
+                                            ? `Booking choice ${bookingChoiceOrders.get(creationId)}`
                                             : 'Additional display card'}
                                     </CardRole>
                                 </Card>
