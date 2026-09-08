@@ -85,7 +85,7 @@ const faqItems = [
     <div class="flex w-full flex-col items-center gap-8 md:flex-row">
       <Image class="hidden w-2/5 md:block" src={faq} alt="Three girls smiling" />
       <div class="w-full md:w-3/5">
-        <FaqAccordion client:idle items={faqItems} />
+        <FaqAccordion client:visible={{ rootMargin: "300px" }} items={faqItems} />
       </div>
     </div>
   </section>

@@ -28,11 +28,9 @@ const catalogue: BirthdayPartyBookingCatalogue = {
         {
             creations: [
                 {
-                    bookingOrder: 1,
                     key: 'fairySlime',
                 },
                 {
-                    bookingOrder: 2,
                     key: 'unicornSoap',
                 },
             ],

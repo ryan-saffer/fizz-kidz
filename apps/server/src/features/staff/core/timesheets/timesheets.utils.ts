@@ -45,9 +45,11 @@ export function getShiftsUnderMinimumShiftLength({
     timezone: string
 }): ShiftUnderMinimumShiftLength[] {
     return usersTimesheets.flatMap((timesheet) => {
+        const position = SlingPositionMap[timesheet.position.id]
+        if (position && isOnCallShift(position)) return []
+
         const start = DateTime.fromISO(timesheet.dtstart, { zone: timezone })
         const end = DateTime.fromISO(timesheet.dtend, { zone: timezone })
-        const position = SlingPositionMap[timesheet.position.id]
         const shiftLengthInMinutes = Math.round(end.diff(start, 'minutes').minutes)
         const minimumShiftLengthInMinutes = start.weekday === 7 ? 4 * 60 : 3 * 60
 

@@ -1,0 +1,38 @@
+---
+import { ArrowRight } from "lucide-react";
+import Image from "@/components/image.astro";
+import {
+  websitePagesHomePartiesJpg as party,
+  websitePagesHomeHolidayProgramsJpg as holiday,
+  websitePagesPreschoolProgramHeroJpg as preschool,
+  websitePagesHomeIncursionsJpg as school,
+  websitePagesHomeActivationsJpg as events,
+  websitePagesHomeFranchisingPng as franchise,
+} from "@/data/website-images";
+
+const services = [
+  { word: "celebrate", title: "Birthday parties", path: "/birthday-parties/", image: party, alt: "A child celebrating their birthday at Fizz Kidz", colour: "pink", description: "Filled with high-energy, hands-on activities, our parties are known and loved by kids!" },
+  { word: "create", title: "Holiday programs", path: "/holiday-programs/", image: holiday, alt: "Children showing their handmade creations", colour: "lime", description: "With a new and exciting timetable each holiday period, school holidays are buzzing with fun!" },
+  { word: "make", title: "Preschool play", path: "/preschool-program/", image: preschool, alt: "Preschool children exploring a hands-on activity", colour: "peach", description: "A weekly two-hour art, science and sensory program for children aged 2.5 to 5 years." },
+  { word: "learn", title: "School incursions", path: "/in-schools/incursions/", image: school, alt: "A student taking part in a science experiment", colour: "blue", description: "We engage your students in the fascinating nature of everyday science, and we do it by exploring hands-on science experiments!" },
+  { word: "activate", title: "Activations & events", path: "/activations-and-events/", image: events, alt: "Making slime at a Fizz Kidz event", colour: "yellow", description: "We are experts in kids entertainment! Fizz Kidz will bring your next activation, event or workshop to life." },
+  { word: "grow", title: "Franchising", path: "/franchising/", image: franchise, alt: "Fizz Kidz staff leading a creative activity", colour: "lilac", description: "Own a Fizz Kidz studio and bring creative parties and programs to your local community." },
+];
+---
+
+<section class="home-services" aria-labelledby="home-services-heading">
+  <div class="home-services-intro">
+    <h2 id="home-services-heading">Find your <span>fizz.</span></h2>
+    <svg class="home-services-arrow" viewBox="0 0 64 56" width="44" height="40" fill="none" aria-hidden="true" focusable="false"><path d="M12 6C36-2 54 14 42 27C35 34 29 35 29 49M17 38L29 50L43 38" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    <a href="/locations/">Our studios <ArrowRight size={16} aria-hidden="true" focusable="false" /></a>
+  </div>
+  <div class="home-service-grid">
+    {services.map((service) => <a class={`home-service-card ${service.colour}`} href={service.path}>
+      <div class="home-service-photo">
+        <Image src={service.image} alt={service.alt} width={650} widths={[320, 480, 650, 900]} sizes="(max-width: 480px) 90vw, (max-width: 760px) 44vw, (max-width: 1552px) 30vw, 455px" loading="lazy" />
+        <span aria-hidden="true"><ArrowRight size={18} focusable="false" /></span>
+      </div>
+      <div class="home-service-copy"><h3>{service.title}</h3><p class="home-service-tagline">let's {service.word}.</p><p class="home-service-description">{service.description}</p></div>
+    </a>)}
+  </div>
+</section>

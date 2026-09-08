@@ -32,15 +32,15 @@ function getCalendarIdForStudio(studio: StudioOrTest) {
 type ClassSelectionAppointmentType =
     | typeof AcuityConstants.AppointmentTypes.HOLIDAY_PROGRAM
     | typeof AcuityConstants.AppointmentTypes.TEST_HOLIDAY_PROGRAM
-    | typeof AcuityConstants.AppointmentTypes.GEELONG_OPENING
+    | typeof AcuityConstants.AppointmentTypes.OPEN_DAY
 
 function getProgramTitle(appointmentTypeId: ClassSelectionAppointmentType) {
     switch (appointmentTypeId) {
         case AcuityConstants.AppointmentTypes.HOLIDAY_PROGRAM:
         case AcuityConstants.AppointmentTypes.TEST_HOLIDAY_PROGRAM:
             return 'Holiday Program Class Selection'
-        case AcuityConstants.AppointmentTypes.GEELONG_OPENING:
-            return 'Geelong Opening Selection'
+        case AcuityConstants.AppointmentTypes.OPEN_DAY:
+            return 'Open Day & Anniversary Class Selection'
         default: {
             const exhaustive: never = appointmentTypeId
             throw new Error(`Unhandled appointment type in getProgramTitle(): ${exhaustive}`)

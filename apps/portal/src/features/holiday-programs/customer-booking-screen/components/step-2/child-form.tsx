@@ -1,23 +1,18 @@
-import { UploadOutlined } from '@ant-design/icons'
-import { Button, DatePicker, Form, Input, Upload } from 'antd'
+import { Button, DatePicker, Form, Input } from 'antd'
 import dayjs from 'dayjs'
-import { ref as firebaseRef, uploadBytesResumable } from 'firebase/storage'
-import React, { useState } from 'react'
-import { toast } from 'sonner'
+import React from 'react'
 
 import { AcuityConstants } from '@fizz-kidz/core'
 
-import useFirebase from '@integrations/firebase/use-firebase'
 import { SimpleTextRule } from '@shared/lib/form-utils'
 
 import { useCart } from '../../state/cart-store'
+import { MedicalPlanUpload } from './medical-plan-upload'
 
 import type { Form as TForm } from '../../pages/customer-booking-page'
 import type { FormInstance } from 'antd'
 
 const { TextArea } = Input
-
-const FormValue: React.FC = () => null
 
 type YesNoValue = 'yes' | 'no'
 
@@ -52,70 +47,12 @@ type Props = {
 }
 
 export const ChildForm: React.FC<Props> = ({ form, appointmentTypeId, childNumber }) => {
-    const firebase = useFirebase()
     const getEarliestClass = useCart((cart) => cart.getEarliestClass)
-    const [uploading, setUploading] = useState(false)
-    const [uploadProgress, setUploadProgress] = useState(0)
 
     const hasAllergies = Form.useWatch(['children', childNumber, 'hasAllergies'], form) === 'yes'
     const isAnaphylactic = Form.useWatch(['children', childNumber, 'isAnaphylactic'], form) === 'yes'
-    const anaphylaxisPlan = Form.useWatch(['children', childNumber, 'anaphylaxisPlan'], form)
-
-    const isValidFile = (file: File) => {
-        if (file.type !== 'application/pdf') {
-            toast.error('File must be a PDF')
-            return false
-        }
-
-        if (file.size >= 5_000_000) {
-            toast.error('Anaphylaxis plan must be smaller than 5MB')
-            return false
-        }
-
-        return true
-    }
-
-    const uploadAnaphylaxisPlan = (
-        file: File,
-        onProgress?: (percent: number) => void,
-        onError?: (error: Error) => void,
-        onSuccess?: () => void
-    ) => {
-        if (!isValidFile(file)) {
-            onError?.(new Error('Invalid file'))
-            return
-        }
-
-        setUploading(true)
-        setUploadProgress(0)
-
-        const storagePath = `anaphylaxisPlans/holiday-program-${crypto.randomUUID()}-${file.name}`
-        const storageRef = firebaseRef(firebase.storage, storagePath)
-        const uploadTask = uploadBytesResumable(storageRef, file, { contentType: 'application/pdf' })
-
-        uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-                const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
-                setUploadProgress(progress)
-                onProgress?.(progress)
-            },
-            (error) => {
-                setUploading(false)
-                toast.error('Error occurred during upload')
-                onError?.(error)
-            },
-            () => {
-                setUploading(false)
-                form.setFieldValue(['children', childNumber, 'anaphylaxisPlan'], {
-                    fileName: file.name,
-                    storagePath,
-                })
-                void form.validateFields([['children', childNumber, 'anaphylaxisPlan']])
-                onSuccess?.()
-            }
-        )
-    }
+    const requiresAsthmaActionPlan =
+        Form.useWatch(['children', childNumber, 'requiresAsthmaActionPlan'], form) === 'yes'
 
     return (
         <>
@@ -130,8 +67,9 @@ export const ChildForm: React.FC<Props> = ({ form, appointmentTypeId, childNumbe
                 name={[childNumber, 'childAge']}
                 label="Child's date of birth"
                 extra={
-                    appointmentTypeId !== AcuityConstants.AppointmentTypes.GEELONG_OPENING &&
-                    'The minimum age is 4 years old, and all children must be completely toilet trained 😊'
+                    appointmentTypeId === AcuityConstants.AppointmentTypes.OPEN_DAY
+                        ? 'Activities are suitable for children aged 4 to 12 years only.'
+                        : 'The minimum age is 4 years old, and all children must be completely toilet trained 😊'
                 }
                 rules={[
                     {
@@ -140,8 +78,8 @@ export const ChildForm: React.FC<Props> = ({ form, appointmentTypeId, childNumbe
                         validator: (_, value: dayjs.Dayjs) => {
                             if (!value) return Promise.reject(new Error("Please input child's age"))
 
-                            if (appointmentTypeId === AcuityConstants.AppointmentTypes.GEELONG_OPENING) {
-                                // remove age limit on geelong since 18+ months is allowed.
+                            if (appointmentTypeId === AcuityConstants.AppointmentTypes.OPEN_DAY) {
+                                // Open Day bookings use separate age requirements from holiday programs.
                                 return Promise.resolve()
                             }
 
@@ -221,68 +159,37 @@ export const ChildForm: React.FC<Props> = ({ form, appointmentTypeId, childNumbe
                 </Form.Item>
             )}
             {isAnaphylactic && (
-                <>
-                    <Form.Item
-                        name={[childNumber, 'anaphylaxisPlan']}
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please upload an anaphylaxis plan',
-                            },
-                        ]}
-                        noStyle
-                    >
-                        <FormValue />
-                    </Form.Item>
-                    <Form.Item noStyle shouldUpdate>
-                        {() => {
-                            const errors = form.getFieldError(['children', childNumber, 'anaphylaxisPlan'])
-
-                            return (
-                                <Form.Item
-                                    label="Please upload this child's anaphylaxis plan"
-                                    required
-                                    validateStatus={errors.length ? 'error' : undefined}
-                                    help={errors[0]}
-                                    extra="PDF only. Maximum file size is 5MB."
-                                >
-                                    <Upload
-                                        accept=".pdf"
-                                        maxCount={1}
-                                        customRequest={(options) => {
-                                            uploadAnaphylaxisPlan(
-                                                options.file as File,
-                                                (percent) => options.onProgress?.({ percent }),
-                                                (error) => options.onError?.(error),
-                                                () => options.onSuccess?.('ok')
-                                            )
-                                        }}
-                                        fileList={
-                                            anaphylaxisPlan
-                                                ? [
-                                                      {
-                                                          uid: anaphylaxisPlan.storagePath,
-                                                          name: anaphylaxisPlan.fileName,
-                                                          status: 'done',
-                                                      },
-                                                  ]
-                                                : []
-                                        }
-                                        onRemove={() => {
-                                            form.setFieldValue(['children', childNumber, 'anaphylaxisPlan'], undefined)
-                                            void form.validateFields([['children', childNumber, 'anaphylaxisPlan']])
-                                            return true
-                                        }}
-                                    >
-                                        <Button icon={<UploadOutlined />} loading={uploading}>
-                                            {uploading ? `Uploading ${uploadProgress}%` : 'Upload PDF'}
-                                        </Button>
-                                    </Upload>
-                                </Form.Item>
-                            )
-                        }}
-                    </Form.Item>
-                </>
+                <Form.Item
+                    name={[childNumber, 'anaphylaxisPlan']}
+                    label="Please upload this child's anaphylaxis plan"
+                    rules={[{ required: true, message: 'Please upload an anaphylaxis plan' }]}
+                    extra="PDF only. File must be smaller than 5MB."
+                >
+                    <MedicalPlanUpload type="anaphylaxis" />
+                </Form.Item>
+            )}
+            <Form.Item
+                name={[childNumber, 'requiresAsthmaActionPlan']}
+                label="Does your child require an asthma action plan?"
+                rules={[{ required: true, message: 'Please select whether your child requires an asthma action plan' }]}
+            >
+                <YesNoButtons
+                    onValueChange={(value) => {
+                        if (value === 'no') {
+                            form.setFieldValue(['children', childNumber, 'asthmaActionPlan'], undefined)
+                        }
+                    }}
+                />
+            </Form.Item>
+            {requiresAsthmaActionPlan && (
+                <Form.Item
+                    name={[childNumber, 'asthmaActionPlan']}
+                    label="Please upload this child's asthma action plan"
+                    rules={[{ required: true, message: 'Please upload an asthma action plan' }]}
+                    extra="PDF only. File must be smaller than 5MB."
+                >
+                    <MedicalPlanUpload type="asthma" />
+                </Form.Item>
             )}
             <Form.Item
                 name={[childNumber, 'additionalInfo']}

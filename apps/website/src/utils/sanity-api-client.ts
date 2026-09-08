@@ -32,7 +32,6 @@ const BIRTHDAY_PARTY_CATALOGUE_QUERY = `
         "cards": websiteCards[] {
             _key,
             alt,
-            bookingOrder,
             colour,
             creation->{
                 _id,
@@ -212,7 +211,7 @@ function normalizeWebsitePage(page: SanityWebsitePage | undefined): BirthdayPart
                       : (undefined as never),
                   headingImage: feature.headingImage ? resolveCatalogueImage(feature.headingImage) : undefined,
               }))
-            : (undefined as never),
+            : [],
         hero: page.hero
             ? {
                   ...page.hero,
@@ -246,7 +245,6 @@ export const sanityClient = {
                     return {
                         _key: card._key,
                         alt: card.alt?.trim() || (creation?.name ? `${creation.name} creation` : ''),
-                        bookingOrder: card.bookingOrder ?? undefined,
                         colour: card.colour,
                         creation: creation as BirthdayPartyCatalogueCreation,
                         image: resolveCatalogueImage(card.image ?? card.creation?.image),

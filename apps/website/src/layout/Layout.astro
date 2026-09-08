@@ -6,6 +6,8 @@ import RecallBanner from "@/layout/recall-banner.astro";
 import { ClientRouter } from "astro:transitions";
 import LoadingIndicator from "astro-loading-indicator/component";
 import { absoluteUrl, createSchemaGraph, type JsonLd } from "@/utils/seo";
+import lilitaFontUrl from "@fizz-kidz/ui/assets/fonts/LilitaOne.woff2?url";
+import googleTagManagerScript from "./google-tag-manager.js?raw";
 
 type Props = {
   title: string;
@@ -36,42 +38,17 @@ const schemaGraph = createSchemaGraph({
   }
 </style>
 
-<script is:inline>
-  /**
-   * This allows navigation directly to a hash route, where it will smoothly scroll after arriving on the page.
-   */
-  document.addEventListener("astro:page-load", () => {
-    if (window.location.hash) {
-      const target = document.querySelector(window.location.hash);
-      if (target) {
-        setTimeout(() => {
-          target.scrollIntoView({ behavior: "smooth" });
-        }, 100); // A slight delay to ensure the page has fully loaded
-      }
-    }
-  });
-</script>
-
 <html lang="en-AU" transition:animate="none" class="h-full">
   <head>
-    <!-- Google Tag Manager -->
-    <script is:inline>
-      (function (w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-        var f = d.getElementsByTagName(s)[0],
-          j = d.createElement(s),
-          dl = l != "dataLayer" ? "&l=" + l : "";
-        j.async = true;
-        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
-      })(window, document, "script", "dataLayer", "GTM-NBCZ5XHQ");
-    </script>
-    <!-- End Google Tag Manager -->
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="preload" href={lilitaFontUrl} as="font" type="font/woff2" crossorigin="anonymous" />
+    <slot name="head" />
+    <!-- Google Tag Manager -->
+    <script is:inline set:html={googleTagManagerScript} />
+    <!-- End Google Tag Manager -->
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -103,12 +80,13 @@ const schemaGraph = createSchemaGraph({
     <ClientRouter />
   </head>
 
-  <LoadingIndicator color="#9044E2" height="3px" threshold={400} />
   <body class="flex flex-col">
+    <LoadingIndicator color="#9044E2" height="3px" threshold={400} />
     <!-- Google Tag Manager (noscript) -->
     <noscript
       ><iframe
         src="https://www.googletagmanager.com/ns.html?id=GTM-NBCZ5XHQ"
+        title="Google Tag Manager"
         height="0"
         width="0"
         style="display:none;visibility:hidden"></iframe></noscript
@@ -116,18 +94,43 @@ const schemaGraph = createSchemaGraph({
     <!-- End Google Tag Manager (noscript) -->
     <RecallBanner />
     <Header />
-    <!-- <div -->
-    <!--   class="flex flex-col items-center justify-center bg-[#FFDC5D] p-4 text-center font-lilita text-lg md:text-4xl lg:flex-row" -->
-    <!-- > -->
-    <!--   Preschool Program Term 3 bookings are now open!&nbsp; -->
-    <!--   <a -->
-    <!--     href="https://bookings.fizzkidz.com.au/preschool-program-v2-booking" -->
-    <!--     class="text-blue-500 hover:underline">Book now.</a -->
-    <!--   > -->
-    <!-- </div> -->
+    <aside aria-label="Malvern's 10th Birthday Party" class="bg-[#FFDC5D] print:hidden">
+      <a
+        href="/locations/malvern/#open-day"
+        class="group mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#542785] lg:justify-center lg:gap-6 lg:px-5 lg:py-4"
+      >
+        <div class="min-w-0 lg:flex lg:items-center lg:gap-6">
+          <p class="font-lilita text-lg leading-tight text-[#542785] lg:text-2xl">
+            Malvern is turning 10!
+          </p>
+          <p class="mt-1 font-gotham text-xs leading-snug lg:mt-0 lg:text-base">
+            <span class="lg:hidden">Birthday Party &middot; Sat 26 Sept</span>
+            <span class="hidden lg:inline">Celebrate with us on <span class="whitespace-nowrap font-semibold">Saturday 26th September</span></span>
+            <span class="mx-1" aria-hidden="true">&middot;</span>
+            <span class="whitespace-nowrap font-semibold">$15 per child</span>
+          </p>
+        </div>
+        <span class="shrink-0 text-xl text-[#542785] lg:rounded-full lg:bg-[#9044E2] lg:px-5 lg:py-2 lg:font-lilita lg:text-base lg:text-white lg:transition-colors lg:group-hover:bg-[#7732BE]">
+          <span class="sr-only lg:not-sr-only">Explore sessions &amp; book</span>
+          <span class="lg:ml-1" aria-hidden="true">&rarr;</span>
+        </span>
+      </a>
+    </aside>
     <div id="main">
       <slot class="flex-1" />
     </div>
     <Footer />
+    <script>
+      document.addEventListener("astro:page-load", () => {
+        if (window.location.hash) {
+          const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+          if (target) {
+            setTimeout(() => {
+              target.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+          }
+        }
+      });
+    </script>
   </body>
 </html>

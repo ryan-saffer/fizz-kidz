@@ -175,6 +175,7 @@ export const websitePagesHomeHolidayProgramsJpg = getWebsiteImage('websitePagesH
 export const websitePagesHomeIncursionsJpg = getWebsiteImage('websitePagesHomeIncursionsJpg')
 export const websitePagesHomeKinderIncursionsJpg = getWebsiteImage('websitePagesHomeKinderIncursionsJpg')
 export const websitePagesHomePartiesJpg = getWebsiteImage('websitePagesHomePartiesJpg')
+export const websitePagesHomePolaroid = getWebsiteImage('home-polaroid')
 export const websitePagesHomeStudioPng = getWebsiteImage('websitePagesHomeStudioPng')
 export const websitePagesInSchoolsAfterSchoolProgramsHeroJpg = getWebsiteImage(
     'websitePagesInSchoolsAfterSchoolProgramsHeroJpg'
@@ -346,3 +347,7 @@ export const websitePagesPreschoolProgramCarousel3Jpg = getWebsiteImage('website
 export const websitePagesPreschoolProgramHeroJpg = getWebsiteImage('websitePagesPreschoolProgramHeroJpg')
 export const websitePagesPreschoolProgramThursdayJpg = getWebsiteImage('websitePagesPreschoolProgramThursdayJpg')
 export const websitePagesPreschoolProgramWednesdayJpg = getWebsiteImage('websitePagesPreschoolProgramWednesdayJpg')
+export const werribeeOpenDay1 = getWebsiteImage('werribeeOpenDay1')
+export const werribeeOpenDay2 = getWebsiteImage('werribeeOpenDay2')
+export const werribeeOpenDay3 = getWebsiteImage('werribeeOpenDay3')
+export const werribeeOpenDay4 = getWebsiteImage('werribeeOpenDay4')

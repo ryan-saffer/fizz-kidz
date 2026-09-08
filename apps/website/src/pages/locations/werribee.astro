@@ -6,7 +6,6 @@ import Image from "@/components/image.astro";
 import LocationDetails from "@/components/location-details.astro";
 import PageIntro from "@/components/page-intro.astro";
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
 import {
   websitePagesHomeEnergyJpg as contact,
   websitePagesHomeHolidayProgramsJpg as holidayPrograms,
@@ -15,6 +14,7 @@ import {
   websitePagesPartiesSlimePartyJpg as slime,
 } from "@/data/website-images";
 import Layout from "@/layout/Layout.astro";
+import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
 import { createLocationSchemas } from "@/utils/seo";
 
 const description =
@@ -59,7 +59,6 @@ const description =
         >
       </PageIntro>
     </div>
-
     <Container>
       <p class="mt-16 text-center font-lilita text-5xl sm:mt-32">
         Creativity & fun at Harpley Town Center!

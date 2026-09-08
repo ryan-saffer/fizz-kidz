@@ -1,28 +1,24 @@
-import { randomUUID } from 'crypto'
-
 import { FieldValue } from 'firebase-admin/firestore'
 import { logger } from 'firebase-functions/v2'
 import { Status } from 'google-gax'
 import { DateTime } from 'luxon'
 
 import type { DiscountCode, StudioOrTest } from '@fizz-kidz/core'
-import { AcuityConstants, AcuityUtilities, normalize } from '@fizz-kidz/core'
+import { AcuityConstants, AcuityUtilities, formatHolidayProgramMedicalDetails, normalize } from '@fizz-kidz/core'
 
 import { getDiscountCodeRedemptionKey } from './discount-codes/check-discount-code'
+import { prepareMedicalPlans } from './prepare-medical-plans'
 import { processHolidayProgramPayment } from './process-holiday-program-payment'
 import { sendConfirmationEmail } from './send-confirmation-email'
 
-import { projectId } from '@/app/init/firebase'
 import { throwCustomTrpcError, throwTrpcError } from '@/app/trpc/transport-errors'
 import { ClassFullError } from '@/app/trpc/trpc.errors'
 import { AcuityClient } from '@/integrations/acuity/acuity.client'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
-import { StorageClient } from '@/integrations/firebase/storage.client'
 import { SheetsClient } from '@/integrations/google/sheets.client'
 import { MixpanelClient } from '@/integrations/mixpanel/mixpanel.client'
 import { logError } from '@/integrations/observability/log-error'
 import { ZohoClient } from '@/integrations/zoho/zoho.client'
-import { isUsingEmulator } from '@/shared/runtime/is-using-emulator'
 
 export type HolidayProgramBookingProps = {
     idempotencyKey: string
@@ -54,6 +50,8 @@ export type HolidayProgramBookingProps = {
             childAllergies: string
             childIsAnaphylactic: boolean
             childAnaphylaxisPlan: string
+            childRequiresAsthmaActionPlan?: boolean
+            childAsthmaActionPlan?: string
             childAdditionalInfo: string
             isAllDayClass: boolean
             title?: string // eg. 'Swifty Spectacular'. For mixpanel.
@@ -73,7 +71,7 @@ export type HolidayProgramBookingResult = {
 export async function bookHolidayProgram(input: HolidayProgramBookingProps) {
     logger.info('❯ bookHolidayProgram start', { input }) // temporary while debugging 500 error
     try {
-        const anaphylaxisPlanUrls = await getAnaphylaxisPlanUrls(input)
+        const medicalPlanUrls = await prepareMedicalPlans(input.payment.lineItems)
         validatePaymentAmount(input)
 
         // MARK: Verify idempotency key
@@ -142,7 +140,13 @@ export async function bookHolidayProgram(input: HolidayProgramBookingProps) {
                         },
                         {
                             id: AcuityConstants.FormFields.CHILDREN_ALLERGIES,
-                            value: formatChildAllergies(item, anaphylaxisPlanUrls),
+                            value: formatHolidayProgramMedicalDetails({
+                                allergies: item.childAllergies,
+                                isAnaphylactic: item.childIsAnaphylactic,
+                                anaphylaxisPlan: medicalPlanUrls.get(item.childAnaphylaxisPlan) || '',
+                                requiresAsthmaActionPlan: item.childRequiresAsthmaActionPlan === true,
+                                asthmaActionPlan: medicalPlanUrls.get(item.childAsthmaActionPlan || '') || '',
+                            }),
                         },
                         {
                             id: AcuityConstants.FormFields.CHILD_ADDITIONAL_INFO,
@@ -352,84 +356,4 @@ function calculateExpectedPaymentAmount(input: HolidayProgramBookingProps) {
     }
 
     return subtotal - input.payment.discount.discountAmount
-}
-
-async function getAnaphylaxisPlanUrls(input: HolidayProgramBookingProps) {
-    const missingPlan = input.payment.lineItems.find((item) => item.childIsAnaphylactic && !item.childAnaphylaxisPlan)
-    if (missingPlan) {
-        throwTrpcError('BAD_REQUEST', `missing anaphylaxis plan for child: ${missingPlan.childName}`)
-    }
-
-    const planPaths = [
-        ...new Set(
-            input.payment.lineItems
-                .filter((item) => item.childIsAnaphylactic && item.childAnaphylaxisPlan)
-                .map((item) => item.childAnaphylaxisPlan)
-        ),
-    ]
-
-    const signedUrls = new Map<string, string>()
-
-    if (planPaths.length === 0) {
-        return signedUrls
-    }
-
-    const today = new Date()
-    const expires = new Date(today.setMonth(today.getMonth() + 6))
-    const storage = await StorageClient.getInstance()
-    const bucketName = `${projectId}.appspot.com`
-    const bucket = storage.bucket(bucketName)
-
-    await Promise.all(
-        planPaths.map(async (planPath) => {
-            if (!planPath.startsWith('anaphylaxisPlans/holiday-program-')) {
-                throwTrpcError('BAD_REQUEST', `invalid anaphylaxis plan path: ${planPath}`)
-            }
-
-            if (planPath.slice('anaphylaxisPlans/'.length).includes('/')) {
-                throwTrpcError('BAD_REQUEST', `invalid anaphylaxis plan path: ${planPath}`)
-            }
-
-            const file = bucket.file(planPath)
-
-            let signedUrl: string
-            if (isUsingEmulator()) {
-                const downloadToken = randomUUID()
-                await file.setMetadata({
-                    metadata: {
-                        firebaseStorageDownloadTokens: downloadToken,
-                    },
-                })
-                signedUrl = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(planPath)}?alt=media&token=${downloadToken}`
-            } else {
-                ;[signedUrl] = await file.getSignedUrl({
-                    version: 'v2',
-                    action: 'read',
-                    expires,
-                })
-            }
-
-            signedUrls.set(planPath, signedUrl)
-        })
-    )
-
-    return signedUrls
-}
-
-function formatChildAllergies(
-    item: HolidayProgramBookingProps['payment']['lineItems'][number],
-    anaphylaxisPlanUrls: Map<string, string>
-) {
-    const allergyDetails = [item.childAllergies]
-
-    if (item.childIsAnaphylactic) {
-        allergyDetails.push('Anaphylactic: Yes')
-
-        const anaphylaxisPlanUrl = anaphylaxisPlanUrls.get(item.childAnaphylaxisPlan)
-        if (anaphylaxisPlanUrl) {
-            allergyDetails.push(`Anaphylaxis plan: ${anaphylaxisPlanUrl}`)
-        }
-    }
-
-    return allergyDetails.filter(Boolean).join('\n\n')
 }

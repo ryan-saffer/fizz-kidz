@@ -44,11 +44,9 @@ const bookingCatalogue: BirthdayPartyBookingCatalogue = {
         {
             creations: [
                 {
-                    bookingOrder: 2,
                     key: 'fairySlime',
                 },
                 {
-                    bookingOrder: 1,
                     key: 'unicornSoap',
                 },
             ],
@@ -113,7 +111,6 @@ const validCatalogue: BirthdayPartyCatalogue = {
                 {
                     _key: 'card-1',
                     alt: 'Green monster slime in a jar',
-                    bookingOrder: 1,
                     colour: 'green',
                     creation: {
                         _id: 'creation-1',
@@ -167,16 +164,6 @@ describe('validateBirthdayPartyCatalogue', () => {
         deepStrictEqual(getBirthdayPartyPackagePartyName('Slime Parties'), 'Slime Parties')
         deepStrictEqual(getBirthdayPartyPackageCreationsTitle('Slime'), 'Slime Creations')
         deepStrictEqual(getBirthdayPartyPackageImageDescription('Slime'), 'Slime Party Package')
-    })
-
-    it('requires exactly one booking card for every creation', () => {
-        const catalogue = structuredClone(validCatalogue)
-        catalogue.packages[0].cards[0].bookingOrder = undefined
-
-        throws(
-            () => validateBirthdayPartyCatalogue(catalogue),
-            /Package "slime" creation "monsterSlime" must have exactly one booking card/
-        )
     })
 
     it('rejects invalid creation availability', () => {
@@ -284,7 +271,6 @@ describe('validateBirthdayPartyCatalogue', () => {
         catalogue.packages[0].cards.push({
             ...structuredClone(catalogue.packages[0].cards[0]),
             _key: 'card-2',
-            bookingOrder: undefined,
             creation: {
                 ...structuredClone(catalogue.packages[0].cards[0].creation),
                 _id: 'creation-2',
@@ -299,7 +285,6 @@ describe('validateBirthdayPartyCatalogue', () => {
         catalogue.packages[0].cards.push({
             ...structuredClone(catalogue.packages[0].cards[0]),
             _key: 'card-2',
-            bookingOrder: 2,
             creation: {
                 _id: 'creation-2',
                 bookingChannels: ['studio', 'mobile'],
@@ -329,13 +314,12 @@ describe('validateBirthdayPartyCatalogue', () => {
         )
     })
 
-    it('supports non-contiguous presentation cards with exactly one booking card', () => {
+    it('supports non-contiguous duplicate presentation cards', () => {
         const catalogue = structuredClone(validCatalogue)
         catalogue.packages[0].cards.push(
             {
                 ...structuredClone(catalogue.packages[0].cards[0]),
                 _key: 'card-2',
-                bookingOrder: 2,
                 creation: {
                     _id: 'creation-2',
                     bookingChannels: ['studio', 'mobile'],
@@ -361,27 +345,10 @@ describe('validateBirthdayPartyCatalogue', () => {
             {
                 ...structuredClone(catalogue.packages[0].cards[0]),
                 _key: 'card-3',
-                bookingOrder: undefined,
             }
         )
 
         deepStrictEqual(validateBirthdayPartyCatalogue(catalogue), catalogue)
-
-        catalogue.packages[0].cards[2].bookingOrder = 3
-        throws(
-            () => validateBirthdayPartyCatalogue(catalogue),
-            /Package "slime" creation "monsterSlime" must have exactly one booking card/
-        )
-    })
-
-    it('requires consecutive unique booking orders', () => {
-        const catalogue = structuredClone(validCatalogue)
-        catalogue.packages[0].cards[0].bookingOrder = 2
-
-        throws(
-            () => validateBirthdayPartyCatalogue(catalogue),
-            /Package "slime" booking orders must be consecutive from 1/
-        )
     })
 
     it('rejects a broken creation reference with its package and card keys', () => {
@@ -446,14 +413,14 @@ describe('validateBirthdayPartyCatalogue', () => {
 })
 
 describe('birthday party booking catalogue', () => {
-    it('validates and filters active package creations by channel and booking order', () => {
+    it('validates and filters active package creations while preserving card order', () => {
         deepStrictEqual(validateBirthdayPartyBookingCatalogue(bookingCatalogue), bookingCatalogue)
 
         deepStrictEqual(
             getActiveBirthdayPartyBookingPackages(bookingCatalogue, 'studio')[0].creations.map(
                 (creation) => creation.key
             ),
-            ['unicornSoap', 'fairySlime']
+            ['fairySlime', 'unicornSoap']
         )
         deepStrictEqual(
             getActiveBirthdayPartyBookingPackages(bookingCatalogue, 'mobile')[0].creations.map(
@@ -501,11 +468,11 @@ describe('birthday party booking catalogue', () => {
 
     it('rejects malformed package booking configuration', () => {
         const catalogue = structuredClone(bookingCatalogue)
-        catalogue.packages[0].creations[1].bookingOrder = 2
+        catalogue.packages[0].creations.push({ key: 'fairySlime' })
 
         throws(
             () => validateBirthdayPartyBookingCatalogue(catalogue),
-            /Package "fairy" has duplicate booking order "2"/
+            /Package "fairy" contains duplicate creation "fairySlime"/
         )
     })
 

@@ -105,7 +105,16 @@ export class MailClient {
         }
 
         const mjml = fs.readFileSync(templatePath, 'utf-8')
-        const output = Mustache.render(mjml, values)
+        // Escape staff-entered text before adding email-safe line breaks and spacing.
+        // HTML otherwise collapses the paragraphs and indentation from the Portal's textarea.
+        const emailMessageHtml =
+            typeof values.emailMessage === 'string'
+                ? Mustache.escape(values.emailMessage)
+                      .replace(/\t/g, '    ')
+                      .replace(/ {2,}/g, (spaces) => '&nbsp;'.repeat(spaces.length))
+                      .replace(/\r\n|\r|\n/g, '<br />')
+                : undefined
+        const output = Mustache.render(mjml, { ...values, emailMessageHtml })
         if (useMjml) {
             const mjml2html = await import('mjml')
             const mjmlOutput = mjml2html.default(output, { keepComments: false })
@@ -169,7 +178,7 @@ export class MailClient {
                     template: 'holiday_program_cancellation.mjml',
                     useMjml: true,
                 }
-            case 'geelongOpeningConfirmation':
+            case 'werribeeOpeningConfirmation':
                 return {
                     emailInfo: {
                         to,
@@ -177,10 +186,24 @@ export class MailClient {
                             name: 'Fizz Kidz',
                             email: 'bookings@fizzkidz.com.au',
                         },
-                        subject: subject || 'Geelong open day booking confirmation',
+                        subject: subject || 'Werribee open day booking confirmation',
                         replyTo: replyTo || 'bookings@fizzkidz.com.au',
                     },
-                    template: 'geelong_opening_confirmation.mjml',
+                    template: 'werribee_opening_confirmation.mjml',
+                    useMjml: true,
+                }
+            case 'malvernAnniversaryConfirmation':
+                return {
+                    emailInfo: {
+                        to,
+                        from: {
+                            name: 'Fizz Kidz',
+                            email: 'bookings@fizzkidz.com.au',
+                        },
+                        subject: subject || "Malvern's 10th Birthday Party! Booking confirmation",
+                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
+                    },
+                    template: 'malvern_anniversary_confirmation.mjml',
                     useMjml: true,
                 }
             case 'afterSchoolEnrolmentConfirmation':

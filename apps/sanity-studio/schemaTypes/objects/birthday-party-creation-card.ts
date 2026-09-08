@@ -56,25 +56,16 @@ export const birthdayPartyCreationCard = defineType({
             },
             validation: (rule) => rule.required(),
         }),
-        defineField({
-            name: 'bookingOrder',
-            title: 'Booking choice order',
-            type: 'number',
-            description:
-                'Set this on exactly one card for each creation. It controls booking-menu order without changing Website card order. Leave empty on additional presentation cards.',
-            validation: (rule) => rule.integer().min(1),
-        }),
     ],
     preview: {
         select: {
-            bookingOrder: 'bookingOrder',
             creation: 'creation.name',
             creationImage: 'creation.image',
             hideLabel: 'hideLabel',
             labels: 'label',
             media: 'image',
         },
-        prepare: ({ bookingOrder, creation, creationImage, hideLabel, labels, media }) => {
+        prepare: ({ creation, creationImage, hideLabel, labels, media }) => {
             const title = hideLabel
                 ? 'Image-only card'
                 : Array.isArray(labels) && labels.length > 0
@@ -82,9 +73,7 @@ export const birthdayPartyCreationCard = defineType({
                   : creation
             return {
                 title: title ?? 'Untitled card',
-                subtitle: [creation, bookingOrder ? `Booking choice ${bookingOrder}` : 'Additional display card']
-                    .filter(Boolean)
-                    .join(' · '),
+                subtitle: creation,
                 media: media ?? creationImage,
             }
         },

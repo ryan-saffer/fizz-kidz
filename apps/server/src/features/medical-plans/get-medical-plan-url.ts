@@ -1,19 +1,19 @@
 import { randomUUID } from 'crypto'
 
-import { isValidAnaphylaxisPlanPath } from './anaphylaxis-plan-path'
+import { isValidMedicalPlanPath } from './medical-plan-path'
 
 import { projectId } from '@/app/init/firebase'
 import { throwTrpcError } from '@/app/trpc/transport-errors'
 import { StorageClient } from '@/integrations/firebase/storage.client'
 import { isUsingEmulator } from '@/shared/runtime/is-using-emulator'
 
-/** Normalises and validates an anaphylaxis plan reference before returning a short-lived read URL. */
-export async function getAnaphylaxisPlanUrl(value: string, allowedPrefix: string) {
+/** Normalises and validates a medical plan reference before returning a short-lived read URL. */
+export async function getMedicalPlanUrl(value: string, allowedPrefix: string) {
     const bucketName = `${projectId}.appspot.com`
     const storagePath = getStoragePath(value, bucketName)
 
-    if (!isValidAnaphylaxisPlanPath(storagePath, allowedPrefix)) {
-        throwTrpcError('BAD_REQUEST', `invalid anaphylaxis plan path: ${storagePath}`)
+    if (!isValidMedicalPlanPath(storagePath, allowedPrefix)) {
+        throwTrpcError('BAD_REQUEST', `invalid medical plan path: ${storagePath}`)
     }
 
     const storage = await StorageClient.getInstance()
@@ -43,12 +43,12 @@ function getStoragePath(value: string, bucketName: string) {
     try {
         url = new URL(trimmedValue)
     } catch (error) {
-        throwTrpcError('BAD_REQUEST', 'invalid anaphylaxis plan URL', error, { value })
+        throwTrpcError('BAD_REQUEST', 'invalid medical plan URL', error, { value })
     }
 
     if (url.hostname === 'storage.googleapis.com') {
         const [bucket, ...pathParts] = url.pathname.replace(/^\/+/, '').split('/')
-        if (bucket !== bucketName) throwTrpcError('BAD_REQUEST', 'invalid anaphylaxis plan bucket')
+        if (bucket !== bucketName) throwTrpcError('BAD_REQUEST', 'invalid medical plan bucket')
         return decodeURIComponent(pathParts.join('/'))
     }
 
@@ -58,9 +58,9 @@ function getStoragePath(value: string, bucketName: string) {
 
     if (url.hostname === 'firebasestorage.googleapis.com') {
         const match = url.pathname.match(/^\/v0\/b\/([^/]+)\/o\/(.+)$/)
-        if (!match || match[1] !== bucketName) throwTrpcError('BAD_REQUEST', 'invalid anaphylaxis plan bucket')
+        if (!match || match[1] !== bucketName) throwTrpcError('BAD_REQUEST', 'invalid medical plan bucket')
         return decodeURIComponent(match[2])
     }
 
-    throwTrpcError('BAD_REQUEST', 'invalid anaphylaxis plan URL host')
+    throwTrpcError('BAD_REQUEST', 'invalid medical plan URL host')
 }

@@ -20,7 +20,7 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
     const selectedClasses = useCart((store) => store.selectedClasses)
     const setSelectedStudio = useCart((store) => store.setSelectedStudio)
 
-    const isGeelongOpening = appointmentTypeId === AcuityConstants.AppointmentTypes.GEELONG_OPENING
+    const isOpenDay = appointmentTypeId === AcuityConstants.AppointmentTypes.OPEN_DAY
     const selectedClassCount = Object.keys(selectedClasses).length
 
     const filteredClasses = useMemo(() => {
@@ -44,6 +44,14 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
 
     return (
         <>
+            {isOpenDay && (
+                <Alert
+                    type="info"
+                    showIcon
+                    message="Activities are suitable for children aged 4 to 12 years only."
+                    style={{ marginBottom: 16 }}
+                />
+            )}
             <Form.Item name="store" label="Which studio do you want to book for?">
                 <Select value={selectedStudio} onChange={(studio) => setSelectedStudio(studio)}>
                     {(() => {
@@ -102,8 +110,7 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
                         <Checkbox
                             value={klass.id}
                             disabled={
-                                klass.slotsAvailable === 0 ||
-                                (isGeelongOpening && selectedClassCount > 0 && !isSelected)
+                                klass.slotsAvailable === 0 || (isOpenDay && selectedClassCount > 0 && !isSelected)
                             }
                             onChange={() => onClassSelectionChange(klass)}
                             style={{ marginBottom: 2 }}

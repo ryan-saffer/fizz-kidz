@@ -17,7 +17,7 @@ Reusable staff directions for delivering a creation. Several creations may share
 _Avoid_: Creation, offering
 
 **Website card**:
-A visual representation of a creation within a party package. It may override presentation without changing the creation's operational availability.
+A visual representation of a creation within a party package. It may override presentation without changing the creation's operational availability. Card order also controls booking-menu and Portal-instruction order; repeated cards for one creation count at their first occurrence.
 _Avoid_: Creation, booking choice
 
 **Booking channel**:

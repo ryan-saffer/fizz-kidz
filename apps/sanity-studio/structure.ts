@@ -6,9 +6,11 @@ import { ConfettiIcon } from '@sanity/icons/Confetti'
 import { FolderIcon } from '@sanity/icons/Folder'
 import { ImagesIcon } from '@sanity/icons/Images'
 import { SearchIcon } from '@sanity/icons/Search'
+import { SortIcon } from '@sanity/icons/Sort'
 import { SparklesIcon } from '@sanity/icons/Sparkles'
 import { UploadIcon } from '@sanity/icons/Upload'
 
+import { BirthdayPartyPackageManager } from './components/birthday-party-package-manager'
 import { WebsiteImageBulkReplace } from './components/website-image-bulk-replace'
 import { WEBSITE_IMAGE_CATEGORIES } from './website-image-categories'
 
@@ -60,7 +62,28 @@ export const structure: StructureResolver = (S) =>
                     S.list()
                         .title('Birthday Parties')
                         .items([
-                            S.documentTypeListItem('birthdayPartyPackage').title('Packages').icon(ComponentIcon),
+                            S.listItem()
+                                .title('Packages')
+                                .icon(ComponentIcon)
+                                .child(
+                                    S.list()
+                                        .title('Packages')
+                                        .items([
+                                            S.listItem()
+                                                .title('Reorder and publish packages')
+                                                .icon(SortIcon)
+                                                .child(
+                                                    S.component()
+                                                        .id('birthday-party-package-manager')
+                                                        .title('Reorder and publish packages')
+                                                        .component(BirthdayPartyPackageManager)
+                                                ),
+                                            S.divider(),
+                                            S.documentTypeListItem('birthdayPartyPackage')
+                                                .title('All packages')
+                                                .icon(ComponentIcon),
+                                        ])
+                                ),
                             S.listItem()
                                 .title('Creations')
                                 .icon(SparklesIcon)

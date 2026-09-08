@@ -15,7 +15,14 @@ export type Emails = {
         receiptUrl: string | undefined
     }
 
-    geelongOpeningConfirmation: {
+    werribeeOpeningConfirmation: {
+        parentName: string
+        location: string
+        address: string
+        bookings: { datetime: string; confirmationPage: string }[]
+    }
+
+    malvernAnniversaryConfirmation: {
         parentName: string
         location: string
         address: string

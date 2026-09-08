@@ -87,7 +87,6 @@ describe('SanityClient', () => {
                 creationCards: [
                     {
                         _key: 'card-1',
-                        bookingOrder: 1,
                         creationInstructions: {
                             _id: 'creation-1',
                             name: 'Fairy Slime',
@@ -96,7 +95,6 @@ describe('SanityClient', () => {
                     },
                     {
                         _key: 'card-2',
-                        bookingOrder: 2,
                         creationInstructions: {
                             _id: 'creation-1',
                             name: 'Fairy Slime',
@@ -149,13 +147,27 @@ describe('SanityClient', () => {
                     name: 'Fairy Slime',
                     status: 'active',
                 },
+                {
+                    bookingChannels: ['studio', 'mobile'],
+                    key: 'unicornSoap',
+                    legacyLabels: [],
+                    name: 'Unicorn Soap',
+                    status: 'active',
+                },
             ],
             packages: [
                 {
                     creations: [
                         {
                             _key: 'card-1',
-                            bookingOrder: 1,
+                            key: 'fairySlime',
+                        },
+                        {
+                            _key: 'card-2',
+                            key: 'unicornSoap',
+                        },
+                        {
+                            _key: 'card-3',
                             key: 'fairySlime',
                         },
                     ],
@@ -171,9 +183,9 @@ describe('SanityClient', () => {
         const result = await sanity.getBirthdayPartyBookingCatalogue()
 
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('birthdayPartyCreationOffering'))
-        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('websiteCards[defined(bookingOrder)]'))
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('"creations": websiteCards[]'))
         expect(withConfig).toHaveBeenCalledWith({ useCdn: false })
-        expect(result.packages[0].creations[0].key).toBe('fairySlime')
+        expect(result.packages[0].creations.map((creation) => creation.key)).toEqual(['fairySlime', 'unicornSoap'])
     })
 
     it('reads the published Holiday Program schedule in display order', async () => {
