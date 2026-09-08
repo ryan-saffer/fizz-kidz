@@ -21,11 +21,9 @@ const catalogue: BirthdayPartyBookingCatalogue = {
         {
             creations: [
                 {
-                    bookingOrder: 2,
                     key: 'fairySlime',
                 },
                 {
-                    bookingOrder: 1,
                     key: 'unicornSoap',
                 },
             ],
@@ -38,7 +36,7 @@ const catalogue: BirthdayPartyBookingCatalogue = {
 }
 
 describe('getBirthdayPartyCreationMenu', () => {
-    it('shows active creations for the selected channel in booking order', () => {
+    it('shows active creations for the selected channel in Website card order', () => {
         const menu = getBirthdayPartyCreationMenu(catalogue, 'mobile')
 
         deepStrictEqual(

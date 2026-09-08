@@ -14,6 +14,13 @@ export default defineConfig({
 
     plugins: [structureTool({ structure }), visionTool()],
 
+    document: {
+        actions: (previousActions, context) =>
+            context.schemaType === 'birthdayPartyPackage'
+                ? previousActions.filter((action) => action.action !== 'publish')
+                : previousActions,
+    },
+
     schema: {
         types: schemaTypes,
     },

@@ -29,11 +29,9 @@ const BIRTHDAY_PARTY_CREATIONS_QUERY = `
         "colour": primaryColour,
         status,
         "creationCards": websiteCards[
-            defined(bookingOrder) &&
             defined(creation->creationInstructions)
         ] {
             _key,
-            bookingOrder,
             "creationInstructions": creation->creationInstructions-> {
                 _id,
                 name,
@@ -55,7 +53,6 @@ const BIRTHDAY_PARTY_CREATIONS_QUERY = `
 type BirthdayPartyInstructionGroupRecord = Omit<BirthdayPartyCreationInstructionGroup, 'creations'> & {
     creationCards?: Array<{
         _key: string
-        bookingOrder?: number
         creationInstructions?: BirthdayPartyCreationInstructionGroup['creations'][number]
     }>
     staffCreationInstructions?: BirthdayPartyCreationInstructionGroup['creations']
@@ -76,9 +73,8 @@ const BIRTHDAY_PARTY_BOOKING_CATALOGUE_QUERY = `
             defined(key) &&
             status in ["active", "retired"]
         ] | order(position asc) {
-            "creations": websiteCards[defined(bookingOrder)] {
+            "creations": websiteCards[] {
                 _key,
-                bookingOrder,
                 "key": creation->key
             },
             key,
@@ -196,9 +192,9 @@ export class SanityClient {
             creations: Array.from(
                 new Map(
                     (group.status === 'active'
-                        ? (group.creationCards ?? [])
-                              .sort((left, right) => (left.bookingOrder ?? 0) - (right.bookingOrder ?? 0))
-                              .flatMap((card) => (card.creationInstructions ? [card.creationInstructions] : []))
+                        ? (group.creationCards ?? []).flatMap((card) =>
+                              card.creationInstructions ? [card.creationInstructions] : []
+                          )
                         : (group.staffCreationInstructions ?? [])
                     ).map((creation) => [creation._id, creation] as const)
                 ).values()
@@ -217,7 +213,9 @@ export class SanityClient {
             creations: catalogue.creations,
             packages: catalogue.packages.map((partyPackage) => ({
                 ...partyPackage,
-                creations: partyPackage.creations.sort((left, right) => left.bookingOrder - right.bookingOrder),
+                creations: Array.from(
+                    new Map(partyPackage.creations.map((creation) => [creation.key, creation] as const)).values()
+                ),
             })),
         })
     }

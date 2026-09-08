@@ -11,7 +11,7 @@ Captured 4 September 2026. The Website package modules and creation cards are au
 | Production Paperform creation fields |       10 | 154 across studio and mobile | Images are not exposed by the Standard API |
 | Published Sanity staff catalogue     |       11 |     54 creation instructions |                                          — |
 
-The Website contains 61 creation-card modules; 56 are used by the 10 package modules, while five older customization cards are not part of the catalogue. Reuse across packages and the six-card Fluid Bears sequence produce 83 rendered card placements. In the new single-list model, 77 of those cards carry booking configuration and the other six are presentation-only variants.
+The Website contained 61 creation-card modules; 56 were used by the 10 package modules, while five older customization cards were not part of the catalogue. Reuse across packages and the six-card Fluid Bears sequence produce 83 rendered card placements representing 77 package creation choices. Booking-menu order follows the first card for each creation; the other six repeated cards are presentation-only variants.
 
 ## Package presentation
 
@@ -163,7 +163,7 @@ Paperform “Yes/No” means the current option text resolves to the creation na
 
 - **Website authority:** Package order, package membership, card order, card labels, colours, and image slots above come from the Website.
 - **Presentation variants:** `fluidBears` is one selectable creation with six image-only cards. Jungle Safari `monsterSlime` is one selectable creation with purple and green cards.
-- **Jungle Safari card order:** The Website sequence is purple Monster Slime, Monster Explosions, Bugs in Bath Bombs, green Monster Slime, Dinosaur Bath Bombs, Bubbling Volcanoes, Dragon Fire Potions, then Slithering Snake Potions. The green Monster Slime card is presentation-only, so this sequence remains intact without duplicating the package creation list.
+- **Jungle Safari card order:** The Website sequence is purple Monster Slime, Monster Explosions, Bugs in Bath Bombs, green Monster Slime, Dinosaur Bath Bombs, Bubbling Volcanoes, Dragon Fire Potions, then Slithering Snake Potions. The first Monster Slime card sets its booking position and the green card is presentation-only, so this sequence remains intact without duplicating the package creation list.
 - **Creation-owned availability:** Operational availability belongs to the creation and applies in every package. Jelly Soap and Unicorn Soap are studio-only; every other live creation supports both studio and mobile parties.
 - **Mobile soap restriction:** Production Paperform consistently omits Unicorn Soap from Glam, Fairy, and Unicorn mobile questions, confirming its creation-level studio-only availability.
 - **Science mobile drift:** The production `science_creations_mobile` field currently contains Slime choices rather than the Science list. Six Science choices missing there are offered in mobile Jungle Safari and are therefore mobile-capable. Jelly Soap is the only Science creation consistently absent from mobile parties.

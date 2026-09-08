@@ -14,7 +14,6 @@ import { hasValidPackageCreationReferences } from '../birthday-party-catalogue-v
 const API_VERSION = '2026-08-01'
 
 type CardValue = {
-    bookingOrder?: number
     creation?: { _ref?: string }
 }
 
@@ -60,54 +59,32 @@ async function isUniquePosition(position: number | undefined, context: Validatio
     if (position === undefined) return true
 
     const documentId = context.document?._id?.replace(/^drafts\./, '')
-    const duplicateId = await context.getClient({ apiVersion: API_VERSION }).fetch<string | null>(
-        `*[
-            _type == "birthdayPartyPackage" &&
-            status == "active" &&
-            position == $position &&
-            !(_id in [$publishedId, $draftId])
-        ][0]._id`,
-        {
-            draftId: documentId ? `drafts.${documentId}` : '',
-            position,
-            publishedId: documentId ?? '',
-        }
-    )
+    const perspective = context.document?._id?.startsWith('drafts.') ? 'drafts' : 'published'
+    const duplicateId = await context
+        .getClient({ apiVersion: API_VERSION })
+        .withConfig({ perspective, useCdn: false })
+        .fetch<string | null>(
+            `*[
+                _type == "birthdayPartyPackage" &&
+                status == "active" &&
+                position == $position &&
+                !(_id in [$publishedId, $draftId])
+            ][0]._id`,
+            {
+                draftId: documentId ? `drafts.${documentId}` : '',
+                position,
+                publishedId: documentId ?? '',
+            }
+        )
     return duplicateId ? `Website position ${position} is already in use.` : true
 }
 
 function hasConsistentCards(value: SanityDocument | undefined) {
     const partyPackage = value as PartyPackageValue | undefined
     const cards = partyPackage?.websiteCards ?? []
-    const creationReferences = new Set<string>()
-    const bookingOrders = new Set<number>()
 
     for (const card of cards) {
         if (!card.creation?._ref) return 'Every Website card must reference a creation.'
-        creationReferences.add(card.creation._ref)
-
-        if (card.bookingOrder !== undefined) {
-            if (!Number.isInteger(card.bookingOrder) || (card.bookingOrder ?? 0) < 1) {
-                return 'Every booking choice order must be a positive integer.'
-            }
-            if (bookingOrders.has(card.bookingOrder!)) return 'Booking choice order must be unique within a package.'
-            bookingOrders.add(card.bookingOrder!)
-        }
-    }
-
-    for (const creationReference of creationReferences) {
-        const bookingChoiceCount = cards.filter(
-            (card) => card.creation?._ref === creationReference && card.bookingOrder !== undefined
-        ).length
-        if (bookingChoiceCount !== 1) {
-            return 'Every creation must have exactly one Website card with a booking choice order.'
-        }
-    }
-    if (
-        bookingOrders.size !== creationReferences.size ||
-        !Array.from(bookingOrders).every((order) => order <= creationReferences.size)
-    ) {
-        return 'Booking choice order must be consecutive from 1.'
     }
 
     return true
@@ -201,14 +178,15 @@ export const birthdayPartyPackage = defineType({
             title: 'Position',
             type: 'number',
             description:
-                'Controls this package’s position in Portal creation instructions and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue. Lower numbers appear first.',
+                'Controls this package’s position in Portal creation instructions and, for active packages, the Website menu, Party Themes cards, and all-creations catalogue. Use Birthday Parties > Reorder and publish packages to insert or move packages without renumbering them individually.',
             group: 'core',
             validation: (rule) =>
                 rule
                     .integer()
                     .min(1)
                     .custom((position, context) => {
-                        if (isActiveCataloguePackage(context) && position === undefined) {
+                        if (!isActiveCataloguePackage(context)) return true
+                        if (position === undefined) {
                             return 'Active catalogue packages must have a Website position.'
                         }
                         return isUniquePosition(position, context)
@@ -258,7 +236,7 @@ export const birthdayPartyPackage = defineType({
             title: 'Website cards',
             type: 'array',
             description:
-                'This is the package creation list. Drag cards into Website order; set a booking choice order on exactly one card per creation. Availability is controlled by the creation.',
+                'This is the package creation list. Drag cards into the order used by both the Website and booking menus. If a creation has multiple presentation cards, its first card sets its booking-menu position. Availability is controlled by the creation.',
             group: 'core',
             components: { input: BirthdayPartyCardsInput },
             of: [defineArrayMember({ type: 'birthdayPartyCreationCard' })],

@@ -28,7 +28,6 @@ export type BirthdayPartyCatalogueImage = {
 export type BirthdayPartyCreationCard = {
     _key: string
     alt: string
-    bookingOrder?: number
     colour: BirthdayPartyCardColour
     creation: BirthdayPartyCatalogueCreation
     image: BirthdayPartyCatalogueImage
@@ -119,7 +118,6 @@ export type BirthdayPartyBookingCatalogueCreation = {
 }
 
 export type BirthdayPartyBookingCataloguePackageCreation = {
-    bookingOrder: number
     key: string
 }
 
@@ -310,8 +308,6 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
         const cardKeys = new Set<string>()
         const creationKeys = new Set<string>()
         const creationKeysByLabel = new Map<string, string>()
-        const bookingCardCounts = new Map<string, number>()
-        const bookingOrders = new Set<number>()
         for (const card of partyPackage.cards) {
             if (!card._key?.trim() || cardKeys.has(card._key)) {
                 throw new Error(`Package "${partyPackage.key}" has a missing or duplicate card key`)
@@ -368,19 +364,6 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
                 }
             }
 
-            if (card.bookingOrder != null) {
-                bookingCardCounts.set(creation.key, (bookingCardCounts.get(creation.key) ?? 0) + 1)
-                if (!Number.isInteger(card.bookingOrder) || card.bookingOrder < 1) {
-                    throw new Error(
-                        `Package "${partyPackage.key}" creation "${creation.key}" booking card must have a positive integer order`
-                    )
-                }
-                if (bookingOrders.has(card.bookingOrder!)) {
-                    throw new Error(`Package "${partyPackage.key}" has duplicate booking order "${card.bookingOrder}"`)
-                }
-                bookingOrders.add(card.bookingOrder)
-            }
-
             if (!card.alt?.trim()) {
                 throw new Error(
                     `Package "${partyPackage.key}" creation "${creation.key}" card "${card._key}" must have useful alt text`
@@ -396,20 +379,6 @@ export function validateBirthdayPartyCatalogue(catalogue: BirthdayPartyCatalogue
                     `Package "${partyPackage.key}" creation "${creation.key}" card "${card._key}" must have an image`
                 )
             }
-        }
-
-        for (const creationKey of creationKeys) {
-            if (bookingCardCounts.get(creationKey) !== 1) {
-                throw new Error(
-                    `Package "${partyPackage.key}" creation "${creationKey}" must have exactly one booking card`
-                )
-            }
-        }
-        if (
-            bookingOrders.size !== creationKeys.size ||
-            !Array.from(bookingOrders).every((order) => order <= creationKeys.size)
-        ) {
-            throw new Error(`Package "${partyPackage.key}" booking orders must be consecutive from 1`)
         }
     }
 
@@ -468,7 +437,6 @@ export function validateBirthdayPartyBookingCatalogue(
 
         const packageCreationKeys = new Set<string>()
         const packageCreationKeysBySubmittedValue = new Map<string, string>()
-        const bookingOrders = new Set<number>()
         for (const creation of partyPackage.creations) {
             const catalogueCreation = creationsByKey.get(creation.key)
             if (!catalogueCreation) {
@@ -492,24 +460,9 @@ export function validateBirthdayPartyBookingCatalogue(
                 }
                 packageCreationKeysBySubmittedValue.set(normalizedValue, creation.key)
             }
-            if (!Number.isInteger(creation.bookingOrder) || creation.bookingOrder < 1) {
-                throw new Error(`Package "${partyPackage.key}" creation "${creation.key}" has an invalid booking order`)
-            }
-            if (bookingOrders.has(creation.bookingOrder)) {
-                throw new Error(`Package "${partyPackage.key}" has duplicate booking order "${creation.bookingOrder}"`)
-            }
-            bookingOrders.add(creation.bookingOrder)
             if (partyPackage.status === 'active' && catalogueCreation.status !== 'active') {
                 throw new Error(`Active package "${partyPackage.key}" contains retired creation "${creation.key}"`)
             }
-        }
-
-        if (
-            partyPackage.creations.length > 0 &&
-            (bookingOrders.size !== partyPackage.creations.length ||
-                !Array.from(bookingOrders).every((order) => order <= partyPackage.creations.length))
-        ) {
-            throw new Error(`Package "${partyPackage.key}" booking orders must be consecutive from 1`)
         }
     }
 
@@ -551,14 +504,10 @@ export function getActiveBirthdayPartyBookingPackages(
         .sort((left, right) => left.position! - right.position!)
         .map((partyPackage) => ({
             ...partyPackage,
-            creations: partyPackage.creations
-                .flatMap((packageCreation) => {
-                    const creation = creationsByKey.get(packageCreation.key)
-                    return creation?.status === 'active' && creation.bookingChannels.includes(channel)
-                        ? [{ ...creation, bookingOrder: packageCreation.bookingOrder }]
-                        : []
-                })
-                .sort((left, right) => left.bookingOrder - right.bookingOrder),
+            creations: partyPackage.creations.flatMap((packageCreation) => {
+                const creation = creationsByKey.get(packageCreation.key)
+                return creation?.status === 'active' && creation.bookingChannels.includes(channel) ? [creation] : []
+            }),
         }))
         .filter((partyPackage) => partyPackage.creations.length > 0)
 }
