@@ -175,6 +175,7 @@ export const websitePagesHomeHolidayProgramsJpg = getWebsiteImage('websitePagesH
 export const websitePagesHomeIncursionsJpg = getWebsiteImage('websitePagesHomeIncursionsJpg')
 export const websitePagesHomeKinderIncursionsJpg = getWebsiteImage('websitePagesHomeKinderIncursionsJpg')
 export const websitePagesHomePartiesJpg = getWebsiteImage('websitePagesHomePartiesJpg')
+export const websitePagesHomePolaroid = getWebsiteImage('home-polaroid')
 export const websitePagesHomeStudioPng = getWebsiteImage('websitePagesHomeStudioPng')
 export const websitePagesInSchoolsAfterSchoolProgramsHeroJpg = getWebsiteImage(
     'websitePagesInSchoolsAfterSchoolProgramsHeroJpg'

@@ -61,6 +61,8 @@ External image blocks remain supported for content hosted outside Sanity. New im
 
 `websiteImage` documents are stable Website slots grouped into category folders under **Website images**. Replacing the image in a slot does not change Website code. The Website resolves every required slot from Sanity once during its build and fails clearly if a slot is missing.
 
+When creating a slot, enter a unique **Website key** before publishing. The key must match the identifier used in Website code; creating a slot does not automatically place it on a page. Published keys cannot be renamed, including through later drafts.
+
 Use **Website images > Bulk replace images** to replace a folder in one operation. Select the folder and all replacement files; the tool matches files against the slots' original filenames and reports matched, missing, unmatched, and ambiguous names. Replacements are staged as drafts, can be reviewed across multiple folders, and only update production when **Publish staged images** is pressed. Existing manual drafts are never included automatically. Birthday-party catalogue imagery now belongs to creation, package-card, and package-page documents; only the three homepage Slime Lab cards still consume **Website images > Creations** slots. Published image changes appear after the next Website build.
 
 ## Deployment

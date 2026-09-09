@@ -1,0 +1,61 @@
+---
+import { ArrowRight } from "lucide-react";
+import Image from "@/components/image.astro";
+import girls from "@/assets/images/pages/home/girls-masked.png";
+import { websitePagesHomePolaroid as polaroid } from "@/data/website-images";
+import HomeDecal from "./home-decal.astro";
+import HomeServices from "./home-services.astro";
+import "./home-intro.css";
+
+const words = ["create", "explore", "celebrate", "fizz!"];
+---
+
+<div class="home-intro">
+  <section class="home-hero" aria-labelledby="home-heading">
+    <div class="home-blob home-blob-purple" aria-hidden="true"></div>
+    <div class="home-blob home-blob-pink" aria-hidden="true"></div>
+    <svg class="home-slime" viewBox="0 0 650 220" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 0h650v30c-35 42-60 5-87 19s-13 116-48 117-21-139-61-127-5 167-47 164-14-135-50-144-61 20-81 1-31-34-51-15-32 38-67 21S54 26 0 38Z" fill="currentColor" /></svg>
+    <svg class="home-hero-divider" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 45C240 0 490 5 770 66S1170 96 1440 30V100H0Z" fill="#fff" /><path class="home-wave-edge" d="M0 45C240 0 490 5 770 66S1170 96 1440 30" fill="none" stroke="#cdbaf5" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-stroke" /></svg>
+    <div class="home-hero-scene">
+      <div class="home-copy">
+        <home-typewriter data-words={words.join(",")} data-state="pending">
+          <h1 id="home-heading" class="home-heading">
+            <span class="sr-only">Let's fizz! Creative parties, programs and events for kids.</span>
+            <span class="home-lets" aria-hidden="true">let's</span>
+            <span class="home-word-line" aria-hidden="true"><span data-typed-word></span><span class="home-static-word" hidden>{words[words.length - 1]}</span><span class="home-cursor"></span></span>
+            <HomeDecal kind="atom" class="home-atom" />
+          </h1>
+        </home-typewriter>
+        <noscript><style is:inline>
+          home-typewriter .home-static-word { display: inline !important; }
+          home-typewriter .home-cursor { display: none; }
+          home-typewriter .home-heading::before { width: min(100%, 5.8em); }
+          home-typewriter .home-word-line::after { transform: scaleX(1); }
+        </style></noscript>
+        <p class="home-creations-copy">Squishies. Slime. Kawaii Creations.<br />Drip Keyrings. Plush. Rocket Launchers.</p>
+        <p class="home-description">Creative holiday programs and parties<br />for curious kids aged <strong>4-12.</strong></p>
+        <div class="home-actions">
+          <a href="/birthday-parties/book-a-party/">Book a party <ArrowRight size={16} aria-hidden="true" focusable="false" /></a>
+          <a href="/contact-us/#contact">Contact us <ArrowRight size={16} aria-hidden="true" focusable="false" /></a>
+        </div>
+      </div>
+      <Image class="home-girls" src={girls} alt="Two girls smiling together after a Fizz Kidz activity" width={girls.width} widths={[400, 650, 900, 1200, girls.width]} quality={95} sizes="(max-width: 760px) 550px, (max-width: 1100px) 65vw, (max-width: 1552px) 56vw, 870px" loading="eager" fetchpriority="high" />
+      <figure class="home-polaroid">
+        <Image src={polaroid} alt="Kids smiling around a birthday cake at a Fizz Kidz party" width={650} widths={[240, 400, 550, 650]} sizes="(max-width: 760px) 36vw, (max-width: 1100px) 24vw, (max-width: 1552px) 21vw, 326px" loading="eager" />
+        <figcaption>BIRTHDAY PARTIES</figcaption>
+      </figure>
+      <div class="home-dumpling-group" aria-hidden="true">
+        <svg class="home-dumpling-lines" viewBox="0 0 200 200" fill="none" focusable="false"><path d="M132 39Q135 26 141 19M150 51Q163 39 179 37M155 72Q171 70 183 76M24 137Q12 146 13 159M36 149Q29 157 30 170" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <HomeDecal kind="dumpling" class="home-dumpling" />
+      </div>
+      <HomeDecal kind="crown" class="home-crown" /><HomeDecal kind="rocket" class="home-rocket" /><HomeDecal kind="bolt" class="home-bolt" /><HomeDecal kind="smile" class="home-smile" />
+      <div class="home-creation-decals" aria-hidden="true"><HomeDecal kind="cloud" /><HomeDecal kind="jar" /><span>MADE BY ME.</span></div>
+      <span class="home-marker" aria-hidden="true">mix it.<br />make it.</span>
+    </div>
+  </section>
+  <HomeServices />
+</div>
+
+<script>
+  import "./home-typewriter";
+</script>
