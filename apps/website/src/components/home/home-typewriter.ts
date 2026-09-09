@@ -51,10 +51,15 @@ class HomeTypewriter extends HTMLElement {
         this.resizeObserver = new ResizeObserver(() => this.sizeWords())
         this.resizeObserver.observe(this.line)
 
-        this.word.addEventListener(
+        this.addEventListener(
             'animationend',
             (event) => {
-                if (event.target !== this.word || motion.matches) return
+                if (motion.matches) return
+                if (event.animationName === 'home-cursor-blink' && this.dataset.state === 'intro') {
+                    this.play()
+                    return
+                }
+                if (event.target !== this.word) return
                 if (event.animationName === 'home-gold-sweep' && this.dataset.state === 'sweep') {
                     this.dataset.state = 'glow'
                 } else if (event.animationName === 'home-gold-arrival-glow' && this.dataset.state === 'glow') {
@@ -80,7 +85,7 @@ class HomeTypewriter extends HTMLElement {
             if (headingFontReady && this.dataset.inView === 'true' && !this.started && !motion.matches) {
                 this.started = true
                 this.sizeWords()
-                this.play()
+                this.dataset.state = 'intro'
             }
         }
         this.observer = new IntersectionObserver(
@@ -155,6 +160,9 @@ class HomeTypewriter extends HTMLElement {
                 this.at(() => {
                     if (length === 1) this.dataset.wordIndex = String(index)
                     this.word!.textContent = word.slice(0, length)
+                    if (length === word.length) {
+                        this.dataset.state = index === this.words.length - 1 ? 'typed' : 'holding'
+                    }
                 }, time)
                 finalCharacterAt = time
                 time += TYPING_MS
@@ -163,6 +171,7 @@ class HomeTypewriter extends HTMLElement {
             if (index < this.words.length - 1) {
                 for (let length = word.length - 1; length >= 0; length--) {
                     this.at(() => {
+                        if (length === word.length - 1) this.dataset.state = 'typing'
                         this.word!.textContent = word.slice(0, length)
                     }, time)
                     time += BACKSPACE_MS

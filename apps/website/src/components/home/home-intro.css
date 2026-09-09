@@ -181,8 +181,22 @@ home-typewriter:is([data-state='settled'], [data-state='sweep'], [data-state='gl
     background: currentColor;
     visibility: hidden;
 }
-home-typewriter:is([data-state='pending'], [data-state='typing']) .home-cursor {
+home-typewriter:is([data-state='pending'], [data-state='intro'], [data-state='typing'], [data-state='holding'])
+    .home-cursor {
     visibility: visible;
+}
+home-typewriter:is([data-state='intro'], [data-state='holding']) .home-cursor {
+    animation: home-cursor-blink 0.65s steps(1, end) both;
+}
+@keyframes home-cursor-blink {
+    0%,
+    65%,
+    100% {
+        opacity: 1;
+    }
+    30% {
+        opacity: 0;
+    }
 }
 home-typewriter:is([data-state='settled'], [data-state='sweep'], [data-state='glow'], [data-state='shimmer'])
     [data-typed-word] {
@@ -245,7 +259,8 @@ home-typewriter[data-state='shimmer'] [data-typed-word] {
         background-position: -100% 0;
     }
 }
-home-typewriter[data-in-view='false'] [data-typed-word] {
+home-typewriter[data-in-view='false'] [data-typed-word],
+home-typewriter[data-in-view='false'] .home-cursor {
     animation-play-state: paused;
 }
 .home-creations-copy {
