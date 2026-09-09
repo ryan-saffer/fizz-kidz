@@ -1,21 +1,13 @@
 ---
 import Layout from "@/layout/Layout.astro";
 import Image from "@/components/image.astro";
-import { websitePagesHomeBannerGirlPng as banngerGirl } from "@/data/website-images";
-import CardWithImage from "@/components/card-with-image.astro";
-
-import { websitePagesHomePartiesJpg as parties } from "@/data/website-images";
-import { websitePagesHomeActivationsJpg as activations } from "@/data/website-images";
-import { websitePagesHomeHolidayProgramsJpg as holidayPrograms } from "@/data/website-images";
-import { websitePagesHomeIncursionsJpg as incursions } from "@/data/website-images";
-import { websitePagesHomeEnergyJpg as energy } from "@/data/website-images";
-import { ChevronRight } from "lucide-react";
+import HomeIntro from "@/components/home/home-intro.astro";
+import lilitaFontUrl from "@fizz-kidz/ui/assets/fonts/LilitaOne.ttf?url";
 import { websitePagesHomeStudioPng as studio } from "@/data/website-images";
 import fizzFansBgTop from "@/assets/images/pages/home/fizz-fans-bg-top.svg";
 import fizzFansBgBottom from "@/assets/images/pages/home/fizz-fans-bg-bottom.svg";
 import star from "@/assets/images/pages/home/star.svg";
 import { websitePagesHomeFranchisingPng as franchising } from "@/data/website-images";
-
 import location1 from "@/assets/images/pages/home/location-icon-1.svg";
 import location2 from "@/assets/images/pages/home/location-icon-2.svg";
 import location3 from "@/assets/images/pages/home/location-icon-3.svg";
@@ -23,16 +15,9 @@ import location4 from "@/assets/images/pages/home/location-icon-4.svg";
 import location5 from "@/assets/images/pages/home/location-icon-5.svg";
 import PartyThemes from "@/components/party-themes.astro";
 import ReviewsCarousel from "@/components/react/reviews-carousel";
-import { websitePagesPreschoolProgramHeroJpg as preschool } from "@/data/website-images";
-
 import graphics1 from "@/assets/svg/atom.svg";
 import graphics3 from "@/assets/svg/dots.svg";
 import graphics4 from "@/assets/svg/green-science.svg";
-import graphics5 from "@/assets/svg/shapes.svg";
-import graphics6 from "@/assets/svg/slime-purple.svg";
-import graphics7 from "@/assets/svg/yellow-swirl.svg";
-import headerBottom from "@/assets/images/pages/home/header-bottom.svg";
-import headerBottomInverted from "@/assets/images/pages/home/header-bottom-inverted.svg";
 import InstagramGrid from "@/components/instagram-grid.astro";
 import PrimaryButton from "@/components/primary-button.astro";
 import Values from "@/components/values.astro";
@@ -42,95 +27,15 @@ import { getGoogleReviews } from "@/utils/google-reviews-api-client";
 import { partyReviewFallbacks } from "@/utils/review-fallbacks";
 
 const googleReviews = await getGoogleReviews(12);
-const reviews =
-  googleReviews.length >= 5 ? googleReviews : partyReviewFallbacks;
-
+const reviews = googleReviews.length >= 5 ? googleReviews : partyReviewFallbacks;
 const locations = [
-  {
-    icon: location1,
-    location: "Balwyn",
-  },
-  {
-    icon: location2,
-    location: "Cheltenham",
-  },
-  {
-    icon: location3,
-    location: "Essendon",
-  },
-  {
-    icon: location4,
-    location: "Geelong",
-  },
-  {
-    icon: location5,
-    location: "Kingsville",
-  },
-  {
-    icon: location1,
-    location: "Malvern",
-  },
-  {
-    icon: location2,
-    location: "Werribee",
-  },
-] as const;
-
-const services = [
-  {
-    title: "Birthday Parties",
-    subtitle:
-      "Filled with high-energy, hands-on activities, our parties are known and loved by kids!",
-    image: parties,
-    imageAlt: "Kid smiling in front of a birthda cake",
-    color: "#F24DA1",
-    path: "/birthday-parties/",
-  },
-  {
-    title: "Holiday Programs",
-    subtitle:
-      "With a new and exciting timetable each holiday period, school holidays are buzzing with fun!",
-    image: holidayPrograms,
-    imageAlt: "A child holding a bath bomb and smiling at the camera",
-    color: "#A7CB5B",
-    path: "/holiday-programs/",
-  },
-  {
-    title: "Preschool Program",
-    subtitle:
-      "A weekly two-hour art, science and sensory program for children aged 2.5 to 5 years.",
-    image: preschool,
-    imageAlt: "Children at school gathered and working together",
-    color: "#9044E2",
-    path: "/preschool-program",
-  },
-  {
-    title: "Activations & Events",
-    subtitle:
-      "We are experts in kids entertainment! Fizz Kidz will bring your next activation, event or workshop to life.",
-    image: activations,
-    imageAlt: "Kids playing with slime at a shopping center",
-    color: "#42D4F3",
-    path: "/activations-and-events/",
-  },
-  {
-    title: "School Incursions",
-    subtitle:
-      "We engage your students in the fascinating nature of everyday science, and we do it by exploring hands-on science experiments!",
-    image: incursions,
-    imageAlt: "A child at school smiling and pouring something into a bottle",
-    color: "#A7CB5B",
-    path: "/in-schools/incursions/",
-  },
-  {
-    title: "Our Locations",
-    subtitle:
-      "Our Fizz Kidz studios are buzzing with fun! Find the closest Fizz Kidz studio to you.",
-    image: energy,
-    imageAlt: "Fizz Kids staff leading a room full of children",
-    color: "#F24DA1",
-    path: "/locations/",
-  },
+  { icon: location1, location: "Balwyn" },
+  { icon: location2, location: "Cheltenham" },
+  { icon: location3, location: "Essendon" },
+  { icon: location4, location: "Geelong" },
+  { icon: location5, location: "Kingsville" },
+  { icon: location1, location: "Malvern" },
+  { icon: location2, location: "Werribee" },
 ] as const;
 ---
 
@@ -138,176 +43,9 @@ const services = [
   title="Fizz Kidz | Kids Parties, Programs & Events in Victoria"
   description="Fizz Kidz offers studio parties and kids programs in Melbourne and Geelong, plus school incursions and event activations delivered across Australia."
 >
+  <link slot="head" rel="preload" href={lilitaFontUrl} as="font" type="font/ttf" crossorigin="anonymous" />
   <main>
-    <section class="relative h-[700px] min-[450px]:h-[600px]">
-      <div class="relative z-40 h-full bg-[#56C6D1]">
-        <Image
-          loading="eager"
-          src={graphics1}
-          alt="icon"
-          width={200}
-          class="absolute left-0 top-8 hidden h-24 min-[1000px]:block"
-        />
-        <Image
-          loading="eager"
-          src={graphics3}
-          alt="icon"
-          width={200}
-          class="absolute left-0 right-0 top-8 m-auto h-40 sm:h-96"
-        />
-        <Image
-          loading="eager"
-          src={graphics5}
-          alt="icon"
-          widths={[50, 100, 200]}
-          sizes="(min-width: 250px) 50, (min-width: 350px) 100, (min-width: 450px) 200"
-          class="absolute bottom-8 left-0 h-80 w-96 object-cover"
-        />
-        <Image
-          loading="eager"
-          src={graphics4}
-          alt="icon"
-          width={200}
-          class="absolute bottom-2 right-8 h-40 rotate-12"
-        />
-        <Image
-          loading="eager"
-          src={graphics7}
-          alt="icon"
-          width={200}
-          class="absolute bottom-0 left-0 right-0 m-auto hidden h-60 lg:block"
-        />
-        <Image
-          loading="eager"
-          src={graphics6}
-          alt="icon"
-          class="absolute right-0 m-auto w-80 sm:w-[600px]"
-        />
-      </div>
-      <div
-        class="absolute left-0 right-0 top-0 m-auto flex h-full w-full flex-col justify-between min-[1000px]:flex-row min-[1000px]:items-center min-[1150px]:max-w-[90rem] min-[1150px]:flex-row"
-      >
-        <div
-          class="z-50 mt-8 max-w-[29rem] px-4 min-[1000px]:w-[31rem] min-[1000px]:max-w-[31rem] min-[1000px]:pl-12 min-[1150px]:mt-0 min-[1150px]:w-[39rem] min-[1150px]:max-w-[39rem]"
-        >
-          <p
-            class="min-[460px]:leading[1.4] whitespace-nowrap text-justify font-lilita text-5xl leading-[1.4] text-white [text-align-last:justify] min-[380px]:text-6xl min-[380px]:leading-[1.4] min-[460px]:text-7xl min-[1150px]:text-8xl"
-          >
-            We make kids
-          </p>
-          <div class="text-justify leading-[1]">
-            <span
-              class="font-lilita text-8xl uppercase leading-[0.6] text-white min-[460px]:text-9xl min-[1150px]:text-[10rem] min-[1150px]:leading-[0.8]"
-              >S</span
-            >
-            <span
-              class="font-lilita text-8xl uppercase leading-[0.6] text-white min-[460px]:text-9xl min-[1150px]:text-[10rem] min-[1150px]:leading-[0.8]"
-              >m</span
-            >
-            <span
-              class="font-lilita text-8xl uppercase leading-[0.6] text-white min-[460px]:text-9xl min-[1150px]:text-[10rem] min-[1150px]:leading-[0.8]"
-              >i</span
-            >
-            <span
-              class="font-lilita text-8xl uppercase leading-[0.6] text-white min-[460px]:text-9xl min-[1150px]:text-[10rem] min-[1150px]:leading-[0.8]"
-              >l</span
-            >
-            <span
-              class="font-lilita text-8xl uppercase leading-[0.6] text-white min-[460px]:text-9xl min-[1150px]:text-[10rem] min-[1150px]:leading-[0.8]"
-              >e</span
-            >
-            <span class="inline-block h-0 w-full"></span>
-          </div>
-          <p
-            class="leading-1 font-lilita text-2xl text-white min-[1150px]:text-4xl"
-          >
-            Birthday Parties, Holiday Programs, After School Programs and more!
-          </p>
-          <PrimaryButton
-            text="Book a Party"
-            path="/birthday-parties/book-a-party/"
-            className="mt-8"
-          />
-        </div>
-        <div class="relative h-full min-[1000px]:w-1/2">
-          <Image
-            loading="eager"
-            fetchpriority="high"
-            widths={[400, 530, 650, 852]}
-            sizes="(max-width: 460px) 400px, (max-width: 1000px) 530px, 650px"
-            class="absolute bottom-0 right-0 z-40 h-[340px] w-auto object-cover min-[460px]:h-[300px] min-[750px]:h-[400px] min-[1000px]:h-[500px]"
-            src={banngerGirl}
-            alt="A girl smiling and holding a green bubbling volcano"
-          />
-        </div>
-      </div>
-      <div
-        class="absolute bottom-6 w-full min-[350px]:bottom-8 min-[520px]:bottom-12 min-[680px]:bottom-16 min-[1020px]:bottom-24 min-[1380px]:bottom-32"
-      >
-        <Image
-          loading="eager"
-          class="absolute top-0 z-20 w-full rotate-180"
-          src={headerBottom}
-          alt="blue background wave"
-        />
-        <Image
-          loading="eager"
-          class="absolute top-0 z-40 w-full rotate-180"
-          src={headerBottomInverted}
-          alt="white backround"
-        />
-      </div>
-    </section>
-    <section class="m-auto block max-w-[1380px] px-5">
-      <p
-        class="relative z-[80] my-8 text-center font-lilita text-5xl text-[#9044E2] md:text-7xl"
-      >
-        Fizzing, Fantastic, Fun awaits!
-      </p>
-      <h1 class="m-auto max-w-4xl text-center font-gotham text-xl md:text-2xl">
-        Fizz Kidz offer the most exciting holiday programs, after-school
-        programs and kids birthday parties in Melbourne
-      </h1>
-      <div class="my-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {
-          services.map((service, idx) => (
-            // only first three images above the fold
-            <a href={service.path}>
-              <CardWithImage
-                eager={idx < 3}
-                image={service.image}
-                imageAlt={service.imageAlt}
-                className="cursor-pointer group flex flex-col h-full"
-              >
-                <div
-                  slot="content"
-                  class="flex flex-grow flex-col justify-between p-8 group-hover:bg-gray-50"
-                >
-                  <div>
-                    <h4
-                      class="mb-2 font-lilita text-2xl uppercase"
-                      style={{ color: service.color }}
-                    >
-                      {service.title}
-                    </h4>
-                    <p class="font-gotham text-xl">{service.subtitle}</p>
-                  </div>
-                  <div class="mt-4 flex items-center gap-4">
-                    <p
-                      class="font-semibold uppercase"
-                      style={{ color: service.color }}
-                    >
-                      Learn More
-                    </p>
-                    <ChevronRight className="h-4 w-4" color={service.color} />
-                  </div>
-                </div>
-              </CardWithImage>
-            </a>
-          ))
-        }
-      </div>
-    </section>
+    <HomeIntro />
     <section class="m-auto mt-12 block max-w-[1380px] px-5">
       <PartyThemes />
     </section>
