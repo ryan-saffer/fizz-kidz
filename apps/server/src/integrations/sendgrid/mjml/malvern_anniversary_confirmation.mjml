@@ -26,7 +26,7 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    Malvern Turns 10!<br />Booking Confirmation
+                    Malvern's 10th Birthday Party!<br />Booking Confirmation
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -39,8 +39,8 @@
             <mj-column width="100%">
                 <mj-text color="#637381" font-size="16px"> Hi {{ parentName }}, </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    Your booking for Malvern Turns 10! is confirmed. We're celebrating our Malvern studio's 10th
-                    anniversary, and we can't wait to see you there!
+                    Your booking for Malvern's 10th Birthday Party is confirmed. We're celebrating our Malvern studio's
+                    10th anniversary, and we can't wait to see you there!
                 </mj-text>
                 <mj-text color="#637381" font-size="16px">
                     Join us for a day of creating, squishing and sparkling together!

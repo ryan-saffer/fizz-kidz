@@ -23,7 +23,7 @@ Payment supports Apple Pay, Google Pay, card, Square gift card, split gift-card/
 
 ## Open Days and Anniversaries
 
-Werribee Open Day and Malvern's 10th anniversary event, **Malvern Turns 10!**, share `AcuityConstants.AppointmentTypes.OPEN_DAY` (`75381458`). The appointment's `calendarID` selects the confirmation email and canonical studio address: Werribee uses `14046878`, and Malvern uses `3163508`. Dates and times come from the booked appointments. The selected studio determines the Square location for checkout.
+Werribee Open Day and **Malvern's 10th Birthday Party!** share `AcuityConstants.AppointmentTypes.OPEN_DAY` (`75381458`). The appointment's `calendarID` selects the confirmation email and canonical studio address: Werribee uses `14046878`, and Malvern uses `3163508`. Dates and times come from the booked appointments. The selected studio determines the Square location for checkout.
 
 ## Cancellations
 

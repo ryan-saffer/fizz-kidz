@@ -191,7 +191,7 @@ export class MailClient {
                             name: 'Fizz Kidz',
                             email: 'bookings@fizzkidz.com.au',
                         },
-                        subject: subject || 'Malvern Turns 10! Booking confirmation',
+                        subject: subject || "Malvern's 10th Birthday Party! Booking confirmation",
                         replyTo: replyTo || 'bookings@fizzkidz.com.au',
                     },
                     template: 'malvern_anniversary_confirmation.mjml',
