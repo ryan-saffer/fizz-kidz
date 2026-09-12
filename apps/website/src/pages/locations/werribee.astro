@@ -1,4 +1,6 @@
 ---
+import YellowWaveTop from "@/assets/svg/yellow-wave-top.svg";
+import YellowWaveBottom from "@/assets/svg/yellow-wave-bottom.svg";
 import CardWithImage from "@/components/card-with-image.astro";
 import Container from "@/components/container.astro";
 import GoogleReviews from "@/components/google-reviews.astro";
@@ -6,15 +8,20 @@ import Image from "@/components/image.astro";
 import LocationDetails from "@/components/location-details.astro";
 import PageIntro from "@/components/page-intro.astro";
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
+import { Button } from "@/components/react/ui/button";
 import {
   websitePagesHomeEnergyJpg as contact,
   websitePagesHomeHolidayProgramsJpg as holidayPrograms,
   websitePagesHomePartiesJpg as birthday,
   websitePagesHomeStudioPng as studio,
   websitePagesPartiesSlimePartyJpg as slime,
+  werribeeOpenDay1,
+  werribeeOpenDay2,
+  werribeeOpenDay3,
+  werribeeOpenDay4,
 } from "@/data/website-images";
 import Layout from "@/layout/Layout.astro";
+import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
 import { createLocationSchemas } from "@/utils/seo";
 
 const description =
@@ -59,6 +66,120 @@ const description =
         >
       </PageIntro>
     </div>
+    <YellowWaveTop
+      aria-hidden="true"
+      focusable="false"
+      class="-mb-px mt-12 block h-8 w-full sm:h-16 lg:h-20"
+    />
+    <div id="open-day" class="scroll-mt-24 bg-[#FFDC5D] py-4">
+      <div class="m-auto block max-w-[1380px] px-5">
+        <div class="mx-auto max-w-2xl text-center">
+          <h2 class="font-lilita text-4xl uppercase sm:text-6xl">Werribee Open Day</h2>
+          <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <p class="rounded-full bg-white/80 px-5 py-2 font-gotham text-sm font-semibold sm:text-base">
+              Saturday 19th September
+            </p>
+            <p class="rounded-full bg-[#9044E2] px-5 py-2 font-gotham text-sm font-semibold text-white sm:text-base">
+              Just $15 per child
+            </p>
+          </div>
+          <p class="mt-6 font-gotham text-lg leading-relaxed sm:text-xl">
+            Come celebrate our new Werribee Studio! Pick your favourite session
+            below and join us for hands-on creating, experimenting and fun.
+          </p>
+        </div>
+        <a
+          href="https://bookings.fizzkidz.com.au/programs?id=75381458"
+          class="mt-6 flex justify-center"
+        >
+          <Button
+            className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]"
+          >
+            Book Now
+          </Button>
+        </a>
+        <p class="mt-3 text-center font-gotham text-sm font-semibold">
+          Limited spots available. Book your favourite session!
+        </p>
+        <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <CardWithImage
+            image={werribeeOpenDay2}
+            imageAlt="Explosive Energy activities at the Werribee Open Day"
+          >
+            <div slot="content" class="p-8">
+              <p class="font-lilita text-3xl text-[#9044E2]">Explosive Energy</p>
+              <p class="mt-2 font-semibold">
+                Saturday 19th September<br />10:00am - 11:00am
+              </p>
+              <ul class="mb-4 mt-2 list-disc pl-4">
+                <li>Bubbling Volcanoes</li>
+                <li>Glow In the Dark Slime</li>
+              </ul>
+            </div>
+          </CardWithImage>
+          <CardWithImage
+            image={werribeeOpenDay1}
+            imageAlt="Super Squish activities at the Werribee Open Day"
+          >
+            <div slot="content" class="p-8">
+              <p class="font-lilita text-3xl text-[#EC65A6]">Super Squish</p>
+              <p class="mt-2 font-semibold">
+                Saturday 19th September<br />11:30am - 12:30pm
+              </p>
+              <ul class="mb-4 mt-2 list-disc pl-4">
+                <li>Dumpling Squishes</li>
+                <li>Squishy Fluffy Slime</li>
+              </ul>
+            </div>
+          </CardWithImage>
+          <CardWithImage
+            image={werribeeOpenDay4}
+            imageAlt="Kawaii Cuties activities at the Werribee Open Day"
+          >
+            <div slot="content" class="p-8">
+              <p class="font-lilita text-3xl text-[#9DCC46]">Kawaii Cuties</p>
+              <p class="mt-2 font-semibold">
+                Saturday 19th September<br />1:00pm - 2:00pm
+              </p>
+              <ul class="mb-4 mt-2 list-disc pl-4">
+                <li>Charm Key Chains</li>
+                <li>Sparkle Headbands</li>
+              </ul>
+            </div>
+          </CardWithImage>
+          <CardWithImage
+            image={werribeeOpenDay3}
+            imageAlt="Roaring Rainbows activities at the Werribee Open Day"
+          >
+            <div slot="content" class="p-8">
+              <p class="font-lilita text-3xl text-[#4DC5D9]">Roaring Rainbows</p>
+              <p class="mt-2 font-semibold">
+                Saturday 19th September<br />2:30pm - 3:30pm
+              </p>
+              <ul class="mb-4 mt-2 list-disc pl-4">
+                <li>Tie Dye Tote Bags</li>
+                <li>Rainbow Bath Bombs</li>
+              </ul>
+            </div>
+          </CardWithImage>
+        </div>
+        <a
+          href="https://bookings.fizzkidz.com.au/programs?id=75381458"
+          class="mt-6 flex justify-center"
+        >
+          <Button
+            className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]"
+          >
+            Book Now
+          </Button>
+        </a>
+      </div>
+    </div>
+    <YellowWaveBottom
+      aria-hidden="true"
+      focusable="false"
+      class="-mt-px block h-8 w-full sm:h-16 lg:h-20"
+    />
 
     <Container>
       <p class="mt-16 text-center font-lilita text-5xl sm:mt-32">

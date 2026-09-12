@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 
 import type { AcuityTypes } from '@fizz-kidz/core'
-import { AcuityConstants, AcuityUtilities } from '@fizz-kidz/core'
+import { AcuityConstants, AcuityUtilities, getStudioAddress } from '@fizz-kidz/core'
 
 import type { Emails } from '@/integrations/sendgrid/types'
 
@@ -10,7 +10,7 @@ import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 type ConfirmationAppointmentType =
     | typeof AcuityConstants.AppointmentTypes.HOLIDAY_PROGRAM
     | typeof AcuityConstants.AppointmentTypes.TEST_HOLIDAY_PROGRAM
-    | typeof AcuityConstants.AppointmentTypes.GEELONG_OPENING
+    | typeof AcuityConstants.AppointmentTypes.WERRIBEE_OPENING
 
 export async function sendConfirmationEmail(
     appointments: AcuityTypes.Api.Appointment[],
@@ -57,11 +57,11 @@ export async function sendConfirmationEmail(
             })
             break
         }
-        case AcuityConstants.AppointmentTypes.GEELONG_OPENING:
-            await mailClient.sendEmail('geelongOpeningConfirmation', appointments[0].email, {
+        case AcuityConstants.AppointmentTypes.WERRIBEE_OPENING:
+            await mailClient.sendEmail('werribeeOpeningConfirmation', appointments[0].email, {
                 parentName: appointments[0].firstName,
-                location: `Fizz Kidz ${appointments[0].calendar}`,
-                address: appointments[0].location,
+                location: 'Fizz Kidz Werribee Studio',
+                address: getStudioAddress('werribee'),
                 bookings,
             })
             break

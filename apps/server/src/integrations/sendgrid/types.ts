@@ -15,7 +15,7 @@ export type Emails = {
         receiptUrl: string | undefined
     }
 
-    geelongOpeningConfirmation: {
+    werribeeOpeningConfirmation: {
         parentName: string
         location: string
         address: string
