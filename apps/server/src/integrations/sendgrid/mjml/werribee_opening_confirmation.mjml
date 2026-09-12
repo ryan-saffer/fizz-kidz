@@ -26,7 +26,7 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    Geelong Open Day Booking Confirmation
+                    Werribee Open Day Booking Confirmation
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -39,11 +39,11 @@
             <mj-column width="100%">
                 <mj-text color="#637381" font-size="16px"> Hi {{ parentName }}, </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    We're delighted to confirm your booking into the Geelong Open Day! Below are the details of the
-                    programs you have booked:.
+                    We're delighted to confirm your booking into the Werribee Open Day! Below are the details of the
+                    programs you have booked:
                 </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    We are so excited to have you join us for the opening of our new Geelong studio and can't wait to
+                    We are so excited to have you join us for the opening of our new Werribee studio and can't wait to
                     see you soon!
                 </mj-text>
             </mj-column>

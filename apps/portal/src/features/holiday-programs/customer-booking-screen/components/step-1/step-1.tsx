@@ -20,7 +20,7 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
     const selectedClasses = useCart((store) => store.selectedClasses)
     const setSelectedStudio = useCart((store) => store.setSelectedStudio)
 
-    const isGeelongOpening = appointmentTypeId === AcuityConstants.AppointmentTypes.GEELONG_OPENING
+    const isWerribeeOpening = appointmentTypeId === AcuityConstants.AppointmentTypes.WERRIBEE_OPENING
     const selectedClassCount = Object.keys(selectedClasses).length
 
     const filteredClasses = useMemo(() => {
@@ -103,7 +103,7 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
                             value={klass.id}
                             disabled={
                                 klass.slotsAvailable === 0 ||
-                                (isGeelongOpening && selectedClassCount > 0 && !isSelected)
+                                (isWerribeeOpening && selectedClassCount > 0 && !isSelected)
                             }
                             onChange={() => onClassSelectionChange(klass)}
                             style={{ marginBottom: 2 }}

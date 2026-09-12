@@ -130,7 +130,7 @@ export const ChildForm: React.FC<Props> = ({ form, appointmentTypeId, childNumbe
                 name={[childNumber, 'childAge']}
                 label="Child's date of birth"
                 extra={
-                    appointmentTypeId !== AcuityConstants.AppointmentTypes.GEELONG_OPENING &&
+                    appointmentTypeId !== AcuityConstants.AppointmentTypes.WERRIBEE_OPENING &&
                     'The minimum age is 4 years old, and all children must be completely toilet trained 😊'
                 }
                 rules={[
@@ -140,8 +140,8 @@ export const ChildForm: React.FC<Props> = ({ form, appointmentTypeId, childNumbe
                         validator: (_, value: dayjs.Dayjs) => {
                             if (!value) return Promise.reject(new Error("Please input child's age"))
 
-                            if (appointmentTypeId === AcuityConstants.AppointmentTypes.GEELONG_OPENING) {
-                                // remove age limit on geelong since 18+ months is allowed.
+                            if (appointmentTypeId === AcuityConstants.AppointmentTypes.WERRIBEE_OPENING) {
+                                // Open Day bookings use separate age requirements from holiday programs.
                                 return Promise.resolve()
                             }
 
