@@ -40,7 +40,7 @@ function getProgramTitle(appointmentTypeId: ClassSelectionAppointmentType) {
         case AcuityConstants.AppointmentTypes.TEST_HOLIDAY_PROGRAM:
             return 'Holiday Program Class Selection'
         case AcuityConstants.AppointmentTypes.OPEN_DAY:
-            return 'Open Day & Community Day Class Selection'
+            return 'Open Day & Anniversary Class Selection'
         default: {
             const exhaustive: never = appointmentTypeId
             throw new Error(`Unhandled appointment type in getProgramTitle(): ${exhaustive}`)

@@ -22,7 +22,7 @@ export type Emails = {
         bookings: { datetime: string; confirmationPage: string }[]
     }
 
-    malvernCommunityDayConfirmation: {
+    malvernAnniversaryConfirmation: {
         parentName: string
         location: string
         address: string

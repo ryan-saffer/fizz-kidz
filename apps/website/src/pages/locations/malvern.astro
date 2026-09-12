@@ -5,7 +5,6 @@ import PageIntro from "@/components/page-intro.astro";
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
 import { Button } from "@/components/react/ui/button";
 import Layout from "@/layout/Layout.astro";
-import { websitePagesLocationsMalvernJpg as malvern } from "@/data/website-images";
 import { websitePagesLocationsKingsvilleBirthdayJpg as birthday } from "@/data/website-images";
 import { websitePagesLocationsKingsvilleHolidayProgramsJpg as holidayPrograms } from "@/data/website-images";
 import { websitePagesLocationsKingsvilleContactJpg as contact } from "@/data/website-images";
@@ -53,7 +52,7 @@ const description =
     />
     <PageIntro
       type="image"
-      image={malvern}
+      image={carousel3Image}
       imageAlt="A picture of the malvern studio"
       subtitle="The Ultimate Kids' Destination of Fun"
       color="purple"
@@ -75,7 +74,7 @@ const description =
   <div id="open-day" class="scroll-mt-24 bg-[#FFDC5D] py-4">
     <div class="m-auto block max-w-[1380px] px-5">
       <div class="mx-auto max-w-2xl text-center lg:max-w-5xl">
-        <h2 class="font-lilita text-4xl uppercase sm:text-6xl">Malvern Fizz <span class="whitespace-nowrap">Community Day</span></h2>
+        <h2 class="font-lilita text-4xl uppercase sm:text-6xl">Malvern <span class="whitespace-nowrap">Turns 10!</span></h2>
         <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
           <p class="rounded-full bg-white/80 px-5 py-2 font-gotham text-sm font-semibold sm:text-base">
             Saturday 26th September
@@ -85,7 +84,12 @@ const description =
           </p>
         </div>
         <p class="mt-6 font-gotham text-lg leading-relaxed sm:text-xl">
-          A day of creating, squishing and sparkling together!
+          Join us for a day of creating, squishing and sparkling together!
+        </p>
+        <p class="mx-auto mt-4 max-w-2xl rounded-2xl bg-white/50 p-5 font-gotham text-base leading-relaxed sm:text-lg">
+          On the day, we are giving away <strong>10 golden tickets</strong>, each one
+          containing a special offering for you to win. Prizes include gift cards,
+          free holiday programs, birthday party discounts and more.
         </p>
       </div>
       <a
@@ -104,7 +108,7 @@ const description =
       <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
         <CardWithImage
           image={werribeeOpenDay2}
-          imageAlt="Explosive Energy activities at the Malvern Fizz Community Day"
+          imageAlt="Explosive Energy activities at Malvern's 10th anniversary celebration"
         >
           <div slot="content" class="p-8">
             <p class="font-lilita text-3xl text-[#9044E2]">Explosive Energy</p>
@@ -119,7 +123,7 @@ const description =
         </CardWithImage>
         <CardWithImage
           image={werribeeOpenDay1}
-          imageAlt="Super Squish activities at the Malvern Fizz Community Day"
+          imageAlt="Super Squish activities at Malvern's 10th anniversary celebration"
         >
           <div slot="content" class="p-8">
             <p class="font-lilita text-3xl text-[#EC65A6]">Super Squish</p>
@@ -134,7 +138,7 @@ const description =
         </CardWithImage>
         <CardWithImage
           image={werribeeOpenDay4}
-          imageAlt="Kawaii Cuties activities at the Malvern Fizz Community Day"
+          imageAlt="Kawaii Cuties activities at Malvern's 10th anniversary celebration"
         >
           <div slot="content" class="p-8">
             <p class="font-lilita text-3xl text-[#9DCC46]">Kawaii Cuties</p>

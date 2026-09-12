@@ -26,7 +26,7 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    Malvern Fizz Community Day Booking Confirmation
+                    Malvern Turns 10!<br />Booking Confirmation
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -39,12 +39,16 @@
             <mj-column width="100%">
                 <mj-text color="#637381" font-size="16px"> Hi {{ parentName }}, </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    We're delighted to confirm your booking into the Malvern Fizz Community Day! Below are the details
-                    of the programs you have booked:
+                    Your booking for Malvern Turns 10! is confirmed. We're celebrating our Malvern studio's 10th
+                    anniversary, and we can't wait to see you there!
                 </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    We can't wait to welcome you to our Malvern studio for a day of creating, squishing and sparkling
-                    together!
+                    Join us for a day of creating, squishing and sparkling together!
+                </mj-text>
+                <mj-text color="#637381" font-size="16px">
+                    On the day, we are giving away <strong>10 golden tickets</strong>, each one containing a special
+                    offering for you to win. Prizes include gift cards, free holiday programs, birthday party discounts
+                    and more.
                 </mj-text>
             </mj-column>
 

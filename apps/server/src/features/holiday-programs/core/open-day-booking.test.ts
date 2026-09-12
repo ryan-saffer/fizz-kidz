@@ -91,7 +91,7 @@ describe.each([
         studio: 'malvern',
         location: 'Fizz Kidz Malvern Studio',
         squareLocationId: 'NSS38M5PEET6N',
-        email: 'malvernCommunityDayConfirmation',
+        email: 'malvernAnniversaryConfirmation',
         address: '20 Glenferrie Rd, Malvern VIC 3144',
         date: '2026-09-26',
     },

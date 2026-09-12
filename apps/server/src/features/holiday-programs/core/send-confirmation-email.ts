@@ -17,7 +17,7 @@ function getOpenDayConfirmation(calendarId: number) {
         case AcuityConstants.StoreCalendars.werribee:
             return { email: 'werribeeOpeningConfirmation', studio: 'werribee' } as const
         case AcuityConstants.StoreCalendars.malvern:
-            return { email: 'malvernCommunityDayConfirmation', studio: 'malvern' } as const
+            return { email: 'malvernAnniversaryConfirmation', studio: 'malvern' } as const
         default:
             throw new Error(`No Open Day confirmation configured for calendar: ${calendarId}`)
     }

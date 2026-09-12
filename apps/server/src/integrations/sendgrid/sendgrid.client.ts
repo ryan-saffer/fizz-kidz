@@ -183,7 +183,7 @@ export class MailClient {
                     template: 'werribee_opening_confirmation.mjml',
                     useMjml: true,
                 }
-            case 'malvernCommunityDayConfirmation':
+            case 'malvernAnniversaryConfirmation':
                 return {
                     emailInfo: {
                         to,
@@ -191,10 +191,10 @@ export class MailClient {
                             name: 'Fizz Kidz',
                             email: 'bookings@fizzkidz.com.au',
                         },
-                        subject: subject || 'Malvern Fizz Community Day booking confirmation',
+                        subject: subject || 'Malvern Turns 10! Booking confirmation',
                         replyTo: replyTo || 'bookings@fizzkidz.com.au',
                     },
-                    template: 'malvern_community_day_confirmation.mjml',
+                    template: 'malvern_anniversary_confirmation.mjml',
                     useMjml: true,
                 }
             case 'afterSchoolEnrolmentConfirmation':
