@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 
 import type { AcuityTypes } from '@fizz-kidz/core'
-import { AcuityConstants, AcuityUtilities, getStudioAddress } from '@fizz-kidz/core'
+import { AcuityConstants, AcuityUtilities, capitalise, getStudioAddress } from '@fizz-kidz/core'
 
 import type { Emails } from '@/integrations/sendgrid/types'
 
@@ -10,7 +10,18 @@ import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 type ConfirmationAppointmentType =
     | typeof AcuityConstants.AppointmentTypes.HOLIDAY_PROGRAM
     | typeof AcuityConstants.AppointmentTypes.TEST_HOLIDAY_PROGRAM
-    | typeof AcuityConstants.AppointmentTypes.WERRIBEE_OPENING
+    | typeof AcuityConstants.AppointmentTypes.OPEN_DAY
+
+function getOpenDayConfirmation(calendarId: number) {
+    switch (calendarId) {
+        case AcuityConstants.StoreCalendars.werribee:
+            return { email: 'werribeeOpeningConfirmation', studio: 'werribee' } as const
+        case AcuityConstants.StoreCalendars.malvern:
+            return { email: 'malvernCommunityDayConfirmation', studio: 'malvern' } as const
+        default:
+            throw new Error(`No Open Day confirmation configured for calendar: ${calendarId}`)
+    }
+}
 
 export async function sendConfirmationEmail(
     appointments: AcuityTypes.Api.Appointment[],
@@ -57,14 +68,16 @@ export async function sendConfirmationEmail(
             })
             break
         }
-        case AcuityConstants.AppointmentTypes.WERRIBEE_OPENING:
-            await mailClient.sendEmail('werribeeOpeningConfirmation', appointments[0].email, {
+        case AcuityConstants.AppointmentTypes.OPEN_DAY: {
+            const { email, studio } = getOpenDayConfirmation(sortedAppointments[0].calendarID)
+            await mailClient.sendEmail(email, appointments[0].email, {
                 parentName: appointments[0].firstName,
-                location: 'Fizz Kidz Werribee Studio',
-                address: getStudioAddress('werribee'),
+                location: `Fizz Kidz ${capitalise(studio)} Studio`,
+                address: getStudioAddress(studio),
                 bookings,
             })
             break
+        }
         default: {
             const exhaustiveCheck: never = appointmentTypeId
             throw new Error(`Unhandled booking confirmation email for program with id: ${exhaustiveCheck}`)

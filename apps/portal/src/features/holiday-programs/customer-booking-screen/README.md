@@ -21,6 +21,10 @@ Payment supports Apple Pay, Google Pay, card, Square gift card, split gift-card/
 
 > **Payment happens first.** If Acuity scheduling fails after Square succeeds, there is no automatic compensation. Use the logged order ID to reconcile it manually.
 
+## Open Days and Community Days
+
+Werribee Open Day and Malvern Fizz Community Day share `AcuityConstants.AppointmentTypes.OPEN_DAY` (`75381458`). The appointment's `calendarID` selects the confirmation email and canonical studio address: Werribee uses `14046878`, and Malvern uses `3163508`. Dates and times come from the booked appointments. The selected studio determines the Square location for checkout.
+
 ## Cancellations
 
 The Acuity webhook finds the exact Square line item using the stored order ID and line-item identifier.
