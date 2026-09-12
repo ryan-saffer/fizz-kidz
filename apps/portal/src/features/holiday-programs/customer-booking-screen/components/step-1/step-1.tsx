@@ -20,7 +20,7 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
     const selectedClasses = useCart((store) => store.selectedClasses)
     const setSelectedStudio = useCart((store) => store.setSelectedStudio)
 
-    const isWerribeeOpening = appointmentTypeId === AcuityConstants.AppointmentTypes.WERRIBEE_OPENING
+    const isOpenDay = appointmentTypeId === AcuityConstants.AppointmentTypes.OPEN_DAY
     const selectedClassCount = Object.keys(selectedClasses).length
 
     const filteredClasses = useMemo(() => {
@@ -102,8 +102,7 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
                         <Checkbox
                             value={klass.id}
                             disabled={
-                                klass.slotsAvailable === 0 ||
-                                (isWerribeeOpening && selectedClassCount > 0 && !isSelected)
+                                klass.slotsAvailable === 0 || (isOpenDay && selectedClassCount > 0 && !isSelected)
                             }
                             onChange={() => onClassSelectionChange(klass)}
                             style={{ marginBottom: 2 }}

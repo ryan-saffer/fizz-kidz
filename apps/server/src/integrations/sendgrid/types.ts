@@ -22,6 +22,13 @@ export type Emails = {
         bookings: { datetime: string; confirmationPage: string }[]
     }
 
+    malvernCommunityDayConfirmation: {
+        parentName: string
+        location: string
+        address: string
+        bookings: { datetime: string; confirmationPage: string }[]
+    }
+
     createDiscountCode: {
         name: string
         code: string

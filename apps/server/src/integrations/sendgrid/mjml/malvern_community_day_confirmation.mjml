@@ -1,0 +1,111 @@
+<mjml>
+    <mj-head>
+        <mj-attributes>
+            <mj-all font-family="'Trebuchet MS', 'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-all>
+            <mj-text
+                font-weight="400"
+                font-size="16px"
+                color="#000000"
+                line-height="24px"
+                font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+            ></mj-text>
+        </mj-attributes>
+        <mj-style inline="inline">
+            .text-link {
+                color: #5e6ebf;
+            }
+        </mj-style>
+        <mj-style inline="inline">
+            .footer-link {
+                color: #888888;
+            }
+        </mj-style>
+    </mj-head>
+    <mj-body background-color="#E7E7E7" width="600px">
+        <mj-section background-color="#eec73b" padding-bottom="0px">
+            <mj-column width="100%">
+                <mj-spacer height="30px" />
+                <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
+                    Malvern Fizz Community Day Booking Confirmation
+                </mj-text>
+            </mj-column>
+        </mj-section>
+        <mj-section background-color="#ffffff" padding-top="0">
+            <mj-column>
+                <mj-image src="https://i.imgur.com/5DI7BbY.png" width="600px" alt="" padding="0" />
+            </mj-column>
+        </mj-section>
+        <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px" padding-top="0">
+            <mj-column width="100%">
+                <mj-text color="#637381" font-size="16px"> Hi {{ parentName }}, </mj-text>
+                <mj-text color="#637381" font-size="16px">
+                    We're delighted to confirm your booking into the Malvern Fizz Community Day! Below are the details
+                    of the programs you have booked:
+                </mj-text>
+                <mj-text color="#637381" font-size="16px">
+                    We can't wait to welcome you to our Malvern studio for a day of creating, squishing and sparkling
+                    together!
+                </mj-text>
+            </mj-column>
+
+            <mj-column width="100%">
+                <mj-text
+                    color="#212b35"
+                    font-size="12px"
+                    text-transform="uppercase"
+                    font-weight="bold"
+                    padding-bottom="0"
+                >
+                    Where
+                </mj-text>
+                <mj-text text-transform="capitalize" color="#637381" font-size="14px" padding-top="0">
+                    {{ location }}
+                    <br />
+                    {{ address }}
+                </mj-text>
+            </mj-column>
+            <mj-column width="100%">
+                <mj-text
+                    color="#212b35"
+                    font-size="12px"
+                    text-transform="uppercase"
+                    font-weight="bold"
+                    padding-bottom="0"
+                >
+                    Who / When
+                </mj-text>
+                <mj-text color="#637381" font-size="14px" padding-top="0">
+                    {{#bookings}}
+                    <p>{{ datetime }} - <a href="{{confirmationPage}}">Change / Cancel</a></p>
+                    {{/bookings}}
+                </mj-text>
+            </mj-column>
+
+            <mj-column width="100%"> </mj-column>
+            <mj-column width="100%">
+                <mj-text color="#637381" font-size="16px">
+                    If you have any questions, please feel free to contact us on
+                    <a href="tel:0390598144">(03) 9059 8144</a>.
+                </mj-text>
+                <mj-text color="#637381" font-size="16px"> See you soon! </mj-text>
+                <mj-text color="#637381" font-size="16px"> The Fizz Kidz team </mj-text>
+            </mj-column>
+        </mj-section>
+        <mj-wrapper full-width="full-width">
+            <mj-section padding-top="0">
+                <mj-group>
+                    <mj-column width="100%" padding-right="0">
+                        <mj-text color="#445566" font-size="11px" align="center" line-height="16px" font-weight="bold">
+                            <a class="footer-link" href="mailto:bookings@fizzkidz.com.au">bookings@fizzkidz.com.au</a
+                            >&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;<a
+                                class="footer-link"
+                                href="https://www.fizzkidz.com.au"
+                                >www.fizzkidz.com.au</a
+                            >
+                        </mj-text>
+                    </mj-column>
+                </mj-group>
+            </mj-section>
+        </mj-wrapper>
+    </mj-body>
+</mjml>

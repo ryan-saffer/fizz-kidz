@@ -34,12 +34,12 @@ vi.mock('@/integrations/sendgrid/sendgrid.client', () => ({
     MailClient: { getInstance: async () => ({ sendEmail: mocks.sendEmail }) },
 }))
 
-function makeBookingInput(giftCardId: string): HolidayProgramBookingProps {
-    const calendarId = AcuityConstants.StoreCalendars.werribee
+function makeBookingInput(eventStudio: 'werribee' | 'malvern', giftCardId: string): HolidayProgramBookingProps {
+    const calendarId = AcuityConstants.StoreCalendars[eventStudio]
     const studio = AcuityUtilities.getStudioByCalendarId(calendarId)
 
     return {
-        idempotencyKey: 'werribee-order',
+        idempotencyKey: `${studio}-order`,
         parentFirstName: 'Parent',
         parentLastName: 'Example',
         parentEmail: 'parent@example.com',
@@ -62,7 +62,7 @@ function makeBookingInput(giftCardId: string): HolidayProgramBookingProps {
                     amount: 1500,
                     classId: 120414493,
                     lineItemIdentifier: 'child-session',
-                    appointmentTypeId: AcuityConstants.AppointmentTypes.WERRIBEE_OPENING,
+                    appointmentTypeId: AcuityConstants.AppointmentTypes.OPEN_DAY,
                     time: '2026-09-19T10:00:00+10:00',
                     calendarId,
                     childName: 'Child',
@@ -78,7 +78,24 @@ function makeBookingInput(giftCardId: string): HolidayProgramBookingProps {
     }
 }
 
-describe('Werribee Open Day booking', () => {
+describe.each([
+    {
+        studio: 'werribee',
+        location: 'Fizz Kidz Werribee Studio',
+        squareLocationId: 'L5Z6AWAMMZY4V',
+        email: 'werribeeOpeningConfirmation',
+        address: 'T5, Harpley Town Center, Bradfield St, Werribee VIC 3030',
+        date: '2026-09-19',
+    },
+    {
+        studio: 'malvern',
+        location: 'Fizz Kidz Malvern Studio',
+        squareLocationId: 'NSS38M5PEET6N',
+        email: 'malvernCommunityDayConfirmation',
+        address: '20 Glenferrie Rd, Malvern VIC 3144',
+        date: '2026-09-26',
+    },
+] as const)('$studio event booking', ({ studio, location, squareLocationId, email, address, date }) => {
     beforeEach(() => {
         vi.clearAllMocks()
         mocks.createOrder.mockResolvedValue({ order: { id: 'order-id', totalMoney: { amount: 1500n } } })
@@ -93,17 +110,17 @@ describe('Werribee Open Day booking', () => {
         }))
     })
 
-    it.each(['', 'gift-card-id'])('routes checkout to Werribee with gift card "%s"', async (giftCardId) => {
-        await processHolidayProgramPayment(makeBookingInput(giftCardId))
+    it.each(['', 'gift-card-id'])('routes checkout to the booked studio with gift card "%s"', async (giftCardId) => {
+        await processHolidayProgramPayment(makeBookingInput(studio, giftCardId))
 
         expect(mocks.createOrder).toHaveBeenCalledWith(
             expect.objectContaining({
-                order: expect.objectContaining({ locationId: 'L5Z6AWAMMZY4V' }),
+                order: expect.objectContaining({ locationId: squareLocationId }),
             })
         )
         const payments = mocks.createPayment.mock.calls.map(([payment]) => payment)
         expect(payments).toHaveLength(giftCardId ? 2 : 1)
-        expect(payments.every((payment) => payment.locationId === 'L5Z6AWAMMZY4V')).toBe(true)
+        expect(payments.every((payment) => payment.locationId === squareLocationId)).toBe(true)
         expect(payments.map((payment) => payment.amountMoney.amount)).toEqual(giftCardId ? [400n, 1100n] : [1500n])
         expect(mocks.payOrder).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -113,24 +130,24 @@ describe('Werribee Open Day booking', () => {
         )
     })
 
-    it('sends Werribee confirmation with the canonical Harpley address', async () => {
+    it('selects the confirmation and canonical address by calendar ID for the shared appointment type', async () => {
         const appointment: AcuityTypes.Api.Appointment = {
             id: 1,
             email: 'parent@example.com',
             firstName: 'Parent',
             lastName: 'Example',
             phone: '0400000000',
-            appointmentTypeID: AcuityConstants.AppointmentTypes.WERRIBEE_OPENING,
+            appointmentTypeID: AcuityConstants.AppointmentTypes.OPEN_DAY,
             classID: 120414493,
             type: 'Fizz Kidz Werribee Opening Day',
             price: '15.00',
             forms: [],
             notes: '',
-            calendarID: AcuityConstants.StoreCalendars.werribee,
+            calendarID: AcuityConstants.StoreCalendars[studio],
             calendar: 'Werribee Studio',
             paid: 'yes',
             location: 'Shop T5, Harpley Town Center, Ison Rd, Werribee VIC 3030',
-            datetime: '2026-09-19T10:00:00+10:00',
+            datetime: `${date}T10:00:00+10:00`,
             confirmationPage: 'https://example.com/confirmation',
             certificate: '',
             duration: '60',
@@ -138,13 +155,13 @@ describe('Werribee Open Day booking', () => {
 
         await sendConfirmationEmail([appointment], undefined)
 
-        expect(mocks.sendEmail).toHaveBeenCalledWith('werribeeOpeningConfirmation', 'parent@example.com', {
+        expect(mocks.sendEmail).toHaveBeenCalledWith(email, 'parent@example.com', {
             parentName: 'Parent',
-            location: 'Fizz Kidz Werribee Studio',
-            address: 'T5, Harpley Town Center, Bradfield St, Werribee VIC 3030',
+            location,
+            address,
             bookings: [
                 {
-                    datetime: expect.stringContaining('10:00'),
+                    datetime: expect.stringContaining(`Saturday, Sep ${date.slice(-2)}, 10:00`),
                     confirmationPage: 'https://example.com/confirmation',
                 },
             ],
