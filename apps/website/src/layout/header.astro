@@ -4,6 +4,7 @@ import logoHorizontal from "@/assets/images/logo-horizontal.png";
 import NavigationMenu from "@/react-components/navigation/navigation-menu";
 import { createNavigationMenu } from "@/react-components/navigation/navigation-menu-data";
 import { buttonVariants } from "@/components/react/ui/button";
+import { cn } from "@/components/react/lib/utils";
 import { birthdayPartyPackageNavigationLinks } from "@/data/birthday-party-catalogue";
 
 const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
@@ -20,17 +21,17 @@ const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
     >
       <a
         href="/franchising"
-        class={buttonVariants({
-          className:
-            "bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg",
-        })}>Own a studio</a
+        class={cn(
+          buttonVariants(),
+          "bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg",
+        )}>Own a studio</a
       >
       <a
         href="/contact-us/#contact"
-        class={buttonVariants({
-          className:
-            "bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg",
-        })}>Get in touch</a
+        class={cn(
+          buttonVariants(),
+          "bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg",
+        )}>Get in touch</a
       >
     </div>
     <a href="/" aria-label="Fizz Kidz home">
@@ -48,17 +49,17 @@ const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
       <div class="flex gap-2">
         <a
           href="/franchising"
-          class={buttonVariants({
-            className:
-              "hidden bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33] min-[1440px]:inline-flex",
-          })}>Own a studio</a
+          class={cn(
+            buttonVariants(),
+            "hidden bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33] min-[1440px]:inline-flex",
+          )}>Own a studio</a
         >
         <a
           href="/contact-us/#contact"
-          class={buttonVariants({
-            className:
-              "hidden bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33] min-[1440px]:inline-flex",
-          })}>Get in touch</a
+          class={cn(
+            buttonVariants(),
+            "hidden bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33] min-[1440px]:inline-flex",
+          )}>Get in touch</a
         >
       </div>
     </div>
