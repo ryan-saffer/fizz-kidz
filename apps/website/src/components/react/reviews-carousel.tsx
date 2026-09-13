@@ -33,7 +33,6 @@ function ReviewsCarousel({
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <div
                                             className="flex items-center gap-1 text-yellow-400"
-                                            role="img"
                                             aria-label={`${rating.toFixed(1)} out of 5 stars`}
                                         >
                                             {Array.from({ length: 5 }).map((_, starIndex) => (
@@ -49,7 +48,7 @@ function ReviewsCarousel({
                                                 />
                                             ))}
                                         </div>
-                                        <div className="rounded-full bg-[#5fd7ef] px-4 py-2 font-lilita text-2xl leading-none text-[#542785] shadow-sm">
+                                        <div className="rounded-full bg-[#5fd7ef] px-4 py-2 font-lilita text-2xl leading-none text-white shadow-sm">
                                             {rating.toFixed(1)}
                                         </div>
                                     </div>
@@ -67,7 +66,7 @@ function ReviewsCarousel({
 
                                     {review.reviewUrl && (
                                         <a
-                                            className="rounded-full border border-[#5fd7ef] bg-white px-4 py-2 text-sm font-bold text-[#0d7188] transition hover:bg-[#e9fbff]"
+                                            className="rounded-full border border-[#5fd7ef] bg-white px-4 py-2 text-sm font-bold text-[#1389a3] transition hover:bg-[#e9fbff]"
                                             href={review.reviewUrl}
                                             rel="noreferrer"
                                             target="_blank"

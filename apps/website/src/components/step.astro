@@ -1,6 +1,5 @@
 ---
 import { cn } from "./react/lib/utils";
-import { getReadableTextColour } from "@fizz-kidz/core";
 
 type Props = {
   title: string;
@@ -22,8 +21,6 @@ const {
   backgroundPosition,
   iconClass,
 } = Astro.props;
-
-const textColour = getReadableTextColour(color);
 ---
 
 <div
@@ -40,12 +37,10 @@ const textColour = getReadableTextColour(color);
     class="relative flex min-h-28 flex-1 items-center rounded-t-xl p-8"
     style={{ background: color }}
   >
-    <p class="pr-12 font-lilita text-3xl" style={{ color: textColour }}>
+    <p class="pr-12 font-lilita text-3xl text-white">
       {title}
     </p>
-    <span
-      class="absolute -bottom-5 right-4 font-lilita text-9xl"
-      style={{ color: textColour }}
+    <span class="absolute -bottom-5 right-4 font-lilita text-9xl text-white"
       >{number}</span
     >
   </div>

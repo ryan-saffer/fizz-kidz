@@ -46,6 +46,5 @@ export function isNotNull<T>(value: T | null): value is T {
 
 export * from './application-domain'
 export * from './contact-info'
-export * from './colour-contrast'
 export * from './stringUtilities'
 export * from './assert-never'

@@ -289,12 +289,10 @@ home-typewriter[data-in-view='false'] .home-cursor {
     align-items: center;
     gap: 24px;
     padding: 16px 21px;
-    border: 2px solid var(--hero-navy);
-    background: var(--fizz-blue);
+    border: 2px solid #fff;
     border-radius: 30px;
     font-size: 14px;
     font-weight: 800;
-    color: var(--hero-navy);
     transition: transform 0.2s;
 }
 .home-actions a:first-child {
@@ -411,7 +409,6 @@ home-typewriter[data-in-view='false'] .home-cursor {
         19px/0.95 'Permanent Marker',
         cursive;
     text-transform: uppercase;
-    color: var(--hero-navy);
 }
 .home-atom,
 .home-dumpling-group {
@@ -454,12 +451,9 @@ home-typewriter[data-in-view='false'] .home-cursor {
     }
 }
 .home-services {
-    position: relative;
-    z-index: 2;
     max-width: 1552px;
     margin: auto;
     padding: 70px 4% 45px;
-    background: #fff;
 }
 .home-services-intro {
     position: relative;
