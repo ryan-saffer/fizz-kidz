@@ -1,0 +1,78 @@
+---
+import { ArrowRight, MapPin, Navigation, Scan } from "lucide-react";
+import Image from "@/components/image.astro";
+import logo from "@/assets/images/logo-stacked.png";
+import { getImage } from "astro:assets";
+import { PUBLIC_STUDIOS, type PublicStudioSlug } from "@/utils/studios";
+import {
+  websitePagesLocationsBalwynJpg as balwyn,
+  websitePagesLocationsCheltenhamJpg as cheltenham,
+  websitePagesLocationsEssendonJpg as essendon,
+  websitePagesLocationsKingsvilleJpg as kingsville,
+  websitePagesLocationsMalvernJpg as malvern,
+  websitePagesHomeStudioPng as geelong,
+  websitePagesHomeEnergyJpg as werribee,
+} from "@/data/website-images";
+
+const images = { balwyn, cheltenham, essendon, geelong, kingsville, malvern, werribee };
+const colours = {
+  balwyn: "#9044e2", cheltenham: "#e91571", essendon: "#267d90",
+  geelong: "#418259", kingsville: "#ae438e", malvern: "#a36a12", werribee: "#5568c4",
+} satisfies Record<PublicStudioSlug, string>;
+const pinLogo = await getImage({ src: logo, width: 96, format: "webp" });
+const studios = PUBLIC_STUDIOS.map((studio) => ({ ...studio, colour: colours[studio.slug] }));
+---
+
+<studio-explorer data-studios={JSON.stringify(studios)} data-logo={pinLogo.src}>
+  <div class="studio-explorer-layout">
+    <div class="studio-directory">
+      <div class="studio-directory-heading"><MapPin size={20} aria-hidden="true" /><h3>Find your local</h3><span>{studios.length} studios</span></div>
+      <ul class="studio-list" aria-label="Choose a studio">
+        {studios.map((studio, index) => (
+          <li style={`--studio-colour: ${studio.colour}`}>
+            <button type="button" class="studio-select" data-studio-select={studio.slug} aria-pressed={index === 0 ? "true" : "false"} aria-controls="studio-preview" hidden>
+              <span class="studio-dot" aria-hidden="true"></span>
+              <span><strong>{studio.name}</strong><span class="studio-street">{studio.streetAddress}</span></span>
+              <ArrowRight size={19} aria-hidden="true" />
+            </button>
+            <a class="studio-fallback-link" href={`/locations/${studio.slug}/`}>
+              <span class="studio-dot" aria-hidden="true"></span><span><strong>{studio.name}</strong><span class="studio-street">{studio.streetAddress}</span></span><ArrowRight size={19} aria-hidden="true" />
+            </a>
+          </li>
+        ))}
+      </ul>
+      <a class="studio-help" href="/contact-us/#contact">Need a hand choosing? <span>Let's chat <ArrowRight size={15} aria-hidden="true" /></span></a>
+    </div>
+    <div class="studio-map-wrap">
+      <div class="studio-map" data-map role="region" aria-label="Interactive map of Fizz Kidz studios in Melbourne and Geelong">
+        <div class="studio-map-placeholder"><MapPin size={36} aria-hidden="true" /><p data-map-status>Our happy places, all on one map.</p><noscript><p>Enable JavaScript to explore the map, or use the studio links.</p></noscript></div>
+      </div>
+      <button class="studio-map-reset" type="button" data-reset hidden><Scan size={16} aria-hidden="true" /> Show all studios</button>
+      <p class="studio-map-key">Dotted lines connect pins to studio locations.</p>
+      <p class="studio-map-error" data-map-error role="status" hidden>The map couldn't load. You can still explore every studio below and open directions in Google Maps.</p>
+    </div>
+    <div class="studio-preview" id="studio-preview" role="region" aria-label="Selected studio" aria-live="polite" aria-atomic="true">
+      {studios.map((studio, index) => (
+        <article data-studio-preview={studio.slug} class="studio-preview-content" hidden={index !== 0} style={`--studio-colour: ${studio.colour}`}>
+          <div class="studio-preview-photo">
+            <Image src={images[studio.slug]} alt={studio.slug === "geelong" || studio.slug === "werribee" ? "A taste of the creative fun at Fizz Kidz" : `Take a peek inside our ${studio.name} studio`} width={700} sizes="(max-width: 700px) 90vw, 35vw" loading="lazy" />
+            <span>{studio.slug === "geelong" || studio.slug === "werribee" ? "A little taste of Fizz Kidz" : "Take a peek inside"}</span>
+          </div>
+          <div class="studio-preview-copy">
+            <p class="locations-eyebrow">YOUR NEXT ADVENTURE STARTS HERE</p>
+            <h3>Fizz Kidz <span>{studio.name}</span></h3>
+            <p class="studio-address"><MapPin size={18} aria-hidden="true" /><span>{studio.streetAddress}<br />{studio.addressLocality} VIC {studio.postalCode}</span></p>
+            <div class="studio-preview-actions">
+              <a class="locations-button" href={`/locations/${studio.slug}/`}>Explore {studio.name} <ArrowRight size={17} aria-hidden="true" /></a>
+              <a class="locations-text-link" href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`Fizz Kidz ${studio.name}, ${studio.streetAddress}, ${studio.addressLocality} VIC ${studio.postalCode}`)}`} target="_blank" rel="noopener noreferrer"><Navigation size={16} aria-hidden="true" /> Get directions<span class="sr-only"> in Google Maps, opens in a new tab</span></a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</studio-explorer>
+
+<script>
+  import "./studio-explorer";
+</script>
