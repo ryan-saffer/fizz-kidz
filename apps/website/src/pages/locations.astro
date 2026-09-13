@@ -1,5 +1,5 @@
 ---
-import PageIntro from "@/components/page-intro.astro";
+import Image from "@/components/image.astro";
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
 import Layout from "@/layout/Layout.astro";
 import { websitePagesLocationsCheltenhamJpg as cheltenham } from "@/data/website-images";
@@ -9,17 +9,63 @@ import { websitePagesLocationsMalvernJpg as malvern } from "@/data/website-image
 import { websitePagesLocationsKingsvilleJpg as kingsville } from "@/data/website-images";
 import { websitePagesHomeStudioPng as geelong } from "@/data/website-images";
 import { websitePagesHomeEnergyJpg as werribee } from "@/data/website-images";
+import logo from "@/assets/images/logo-stacked.png";
 import Values from "@/components/values.astro";
 import MailingList from "@/components/mailing-list.astro";
-import CardWithImage from "@/components/card-with-image.astro";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ExternalLink, MapPin, Sparkles } from "lucide-react";
 import {
   createBreadcrumbSchema,
   createLocationsListSchema,
 } from "@/utils/seo";
+import { PUBLIC_STUDIOS } from "@/utils/studios";
 
 const description =
   "Find Fizz Kidz studios in Balwyn, Cheltenham, Essendon, Geelong, Kingsville, Malvern and Werribee for kids birthday parties, holiday programs and creative activities.";
+
+const studioImages = {
+  balwyn,
+  cheltenham,
+  essendon,
+  geelong,
+  kingsville,
+  malvern,
+  werribee,
+};
+
+const studioStyles = [
+  { accent: "#7B35C7", tint: "#F1E8FC" },
+  { accent: "#B6256C", tint: "#FCE8F2" },
+  { accent: "#08798F", tint: "#E4F8FC" },
+  { accent: "#507B20", tint: "#EEF7DF" },
+  { accent: "#8A5A00", tint: "#FFF4D0" },
+  { accent: "#7B35C7", tint: "#F1E8FC" },
+  { accent: "#B6256C", tint: "#FCE8F2" },
+] as const;
+
+const studioMapPositions = {
+  balwyn: { left: "86%", top: "25%" },
+  cheltenham: { left: "84%", top: "51%" },
+  essendon: { left: "72%", top: "14%" },
+  geelong: { left: "11%", top: "84%" },
+  kingsville: { left: "66%", top: "26%" },
+  malvern: { left: "82%", top: "37%" },
+  werribee: { left: "40%", top: "44%" },
+} as const;
+
+const studios = PUBLIC_STUDIOS.map((studio, index) => ({
+  ...studio,
+  image: studioImages[studio.slug],
+  mapPosition: studioMapPositions[studio.slug],
+  ...studioStyles[index],
+  address: `${studio.streetAddress}, ${studio.addressLocality} VIC ${studio.postalCode}`,
+}));
+
+const googleMapsUrl =
+  "https://www.google.com/maps/search/?api=1&query=Fizz+Kidz+Victoria+Australia";
+const googleMapsApiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
+const googleMapsEmbedUrl = googleMapsApiKey
+  ? `https://www.google.com/maps/embed/v1/search?key=${encodeURIComponent(googleMapsApiKey)}&q=Fizz+Kidz+in+Victoria+Australia&center=-37.92,144.76&zoom=9&language=en&region=AU`
+  : null;
 ---
 
 <Layout
@@ -33,177 +79,553 @@ const description =
     ]),
   ]}
 >
-  <main class="m-auto block max-w-[1380px] px-5 pt-4">
-    <div class="h-[10px]"></div>
-    <BreadcrumbWrapper
-      items={[{ type: "link", title: "Locations", path: "/locations/" }]}
-    />
-    <PageIntro
-      subtitle="Find a studio near you!"
-      type="image"
-      image={essendon}
-      imageAlt="The interior of a Fizz Kids studio"
-      color="blue"
-      actionButtonPath="/contact-us/#contact"
-      actionButtonText="Contact us"
-    >
-      <span slot="title">Fizz Kidz Locations</span>
-    </PageIntro>
-    <section class="my-12 md:my-32">
-      <h4 class="mb-16 text-center font-lilita text-5xl text-[#8BC34B]">
-        Our studios are the heart of Fizz Kidz.
-      </h4>
-      <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <a href="/locations/balwyn">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={balwyn}
-            imageAlt="Fizz kids balwyn studio"
+  <main class="overflow-hidden">
+    <div class="m-auto max-w-[1380px] px-5 pt-7">
+      <BreadcrumbWrapper
+        items={[{ type: "link", title: "Locations", path: "/locations/" }]}
+      />
+    </div>
+
+    <section class="m-auto max-w-[1380px] px-5 pb-16 pt-5 sm:pb-24">
+      <div
+        class="locations-hero relative isolate overflow-hidden rounded-[2rem] bg-[#F2E9FC] px-6 py-10 sm:px-10 sm:py-14 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-14 lg:px-16 lg:py-16"
+      >
+        <div class="relative z-10 max-w-2xl">
+          <p
+            class="mb-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 font-gotham text-sm font-bold uppercase tracking-[0.12em] text-[#9044E2] shadow-sm"
           >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Balwyn</p>
-              <p class="mb-5 font-lilita text-xl">
-                184 Whitehorse Rd, Balwyn VIC 3103
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/cheltenham">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={cheltenham}
-            imageAlt="Fizz kids cheltenham studio"
+            <Sparkles size={17} aria-hidden="true" /> Seven studios, endless fun
+          </p>
+          <h1
+            class="max-w-xl font-lilita text-5xl leading-[0.95] text-[#18131D] sm:text-6xl lg:text-7xl"
           >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Cheltenham</p>
-              <p class="mb-5 font-lilita text-xl">
-                273 Bay Rd, Cheltenham VIC 3192
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/essendon">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={essendon}
-            imageAlt="Fizz kids essendon studio"
+            Find your nearest <span class="text-[#9044E2]">Fizz Kidz</span>
+          </h1>
+          <p
+            class="mt-7 max-w-xl font-gotham text-lg leading-relaxed text-[#372D3E] sm:text-xl"
           >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
+            Bright, welcoming studios filled with slime, science, creativity and
+            seriously memorable celebrations.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a
+              href="#studio-map"
+              class="inline-flex items-center gap-2 rounded-full bg-[#9044E2] px-6 py-4 font-gotham font-bold uppercase text-white shadow-[0_12px_30px_rgba(144,68,226,0.28)] transition hover:-translate-y-0.5 hover:bg-[#7B35C7]"
             >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Essendon</p>
-              <p class="mb-5 font-lilita text-xl">
-                75 Raleigh St, Essendon VIC 3040
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/geelong">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={geelong}
-            imageAlt="Children enjoying activities at a Fizz Kidz studio"
+              View the map <MapPin size={19} aria-hidden="true" />
+            </a>
+            <a
+              href="#our-studios"
+              class="inline-flex items-center gap-2 rounded-full border-2 border-[#9044E2] bg-white px-6 py-4 font-gotham font-bold uppercase text-[#9044E2] transition hover:-translate-y-0.5 hover:bg-[#FFF8DC]"
+            >
+              Explore studios <ArrowRight size={19} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+
+        <div
+          class="hero-collage relative mt-12 grid min-h-[350px] grid-cols-2 grid-rows-2 gap-3 sm:min-h-[460px] sm:gap-4 lg:mt-0"
+          aria-label="Children and families enjoying Fizz Kidz studios"
+        >
+          <div class="col-span-1 row-span-2 -rotate-2 overflow-hidden rounded-[2rem] border-[6px] border-white shadow-xl">
+            <Image
+              src={essendon}
+              alt="The colourful interior of a Fizz Kidz studio"
+              width={700}
+              loading="eager"
+              fetchpriority="high"
+              sizes="(min-width: 1024px) 28vw, 48vw"
+              class="h-full w-full object-cover"
+            />
+          </div>
+          <div class="rotate-2 overflow-hidden rounded-[1.75rem] border-[6px] border-white shadow-lg">
+            <Image
+              src={geelong}
+              alt="Children enjoying a creative activity at Fizz Kidz"
+              width={550}
+              loading="eager"
+              sizes="(min-width: 1024px) 22vw, 44vw"
+              class="h-full w-full object-cover"
+            />
+          </div>
+          <div class="-rotate-1 overflow-hidden rounded-[1.75rem] border-[6px] border-white shadow-lg">
+            <Image
+              src={werribee}
+              alt="A child enjoying a colourful Fizz Kidz activity"
+              width={550}
+              loading="eager"
+              sizes="(min-width: 1024px) 22vw, 44vw"
+              class="h-full w-full object-cover"
+            />
+          </div>
+          <div
+            class="absolute -bottom-5 left-1/2 flex -translate-x-1/2 rotate-2 items-center gap-2 whitespace-nowrap rounded-full bg-[#FFDC5D] px-5 py-3 font-lilita text-lg uppercase text-[#3A2947] shadow-lg sm:text-xl"
           >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Geelong</p>
-              <p class="mb-5 font-lilita text-xl">
-                352 Pakington St, Newtown VIC 3220
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/kingsville">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={kingsville}
-            imageAlt="Fizz kids kingsville studio"
-          >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Kingsville</p>
-              <p class="mb-5 font-lilita text-xl">
-                238 Somerville Rd, Kingsville VIC 3012
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/malvern">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={malvern}
-            imageAlt="Fizz kids malvern studio"
-          >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Malvern</p>
-              <p class="mb-5 font-lilita text-xl">
-                20 Glenferrie Rd, Malvern VIC 3144
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/werribee">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={werribee}
-            imageAlt="A child enjoying a creative Fizz Kidz activity"
-          >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Werribee</p>
-              <p class="mb-5 font-lilita text-xl">
-                T5, Harpley Town Center, Bradfield St, Werribee VIC 3030
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
+            <MapPin size={20} aria-hidden="true" /> Across Victoria
+          </div>
+        </div>
+
+        <span class="hero-dot hero-dot-one" aria-hidden="true"></span>
+        <span class="hero-dot hero-dot-two" aria-hidden="true"></span>
+        <span class="hero-star" aria-hidden="true">✦</span>
       </div>
     </section>
-    <Values />
+
+    <section id="studio-map" class="relative scroll-mt-28 bg-[#43D4F3] py-20 sm:py-28">
+      <div class="map-bubble map-bubble-one" aria-hidden="true"></div>
+      <div class="map-bubble map-bubble-two" aria-hidden="true"></div>
+      <div class="relative m-auto max-w-[1380px] px-5">
+        <div class="mb-10 text-center">
+          <p class="font-gotham text-sm font-bold uppercase tracking-[0.18em] text-[#124D59]">
+            Balwyn to Werribee, Essendon to Geelong
+          </p>
+          <h2 class="mt-3 font-lilita text-5xl leading-none text-[#153F48] sm:text-6xl">
+            Find your fizz on the map
+          </h2>
+          <p class="m-auto mt-5 max-w-2xl font-gotham text-lg text-[#153F48]">
+            See all seven studios together, then choose the one that works best
+            for your family.
+          </p>
+        </div>
+
+        <div class="grid overflow-hidden rounded-[2rem] bg-white p-3 shadow-[0_24px_60px_rgba(16,87,101,0.22)] lg:grid-cols-[minmax(0,1fr)_340px] lg:p-4">
+          <div class="relative min-h-[440px] overflow-hidden rounded-[1.4rem] lg:min-h-[590px]">
+            {
+              googleMapsEmbedUrl ? (
+                <iframe
+                  title="Google Map showing all Fizz Kidz studios in Victoria"
+                  src={googleMapsEmbedUrl}
+                  width="100%"
+                  height="100%"
+                  class="absolute inset-0 h-full w-full border-0"
+                  allowfullscreen=""
+                  loading="lazy"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                />
+              ) : (
+                <div
+                  class="studio-map-fallback absolute inset-0"
+                >
+                  <p class="sr-only">
+                    Map overview showing the relative positions of all seven Fizz Kidz studios.
+                  </p>
+                  <span class="map-road map-road-one" aria-hidden="true" />
+                  <span class="map-road map-road-two" aria-hidden="true" />
+                  <span class="map-road map-road-three" aria-hidden="true" />
+                  <span class="map-bay" aria-hidden="true">Port Phillip Bay</span>
+                  {studios.map((studio, index) => (
+                    <a
+                      href={`/locations/${studio.slug}/`}
+                      class="fallback-map-marker group absolute z-10"
+                      style={`--studio-accent:${studio.accent};left:${studio.mapPosition.left};top:${studio.mapPosition.top}`}
+                      aria-label={`View Fizz Kidz ${studio.name}`}
+                    >
+                      <span class="fallback-map-pin">
+                        <span class="fallback-map-logo">
+                          <Image src={logo} alt="" width={28} height={31} class="h-full w-auto object-contain" />
+                        </span>
+                      </span>
+                      <span class="fallback-map-name">{studio.name}</span>
+                      <span class="fallback-map-number" aria-hidden="true">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              )
+            }
+            <div
+              class="pointer-events-none absolute left-4 top-4 flex items-center gap-3 rounded-2xl bg-white/95 px-3 py-2 shadow-lg backdrop-blur-sm"
+            >
+              <div class="flex h-11 w-11 items-center justify-center rounded-full bg-[#F2E9FC] p-2">
+                <Image src={logo} alt="" width={40} height={44} class="h-full w-auto object-contain" />
+              </div>
+              <div>
+                <p class="font-lilita text-lg leading-none text-[#9044E2]">Fizz Kidz</p>
+                <p class="font-gotham text-xs font-semibold text-[#4B4450]">7 Victorian studios</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col px-3 pb-3 pt-7 sm:px-6 lg:px-7 lg:py-5">
+            <p class="font-lilita text-3xl text-[#231A29]">Choose a studio</p>
+            <p class="mt-2 font-gotham text-sm leading-relaxed text-[#5C5361]">
+              Select a location for studio details, programs and contact information.
+            </p>
+            <nav class="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-1" aria-label="Fizz Kidz studio locations">
+              {
+                studios.map((studio) => (
+                  <a
+                    href={`/locations/${studio.slug}/`}
+                    class="studio-map-link group flex min-h-14 items-center justify-between gap-2 rounded-xl px-3 py-2 transition"
+                    style={`--studio-accent:${studio.accent};--studio-tint:${studio.tint}`}
+                  >
+                    <span class="flex min-w-0 items-center gap-2.5">
+                      <span class="studio-map-pin flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+                        <MapPin size={17} aria-hidden="true" />
+                      </span>
+                      <span class="truncate font-gotham text-sm font-bold sm:text-base">{studio.name}</span>
+                    </span>
+                    <ArrowRight className="hidden shrink-0 transition-transform group-hover:translate-x-1 sm:block" size={17} aria-hidden="true" />
+                  </a>
+                ))
+              }
+            </nav>
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#9044E2] px-5 py-3 font-gotham text-sm font-bold uppercase text-white transition hover:bg-[#F6BA33]"
+            >
+              Open in Google Maps <ExternalLink size={16} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="our-studios" class="scroll-mt-28 bg-[#FFFCF5] py-20 sm:py-28">
+      <div class="m-auto max-w-[1380px] px-5">
+        <div class="mb-12 max-w-3xl sm:mb-16">
+          <p class="font-gotham text-sm font-bold uppercase tracking-[0.18em] text-[#9044E2]">
+            Come and create with us
+          </p>
+          <h2 class="mt-3 font-lilita text-5xl leading-none sm:text-6xl">Meet our studios</h2>
+          <p class="mt-5 font-gotham text-lg leading-relaxed text-[#554B59]">
+            Every Fizz Kidz studio has the same colourful energy, caring hosts and
+            hands-on fun. Pick your closest location to start planning.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-12">
+          {
+            studios.map((studio, index) => (
+              <a
+                href={`/locations/${studio.slug}/`}
+                class:list={[
+                  "location-card group overflow-hidden rounded-[1.75rem] border-[3px] bg-white shadow-[0_14px_35px_rgba(61,39,72,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(61,39,72,0.14)]",
+                  index < 3 ? "lg:col-span-4" : "lg:col-span-6",
+                ]}
+                style={`--studio-accent:${studio.accent};--studio-tint:${studio.tint}`}
+              >
+                <div class="relative h-64 overflow-hidden sm:h-72">
+                  <Image
+                    src={studio.image}
+                    alt={`Fizz Kidz ${studio.name} studio`}
+                    width={900}
+                    loading="lazy"
+                    sizes={index < 3 ? "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" : "(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"}
+                    class="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
+                  />
+                  <span class="studio-number absolute left-5 top-5 flex h-11 min-w-11 items-center justify-center rounded-full px-3 font-lilita text-lg shadow-md">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <div class="location-card-content flex min-h-48 flex-col p-6 sm:p-7">
+                  <div class="flex items-start justify-between gap-4">
+                    <h3 class="studio-name font-lilita text-4xl leading-none">{studio.name}</h3>
+                    <span class="studio-arrow flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition group-hover:translate-x-1">
+                      <ArrowRight size={21} aria-hidden="true" />
+                    </span>
+                  </div>
+                  <p class="mt-5 flex items-start gap-2 font-gotham text-base leading-relaxed text-[#4F4653]">
+                    <MapPin className="mt-0.5 shrink-0" size={18} aria-hidden="true" />
+                    <span>{studio.address}</span>
+                  </p>
+                  <p class="studio-cta mt-auto pt-5 font-gotham text-sm font-bold uppercase tracking-wide">
+                    Explore {studio.name}
+                  </p>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <div class="m-auto max-w-[1380px] px-5 py-16 sm:py-24">
+      <Values />
+    </div>
   </main>
   <MailingList />
 </Layout>
+
+<style>
+  .locations-hero::before {
+    position: absolute;
+    inset: auto -7rem -8rem auto;
+    width: 24rem;
+    height: 24rem;
+    border-radius: 9999px;
+    background: #ffdc5d;
+    content: "";
+    opacity: 0.82;
+    z-index: -1;
+  }
+
+  .locations-hero::after {
+    position: absolute;
+    inset: -7rem auto auto 46%;
+    width: 14rem;
+    height: 14rem;
+    border-radius: 9999px;
+    background: #43d4f3;
+    content: "";
+    opacity: 0.32;
+    z-index: -1;
+  }
+
+  .hero-dot {
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    background: #ec65a6;
+  }
+
+  .hero-dot-one {
+    left: 45%;
+    bottom: 13%;
+  }
+
+  .hero-dot-two {
+    left: 49%;
+    bottom: 8%;
+    width: 0.6rem;
+    height: 0.6rem;
+    background: #9044e2;
+  }
+
+  .hero-star {
+    position: absolute;
+    top: 8%;
+    right: 3%;
+    color: #ffdc5d;
+    font-size: 4.5rem;
+    line-height: 1;
+    transform: rotate(12deg);
+  }
+
+  .map-bubble {
+    position: absolute;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.2);
+  }
+
+  .map-bubble-one {
+    top: 3rem;
+    left: -5rem;
+    width: 15rem;
+    height: 15rem;
+  }
+
+  .map-bubble-two {
+    right: -3rem;
+    bottom: 3rem;
+    width: 10rem;
+    height: 10rem;
+  }
+
+  .studio-map-fallback {
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 18% 20%, rgb(255 255 255 / 0.75) 0 0.25rem, transparent 0.3rem),
+      radial-gradient(circle at 68% 72%, rgb(255 255 255 / 0.65) 0 0.2rem, transparent 0.25rem),
+      linear-gradient(145deg, #eaf8e0, #f8f1d9 58%, #e7f5dc);
+  }
+
+  .studio-map-fallback::before {
+    position: absolute;
+    inset: 8% 7%;
+    border: 2px dashed rgb(104 139 75 / 0.18);
+    border-radius: 48% 52% 58% 42%;
+    content: "";
+    transform: rotate(-7deg);
+  }
+
+  .map-road {
+    position: absolute;
+    height: 0.3rem;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.92);
+    box-shadow: 0 0 0 1px rgb(215 187 128 / 0.25);
+    transform-origin: left center;
+  }
+
+  .map-road-one {
+    top: 30%;
+    left: 8%;
+    width: 88%;
+    transform: rotate(-8deg);
+  }
+
+  .map-road-two {
+    top: 12%;
+    left: 69%;
+    width: 62%;
+    transform: rotate(80deg);
+  }
+
+  .map-road-three {
+    top: 77%;
+    left: 9%;
+    width: 70%;
+    transform: rotate(-30deg);
+  }
+
+  .map-bay {
+    position: absolute;
+    right: -5%;
+    bottom: -20%;
+    display: flex;
+    width: 43%;
+    height: 58%;
+    align-items: center;
+    justify-content: center;
+    border-radius: 55% 0 0 0;
+    background: #b9e9f4;
+    color: #397887;
+    font-family: Gotham, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .fallback-map-marker {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    transform: translate(-50%, -50%);
+  }
+
+  .fallback-map-pin {
+    position: relative;
+    display: flex;
+    width: 3.4rem;
+    height: 3.4rem;
+    align-items: center;
+    justify-content: center;
+    border: 0.3rem solid white;
+    border-radius: 50% 50% 50% 0;
+    background: var(--studio-accent);
+    box-shadow: 0 0.5rem 1.25rem rgb(49 59 38 / 0.22);
+    transform: rotate(-45deg);
+    transition: transform 180ms ease;
+  }
+
+  .fallback-map-logo {
+    display: flex;
+    width: 2.15rem;
+    height: 2.15rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: white;
+    padding: 0.35rem;
+    transform: rotate(45deg);
+  }
+
+  .fallback-map-marker:hover .fallback-map-pin,
+  .fallback-map-marker:focus-visible .fallback-map-pin {
+    transform: rotate(-45deg) translate(0.18rem, -0.18rem) scale(1.08);
+  }
+
+  .fallback-map-name {
+    margin-top: 0.55rem;
+    border-radius: 9999px;
+    background: white;
+    box-shadow: 0 0.25rem 0.8rem rgb(49 59 38 / 0.12);
+    color: #2e2732;
+    font-family: Gotham, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.28rem 0.55rem;
+    white-space: nowrap;
+  }
+
+  .fallback-map-number {
+    display: none;
+  }
+
+  .studio-map-link {
+    background: var(--studio-tint);
+    color: #2e2732;
+  }
+
+  .studio-map-link:hover,
+  .studio-map-link:focus-visible {
+    color: var(--studio-accent);
+    box-shadow: inset 0 0 0 2px var(--studio-accent);
+  }
+
+  .studio-map-pin,
+  .studio-number,
+  .studio-arrow {
+    background: var(--studio-accent);
+    color: white;
+  }
+
+  .location-card {
+    border-color: var(--studio-tint);
+  }
+
+  .location-card:hover,
+  .location-card:focus-visible {
+    border-color: var(--studio-accent);
+  }
+
+  .location-card-content {
+    background: linear-gradient(145deg, white 35%, var(--studio-tint));
+  }
+
+  .studio-name,
+  .studio-cta {
+    color: var(--studio-accent);
+  }
+
+  @media (max-width: 1023px) {
+    .hero-dot,
+    .hero-star {
+      display: none;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .locations-hero::before {
+      right: -12rem;
+      bottom: -10rem;
+    }
+
+    .hero-collage {
+      min-height: 320px;
+    }
+
+    .fallback-map-pin {
+      width: 2.7rem;
+      height: 2.7rem;
+    }
+
+    .fallback-map-logo {
+      width: 1.7rem;
+      height: 1.7rem;
+    }
+
+    .fallback-map-name {
+      display: none;
+    }
+
+    .fallback-map-number {
+      display: block;
+      margin-top: 0.35rem;
+      border-radius: 9999px;
+      background: white;
+      box-shadow: 0 0.2rem 0.6rem rgb(49 59 38 / 0.12);
+      color: var(--studio-accent);
+      font-family: Gotham, sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.35rem;
+    }
+  }
+</style>

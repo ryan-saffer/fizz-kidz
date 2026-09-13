@@ -38,6 +38,7 @@ npm --workspace website run preview
 Local environment values live in `apps/website/.env`:
 
 - `PUBLIC_UPLOADTHING_TOKEN`
+- `PUBLIC_GOOGLE_MAPS_API_KEY` (optional; enables the Google Maps search view on the locations page)
 - `NETLIFY_TOKEN`
 
 Production and preview values live in Netlify.
