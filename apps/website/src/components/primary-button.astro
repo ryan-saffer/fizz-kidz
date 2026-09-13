@@ -1,6 +1,6 @@
 ---
 import { cn } from "./react/lib/utils";
-import { Button } from "./react/ui/button";
+import { buttonVariants } from "./react/ui/button";
 
 type Props = {
   text: string;
@@ -19,19 +19,18 @@ const {
 } = Astro.props;
 ---
 
-<Button
-  className={cn(
-    "h-fit text-wrap break-words rounded-full bg-[#F6BA33] p-0 text-lg font-semibold uppercase text-white transition-colors duration-300 ease-in-out hover:bg-[#9C59E4]",
+<a
+  href={path}
+  class={cn(
+    buttonVariants(),
+    "z-50 h-fit text-wrap break-words rounded-full bg-[#F6BA33] px-7 py-5 text-lg font-semibold uppercase text-[#542785] transition-colors duration-300 ease-in-out hover:bg-[#9C59E4] hover:text-white",
     shadow && "shadow-[0px_0px_35px_0px_rgba(246,186,51,0.75)]",
-    variant === "purple" && "bg-[#9C59E4] hover:bg-[#F6BA33]",
+    variant === "purple" &&
+      "bg-[#9044E2] text-white hover:bg-[#F6BA33] hover:text-[#542785]",
     className,
   )}
+  target={path.startsWith("http") ? "_blank" : "_self"}
+  rel={path.startsWith("http") ? "noreferrer" : undefined}
 >
-  <a
-    href={path}
-    class="z-50 px-7 py-5"
-    target={path.startsWith("http") ? "_blank" : "_self"}
-  >
-    {text}
-  </a>
-</Button>
+  {text}
+</a>

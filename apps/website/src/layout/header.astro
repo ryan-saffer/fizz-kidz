@@ -3,7 +3,7 @@ import Image from "@/components/image.astro";
 import logoHorizontal from "@/assets/images/logo-horizontal.png";
 import NavigationMenu from "@/react-components/navigation/navigation-menu";
 import { createNavigationMenu } from "@/react-components/navigation/navigation-menu-data";
-import { Button } from "@/components/react/ui/button";
+import { buttonVariants } from "@/components/react/ui/button";
 import { birthdayPartyPackageNavigationLinks } from "@/data/birthday-party-catalogue";
 
 const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
@@ -16,27 +16,27 @@ const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
     class="flex w-full flex-row-reverse items-center justify-end gap-4 min-[1280px]:flex-row min-[1280px]:justify-between"
   >
     <div
-      class="absolute right-2 flex gap-2 min-[1280px]:right-8 min-[1280px]:hidden"
+      class="absolute right-2 flex gap-3 min-[1280px]:right-8 min-[1280px]:hidden"
     >
-      <a href="/franchising">
-        <Button
-          className="bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg"
-        >
-          Own a studio
-        </Button>
-      </a>
-      <a href="/contact-us/#contact">
-        <Button
-          className="bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg"
-        >
-          Get in touch
-        </Button>
-      </a>
+      <a
+        href="/franchising"
+        class={buttonVariants({
+          className:
+            "h-12 bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] hover:text-[#542785] sm:p-6 sm:text-lg",
+        })}>Own a studio</a
+      >
+      <a
+        href="/contact-us/#contact"
+        class={buttonVariants({
+          className:
+            "h-12 bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] hover:text-[#542785] sm:p-6 sm:text-lg",
+        })}>Get in touch</a
+      >
     </div>
-    <a href="/">
+    <a href="/" aria-label="Fizz Kidz home">
       <Image
         src={logoHorizontal}
-        alt="Fizz Kids Logo"
+        alt="Fizz Kidz"
         widths={[100, 300]}
         sizes="(min-width: 250px) 100, (min-width: 350px) 300"
         loading="eager"
@@ -46,20 +46,20 @@ const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
     <div class="flex items-center">
       <NavigationMenu menu={menu} client:load />
       <div class="flex gap-2">
-        <a class="hidden min-[1440px]:inline-flex" href="/franchising">
-          <Button
-            className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]"
-          >
-            Own a studio
-          </Button>
-        </a>
-        <a class="hidden min-[1440px]:inline-flex" href="/contact-us/#contact">
-          <Button
-            className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]"
-          >
-            Get in touch
-          </Button>
-        </a>
+        <a
+          href="/franchising"
+          class={buttonVariants({
+            className:
+              "hidden bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33] hover:text-[#542785] min-[1440px]:inline-flex",
+          })}>Own a studio</a
+        >
+        <a
+          href="/contact-us/#contact"
+          class={buttonVariants({
+            className:
+              "hidden bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33] hover:text-[#542785] min-[1440px]:inline-flex",
+          })}>Get in touch</a
+        >
       </div>
     </div>
   </div>

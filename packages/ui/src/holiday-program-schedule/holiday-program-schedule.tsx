@@ -1,4 +1,9 @@
-import type { HolidayProgramScheduleSession, HolidayProgramScheduleWeek } from '@fizz-kidz/core'
+import {
+    getAccessibleTextColour,
+    getReadableTextColour,
+    type HolidayProgramScheduleSession,
+    type HolidayProgramScheduleWeek,
+} from '@fizz-kidz/core'
 
 import './holiday-program-schedule.css'
 
@@ -72,6 +77,9 @@ function Star() {
 
 function SessionCard({ className, program }: { className?: string; program: HolidayProgramScheduleSession }) {
     const isMorning = program.slot === 'morning'
+    const sessionColour = isMorning ? '#42D4F3' : '#9044E2'
+    const sessionTextColour = getReadableTextColour(sessionColour)
+    const programTitleColour = getAccessibleTextColour(program.colour, '#FFFFFF', 3)
 
     return (
         <div className={classNames('flex flex-col', className)}>
@@ -93,15 +101,16 @@ function SessionCard({ className, program }: { className?: string; program: Holi
                     )}
                     <span
                         className={classNames(
-                            'absolute bottom-4 right-4 rounded-full p-4 text-xs font-semibold uppercase text-white',
+                            'absolute bottom-4 right-4 rounded-full p-4 text-xs font-semibold uppercase',
                             isMorning ? 'bg-[#42D4F3]' : 'bg-[#9044E2]'
                         )}
+                        style={{ color: sessionTextColour }}
                     >
                         {isMorning ? 'Morning Session' : 'Afternoon Session'}
                     </span>
                 </div>
                 <div className="flex-grow rounded-b-xl bg-white p-6">
-                    <p className="mb-4 font-lilita text-2xl tracking-wide" style={{ color: program.colour }}>
+                    <p className="mb-4 font-lilita text-2xl tracking-wide" style={{ color: programTitleColour }}>
                         {program.title}
                     </p>
                     <p className="whitespace-nowrap text-sm font-semibold uppercase">{formatLongDate(program.date)}</p>
@@ -179,7 +188,7 @@ function ScheduleWeek({ bookingUrl, week }: { bookingUrl: string; week: HolidayP
                     href={bookingUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex h-fit items-center justify-center whitespace-nowrap rounded-full bg-[#F6BA33] px-7 py-5 text-center text-lg font-semibold uppercase text-white shadow-[0_0_35px_0_rgba(246,186,51,0.75)] transition-colors duration-300 ease-in-out hover:bg-[#9C59E4]"
+                    className="inline-flex h-fit items-center justify-center whitespace-nowrap rounded-full bg-[#F6BA33] px-7 py-5 text-center text-lg font-semibold uppercase text-[#542785] shadow-[0_0_35px_0_rgba(246,186,51,0.75)] transition-colors duration-300 ease-in-out hover:bg-[#9C59E4] hover:text-white"
                 >
                     Book your holiday program
                 </a>

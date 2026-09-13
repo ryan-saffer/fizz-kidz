@@ -2,7 +2,7 @@
 import Layout from "@/layout/Layout.astro";
 import Image from "@/components/image.astro";
 import HomeIntro from "@/components/home/home-intro.astro";
-import lilitaFontUrl from "@fizz-kidz/ui/assets/fonts/LilitaOne.ttf?url";
+import lilitaFontUrl from "@fizz-kidz/ui/assets/fonts/LilitaOne.woff2?url";
 import { websitePagesHomeStudioPng as studio } from "@/data/website-images";
 import fizzFansBgTop from "@/assets/images/pages/home/fizz-fans-bg-top.svg";
 import fizzFansBgBottom from "@/assets/images/pages/home/fizz-fans-bg-bottom.svg";
@@ -43,7 +43,7 @@ const locations = [
   title="Fizz Kidz | Kids Parties, Programs & Events in Victoria"
   description="Fizz Kidz offers studio parties and kids programs in Melbourne and Geelong, plus school incursions and event activations delivered across Australia."
 >
-  <link slot="head" rel="preload" href={lilitaFontUrl} as="font" type="font/ttf" crossorigin="anonymous" />
+  <link slot="head" rel="preload" href={lilitaFontUrl} as="font" type="font/woff2" crossorigin="anonymous" />
   <main>
     <HomeIntro />
     <section class="m-auto mt-12 block max-w-[1380px] px-5">
@@ -153,7 +153,7 @@ const locations = [
     <section class="m-auto my-12 block max-w-[1380px] px-5 pt-8 md:my-24">
       <div class="flex flex-col items-center justify-center gap-8 md:flex-row">
         <div class="flex flex-col gap-12 md:w-1/2">
-          <h6 class="font-lilita text-5xl">Own your own studio</h6>
+          <h2 class="font-lilita text-5xl">Own your own studio</h2>
           <p class="font-gotham text-lg leading-8 md:text-xl">
             A Fizz Kidz franchise is an <span class="font-bold"
               >exciting powerful opportunity</span

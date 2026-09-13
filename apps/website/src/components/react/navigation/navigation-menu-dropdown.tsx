@@ -81,7 +81,7 @@ function NavigationMenuDropdown({
                                 title={menu.title}
                                 isNew={menu.isNew}
                                 key={idx}
-                                className={isBreadcrumb ? 'text-sm' : ''}
+                                className={isBreadcrumb ? 'w-full text-sm' : 'w-full'}
                             />
                         )
                     }

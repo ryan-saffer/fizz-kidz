@@ -29,7 +29,7 @@ const services = [
   <div class="home-service-grid">
     {services.map((service) => <a class={`home-service-card ${service.colour}`} href={service.path}>
       <div class="home-service-photo">
-        <Image src={service.image} alt={service.alt} width={650} widths={[320, 480, 650, 900]} sizes="(max-width: 480px) 90vw, (max-width: 760px) 44vw, (max-width: 1552px) 30vw, 455px" loading="lazy" />
+        <Image src={service.image} alt={service.alt} width={650} widths={[320, 480, 650, 900]} quality={75} sizes="(max-width: 480px) 90vw, (max-width: 760px) 44vw, (max-width: 1552px) 30vw, 455px" loading="lazy" />
         <span aria-hidden="true"><ArrowRight size={18} focusable="false" /></span>
       </div>
       <div class="home-service-copy"><h3>{service.title}</h3><p class="home-service-tagline">let's {service.word}.</p><p class="home-service-description">{service.description}</p></div>

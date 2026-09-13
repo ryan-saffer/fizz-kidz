@@ -169,11 +169,9 @@ const PlayLabProgramsSection = ({
                                         <li>Dancing, music games & imaginative group activities!</li>
                                     </ul>
                                 </div>
-                                <a href="https://bookings.fizzkidz.com.au/play-lab-booking">
-                                    <Button className="w-full bg-[#9044E2] uppercase hover:bg-[#9044E2]/90">
-                                        Book today
-                                    </Button>
-                                </a>
+                                <Button asChild className="w-full bg-[#9044E2] uppercase hover:bg-[#9044E2]/90">
+                                    <a href="https://bookings.fizzkidz.com.au/play-lab-booking">Book today</a>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -295,11 +293,9 @@ const PlayLabProgramsSection = ({
                                         <li>Dancing, music games & imaginative group activities!</li>
                                     </ul>
                                 </div>
-                                <a href="https://bookings.fizzkidz.com.au/play-lab-booking">
-                                    <Button className="w-full bg-[#9044E2] uppercase hover:bg-[#9044E2]/90">
-                                        Book today
-                                    </Button>
-                                </a>
+                                <Button asChild className="w-full bg-[#9044E2] uppercase hover:bg-[#9044E2]/90">
+                                    <a href="https://bookings.fizzkidz.com.au/play-lab-booking">Book today</a>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -417,11 +413,9 @@ const PlayLabProgramsSection = ({
                                         <li>Dancing, music games & imaginative group activities!</li>
                                     </ul>
                                 </div>
-                                <a href="https://bookings.fizzkidz.com.au/play-lab-booking">
-                                    <Button className="w-full bg-[#9044E2] uppercase hover:bg-[#9044E2]/90">
-                                        Book today
-                                    </Button>
-                                </a>
+                                <Button asChild className="w-full bg-[#9044E2] uppercase hover:bg-[#9044E2]/90">
+                                    <a href="https://bookings.fizzkidz.com.au/play-lab-booking">Book today</a>
+                                </Button>
                             </div>
                         </div>
                     </div>

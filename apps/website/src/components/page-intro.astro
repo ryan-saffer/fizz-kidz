@@ -4,6 +4,7 @@ import PrimaryButton from "@/components/primary-button.astro";
 import type { ImageSource } from "@/types/images";
 import { cn } from "./react/lib/utils";
 import {
+  getAccessibleTextColour,
   getBirthdayPartyPackageColourHex,
   type BirthdayPartyPackageColour,
 } from "@fizz-kidz/core";
@@ -22,6 +23,7 @@ const { subtitle, actionButtonPath, actionButtonText, color, ...props } =
   Astro.props;
 
 const colourHex = getBirthdayPartyPackageColourHex(color);
+const accessibleColourHex = getAccessibleTextColour(colourHex, "#FFFFFF", 3);
 ---
 
 <section class="min-[1200px]:mt-12">
@@ -34,7 +36,7 @@ const colourHex = getBirthdayPartyPackageColourHex(color);
       </h1>
       <h2
         class="mb-8 font-lilita text-3xl sm:text-4xl"
-        style={{ color: colourHex }}
+        style={{ color: accessibleColourHex }}
       >
         {subtitle}
       </h2>
