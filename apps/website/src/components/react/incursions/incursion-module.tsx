@@ -47,7 +47,7 @@ export const IncursionModule = ({
             >
                 <div className="flex flex-col gap-4">
                     <img src={svg} alt={svgAlt} className="h-20 w-fit" />
-                    <h5 className="font-lilita text-2xl">{title}</h5>
+                    <h3 className="font-lilita text-2xl">{title}</h3>
                     <p className="text-xs">{subtitle}</p>
                 </div>
                 <p className="text-center text-xs uppercase text-cyan-400">Click to view incursions</p>

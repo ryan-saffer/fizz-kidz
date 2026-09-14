@@ -33,6 +33,7 @@ function ReviewsCarousel({
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <div
                                             className="flex items-center gap-1 text-yellow-400"
+                                            role="img"
                                             aria-label={`${rating.toFixed(1)} out of 5 stars`}
                                         >
                                             {Array.from({ length: 5 }).map((_, starIndex) => (

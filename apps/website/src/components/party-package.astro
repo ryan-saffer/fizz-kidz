@@ -28,7 +28,12 @@ const { color, image, imageAlt, isNew = false, path, title } = Astro.props;
     <div
       class="relative w-full min-w-32 [container-type:inline-size] sm:min-w-52"
     >
-      <Image src={image} alt={imageAlt} class="w-full object-contain" />
+      <Image
+        src={image}
+        alt={imageAlt}
+        sizes="(min-width: 1380px) 335px, (min-width: 900px) calc((100vw - 40px) / 4), (min-width: 808px) 384px, calc((100vw - 40px) / 2)"
+        class="w-full object-contain"
+      />
       {isNew && <NewPackageImageBadge />}
     </div>
     <p

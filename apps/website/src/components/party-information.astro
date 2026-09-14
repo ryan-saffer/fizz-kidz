@@ -14,9 +14,9 @@ const { default: blueDrop } = await import(
 ---
 
 <section class="relative mb-16">
-  <h6 class="my-16 text-center font-lilita text-5xl md:my-20">
+  <h2 class="my-16 text-center font-lilita text-5xl md:my-20">
     Additional information
-  </h6>
+  </h2>
   <div class="flex flex-col gap-8 lg:flex-row">
     <div class="relative flex-1">
       <div class="absolute -bottom-20 -right-12 z-0 hidden lg:block">
@@ -97,7 +97,7 @@ const { default: blueDrop } = await import(
         <p class="mt-4 text-xs font-semibold">
           GF - Gluten Free, DF - Dairy free, V - Vegetarian, VV - Vegan
         </p>
-        <AdditionalInfoAccordion client:idle />
+        <AdditionalInfoAccordion client:visible={{ rootMargin: "300px" }} />
       </div>
     </div>
   </div>
