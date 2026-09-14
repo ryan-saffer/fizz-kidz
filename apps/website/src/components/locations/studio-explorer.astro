@@ -1,9 +1,10 @@
 ---
-import { ArrowRight, MapPin, Navigation, Scan } from "lucide-react";
+import "leaflet/dist/leaflet.css";
+import { ArrowRight, MapPin, Navigation } from "lucide-react";
 import Image from "@/components/image.astro";
 import logo from "@/assets/images/logo-stacked.png";
 import { getImage } from "astro:assets";
-import { PUBLIC_STUDIOS, type PublicStudioSlug } from "@/utils/studios";
+import { PUBLIC_STUDIOS } from "@/utils/studios";
 import {
   websitePagesLocationsBalwynJpg as balwyn,
   websitePagesLocationsCheltenhamJpg as cheltenham,
@@ -15,12 +16,8 @@ import {
 } from "@/data/website-images";
 
 const images = { balwyn, cheltenham, essendon, geelong, kingsville, malvern, werribee };
-const colours = {
-  balwyn: "#9044e2", cheltenham: "#e91571", essendon: "#267d90",
-  geelong: "#418259", kingsville: "#ae438e", malvern: "#a36a12", werribee: "#5568c4",
-} satisfies Record<PublicStudioSlug, string>;
 const pinLogo = await getImage({ src: logo, width: 96, format: "webp" });
-const studios = PUBLIC_STUDIOS.map((studio) => ({ ...studio, colour: colours[studio.slug] }));
+const studios = PUBLIC_STUDIOS;
 ---
 
 <studio-explorer data-studios={JSON.stringify(studios)} data-logo={pinLogo.src}>
@@ -29,7 +26,7 @@ const studios = PUBLIC_STUDIOS.map((studio) => ({ ...studio, colour: colours[stu
       <div class="studio-directory-heading"><MapPin size={20} aria-hidden="true" /><h3>Find your local</h3><span>{studios.length} studios</span></div>
       <ul class="studio-list" aria-label="Choose a studio">
         {studios.map((studio, index) => (
-          <li style={`--studio-colour: ${studio.colour}`}>
+          <li>
             <button type="button" class="studio-select" data-studio-select={studio.slug} aria-pressed={index === 0 ? "true" : "false"} aria-controls="studio-preview" hidden>
               <span class="studio-dot" aria-hidden="true"></span>
               <span><strong>{studio.name}</strong><span class="studio-street">{studio.streetAddress}</span></span>
@@ -47,13 +44,12 @@ const studios = PUBLIC_STUDIOS.map((studio) => ({ ...studio, colour: colours[stu
       <div class="studio-map" data-map role="region" aria-label="Interactive map of Fizz Kidz studios in Melbourne and Geelong">
         <div class="studio-map-placeholder"><MapPin size={36} aria-hidden="true" /><p data-map-status>Our happy places, all on one map.</p><noscript><p>Enable JavaScript to explore the map, or use the studio links.</p></noscript></div>
       </div>
-      <button class="studio-map-reset" type="button" data-reset hidden><Scan size={16} aria-hidden="true" /> Show all studios</button>
       <p class="studio-map-key">Dotted lines connect pins to studio locations.</p>
       <p class="studio-map-error" data-map-error role="status" hidden>The map couldn't load. You can still explore every studio below and open directions in Google Maps.</p>
     </div>
     <div class="studio-preview" id="studio-preview" role="region" aria-label="Selected studio" aria-live="polite" aria-atomic="true">
       {studios.map((studio, index) => (
-        <article data-studio-preview={studio.slug} class="studio-preview-content" hidden={index !== 0} style={`--studio-colour: ${studio.colour}`}>
+        <article data-studio-preview={studio.slug} class="studio-preview-content" hidden={index !== 0}>
           <div class="studio-preview-photo">
             <Image src={images[studio.slug]} alt={studio.slug === "geelong" || studio.slug === "werribee" ? "A taste of the creative fun at Fizz Kidz" : `Take a peek inside our ${studio.name} studio`} width={700} sizes="(max-width: 700px) 90vw, 35vw" loading="lazy" />
             <span>{studio.slug === "geelong" || studio.slug === "werribee" ? "A little taste of Fizz Kidz" : "Take a peek inside"}</span>

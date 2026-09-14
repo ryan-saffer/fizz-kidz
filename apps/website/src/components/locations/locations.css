@@ -120,7 +120,7 @@
     width: 88%;
     top: 15px;
     right: 6%;
-    padding: 12px 12px 0;
+    padding: 12px 12px 32px;
     background: white;
     transform: rotate(5deg);
     box-shadow: 0 10px 0 #09243e0d;
@@ -129,12 +129,6 @@
     width: 100%;
     height: 290px;
     object-fit: cover;
-}
-.locations-studio-photo figcaption {
-    font-family: 'LilitaOne', sans-serif;
-    font-size: 21px;
-    text-align: center;
-    padding: 13px 0;
 }
 .locations-party-photo {
     position: absolute;
@@ -241,6 +235,7 @@
     padding-bottom: 3px;
 }
 studio-explorer {
+    --studio-colour: #9044e2;
     display: block;
 }
 .studio-explorer-layout {
@@ -372,25 +367,6 @@ studio-explorer {
     max-width: 300px;
     font-size: 15px;
 }
-.studio-map-reset {
-    position: absolute;
-    z-index: 2;
-    right: 18px;
-    top: 18px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: white;
-    border: 1px solid #09243e;
-    box-shadow: 2px 3px 0 #09243e1a;
-    border-radius: 30px;
-    padding: 12px 16px;
-    font-size: 11px;
-    font-weight: 700;
-}
-.studio-map-reset:hover {
-    background: #f0e6fc;
-}
 .studio-map-key {
     position: absolute;
     z-index: 1;
@@ -484,11 +460,12 @@ studio-explorer {
     z-index: 2000 !important;
 }
 .studio-map-marker:is(:hover, :focus-visible, .is-selected) .studio-pin-face {
-    background: #fff4c3;
-    box-shadow: 0 0 0 5px #fddc5d80;
+    background: #eee4ff;
+    border-color: #7333ed;
+    box-shadow: 0 0 0 5px #9044e240;
 }
 .studio-map-marker.is-selected .studio-pin-label {
-    background: #09243e;
+    background: #7333ed;
     color: white;
 }
 .studio-map-marker:focus-visible {
@@ -709,9 +686,6 @@ studio-explorer {
     .locations-studio-photo img {
         height: 205px;
     }
-    .locations-studio-photo figcaption {
-        font-size: 15px;
-    }
     .locations-party-photo {
         width: 48%;
         bottom: 30px;
@@ -808,9 +782,6 @@ studio-explorer {
     }
     .locations-studio-photo img {
         height: 205px;
-    }
-    .locations-studio-photo figcaption {
-        font-size: 17px;
     }
     .locations-party-photo {
         width: 43%;
@@ -913,12 +884,6 @@ studio-explorer {
     .studio-map {
         height: 430px;
         min-height: 0;
-    }
-    .studio-map-reset {
-        top: 12px;
-        right: 12px;
-        font-size: 10px;
-        padding: 10px 12px;
     }
     .studio-pin-label {
         font-size: 11px;

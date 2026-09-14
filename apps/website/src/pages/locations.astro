@@ -2,11 +2,10 @@
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
 import Image from "@/components/image.astro";
-import MailingList from "@/components/mailing-list.astro";
 import HomeDecal from "@/components/home/home-decal.astro";
 import StudioExplorer from "@/components/locations/studio-explorer.astro";
 import Layout from "@/layout/Layout.astro";
-import { websitePagesLocationsEssendonJpg as essendon, websitePagesHomePolaroid as polaroid } from "@/data/website-images";
+import { websitePagesLocationsEssendonJpg as essendon, websitePagesLocationsCheltenhamJpg as cheltenham } from "@/data/website-images";
 import { PUBLIC_STUDIOS } from "@/utils/studios";
 import { createBreadcrumbSchema, createLocationsListSchema } from "@/utils/seo";
 import "@/components/locations/locations.css";
@@ -42,10 +41,9 @@ const description =
           <div class="locations-photo-blob" aria-hidden="true"></div>
           <figure class="locations-studio-photo">
             <Image src={essendon} alt="Colourful party tables and creative spaces inside Fizz Kidz Essendon" width={850} sizes="(max-width: 700px) 85vw, 44vw" loading="eager" fetchpriority="high" />
-            <figcaption>Little makers. Big imaginations.</figcaption>
           </figure>
           <figure class="locations-party-photo">
-            <Image src={polaroid} alt="Kids celebrating together at a Fizz Kidz birthday party" width={400} sizes="(max-width: 700px) 40vw, 20vw" loading="eager" />
+            <Image src={cheltenham} alt="Inside the Fizz Kidz Cheltenham studio" width={400} sizes="(max-width: 700px) 40vw, 20vw" loading="eager" />
             <figcaption>HAPPY PLACE FOUND!</figcaption>
           </figure>
           <div class="locations-count"><strong>{PUBLIC_STUDIOS.length}</strong><span>studios.<br />so much fun.</span></div>
@@ -87,5 +85,4 @@ const description =
       </div>
     </section>
   </main>
-  <MailingList />
 </Layout>

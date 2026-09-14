@@ -1,9 +1,7 @@
-import 'leaflet/dist/leaflet.css'
-
 import type { PUBLIC_STUDIOS } from '@/utils/studios'
 import type { LatLng, Map as LeafletMap, Marker } from 'leaflet'
 
-type MapStudio = (typeof PUBLIC_STUDIOS)[number] & { colour: string }
+type MapStudio = (typeof PUBLIC_STUDIOS)[number]
 
 class StudioExplorer extends HTMLElement {
     private map?: LeafletMap
@@ -62,6 +60,7 @@ class StudioExplorer extends HTMLElement {
         try {
             const L = await import('leaflet')
             if (signal.aborted) return
+            const studioColour = getComputedStyle(this).getPropertyValue('--studio-colour').trim()
             container.replaceChildren()
             const map = L.map(container, {
                 scrollWheelZoom: false,
@@ -90,7 +89,6 @@ class StudioExplorer extends HTMLElement {
                 this.positions.set(studio.slug, L.latLng(studio.coordinates[0], studio.coordinates[1]))
                 const pin = document.createElement('span')
                 pin.className = 'studio-pin'
-                pin.style.setProperty('--studio-colour', studio.colour)
                 pin.style.setProperty('--pin-delay', `${index * 100}ms`)
                 const face = document.createElement('span')
                 face.className = 'studio-pin-face'
@@ -197,7 +195,7 @@ class StudioExplorer extends HTMLElement {
                     this.markers.get(studio.slug)!.setLatLng(position)
                     if (point.distanceTo(origin) > 5) {
                         L.polyline([anchor, position], {
-                            color: studio.colour,
+                            color: studioColour,
                             weight: 2,
                             opacity: 0.8,
                             dashArray: '4 5',
@@ -207,7 +205,7 @@ class StudioExplorer extends HTMLElement {
                             radius: 4,
                             color: 'white',
                             weight: 2,
-                            fillColor: studio.colour,
+                            fillColor: studioColour,
                             fillOpacity: 1,
                             interactive: false,
                         }).addTo(leaders)
@@ -217,9 +215,6 @@ class StudioExplorer extends HTMLElement {
             map.on('moveend zoomend', arrangePins)
             arrangePins()
 
-            const reset = this.querySelector<HTMLButtonElement>('[data-reset]')!
-            reset.hidden = false
-            reset.addEventListener('click', showAll, { signal })
             this.resizeObserver = new ResizeObserver(() => {
                 map.invalidateSize()
                 showAll()
