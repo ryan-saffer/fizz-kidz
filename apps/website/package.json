@@ -8,6 +8,7 @@
     },
     "scripts": {
         "check": "astro check",
+        "test:gtm": "node --test src/layout/google-tag-manager.test.mjs",
         "dev": "astro dev --mode dev",
         "dev:local": "astro dev --mode emulator",
         "dev:prod": "astro dev --mode prod",

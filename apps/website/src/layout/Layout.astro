@@ -6,6 +6,8 @@ import RecallBanner from "@/layout/recall-banner.astro";
 import { ClientRouter } from "astro:transitions";
 import LoadingIndicator from "astro-loading-indicator/component";
 import { absoluteUrl, createSchemaGraph, type JsonLd } from "@/utils/seo";
+import lilitaFontUrl from "@fizz-kidz/ui/assets/fonts/LilitaOne.woff2?url";
+import googleTagManagerScript from "./google-tag-manager.js?raw";
 
 type Props = {
   title: string;
@@ -36,42 +38,17 @@ const schemaGraph = createSchemaGraph({
   }
 </style>
 
-<script is:inline>
-  /**
-   * This allows navigation directly to a hash route, where it will smoothly scroll after arriving on the page.
-   */
-  document.addEventListener("astro:page-load", () => {
-    if (window.location.hash) {
-      const target = document.querySelector(window.location.hash);
-      if (target) {
-        setTimeout(() => {
-          target.scrollIntoView({ behavior: "smooth" });
-        }, 100); // A slight delay to ensure the page has fully loaded
-      }
-    }
-  });
-</script>
-
 <html lang="en-AU" transition:animate="none" class="h-full">
   <head>
-    <!-- Google Tag Manager -->
-    <script is:inline>
-      (function (w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-        var f = d.getElementsByTagName(s)[0],
-          j = d.createElement(s),
-          dl = l != "dataLayer" ? "&l=" + l : "";
-        j.async = true;
-        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
-      })(window, document, "script", "dataLayer", "GTM-NBCZ5XHQ");
-    </script>
-    <!-- End Google Tag Manager -->
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="preload" href={lilitaFontUrl} as="font" type="font/woff2" crossorigin="anonymous" />
+    <slot name="head" />
+    <!-- Google Tag Manager -->
+    <script is:inline set:html={googleTagManagerScript} />
+    <!-- End Google Tag Manager -->
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -100,16 +77,16 @@ const schemaGraph = createSchemaGraph({
       )
     }
 
-    <slot name="head" />
     <ClientRouter />
   </head>
 
-  <LoadingIndicator color="#9044E2" height="3px" threshold={400} />
   <body class="flex flex-col">
+    <LoadingIndicator color="#9044E2" height="3px" threshold={400} />
     <!-- Google Tag Manager (noscript) -->
     <noscript
       ><iframe
         src="https://www.googletagmanager.com/ns.html?id=GTM-NBCZ5XHQ"
+        title="Google Tag Manager"
         height="0"
         width="0"
         style="display:none;visibility:hidden"></iframe></noscript
@@ -143,5 +120,17 @@ const schemaGraph = createSchemaGraph({
       <slot class="flex-1" />
     </div>
     <Footer />
+    <script>
+      document.addEventListener("astro:page-load", () => {
+        if (window.location.hash) {
+          const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+          if (target) {
+            setTimeout(() => {
+              target.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+          }
+        }
+      });
+    </script>
   </body>
 </html>

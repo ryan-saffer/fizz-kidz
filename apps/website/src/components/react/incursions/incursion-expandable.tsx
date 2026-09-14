@@ -21,9 +21,9 @@ const IncursionExpandable = ({ position, isMobile, title, incursions, color }: P
                 gridRowEnd: isMobile ? position * 2 : 2,
             }}
         >
-            <h5 className="my-8 font-lilita text-4xl" style={{ color }}>
+            <h3 className="my-8 font-lilita text-4xl" style={{ color }}>
                 {title}
-            </h5>
+            </h3>
             <div className="flex flex-col gap-4 p-4 min-[1000px]:flex-row">
                 {incursions.map((incursion) => (
                     <IncursionExpandableItem

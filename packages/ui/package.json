@@ -9,6 +9,7 @@
         ".": "./src/index.ts",
         "./brand-fonts.css": "./src/brand-fonts.css",
         "./assets/fonts/LilitaOne.ttf": "./src/assets/fonts/LilitaOne.ttf",
+        "./assets/fonts/LilitaOne.woff2": "./src/assets/fonts/LilitaOne.woff2",
         "./tailwind-preset": {
             "types": "./tailwind.preset.d.ts",
             "default": "./tailwind.preset.mjs"
