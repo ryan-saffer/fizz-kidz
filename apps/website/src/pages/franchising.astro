@@ -73,18 +73,11 @@ import FranchisingForm from "@/components/react/forms/franchising-form";
       0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
   }
 </style>
-<script is:inline>
-  const toggleHeaderShadow = () => {
-    document.body.classList.toggle("scrolled", window.scrollY > 10);
-  };
-  window.addEventListener("scroll", toggleHeaderShadow, { passive: true });
-  toggleHeaderShadow();
-</script>
-
 <Layout
   title="Kids Party & Event Franchise Opportunities in Melbourne"
   description="Run your own Fizz Kidz studio, and become a part of the Fizz Family!"
 >
+  <main>
   <div class="relative bg-[#45D3F3]">
     <Image
       class="absolute w-full"
@@ -809,7 +802,7 @@ import FranchisingForm from "@/components/react/forms/franchising-form";
             </p>
           </div>
           <FaqAccordion
-            client:idle
+            client:visible={{ rootMargin: "300px" }}
             items={[
               {
                 question: "Can I find and suggest my own Franchise location?",
@@ -846,7 +839,16 @@ import FranchisingForm from "@/components/react/forms/franchising-form";
           class="text-[#8F44E1]">and we will be in touch!</span
         >
       </p>
-      <FranchisingForm client:idle />
+      <FranchisingForm client:visible={{ rootMargin: "300px" }} />
     </section>
   </div>
+  </main>
+  <script>
+    const toggleHeaderShadow = () => {
+      document.body.classList.toggle("scrolled", window.scrollY > 10);
+    };
+    window.addEventListener("scroll", toggleHeaderShadow, { passive: true });
+    toggleHeaderShadow();
+    document.addEventListener("astro:page-load", toggleHeaderShadow);
+  </script>
 </Layout>

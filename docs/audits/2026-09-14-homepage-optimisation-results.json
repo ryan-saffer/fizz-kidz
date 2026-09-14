@@ -1,0 +1,660 @@
+{
+    "date": "2026-09-14",
+    "scope": "Homepage only; three paired mobile runs and one desktop pair on fresh production builds. Applied DevTools throttling, live GTM/Analytics/Ads, no blocked URLs during scoring.",
+    "runs": [
+        {
+            "stage": "before",
+            "mode": "mobile",
+            "run": 1,
+            "date": "2026-09-14T05:31:57.422Z",
+            "lighthouseVersion": "13.4.1",
+            "settings": {
+                "output": "json",
+                "maxWaitForFcp": 30000,
+                "maxWaitForLoad": 45000,
+                "pauseAfterFcpMs": 5250,
+                "pauseAfterLoadMs": 5250,
+                "networkQuietThresholdMs": 5250,
+                "cpuQuietThresholdMs": 5250,
+                "formFactor": "mobile",
+                "throttling": {
+                    "rttMs": 150,
+                    "throughputKbps": 1638.4,
+                    "requestLatencyMs": 562.5,
+                    "downloadThroughputKbps": 1474.5600000000002,
+                    "uploadThroughputKbps": 675,
+                    "cpuSlowdownMultiplier": 4
+                },
+                "throttlingMethod": "devtools",
+                "screenEmulation": {
+                    "mobile": true,
+                    "width": 412,
+                    "height": 823,
+                    "deviceScaleFactor": 1.75,
+                    "disabled": false
+                },
+                "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+                "auditMode": false,
+                "gatherMode": false,
+                "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"],
+                "disableStorageReset": false,
+                "debugNavigation": false,
+                "channel": "node",
+                "usePassiveGathering": false,
+                "disableFullPageScreenshot": false,
+                "skipAboutBlank": false,
+                "blankPage": "about:blank",
+                "ignoreStatusCode": false,
+                "locale": "en-US",
+                "blockedUrlPatterns": null,
+                "additionalTraceCategories": null,
+                "extraHeaders": null,
+                "precomputedLanternData": null,
+                "onlyAudits": null,
+                "onlyCategories": ["performance", "accessibility", "best-practices", "seo"],
+                "skipAudits": null
+            },
+            "benchmarkIndex": 4106,
+            "scores": {
+                "performance": 78,
+                "accessibility": 96,
+                "best-practices": 77,
+                "seo": 100
+            },
+            "metrics": {
+                "first-contentful-paint": 1594.717,
+                "largest-contentful-paint": 5462.269,
+                "total-blocking-time": 135.76900000000205,
+                "cumulative-layout-shift": 0.0008943403676336491
+            },
+            "gtmStart": 617.7980000972748,
+            "observedLoad": 10574,
+            "hero": [
+                {
+                    "url": "http://127.0.0.1:4401/_astro/girls-masked.D499xVvH_Z2ldRwh.webp",
+                    "bytes": 277021
+                }
+            ],
+            "consoleErrors": []
+        },
+        {
+            "stage": "after",
+            "mode": "mobile",
+            "run": 1,
+            "date": "2026-09-14T05:32:23.877Z",
+            "lighthouseVersion": "13.4.1",
+            "settings": {
+                "output": "json",
+                "maxWaitForFcp": 30000,
+                "maxWaitForLoad": 45000,
+                "pauseAfterFcpMs": 5250,
+                "pauseAfterLoadMs": 5250,
+                "networkQuietThresholdMs": 5250,
+                "cpuQuietThresholdMs": 5250,
+                "formFactor": "mobile",
+                "throttling": {
+                    "rttMs": 150,
+                    "throughputKbps": 1638.4,
+                    "requestLatencyMs": 562.5,
+                    "downloadThroughputKbps": 1474.5600000000002,
+                    "uploadThroughputKbps": 675,
+                    "cpuSlowdownMultiplier": 4
+                },
+                "throttlingMethod": "devtools",
+                "screenEmulation": {
+                    "mobile": true,
+                    "width": 412,
+                    "height": 823,
+                    "deviceScaleFactor": 1.75,
+                    "disabled": false
+                },
+                "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+                "auditMode": false,
+                "gatherMode": false,
+                "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"],
+                "disableStorageReset": false,
+                "debugNavigation": false,
+                "channel": "node",
+                "usePassiveGathering": false,
+                "disableFullPageScreenshot": false,
+                "skipAboutBlank": false,
+                "blankPage": "about:blank",
+                "ignoreStatusCode": false,
+                "locale": "en-US",
+                "blockedUrlPatterns": null,
+                "additionalTraceCategories": null,
+                "extraHeaders": null,
+                "precomputedLanternData": null,
+                "onlyAudits": null,
+                "onlyCategories": ["performance", "accessibility", "best-practices", "seo"],
+                "skipAudits": null
+            },
+            "benchmarkIndex": 4164.5,
+            "scores": {
+                "performance": 95,
+                "accessibility": 96,
+                "best-practices": 77,
+                "seo": 100
+            },
+            "metrics": {
+                "first-contentful-paint": 1568.825,
+                "largest-contentful-paint": 2536.624,
+                "total-blocking-time": 128.34299975585964,
+                "cumulative-layout-shift": 0.0008943403676336491
+            },
+            "gtmStart": 3827.5999999046326,
+            "observedLoad": 3810,
+            "hero": [
+                {
+                    "url": "http://127.0.0.1:4402/_astro/girls-masked.D499xVvH_4q9xc.avif",
+                    "bytes": 131208
+                }
+            ],
+            "consoleErrors": []
+        },
+        {
+            "stage": "before",
+            "mode": "mobile",
+            "run": 2,
+            "date": "2026-09-14T05:32:55.591Z",
+            "lighthouseVersion": "13.4.1",
+            "settings": {
+                "output": "json",
+                "maxWaitForFcp": 30000,
+                "maxWaitForLoad": 45000,
+                "pauseAfterFcpMs": 5250,
+                "pauseAfterLoadMs": 5250,
+                "networkQuietThresholdMs": 5250,
+                "cpuQuietThresholdMs": 5250,
+                "formFactor": "mobile",
+                "throttling": {
+                    "rttMs": 150,
+                    "throughputKbps": 1638.4,
+                    "requestLatencyMs": 562.5,
+                    "downloadThroughputKbps": 1474.5600000000002,
+                    "uploadThroughputKbps": 675,
+                    "cpuSlowdownMultiplier": 4
+                },
+                "throttlingMethod": "devtools",
+                "screenEmulation": {
+                    "mobile": true,
+                    "width": 412,
+                    "height": 823,
+                    "deviceScaleFactor": 1.75,
+                    "disabled": false
+                },
+                "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+                "auditMode": false,
+                "gatherMode": false,
+                "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"],
+                "disableStorageReset": false,
+                "debugNavigation": false,
+                "channel": "node",
+                "usePassiveGathering": false,
+                "disableFullPageScreenshot": false,
+                "skipAboutBlank": false,
+                "blankPage": "about:blank",
+                "ignoreStatusCode": false,
+                "locale": "en-US",
+                "blockedUrlPatterns": null,
+                "additionalTraceCategories": null,
+                "extraHeaders": null,
+                "precomputedLanternData": null,
+                "onlyAudits": null,
+                "onlyCategories": ["performance", "accessibility", "best-practices", "seo"],
+                "skipAudits": null
+            },
+            "benchmarkIndex": 4167.5,
+            "scores": {
+                "performance": 77,
+                "accessibility": 96,
+                "best-practices": 77,
+                "seo": 100
+            },
+            "metrics": {
+                "first-contentful-paint": 1647.97,
+                "largest-contentful-paint": 5441.246,
+                "total-blocking-time": 142.89999999999782,
+                "cumulative-layout-shift": 0.0008839662377364703
+            },
+            "gtmStart": 607.6219999790192,
+            "observedLoad": 10948,
+            "hero": [
+                {
+                    "url": "http://127.0.0.1:4401/_astro/girls-masked.D499xVvH_Z2ldRwh.webp",
+                    "bytes": 277021
+                }
+            ],
+            "consoleErrors": []
+        },
+        {
+            "stage": "after",
+            "mode": "mobile",
+            "run": 2,
+            "date": "2026-09-14T05:33:22.227Z",
+            "lighthouseVersion": "13.4.1",
+            "settings": {
+                "output": "json",
+                "maxWaitForFcp": 30000,
+                "maxWaitForLoad": 45000,
+                "pauseAfterFcpMs": 5250,
+                "pauseAfterLoadMs": 5250,
+                "networkQuietThresholdMs": 5250,
+                "cpuQuietThresholdMs": 5250,
+                "formFactor": "mobile",
+                "throttling": {
+                    "rttMs": 150,
+                    "throughputKbps": 1638.4,
+                    "requestLatencyMs": 562.5,
+                    "downloadThroughputKbps": 1474.5600000000002,
+                    "uploadThroughputKbps": 675,
+                    "cpuSlowdownMultiplier": 4
+                },
+                "throttlingMethod": "devtools",
+                "screenEmulation": {
+                    "mobile": true,
+                    "width": 412,
+                    "height": 823,
+                    "deviceScaleFactor": 1.75,
+                    "disabled": false
+                },
+                "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+                "auditMode": false,
+                "gatherMode": false,
+                "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"],
+                "disableStorageReset": false,
+                "debugNavigation": false,
+                "channel": "node",
+                "usePassiveGathering": false,
+                "disableFullPageScreenshot": false,
+                "skipAboutBlank": false,
+                "blankPage": "about:blank",
+                "ignoreStatusCode": false,
+                "locale": "en-US",
+                "blockedUrlPatterns": null,
+                "additionalTraceCategories": null,
+                "extraHeaders": null,
+                "precomputedLanternData": null,
+                "onlyAudits": null,
+                "onlyCategories": ["performance", "accessibility", "best-practices", "seo"],
+                "skipAudits": null
+            },
+            "benchmarkIndex": 4044,
+            "scores": {
+                "performance": 96,
+                "accessibility": 96,
+                "best-practices": 77,
+                "seo": 100
+            },
+            "metrics": {
+                "first-contentful-paint": 1539.282,
+                "largest-contentful-paint": 2376.105,
+                "total-blocking-time": 136.6830000000009,
+                "cumulative-layout-shift": 0.0008943403676336491
+            },
+            "gtmStart": 5036.341999769211,
+            "observedLoad": 3627,
+            "hero": [
+                {
+                    "url": "http://127.0.0.1:4402/_astro/girls-masked.D499xVvH_4q9xc.avif",
+                    "bytes": 131208
+                }
+            ],
+            "consoleErrors": []
+        },
+        {
+            "stage": "before",
+            "mode": "mobile",
+            "run": 3,
+            "date": "2026-09-14T05:33:54.916Z",
+            "lighthouseVersion": "13.4.1",
+            "settings": {
+                "output": "json",
+                "maxWaitForFcp": 30000,
+                "maxWaitForLoad": 45000,
+                "pauseAfterFcpMs": 5250,
+                "pauseAfterLoadMs": 5250,
+                "networkQuietThresholdMs": 5250,
+                "cpuQuietThresholdMs": 5250,
+                "formFactor": "mobile",
+                "throttling": {
+                    "rttMs": 150,
+                    "throughputKbps": 1638.4,
+                    "requestLatencyMs": 562.5,
+                    "downloadThroughputKbps": 1474.5600000000002,
+                    "uploadThroughputKbps": 675,
+                    "cpuSlowdownMultiplier": 4
+                },
+                "throttlingMethod": "devtools",
+                "screenEmulation": {
+                    "mobile": true,
+                    "width": 412,
+                    "height": 823,
+                    "deviceScaleFactor": 1.75,
+                    "disabled": false
+                },
+                "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+                "auditMode": false,
+                "gatherMode": false,
+                "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"],
+                "disableStorageReset": false,
+                "debugNavigation": false,
+                "channel": "node",
+                "usePassiveGathering": false,
+                "disableFullPageScreenshot": false,
+                "skipAboutBlank": false,
+                "blankPage": "about:blank",
+                "ignoreStatusCode": false,
+                "locale": "en-US",
+                "blockedUrlPatterns": null,
+                "additionalTraceCategories": null,
+                "extraHeaders": null,
+                "precomputedLanternData": null,
+                "onlyAudits": null,
+                "onlyCategories": ["performance", "accessibility", "best-practices", "seo"],
+                "skipAudits": null
+            },
+            "benchmarkIndex": 4055,
+            "scores": {
+                "performance": 83,
+                "accessibility": 96,
+                "best-practices": 77,
+                "seo": 100
+            },
+            "metrics": {
+                "first-contentful-paint": 1562.201,
+                "largest-contentful-paint": 4422.43,
+                "total-blocking-time": 140.9200000000019,
+                "cumulative-layout-shift": 0.0008943403676336491
+            },
+            "gtmStart": 5332.615000009537,
+            "observedLoad": 13373,
+            "hero": [
+                {
+                    "url": "http://127.0.0.1:4401/_astro/girls-masked.D499xVvH_Z2ldRwh.webp",
+                    "bytes": 277021
+                }
+            ],
+            "consoleErrors": []
+        },
+        {
+            "stage": "after",
+            "mode": "mobile",
+            "run": 3,
+            "date": "2026-09-14T05:34:24.022Z",
+            "lighthouseVersion": "13.4.1",
+            "settings": {
+                "output": "json",
+                "maxWaitForFcp": 30000,
+                "maxWaitForLoad": 45000,
+                "pauseAfterFcpMs": 5250,
+                "pauseAfterLoadMs": 5250,
+                "networkQuietThresholdMs": 5250,
+                "cpuQuietThresholdMs": 5250,
+                "formFactor": "mobile",
+                "throttling": {
+                    "rttMs": 150,
+                    "throughputKbps": 1638.4,
+                    "requestLatencyMs": 562.5,
+                    "downloadThroughputKbps": 1474.5600000000002,
+                    "uploadThroughputKbps": 675,
+                    "cpuSlowdownMultiplier": 4
+                },
+                "throttlingMethod": "devtools",
+                "screenEmulation": {
+                    "mobile": true,
+                    "width": 412,
+                    "height": 823,
+                    "deviceScaleFactor": 1.75,
+                    "disabled": false
+                },
+                "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+                "auditMode": false,
+                "gatherMode": false,
+                "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"],
+                "disableStorageReset": false,
+                "debugNavigation": false,
+                "channel": "node",
+                "usePassiveGathering": false,
+                "disableFullPageScreenshot": false,
+                "skipAboutBlank": false,
+                "blankPage": "about:blank",
+                "ignoreStatusCode": false,
+                "locale": "en-US",
+                "blockedUrlPatterns": null,
+                "additionalTraceCategories": null,
+                "extraHeaders": null,
+                "precomputedLanternData": null,
+                "onlyAudits": null,
+                "onlyCategories": ["performance", "accessibility", "best-practices", "seo"],
+                "skipAudits": null
+            },
+            "benchmarkIndex": 4099,
+            "scores": {
+                "performance": 96,
+                "accessibility": 96,
+                "best-practices": 77,
+                "seo": 100
+            },
+            "metrics": {
+                "first-contentful-paint": 1546.051,
+                "largest-contentful-paint": 2353.774,
+                "total-blocking-time": 144.1750000000011,
+                "cumulative-layout-shift": 0.0008943403676336491
+            },
+            "gtmStart": 5007.642999887466,
+            "observedLoad": 3619,
+            "hero": [
+                {
+                    "url": "http://127.0.0.1:4402/_astro/girls-masked.D499xVvH_4q9xc.avif",
+                    "bytes": 131208
+                }
+            ],
+            "consoleErrors": []
+        },
+        {
+            "stage": "before",
+            "mode": "desktop",
+            "run": 1,
+            "date": "2026-09-14T05:34:56.638Z",
+            "lighthouseVersion": "13.4.1",
+            "settings": {
+                "output": "json",
+                "maxWaitForFcp": 30000,
+                "maxWaitForLoad": 45000,
+                "pauseAfterFcpMs": 5250,
+                "pauseAfterLoadMs": 5250,
+                "networkQuietThresholdMs": 5250,
+                "cpuQuietThresholdMs": 5250,
+                "formFactor": "desktop",
+                "throttling": {
+                    "rttMs": 40,
+                    "throughputKbps": 10240,
+                    "requestLatencyMs": 0,
+                    "downloadThroughputKbps": 0,
+                    "uploadThroughputKbps": 0,
+                    "cpuSlowdownMultiplier": 1
+                },
+                "throttlingMethod": "devtools",
+                "screenEmulation": {
+                    "mobile": false,
+                    "width": 1350,
+                    "height": 940,
+                    "deviceScaleFactor": 1,
+                    "disabled": false
+                },
+                "emulatedUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+                "auditMode": false,
+                "gatherMode": false,
+                "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"],
+                "disableStorageReset": false,
+                "debugNavigation": false,
+                "channel": "node",
+                "usePassiveGathering": false,
+                "disableFullPageScreenshot": false,
+                "skipAboutBlank": false,
+                "blankPage": "about:blank",
+                "ignoreStatusCode": false,
+                "locale": "en-US",
+                "blockedUrlPatterns": null,
+                "additionalTraceCategories": null,
+                "extraHeaders": null,
+                "precomputedLanternData": null,
+                "onlyAudits": null,
+                "onlyCategories": ["performance", "accessibility", "best-practices", "seo"],
+                "skipAudits": null
+            },
+            "benchmarkIndex": 4148.5,
+            "scores": {
+                "performance": 100,
+                "accessibility": 96,
+                "best-practices": 77,
+                "seo": 100
+            },
+            "metrics": {
+                "first-contentful-paint": 56.569,
+                "largest-contentful-paint": 56.569,
+                "total-blocking-time": 0,
+                "cumulative-layout-shift": 0.005875199157983829
+            },
+            "gtmStart": 17.015999794006348,
+            "observedLoad": 909,
+            "hero": [
+                {
+                    "url": "http://127.0.0.1:4401/_astro/girls-masked.D499xVvH_Z4WQ9X.webp",
+                    "bytes": 178719
+                }
+            ],
+            "consoleErrors": []
+        },
+        {
+            "stage": "after",
+            "mode": "desktop",
+            "run": 1,
+            "date": "2026-09-14T05:35:17.979Z",
+            "lighthouseVersion": "13.4.1",
+            "settings": {
+                "output": "json",
+                "maxWaitForFcp": 30000,
+                "maxWaitForLoad": 45000,
+                "pauseAfterFcpMs": 5250,
+                "pauseAfterLoadMs": 5250,
+                "networkQuietThresholdMs": 5250,
+                "cpuQuietThresholdMs": 5250,
+                "formFactor": "desktop",
+                "throttling": {
+                    "rttMs": 40,
+                    "throughputKbps": 10240,
+                    "requestLatencyMs": 0,
+                    "downloadThroughputKbps": 0,
+                    "uploadThroughputKbps": 0,
+                    "cpuSlowdownMultiplier": 1
+                },
+                "throttlingMethod": "devtools",
+                "screenEmulation": {
+                    "mobile": false,
+                    "width": 1350,
+                    "height": 940,
+                    "deviceScaleFactor": 1,
+                    "disabled": false
+                },
+                "emulatedUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+                "auditMode": false,
+                "gatherMode": false,
+                "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"],
+                "disableStorageReset": false,
+                "debugNavigation": false,
+                "channel": "node",
+                "usePassiveGathering": false,
+                "disableFullPageScreenshot": false,
+                "skipAboutBlank": false,
+                "blankPage": "about:blank",
+                "ignoreStatusCode": false,
+                "locale": "en-US",
+                "blockedUrlPatterns": null,
+                "additionalTraceCategories": null,
+                "extraHeaders": null,
+                "precomputedLanternData": null,
+                "onlyAudits": null,
+                "onlyCategories": ["performance", "accessibility", "best-practices", "seo"],
+                "skipAudits": null
+            },
+            "benchmarkIndex": 4154.5,
+            "scores": {
+                "performance": 100,
+                "accessibility": 96,
+                "best-practices": 77,
+                "seo": 100
+            },
+            "metrics": {
+                "first-contentful-paint": 65.365,
+                "largest-contentful-paint": 65.365,
+                "total-blocking-time": 0,
+                "cumulative-layout-shift": 0.005875199157983829
+            },
+            "gtmStart": 67.30499982833862,
+            "observedLoad": 54,
+            "hero": [
+                {
+                    "url": "http://127.0.0.1:4402/_astro/girls-masked.D499xVvH_Z1yYhFf.avif",
+                    "bytes": 97929
+                }
+            ],
+            "consoleErrors": []
+        }
+    ],
+    "browserChecks": [
+        "GTM waits for load and idle, preserves queued events, and executes once across navigation during download",
+        "Mobile, high-DPR mobile, and desktop retain text, styles and layout; each downloads one AVIF hero candidate",
+        "Unsupported AVIF selects the WebP fallback without an AVIF preload download"
+    ],
+    "visuals": [
+        {
+            "viewport": {
+                "width": 412,
+                "height": 1100,
+                "deviceScaleFactor": 1.75,
+                "isMobile": true
+            },
+            "maxGeometryDifference": 0.046875,
+            "beforeSource": "http://127.0.0.1:4401/_astro/girls-masked.D499xVvH_Z2ldRwh.webp",
+            "afterSource": "http://127.0.0.1:4402/_astro/girls-masked.D499xVvH_4q9xc.avif"
+        },
+        {
+            "viewport": {
+                "width": 390,
+                "height": 1000,
+                "deviceScaleFactor": 3,
+                "isMobile": true
+            },
+            "maxGeometryDifference": 0,
+            "beforeSource": "http://127.0.0.1:4401/_astro/girls-masked.D499xVvH_29kfIq.webp",
+            "afterSource": "http://127.0.0.1:4402/_astro/girls-masked.D499xVvH_2mJFln.avif"
+        },
+        {
+            "viewport": {
+                "width": 1440,
+                "height": 1100,
+                "deviceScaleFactor": 1
+            },
+            "maxGeometryDifference": 0,
+            "beforeSource": "http://127.0.0.1:4401/_astro/girls-masked.D499xVvH_Z4WQ9X.webp",
+            "afterSource": "http://127.0.0.1:4402/_astro/girls-masked.D499xVvH_14vhy1.avif"
+        }
+    ],
+    "encodingComparison": {
+        "width": 1024,
+        "background": "#4cc5d9",
+        "webp": {
+            "quality": 95,
+            "bytes": 215498,
+            "rgbRmseAgainstOriginal": 3.05
+        },
+        "avif": {
+            "quality": 80,
+            "bytes": 131005,
+            "rgbRmseAgainstOriginal": 1.97
+        }
+    },
+    "rawReports": "/private/var/folders/_7/gtqk0sq97mlc8h8zdmknfbbc0000gn/T/opencode/home-optimisation/reports/"
+}
