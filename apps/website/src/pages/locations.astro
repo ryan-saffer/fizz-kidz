@@ -1,22 +1,14 @@
 ---
-import PageIntro from "@/components/page-intro.astro";
+import { ArrowDown, ArrowRight } from "lucide-react";
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
+import Image from "@/components/image.astro";
+import HomeDecal from "@/components/home/home-decal.astro";
+import StudioExplorer from "@/components/locations/studio-explorer.astro";
 import Layout from "@/layout/Layout.astro";
-import { websitePagesLocationsCheltenhamJpg as cheltenham } from "@/data/website-images";
-import { websitePagesLocationsBalwynJpg as balwyn } from "@/data/website-images";
-import { websitePagesLocationsEssendonJpg as essendon } from "@/data/website-images";
-import { websitePagesLocationsMalvernJpg as malvern } from "@/data/website-images";
-import { websitePagesLocationsKingsvilleJpg as kingsville } from "@/data/website-images";
-import { websitePagesHomeStudioPng as geelong } from "@/data/website-images";
-import { websitePagesHomeEnergyJpg as werribee } from "@/data/website-images";
-import Values from "@/components/values.astro";
-import MailingList from "@/components/mailing-list.astro";
-import CardWithImage from "@/components/card-with-image.astro";
-import { ArrowRight } from "lucide-react";
-import {
-  createBreadcrumbSchema,
-  createLocationsListSchema,
-} from "@/utils/seo";
+import { websitePagesLocationsEssendonJpg as essendon, websitePagesLocationsCheltenhamJpg as cheltenham } from "@/data/website-images";
+import { PUBLIC_STUDIOS } from "@/utils/studios";
+import { createBreadcrumbSchema, createLocationsListSchema } from "@/utils/seo";
+import "@/components/locations/locations.css";
 
 const description =
   "Find Fizz Kidz studios in Balwyn, Cheltenham, Essendon, Geelong, Kingsville, Malvern and Werribee for kids birthday parties, holiday programs and creative activities.";
@@ -33,177 +25,64 @@ const description =
     ]),
   ]}
 >
-  <main class="m-auto block max-w-[1380px] px-5 pt-4">
-    <div class="h-[10px]"></div>
-    <BreadcrumbWrapper
-      items={[{ type: "link", title: "Locations", path: "/locations/" }]}
-    />
-    <PageIntro
-      subtitle="Find a studio near you!"
-      type="image"
-      image={essendon}
-      imageAlt="The interior of a Fizz Kids studio"
-      color="blue"
-      actionButtonPath="/contact-us/#contact"
-      actionButtonText="Contact us"
-    >
-      <span slot="title">Fizz Kidz Locations</span>
-    </PageIntro>
-    <section class="my-12 md:my-32">
-      <h4 class="mb-16 text-center font-lilita text-5xl text-[#8BC34B]">
-        Our studios are the heart of Fizz Kidz.
-      </h4>
-      <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <a href="/locations/balwyn">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={balwyn}
-            imageAlt="Fizz kids balwyn studio"
-          >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Balwyn</p>
-              <p class="mb-5 font-lilita text-xl">
-                184 Whitehorse Rd, Balwyn VIC 3103
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/cheltenham">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={cheltenham}
-            imageAlt="Fizz kids cheltenham studio"
-          >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Cheltenham</p>
-              <p class="mb-5 font-lilita text-xl">
-                273 Bay Rd, Cheltenham VIC 3192
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/essendon">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={essendon}
-            imageAlt="Fizz kids essendon studio"
-          >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Essendon</p>
-              <p class="mb-5 font-lilita text-xl">
-                75 Raleigh St, Essendon VIC 3040
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/geelong">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={geelong}
-            imageAlt="Children enjoying activities at a Fizz Kidz studio"
-          >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Geelong</p>
-              <p class="mb-5 font-lilita text-xl">
-                352 Pakington St, Newtown VIC 3220
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/kingsville">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={kingsville}
-            imageAlt="Fizz kids kingsville studio"
-          >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Kingsville</p>
-              <p class="mb-5 font-lilita text-xl">
-                238 Somerville Rd, Kingsville VIC 3012
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/malvern">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={malvern}
-            imageAlt="Fizz kids malvern studio"
-          >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Malvern</p>
-              <p class="mb-5 font-lilita text-xl">
-                20 Glenferrie Rd, Malvern VIC 3144
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
-        <a href="/locations/werribee">
-          <CardWithImage
-            className="group h-full w-full cursor-pointer"
-            image={werribee}
-            imageAlt="A child enjoying a creative Fizz Kidz activity"
-          >
-            <div
-              slot="content"
-              class="p-8 group-hover:cursor-pointer group-hover:bg-gray-50"
-            >
-              <p class="mb-2 font-lilita text-4xl text-[#9044E2]">Werribee</p>
-              <p class="mb-5 font-lilita text-xl">
-                T5, Harpley Town Center, Bradfield St, Werribee VIC 3030
-              </p>
-              <div class="flex items-center gap-2">
-                <p>Learn more</p>
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </div>
-          </CardWithImage>
-        </a>
+  <main class="locations-page">
+    <section class="locations-hero" aria-labelledby="locations-heading">
+      <div class="locations-breadcrumb locations-container">
+        <BreadcrumbWrapper items={[{ type: "link", title: "Locations", path: "/locations/" }]} />
+      </div>
+      <div class="locations-hero-inner locations-container">
+        <div class="locations-hero-copy">
+          <p class="locations-eyebrow">OUR LOCATIONS · MELBOURNE &amp; GEELONG</p>
+          <h1 id="locations-heading">Big fun.<br />Local <span>fizz.</span></h1>
+          <p>A little slime. A lot of smiles. Find your local Fizz Kidz studio and come make something awesome.</p>
+          <a class="locations-button" href="#studio-explorer">Find your studio <ArrowDown size={18} aria-hidden="true" /></a>
+        </div>
+        <div class="locations-collage">
+          <div class="locations-photo-blob" aria-hidden="true"></div>
+          <figure class="locations-studio-photo">
+            <Image src={essendon} alt="Colourful party tables and creative spaces inside Fizz Kidz Essendon" width={850} sizes="(max-width: 700px) 85vw, 44vw" loading="eager" fetchpriority="high" />
+          </figure>
+          <figure class="locations-party-photo">
+            <Image src={cheltenham} alt="Inside the Fizz Kidz Cheltenham studio" width={400} sizes="(max-width: 700px) 40vw, 20vw" loading="eager" />
+            <figcaption>HAPPY PLACE FOUND!</figcaption>
+          </figure>
+          <div class="locations-count"><strong>{PUBLIC_STUDIOS.length}</strong><span>studios.<br />so much fun.</span></div>
+          <HomeDecal kind="bolt" class="locations-bolt" />
+          <HomeDecal kind="smile" class="locations-smile" />
+          <svg class="locations-doodle" viewBox="0 0 180 100" fill="none" aria-hidden="true"><path d="M5 30C70-5 112 18 93 46S28 45 63 22 143 28 162 78m-25-8 28 12 9-30" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </div>
+      </div>
+      <svg class="locations-wave" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 35Q220 0 480 35T960 35T1440 35V70H0Z" fill="#fff9ed" /></svg>
+    </section>
+
+    <section class="locations-explore" id="studio-explorer" aria-labelledby="explorer-heading">
+      <div class="locations-container">
+        <div class="locations-section-heading">
+          <div>
+            <p class="locations-eyebrow">PICK YOUR HAPPY PLACE</p>
+            <h2 id="explorer-heading">Where will you <span>fizz?</span></h2>
+          </div>
+          <p>Seven studios, each with its own personality.<br class="hidden md:block" /> Tap a location and take a peek inside.</p>
+        </div>
+        <StudioExplorer />
+        <p class="locations-map-note">Big celebrations, school holiday adventures and everyday creativity, closer to home.</p>
       </div>
     </section>
-    <Values />
+
+    <section class="locations-next" aria-labelledby="locations-next-heading">
+      <div class="locations-container locations-next-inner">
+        <HomeDecal kind="jar" class="locations-jar" />
+        <div>
+          <p class="locations-eyebrow">YOU BRING THE KIDS. WE BRING THE FIZZ.</p>
+          <h2 id="locations-next-heading">Found your spot?<br /><span>Let's make some memories.</span></h2>
+          <p>Birthday candles or school holiday creations? There's plenty of fun waiting at your local studio.</p>
+          <div class="locations-next-actions">
+            <a class="locations-button locations-button-yellow" href="/birthday-parties/">Explore birthday parties <ArrowRight size={18} aria-hidden="true" /></a>
+            <a class="locations-text-link" href="/holiday-programs/">Find a holiday program <ArrowRight size={18} aria-hidden="true" /></a>
+          </div>
+        </div>
+        <HomeDecal kind="cloud" class="locations-cloud" />
+      </div>
+    </section>
   </main>
-  <MailingList />
 </Layout>
