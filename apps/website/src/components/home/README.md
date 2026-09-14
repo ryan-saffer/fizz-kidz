@@ -2,7 +2,7 @@
 
 `home-intro.astro` renders the approved option 09 hero on `/`. `home-services.astro` owns the six service cards and their descriptions; `home-decal.astro` owns the decorative SVG artwork. `home-intro.css` scopes the introduction's styles and responsive layout. The rest of the homepage is composed in `pages/index.astro`, using the shared site navigation and footer from `Layout.astro`.
 
-The hero uses blue `#4CC5D9`, pink `#E91571`, yellow `#FDDC5D`, green `#50B47E` and the existing purple. Both supporting paragraphs use deep navy for contrast; the pink shape stays above the copy on mobile. The girls are the supplied `assets/images/pages/home/girls-masked.png`. The Polaroid is the published Sanity Website image with key `home-polaroid`, resolved through `data/website-images.ts`. Both use the existing responsive Image component. Permanent Marker is self-hosted under `assets/fonts/permanent-marker`, with its Apache 2.0 license.
+The hero uses blue `#4CC5D9`, pink `#E91571`, yellow `#FDDC5D`, green `#50B47E` and the existing purple. Both supporting paragraphs use deep navy for contrast; the pink shape stays above the copy on mobile. The girls are the supplied `assets/images/pages/home/girls-masked.png`, served through a picture element with AVIF and the existing responsive Image component as its WebP fallback. The Polaroid uses the responsive Image component and the published Sanity Website image with key `home-polaroid`, resolved through `data/website-images.ts`. Permanent Marker is self-hosted under `assets/fonts/permanent-marker`, with its Apache 2.0 license.
 
 ## Animation
 
@@ -16,9 +16,11 @@ The custom element cleans up timers and listeners on disconnection and initializ
 
 ## Services
 
-Hero CTA labels are 14px on desktop and 12px on smaller screens. The desktop hero is 710px tall; the mobile composition is 730px tall. The girls' responsive image uses quality 95 and includes the full source resolution. The Polaroid is 21% wide on desktop, 24% on tablets and 36% on mobile, with matching responsive image sizes. A white wave with a soft lavender edge sits above the entire hero artwork to cut a clean curved boundary into the services. It is 80px high on desktop and 50px on mobile. The Polaroid has a pale outline and soft shadow so its frame stays distinct against that white edge.
+Hero CTA labels are 14px on desktop and 12px on smaller screens. The desktop hero is 710px tall; the mobile composition is 730px tall. The girls' responsive image uses AVIF quality 80 with a quality-95 WebP fallback. Its widths include 550px for a 1x mobile display, 1024px for Lighthouse's 1.75x mobile profile, 1100px for 2x, and the full 1332px source for higher-density displays. The AVIF-only preload shares the picture source's exact srcset and sizes; adding a WebP preload as well would download both formats in browsers supporting AVIF. The picture wrapper uses `display: contents` to preserve the existing absolute positioning. The Polaroid is 21% wide on desktop, 24% on tablets and 36% on mobile, with matching responsive image sizes. A white wave with a soft lavender edge sits above the entire hero artwork to cut a clean curved boundary into the services. It is 80px high on desktop and 50px on mobile. The Polaroid has a pale outline and soft shadow so its frame stays distinct against that white edge.
 
 "Find your fizz" is centred in purple and pink Lilita, 72px on desktop and 44px on mobile. Cards lead with the service name, followed by a 20px "let's" line and a 16px description. Preschool uses "let's make" and franchising uses "let's grow". Card image areas are taller than the prototype: 190px on desktop, 170px on two-column mobile layouts, and 220px on small screens. Navigation arrows use Lucide ArrowRight.
+
+Keep the layout's viewport meta declaration before the image preload. Otherwise, a mobile browser can preload a candidate for its default viewport and then request a second size after applying the viewport declaration. Check this with mobile device emulation enabled, not just a narrow desktop viewport.
 
 ## Development
 

@@ -20,6 +20,12 @@ Publishing an active package triggers the existing Netlify build webhook. A succ
 
 Website forms use the Zod schemas, inferred payload types, and select options exported from `@fizz-kidz/core` in `packages/core/src/website/website-forms.ts`. Submit active forms through `src/utils/website-forms.ts`; it dynamically imports the vanilla tRPC client on first submission, keeping tRPC out of the initial island bundle while preserving end-to-end input, output, and error typing.
 
+## Google Tag Manager
+
+`src/layout/google-tag-manager.js` is embedded inline by `Layout.astro`. It creates `window.dataLayer` immediately so form events can queue, then requests GTM after the window's `load` event and an idle callback. The idle callback has a two-second timeout; browsers without that API use a deferred timer after load. A window-level guard prevents duplicate scheduling across Astro navigation, including navigation while the download is pending.
+
+Very short visits and automatic interactions before GTM starts can be missed. Explicit `dataLayer` events stay queued. This changes loading order, not the container's Analytics or Ads configuration. Run the loader tests with `npm run test:gtm --workspace website`.
+
 ## Less Static Than It Looks
 
 - `src/pages/api/uploadthing.ts` handles uploads.
@@ -61,6 +67,8 @@ Append route paths to audit a subset. The script uses Lighthouse 13.4.1 through 
 The default throttling method is Lighthouse's `simulate`. Set `LIGHTHOUSE_THROTTLING_METHOD=devtools` to apply the network and CPU limits during loading. Use the same method for both sides of a comparison. Applied throttling avoids the font/first-paint modelling artefact observed when auditing these builds on an unthrottled localhost server.
 
 The [September 2026 audit](../../docs/audits/2026-09-14-lighthouse.md) records the scores, appearance-preserving fixes and remaining gaps.
+
+The [homepage follow-up](../../docs/audits/2026-09-14-homepage-optimisation.md) measures deferred GTM loading and the responsive AVIF hero with three paired mobile runs.
 
 ## SEO Data
 

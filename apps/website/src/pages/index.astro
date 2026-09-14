@@ -2,8 +2,7 @@
 import Layout from "@/layout/Layout.astro";
 import Image from "@/components/image.astro";
 import HomeIntro from "@/components/home/home-intro.astro";
-import { getImage } from "astro:assets";
-import { homeHeroImage } from "@/components/home/home-hero-image";
+import { homeHeroAvif, homeHeroImage } from "@/components/home/home-hero-image";
 import { websitePagesHomeStudioPng as studio } from "@/data/website-images";
 import fizzFansBgTop from "@/assets/images/pages/home/fizz-fans-bg-top.svg";
 import fizzFansBgBottom from "@/assets/images/pages/home/fizz-fans-bg-bottom.svg";
@@ -28,7 +27,6 @@ import { getGoogleReviews } from "@/utils/google-reviews-api-client";
 import { partyReviewFallbacks } from "@/utils/review-fallbacks";
 
 const googleReviews = await getGoogleReviews(12);
-const heroPreload = await getImage(homeHeroImage);
 const reviews = googleReviews.length >= 5 ? googleReviews : partyReviewFallbacks;
 const locations = [
   { icon: location1, location: "Balwyn" },
@@ -45,7 +43,7 @@ const locations = [
   title="Fizz Kidz | Kids Parties, Programs & Events in Victoria"
   description="Fizz Kidz offers studio parties and kids programs in Melbourne and Geelong, plus school incursions and event activations delivered across Australia."
 >
-  <link slot="head" rel="preload" as="image" href={heroPreload.src} imagesrcset={heroPreload.srcSet.attribute} imagesizes={homeHeroImage.sizes} fetchpriority="high" />
+  <link slot="head" rel="preload" as="image" type="image/avif" href={homeHeroAvif.src} imagesrcset={homeHeroAvif.srcSet.attribute} imagesizes={homeHeroImage.sizes} fetchpriority="high" />
   <main>
     <HomeIntro />
     <section class="m-auto mt-12 block max-w-[1380px] px-5">
