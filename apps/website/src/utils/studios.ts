@@ -9,6 +9,7 @@ export const PUBLIC_STUDIOS = [
         streetAddress: '184 Whitehorse Rd',
         addressLocality: 'Balwyn',
         postalCode: '3103',
+        coordinates: [-37.8122609, 145.0754496],
         image: '/images/studios/balwyn.jpg',
     },
     {
@@ -17,6 +18,7 @@ export const PUBLIC_STUDIOS = [
         streetAddress: '273 Bay Rd',
         addressLocality: 'Cheltenham',
         postalCode: '3192',
+        coordinates: [-37.9549967, 145.0329837],
         image: '/images/studios/cheltenham.jpg',
     },
     {
@@ -25,6 +27,7 @@ export const PUBLIC_STUDIOS = [
         streetAddress: '75 Raleigh St',
         addressLocality: 'Essendon',
         postalCode: '3040',
+        coordinates: [-37.7531407, 144.9186286],
         image: '/images/studios/essendon.jpg',
     },
     {
@@ -33,6 +36,7 @@ export const PUBLIC_STUDIOS = [
         streetAddress: '352 Pakington St',
         addressLocality: 'Newtown',
         postalCode: '3220',
+        coordinates: [-38.1582046, 144.3451842],
     },
     {
         slug: 'kingsville',
@@ -40,6 +44,7 @@ export const PUBLIC_STUDIOS = [
         streetAddress: '238 Somerville Rd',
         addressLocality: 'Kingsville',
         postalCode: '3012',
+        coordinates: [-37.811989, 144.87783],
         image: '/images/studios/kingsville.jpg',
     },
     {
@@ -48,6 +53,7 @@ export const PUBLIC_STUDIOS = [
         streetAddress: '20 Glenferrie Rd',
         addressLocality: 'Malvern',
         postalCode: '3144',
+        coordinates: [-37.8643913, 145.0282103],
         image: '/images/studios/malvern.jpg',
     },
     {
@@ -56,6 +62,7 @@ export const PUBLIC_STUDIOS = [
         streetAddress: 'T5, Harpley Town Center, Bradfield St',
         addressLocality: 'Werribee',
         postalCode: '3030',
+        coordinates: [-37.9114232, 144.6149075],
     },
 ] as const
 
