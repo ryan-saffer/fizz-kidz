@@ -44,9 +44,7 @@
                 <mj-text color="#637381" font-size="16px">
                     This email is to confirm your booking with Fizz Kidz.
                 </mj-text>
-                <mj-text color="#637381" font-size="16px">
-                    {{ emailMessage }}
-                </mj-text>
+                <mj-text color="#637381" font-size="16px"> {{{ emailMessageHtml }}} </mj-text>
             </mj-column>
 
             <mj-column width="100%">
