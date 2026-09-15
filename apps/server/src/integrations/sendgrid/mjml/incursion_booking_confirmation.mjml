@@ -44,9 +44,7 @@
                 <mj-text color="#637381" font-size="14px">
                     We're delighted to confirm your booking. Seriously fun science is coming your way!
                 </mj-text>
-                <mj-text color="#637381" font-size="14px">
-                    {{ emailMessage }}
-                </mj-text>
+                <mj-text color="#637381" font-size="14px"> {{{ emailMessageHtml }}} </mj-text>
             </mj-column>
 
             <mj-column width="50%">

@@ -105,7 +105,16 @@ export class MailClient {
         }
 
         const mjml = fs.readFileSync(templatePath, 'utf-8')
-        const output = Mustache.render(mjml, values)
+        // Escape staff-entered text before adding email-safe line breaks and spacing.
+        // HTML otherwise collapses the paragraphs and indentation from the Portal's textarea.
+        const emailMessageHtml =
+            typeof values.emailMessage === 'string'
+                ? Mustache.escape(values.emailMessage)
+                      .replace(/\t/g, '    ')
+                      .replace(/ {2,}/g, (spaces) => '&nbsp;'.repeat(spaces.length))
+                      .replace(/\r\n|\r|\n/g, '<br />')
+                : undefined
+        const output = Mustache.render(mjml, { ...values, emailMessageHtml })
         if (useMjml) {
             const mjml2html = await import('mjml')
             const mjmlOutput = mjml2html.default(output, { keepComments: false })
