@@ -44,6 +44,14 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
 
     return (
         <>
+            {isOpenDay && (
+                <Alert
+                    type="info"
+                    showIcon
+                    message="Activities are suitable for children aged 4 to 12 years only."
+                    style={{ marginBottom: 16 }}
+                />
+            )}
             <Form.Item name="store" label="Which studio do you want to book for?">
                 <Select value={selectedStudio} onChange={(studio) => setSelectedStudio(studio)}>
                     {(() => {

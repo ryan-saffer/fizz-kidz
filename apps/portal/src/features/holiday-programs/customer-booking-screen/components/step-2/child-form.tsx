@@ -130,8 +130,9 @@ export const ChildForm: React.FC<Props> = ({ form, appointmentTypeId, childNumbe
                 name={[childNumber, 'childAge']}
                 label="Child's date of birth"
                 extra={
-                    appointmentTypeId !== AcuityConstants.AppointmentTypes.OPEN_DAY &&
-                    'The minimum age is 4 years old, and all children must be completely toilet trained 😊'
+                    appointmentTypeId === AcuityConstants.AppointmentTypes.OPEN_DAY
+                        ? 'Activities are suitable for children aged 4 to 12 years only.'
+                        : 'The minimum age is 4 years old, and all children must be completely toilet trained 😊'
                 }
                 rules={[
                     {
