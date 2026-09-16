@@ -41,6 +41,36 @@ function createTimesheet(overrides: Partial<Timesheet> = {}): Timesheet {
 }
 
 describe('minimum shift length report', () => {
+    it('excludes all on-call and PIC positions while reporting worked and unknown positions', () => {
+        const onCallPositions = Object.values(SlingPosition).filter(
+            (position) => position.includes('ON_CALL') || position === 'PIC' || position === 'SUNDAY_PIC'
+        )
+        const result = getShiftsUnderMinimumShiftLengthForTimesheets({
+            studio: 'master',
+            slingUsers: [createSlingUser()],
+            allTimesheets: [
+                ...onCallPositions.map((position) =>
+                    createTimesheet({
+                        position: { id: SlingPositionToId[position] },
+                        dtstart: '2026-04-26T09:00:00+10:00',
+                        dtend: '2026-04-26T10:00:00+10:00',
+                    })
+                ),
+                createTimesheet(),
+                createTimesheet({ position: { id: SlingPositionToId[SlingPosition.CALLED_IN_PARTY_FACILITATOR] } }),
+                createTimesheet({
+                    position: { id: SlingPositionToId[SlingPosition.SUNDAY_CALLED_IN_PARTY_FACILITATOR] },
+                }),
+                createTimesheet({ position: { id: -1 } }),
+            ],
+        })
+
+        deepStrictEqual(
+            result.map((shift) => shift.positionName),
+            ['Called In Party Facilitator', 'Party Facilitator', 'Sunday Called In Party Facilitator', 'Unknown']
+        )
+    })
+
     it('returns under-minimum shifts for master studios and excludes franchise locations', () => {
         const slingUsers = [createSlingUser(), createSlingUser({ id: 2, legalName: 'Taylor', lastname: 'Jones' })]
 
