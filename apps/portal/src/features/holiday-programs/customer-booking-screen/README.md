@@ -25,6 +25,14 @@ Payment supports Apple Pay, Google Pay, card, Square gift card, split gift-card/
 
 Werribee Open Day and **Malvern's 10th Birthday Party!** share `AcuityConstants.AppointmentTypes.OPEN_DAY` (`75381458`). The appointment's `calendarID` selects the confirmation email and canonical studio address: Werribee uses `14046878`, and Malvern uses `3163508`. Dates and times come from the booked appointments. The selected studio determines the Square location for checkout.
 
+## Medical plans
+
+Each child answers the asthma action plan question independently of allergies. Anaphylactic children must upload an anaphylaxis plan; children who require an asthma action plan must upload that plan too. Each upload must be a PDF smaller than 5MB, and checkout validates the required files before taking payment.
+
+Both plans use the existing `anaphylaxisPlans/` Storage namespace. Asthma files have the `holiday-program-asthma-` prefix. The server writes both plan references and their requirement markers into Acuity's existing allergies field. The shared contract in `packages/core/src/holiday-programs/medical-plans.ts` formats and parses this field, including older anaphylaxis URLs.
+
+Attendance shows separate anaphylaxis and asthma indicators and plan buttons. Sign-in requires staff to open and verify each required plan. Authenticated plan endpoints use the shared signer in `apps/server/src/features/medical-plans` to refresh read URLs.
+
 ## Cancellations
 
 The Acuity webhook finds the exact Square line item using the stored order ID and line-item identifier.

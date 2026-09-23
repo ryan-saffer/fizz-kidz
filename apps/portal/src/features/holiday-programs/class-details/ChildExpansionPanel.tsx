@@ -1,15 +1,16 @@
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { styled } from '@mui/material/styles'
 import { useMutation } from '@tanstack/react-query'
-import { Button as AntButton, Collapse, List, Modal, Tag } from 'antd'
+import { Button as AntButton, Collapse, List, Tag } from 'antd'
 import React, { useState } from 'react'
 
 import type { AcuityTypes } from '@fizz-kidz/core'
-import { AcuityConstants, AcuityUtilities } from '@fizz-kidz/core'
+import { AcuityConstants, AcuityUtilities, parseHolidayProgramMedicalDetails } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
-import Loader from '@shared/components/loader'
 import { formatMobileNumber } from '@shared/lib/string-utilities'
+
+import { MedicalPlanDialog, type MedicalPlan } from './medical-plan-dialog'
 
 const PREFIX = 'ChildExpansionPanel'
 
@@ -17,7 +18,7 @@ const classes = {
     panel: `${PREFIX}-panel`,
 }
 
-const anaphylaxisPlanButtonStyle = {
+const medicalPlanButtonStyle = {
     backgroundColor: '#fa541c',
     borderColor: '#fa541c',
     color: 'white',
@@ -39,16 +40,11 @@ const ChildExpansionPanel: React.FC<Props> = ({ appointment: originalAppointment
     const trpc = useTRPC()
     const [appointment, setAppointment] = useState(originalAppointment)
     const [loading, setLoading] = useState(false)
-    const [showAnaphylaxisPrompt, setShowAnaphylaxisPrompt] = useState(false)
-    const [showAnaphylaxisPlan, setShowAnaphylaxisPlan] = useState(false)
-    const [anaphylaxisPlanViewUrl, setAnaphylaxisPlanViewUrl] = useState('')
-    const [allowSignInFromAnaphylaxisPlan, setAllowSignInFromAnaphylaxisPlan] = useState(false)
+    const [planReview, setPlanReview] = useState<{ plans: MedicalPlan[]; signIn: boolean } | null>(null)
 
     const updateLabelMutation = useMutation(trpc.acuity.updateLabel.mutationOptions())
-    const getAnaphylaxisPlanUrlMutation = useMutation(trpc.holidayPrograms.getAnaphylaxisPlanUrl.mutationOptions())
-
-    const notSignedIn = appointment.labels === null
-    const isSignedIn = appointment.labels && appointment.labels[0].id === AcuityConstants.Labels.CHECKED_IN
+    const notSignedIn = !appointment.labels?.length
+    const isSignedIn = appointment.labels?.some((label) => label.id === AcuityConstants.Labels.CHECKED_IN)
 
     const childName = AcuityUtilities.retrieveFormAndField(
         appointment,
@@ -81,10 +77,12 @@ const ChildExpansionPanel: React.FC<Props> = ({ appointment: originalAppointment
         AcuityConstants.Forms.HOLIDAY_PROGRAM_EMERGENCY_CONTACT,
         AcuityConstants.FormFields.EMERGENCY_CONTACT_NUMBER_HP
     )
-    const hasAllergies = allergies !== ''
-    const isAnaphylactic = allergies.includes('Anaphylactic: Yes')
-    const anaphylaxisPlanUrl = allergies.match(/Anaphylaxis plan:\s*(https?:\/\/\S+)/)?.[1] || ''
-    const allergiesWithoutAnaphylaxisPlan = allergies.replace(/\n*\s*Anaphylaxis plan:\s*https?:\/\/\S+/, '').trim()
+    const medicalDetails = parseHolidayProgramMedicalDetails(allergies)
+    const { isAnaphylactic, requiresAsthmaActionPlan, anaphylaxisPlan, asthmaActionPlan } = medicalDetails
+    const hasAllergies = !!medicalDetails.allergies || isAnaphylactic || !!anaphylaxisPlan
+    const medicalPlans: MedicalPlan[] = []
+    if (isAnaphylactic || anaphylaxisPlan) medicalPlans.push({ type: 'anaphylaxis', reference: anaphylaxisPlan })
+    if (requiresAsthmaActionPlan || asthmaActionPlan) medicalPlans.push({ type: 'asthma', reference: asthmaActionPlan })
     const stayingAllDay = appointment.certificate === 'ALLDAY'
 
     const updateLabel = async (value: AcuityTypes.Client.Label) => {
@@ -110,9 +108,8 @@ const ChildExpansionPanel: React.FC<Props> = ({ appointment: originalAppointment
     const handleSignIn = (e: any) => {
         e.stopPropagation()
 
-        if (isAnaphylactic) {
-            setAllowSignInFromAnaphylaxisPlan(true)
-            setShowAnaphylaxisPrompt(true)
+        if (medicalPlans.length) {
+            setPlanReview({ plans: medicalPlans, signIn: true })
             return
         }
 
@@ -141,35 +138,23 @@ const ChildExpansionPanel: React.FC<Props> = ({ appointment: originalAppointment
         )
     }
 
-    const loadAnaphylaxisPlan = async () => {
-        if (!anaphylaxisPlanUrl) {
-            return
-        }
-
-        setAnaphylaxisPlanViewUrl('')
-        setShowAnaphylaxisPlan(true)
-
-        try {
-            const refreshedUrl = await getAnaphylaxisPlanUrlMutation.mutateAsync({ anaphylaxisPlanUrl })
-            setAnaphylaxisPlanViewUrl(refreshedUrl)
-        } catch (err) {
-            console.error(err)
-        }
-    }
-
-    const handleViewAnaphylaxisPlan = () => {
-        setAllowSignInFromAnaphylaxisPlan(false)
-        setShowAnaphylaxisPrompt(true)
-        void loadAnaphylaxisPlan()
-    }
-
     const renderAllergies = () => {
         return (
             <div className="space-y-2">
-                {!!allergiesWithoutAnaphylaxisPlan && renderMultilineWithLinks(allergiesWithoutAnaphylaxisPlan)}
-                {!!anaphylaxisPlanUrl && (
+                {!!medicalDetails.allergies && renderMultilineWithLinks(medicalDetails.allergies)}
+                {isAnaphylactic && <p>Anaphylactic: Yes</p>}
+                {!!anaphylaxisPlan && (
                     <div>
-                        <AntButton size="small" style={anaphylaxisPlanButtonStyle} onClick={handleViewAnaphylaxisPlan}>
+                        <AntButton
+                            size="small"
+                            style={medicalPlanButtonStyle}
+                            onClick={() =>
+                                setPlanReview({
+                                    plans: [{ type: 'anaphylaxis', reference: anaphylaxisPlan }],
+                                    signIn: false,
+                                })
+                            }
+                        >
                             View anaphylaxis plan
                         </AntButton>
                     </div>
@@ -183,6 +168,23 @@ const ChildExpansionPanel: React.FC<Props> = ({ appointment: originalAppointment
             label: 'Allergies',
             value: renderAllergies(),
             render: hasAllergies,
+        },
+        {
+            label: 'Asthma action plan',
+            value: asthmaActionPlan ? (
+                <AntButton
+                    size="small"
+                    style={medicalPlanButtonStyle}
+                    onClick={() =>
+                        setPlanReview({ plans: [{ type: 'asthma', reference: asthmaActionPlan }], signIn: false })
+                    }
+                >
+                    View asthma action plan
+                </AntButton>
+            ) : (
+                'Required, but no plan is attached'
+            ),
+            render: requiresAsthmaActionPlan || !!asthmaActionPlan,
         },
         {
             label: 'Notes',
@@ -229,6 +231,11 @@ const ChildExpansionPanel: React.FC<Props> = ({ appointment: originalAppointment
                         Anaphylactic
                     </Tag>
                 )}
+                {(requiresAsthmaActionPlan || !!asthmaActionPlan) && (
+                    <Tag color="orange" icon={<ExclamationCircleOutlined />}>
+                        Asthma
+                    </Tag>
+                )}
                 {stayingAllDay && <Tag color="geekblue">All Day</Tag>}
                 {!!additionalInfo && <Tag color="magenta">Includes Notes</Tag>}
                 {notSignedIn && (
@@ -242,40 +249,6 @@ const ChildExpansionPanel: React.FC<Props> = ({ appointment: originalAppointment
                 )}
             </div>
         )
-    }
-
-    const handleCloseAnaphylaxisPrompt = () => {
-        setShowAnaphylaxisPrompt(false)
-        setShowAnaphylaxisPlan(false)
-        setAnaphylaxisPlanViewUrl('')
-        setAllowSignInFromAnaphylaxisPlan(false)
-    }
-
-    const renderAnaphylaxisPlan = () => {
-        if (getAnaphylaxisPlanUrlMutation.isPending) {
-            return (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '75vh' }}>
-                    <Loader />
-                </div>
-            )
-        }
-
-        if (!anaphylaxisPlanViewUrl) {
-            return <p>Unable to load the anaphylaxis plan. Please try again.</p>
-        }
-
-        return (
-            <iframe
-                title={`${childName} anaphylaxis plan`}
-                src={anaphylaxisPlanViewUrl}
-                style={{ width: '100%', height: '75vh', border: 0 }}
-            />
-        )
-    }
-
-    const handleVerifyAndSignIn = () => {
-        handleCloseAnaphylaxisPrompt()
-        signIn()
     }
 
     return (
@@ -324,57 +297,21 @@ const ChildExpansionPanel: React.FC<Props> = ({ appointment: originalAppointment
                     },
                 ]}
             />
-            <Modal
-                title={allowSignInFromAnaphylaxisPlan ? 'Anaphylaxis plan verification' : 'Anaphylaxis plan'}
-                open={showAnaphylaxisPrompt}
-                onCancel={handleCloseAnaphylaxisPrompt}
-                width={showAnaphylaxisPlan ? '90vw' : 520}
-                style={showAnaphylaxisPlan ? { top: 24 } : undefined}
-                footer={
-                    showAnaphylaxisPlan
-                        ? allowSignInFromAnaphylaxisPlan
-                            ? [
-                                  <AntButton key="back" onClick={() => setShowAnaphylaxisPlan(false)}>
-                                      Back
-                                  </AntButton>,
-                                  <AntButton
-                                      key="sign-in"
-                                      type="primary"
-                                      loading={loading}
-                                      onClick={handleVerifyAndSignIn}
-                                  >
-                                      Verified and sign in
-                                  </AntButton>,
-                              ]
-                            : [
-                                  <AntButton key="close" type="primary" onClick={handleCloseAnaphylaxisPrompt}>
-                                      Close
-                                  </AntButton>,
-                              ]
-                        : [
-                              <AntButton key="cancel" onClick={handleCloseAnaphylaxisPrompt}>
-                                  Cancel
-                              </AntButton>,
-                              <AntButton
-                                  key="view-plan"
-                                  style={anaphylaxisPlanButtonStyle}
-                                  disabled={!anaphylaxisPlanUrl}
-                                  onClick={() => void loadAnaphylaxisPlan()}
-                              >
-                                  View anaphylaxis plan
-                              </AntButton>,
-                          ]
-                }
-            >
-                {showAnaphylaxisPlan ? (
-                    renderAnaphylaxisPlan()
-                ) : (
-                    <p>
-                        This child is anaphylatic. Please verify their anaphylaxis plan is accurate, and discuss any
-                        issues with the parent.
-                    </p>
-                )}
-            </Modal>
+            {planReview && (
+                <MedicalPlanDialog
+                    childName={childName}
+                    plans={planReview.plans}
+                    onClose={() => setPlanReview(null)}
+                    onVerified={
+                        planReview.signIn
+                            ? () => {
+                                  setPlanReview(null)
+                                  signIn()
+                              }
+                            : undefined
+                    }
+                />
+            )}
         </>
     )
 }

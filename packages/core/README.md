@@ -27,6 +27,8 @@ Shared UI should become a separate package rather than stretching core's contrac
 
 ## Using It
 
+Holiday Program medical-plan labels, upload prefixes, and the Acuity medical-details formatter/parser live in `src/holiday-programs/medical-plans.ts`. Portal uploads, server bookings, and staff attendance share this contract.
+
 `src/index.ts` is the public surface. If another workspace should import something, export it there.
 
 Portal and server both resolve `@fizz-kidz/core` directly to `src`, so normal development needs no package build. The server bundles core into its Functions artifact.
