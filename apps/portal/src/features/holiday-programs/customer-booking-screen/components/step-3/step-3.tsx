@@ -125,6 +125,8 @@ const Step3: React.FC<Props> = ({ form, handleBookingSuccess }) => {
                         childAllergies: child.allergies || '',
                         childIsAnaphylactic: child.isAnaphylactic === 'yes',
                         childAnaphylaxisPlan: child.anaphylaxisPlan?.storagePath || '',
+                        childRequiresAsthmaActionPlan: child.requiresAsthmaActionPlan === 'yes',
+                        childAsthmaActionPlan: child.asthmaActionPlan?.storagePath || '',
                         childAdditionalInfo: child.additionalInfo || '',
                         isAllDayClass: currentCart.sameDayClasses.includes(klass.id),
                         title: klass.title,

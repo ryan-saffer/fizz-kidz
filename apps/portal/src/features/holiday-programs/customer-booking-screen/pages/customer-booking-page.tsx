@@ -54,6 +54,11 @@ export type Form = {
             fileName: string
             storagePath: string
         }
+        requiresAsthmaActionPlan: 'yes' | 'no'
+        asthmaActionPlan?: {
+            fileName: string
+            storagePath: string
+        }
         additionalInfo: string
     }[]
     joinMailingList: boolean
