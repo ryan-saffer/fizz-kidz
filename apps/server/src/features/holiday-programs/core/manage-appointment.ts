@@ -8,6 +8,7 @@ import { sendConfirmationEmail } from './send-confirmation-email'
 
 import { AcuityClient } from '@/integrations/acuity/acuity.client'
 import { mergeAcuityWithSanity } from '@/integrations/acuity/core/merge-sanity-with-acuity'
+import { logError } from '@/integrations/observability/log-error'
 
 type Access = { appointmentId: number; token: string }
 
@@ -99,6 +100,10 @@ export async function rescheduleManagedAppointment(input: Access & { classId: nu
                 message: 'We could not move your booking to that session. Please choose another session.',
             })
         })
-    await sendConfirmationEmail([updated], undefined, true)
+    try {
+        await sendConfirmationEmail([updated], undefined, true)
+    } catch (err) {
+        logError('Error sending holiday program rescheduling confirmation email', err, { appointmentId: updated.id })
+    }
     return presentAppointment(updated)
 }

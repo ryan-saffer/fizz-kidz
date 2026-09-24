@@ -9,8 +9,10 @@ const mocks = vi.hoisted(() => ({
     cancelAppointment: vi.fn(),
     rescheduleAppointment: vi.fn(),
     sendConfirmationEmail: vi.fn(),
+    logError: vi.fn(),
 }))
 vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
+vi.mock('@/integrations/observability/log-error', () => ({ logError: mocks.logError }))
 vi.mock('@/integrations/acuity/acuity.client', () => ({ AcuityClient: { getInstance: async () => mocks } }))
 vi.mock('@/integrations/acuity/core/merge-sanity-with-acuity', () => ({
     mergeAcuityWithSanity: async (classes: unknown) => classes,
@@ -74,6 +76,12 @@ describe('holiday program appointment management', () => {
             undefined,
             true
         )
+    })
+
+    it('still succeeds when the confirmation email fails', async () => {
+        mocks.sendConfirmationEmail.mockRejectedValueOnce(new Error('SendGrid down'))
+        expect((await rescheduleManagedAppointment({ ...access(), classId: 11 })).datetime).toBe(session.time)
+        expect(mocks.logError).toHaveBeenCalled()
     })
 
     it('blocks rescheduling inside 48 hours but still allows cancelling', async () => {
