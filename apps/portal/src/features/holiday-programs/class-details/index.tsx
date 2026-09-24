@@ -138,7 +138,10 @@ export const ClassDetailsPage = () => {
         classId,
         classTime,
         sorter: sortByChildName,
-    }) as AcuityTypes.Api.Appointment[]
+    })
+
+    const enrolmentTitle =
+        loading || appointments?.length === 0 ? 'Enrolments' : `Total kids booked in: ${appointments?.length ?? 0}`
 
     const navigateToClass = (klass: AcuityTypes.Client.Class) => {
         navigate(getClassRoute(klass))
@@ -209,7 +212,7 @@ export const ClassDetailsPage = () => {
                         </div>
                     )}
                 </Card>
-                <Card className={classes.card}>
+                <Card className={classes.card} title={enrolmentTitle}>
                     {appointments !== null && appointments.length !== 0 && (
                         <div className="space-y-2">
                             {appointments.map((appointment) => (
