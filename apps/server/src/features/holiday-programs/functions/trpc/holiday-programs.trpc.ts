@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import { publicProcedure, authenticatedProcedure, router } from '@/app/trpc/trpc'
 import { checkGiftCardBalance } from '@/features/gift-cards/check-gift-card-balance'
 import {
@@ -13,10 +15,26 @@ import {
     type CreateDiscountCodeFromInvitation,
     createDiscountCodeFromInvitation,
 } from '@/features/holiday-programs/core/discount-codes/create-discount-code-from-invitation'
+import {
+    cancelManagedAppointment,
+    getManagedAppointment,
+    getRescheduleSessions,
+    rescheduleManagedAppointment,
+} from '@/features/holiday-programs/core/manage-appointment'
 import { getMedicalPlanUrl } from '@/features/medical-plans/get-medical-plan-url'
 import { MEDICAL_PLAN_PREFIXES } from '@/features/medical-plans/medical-plan-path'
 
+const appointmentAccess = z.object({ appointmentId: z.number(), token: z.string() })
+
 export const holidayProgramsRouter = router({
+    getManagedAppointment: publicProcedure.input(appointmentAccess).query(({ input }) => getManagedAppointment(input)),
+    rescheduleSessions: publicProcedure.input(appointmentAccess).query(({ input }) => getRescheduleSessions(input)),
+    cancelAppointment: publicProcedure
+        .input(appointmentAccess)
+        .mutation(({ input }) => cancelManagedAppointment(input)),
+    rescheduleAppointment: publicProcedure
+        .input(appointmentAccess.extend({ classId: z.number() }))
+        .mutation(({ input }) => rescheduleManagedAppointment(input)),
     book: publicProcedure
         .input((input) => input as HolidayProgramBookingProps)
         .mutation(({ input }) => bookHolidayProgram(input)),

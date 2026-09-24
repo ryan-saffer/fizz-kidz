@@ -71,9 +71,19 @@
                 </mj-text>
             </mj-column>
             <mj-column width="100%">
+                <mj-text
+                    color="#212b35"
+                    font-size="12px"
+                    text-transform="uppercase"
+                    font-weight="bold"
+                    padding-bottom="0"
+                >
+                    {{ policy.title }}
+                </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    If the program you cancelled is more than 48 hours away, you will be automatically
-                    refunded.</mj-text
+                    {{#policy.paragraphs}}
+                    <p>{{.}}</p>
+                    {{/policy.paragraphs}}</mj-text
                 ></mj-column
             >
             {{#receiptUrl}}

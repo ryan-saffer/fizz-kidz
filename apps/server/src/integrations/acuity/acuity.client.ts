@@ -134,6 +134,14 @@ export class AcuityClient {
         })
     }
 
+    rescheduleAppointment(id: number, datetime: string, calendarID: number) {
+        // Keep Acuity's capacity validation. admin=true would allow overbooking.
+        return this._request<AcuityTypes.Api.Appointment>(`/appointments/${id}/reschedule?noEmail=true`, {
+            method: 'PUT',
+            body: { datetime, calendarID },
+        })
+    }
+
     async getClasses(appointmentTypeIds: number[], includeUnavailable: boolean, minDate?: number) {
         const result = await Promise.all(
             appointmentTypeIds.map((id) => this.#getClasses(id, includeUnavailable, minDate))

@@ -1,11 +1,11 @@
 import { Alert, Button, Card, Checkbox, Form, Select } from 'antd'
-import { DateTime } from 'luxon'
 import React, { useMemo } from 'react'
 
 import type { AcuityTypes } from '@fizz-kidz/core'
 import { AcuityConstants, STUDIOS, capitalise } from '@fizz-kidz/core'
 
 import { useCart } from '../../state/cart-store'
+import { SessionDetails } from '../session-details'
 
 const { Option } = Select
 
@@ -28,19 +28,6 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
             return classes?.filter((it) => it.calendar.toLowerCase().includes(selectedStudio))
         }
     }, [selectedStudio, classes])
-
-    const getSlotsAvailable = (klass: AcuityTypes.Api.Class) => {
-        if (klass.slotsAvailable === 0) {
-            return 'No spots left'
-        }
-        if (klass.slotsAvailable < 6 && klass.slotsAvailable > 1) {
-            return `${klass.slotsAvailable} spots left`
-        }
-        if (klass.slotsAvailable === 1) {
-            return '1 spot left'
-        }
-        return ''
-    }
 
     return (
         <>
@@ -103,7 +90,6 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
                 )}
             {filteredClasses?.map((klass) => {
                 const name = `${klass.id}-checkbox`
-                const slotsAvailable = getSlotsAvailable(klass)
                 const isSelected = !!selectedClasses[klass.id]
                 return (
                     <Form.Item style={{ marginBottom: 4 }} key={klass.id} name={name} valuePropName="checked">
@@ -115,26 +101,11 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
                             onChange={() => onClassSelectionChange(klass)}
                             style={{ marginBottom: 2 }}
                         >
-                            <p style={{ marginTop: 0, marginBottom: 0, fontSize: 15, fontWeight: 500 }}>
-                                {DateTime.fromISO(klass.time).toLocaleString({
-                                    weekday: 'long',
-                                    month: 'short',
-                                    day: '2-digit',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true,
-                                })}
-                            </p>
-                            {klass.title && (
-                                <p style={{ margin: 0, fontSize: 14 }}>
-                                    <i>{klass.title}</i>
-                                </p>
-                            )}
-                            {slotsAvailable && (
-                                <p style={{ marginTop: 0, marginBottom: 0, fontSize: 14 }}>
-                                    [<em>{slotsAvailable}</em>]
-                                </p>
-                            )}
+                            <SessionDetails
+                                time={klass.time}
+                                title={klass.title}
+                                slotsAvailable={klass.slotsAvailable}
+                            />
                         </Checkbox>
                     </Form.Item>
                 )

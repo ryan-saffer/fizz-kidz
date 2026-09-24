@@ -26,7 +26,8 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    Holiday program booking confirmation
+                    {{#rescheduled}}Holiday program rescheduled{{/rescheduled}} {{^rescheduled}}Holiday program booking
+                    confirmation{{/rescheduled}}
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -39,8 +40,9 @@
             <mj-column width="100%">
                 <mj-text color="#637381" font-size="16px"> Hi {{ parentName }}, </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    We're delighted to confirm your booking into the Fizz Kidz holiday program! Below are the details of
-                    what you have booked:
+                    {{#rescheduled}}Your holiday-program session has been rescheduled. Here are your updated booking
+                    details:{{/rescheduled}} {{^rescheduled}}We're delighted to confirm your booking into the Fizz Kidz
+                    holiday program! Below are the details of what you have booked:{{/rescheduled}}
                 </mj-text>
             </mj-column>
 
@@ -102,12 +104,12 @@
                     font-weight="bold"
                     padding-bottom="0"
                 >
-                    Cancellation Policy
+                    {{ policy.title }}
                 </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    A full refund will be automatically issued for cancellations made more than 48 hours before the
-                    program. Cancellations made less than 48 hours before the program will not be refunded. This policy
-                    can change at any time at our discretion.
+                    {{#policy.paragraphs}}
+                    <p>{{.}}</p>
+                    {{/policy.paragraphs}}
                 </mj-text>
             </mj-column>
             <mj-column width="100%">
