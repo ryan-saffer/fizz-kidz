@@ -1,12 +1,12 @@
 ---
-title: Cancellations and refunds
-description: What happens when a Holiday Program appointment is changed or cancelled in Acuity.
+title: Cancellations and rescheduling
+description: How customers change Holiday Program sessions in the Portal and when a refund applies.
 ---
 
 import { Aside, Badge, Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
 
 Each booking confirmation has a <strong>Change / Cancel</strong> link beside every child/session. It opens that
-individual Acuity appointment.
+appointment in the Portal, with the session details and options to cancel or reschedule. No login is needed.
 
 ## The 48-hour rule
 
@@ -14,12 +14,13 @@ individual Acuity appointment.
   <Card title="At least 48 hours before" icon="approve-check-circle">
     <Badge text="Automatic" variant="tip" size="small" />
     <br />
-    Cancelling the appointment automatically refunds the eligible amount for that child and session.
+    Customers can reschedule or cancel. Cancelling automatically refunds the amount paid for that child and session.
   </Card>
   <Card title="Inside 48 hours" icon="warning">
     <Badge text="No automatic refund" variant="caution" size="small" />
     <br />
-    The appointment is cancelled and a cancellation email is sent, but no refund is created.
+    Rescheduling is disabled with an explanation. Customers can still cancel before the session starts and receive a
+    cancellation email, but no refund is created.
   </Card>
   <Card title="Free line" icon="information">
     A fully discounted appointment can be cancelled, but there is no paid amount to return.
@@ -29,14 +30,18 @@ individual Acuity appointment.
   </Card>
 </CardGrid>
 
-<Aside type="note" title="Cancellation and rescheduling are different">
-  Cancelling applies the 48-hour refund rule. Rescheduling moves the appointment and keeps the booking active; it does
-  not create a refund.
+<Aside type="note" title="Choosing another session">
+  Rescheduling moves one child's appointment to another available holiday-program session at the same studio. The
+  current session must be at least 48 hours away, but the replacement can start sooner. The payment carries over and the
+  customer receives an updated confirmation email.
 </Aside>
 
+Customer changes close when the session starts. For a full-day booking, the morning and afternoon are separate
+appointments, so customers manage each one using its own link. Links in older confirmations may still open Acuity.
+
 <Aside type="tip" title="What the customer receives">
-  Every cancellation sends a cancellation email. When a refund is due, the email includes the refunded amount and a
-  receipt link when available. Each <strong>Change / Cancel</strong> link applies to one child and session.
+  Every cancellation sends a cancellation email with the session details and policy. It includes a refund receipt link
+  when available. Each <strong>Change / Cancel</strong> link applies to one child and session.
 </Aside>
 
 <LinkCard

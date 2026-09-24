@@ -234,7 +234,7 @@ const TermsAndConditionsModal: React.FC<Props> = ({ open, onClose }) => {
             <p>
                 You agree to abide by our cancellation procedures and will inform our staff at the Program, of any
                 absence of the enrolled child. You agree that you will be charged for the session in accordance with the
-                cancellation policy or if you do not follow the cancellation procedures.
+                cancellation and rescheduling policy or if you do not follow the cancellation procedures.
             </p>
             <p>
                 <strong>11. Consequences of non-payment</strong>

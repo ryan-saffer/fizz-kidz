@@ -6,6 +6,8 @@ export type Emails = {
         address: string
         bookings: { datetime: string; confirmationPage: string }[]
         receiptUrl: string | undefined
+        rescheduled: boolean
+        policy: { title: string; paragraphs: readonly string[] }
     }
 
     holidayProgramCancellation: {
@@ -13,6 +15,7 @@ export type Emails = {
         location: string
         booking: string
         receiptUrl: string | undefined
+        policy: { title: string; paragraphs: readonly string[] }
     }
 
     werribeeOpeningConfirmation: {

@@ -1,35 +1,69 @@
 ---
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Step from "@/components/step.astro";
 import Layout from "@/layout/Layout.astro";
+import { HOLIDAY_PROGRAM_POLICY } from "@fizz-kidz/core";
+
+const sections = [
+  { id: "general", label: "General policies" },
+  { id: "parties", label: "Parties" },
+  { id: "holiday-programs", label: "Holiday programs" },
+  { id: "privacy", label: "Privacy" },
+];
+
+const sectionClasses = "scroll-mt-28 border-t border-[#e9e3ee] py-10 first:border-t-0 first:pt-0 min-[900px]:py-12 print:py-6";
+const sectionHeadingClasses = "mb-5 font-lilita text-[clamp(1.75rem,3vw,2.125rem)] leading-tight tracking-[0.01em] print:break-after-avoid";
+const subheadingClasses = "mb-2.5 mt-7 text-base font-bold leading-normal first:mt-0 print:break-after-avoid";
+const linkClasses = "text-[#7639b5] underline underline-offset-[0.2em] hover:decoration-2";
 ---
 
 <Layout
   title="Our Policies | Fizz Kidz"
-  description="This page includes our company policies, payment policies and privacy policies."
+  description="Read our policies on child wellbeing, party and holiday-program payments, cancellations, rescheduling and privacy."
 >
-  <main class="m-auto block max-w-[1380px] px-5 pt-4">
-    <div class="h-[10px]"></div>
-    <BreadcrumbWrapper
-      items={[
-        {
-          type: "link",
-          title: "Policies",
-          path: "/policies/",
-        },
-      ]}
-    />
-    <section class="my-12 flex flex-col gap-8">
-      <Step title="General Policies" color="#42D4F3">
-        <div slot="content">
-          <p class="mb-4">
+  <main class="mx-auto max-w-[1120px] px-5 pb-20 pt-7 font-gotham text-[#30273b] [&_a:focus-visible]:rounded [&_a:focus-visible]:outline [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-offset-4 [&_a:focus-visible]:outline-[#7639b5] print:max-w-none print:p-0 print:text-black">
+    <div class="print:hidden">
+      <BreadcrumbWrapper items={[{ type: "not-link", title: "Policies" }]} />
+    </div>
+
+    <header class="mb-10 mt-8 rounded-3xl border border-[#e9e3ee] bg-[#faf7fe] p-6 min-[900px]:mb-14 min-[900px]:mt-10 min-[900px]:p-12 print:!mb-8 print:!mt-0 print:border-0 print:bg-transparent print:!p-0">
+      <h1 class="mb-3 font-lilita text-[clamp(2.5rem,5vw,4rem)] leading-[1.1] tracking-[0.01em] text-[#542785]">Our policies</h1>
+      <p class="max-w-[60rem] text-base leading-[1.75] text-[#655d6e] min-[900px]:text-lg min-[900px]:leading-[1.75]">How we care for your family, manage bookings and protect your information.</p>
+    </header>
+
+    <div class="grid items-start gap-10 min-[900px]:grid-cols-[245px_minmax(0,1fr)] min-[900px]:gap-[clamp(2.5rem,5vw,5rem)] print:block">
+      <aside class="min-[900px]:sticky min-[900px]:top-28 print:hidden">
+        <nav aria-label="On this page" class="rounded-2xl border border-[#e9e3ee] p-5">
+          <p class="mb-3 text-xs font-bold uppercase tracking-[0.08em] text-[#655d6e]">On this page</p>
+          <ul class="grid gap-1 min-[360px]:max-[899px]:grid-cols-2">
+            {sections.map(({ id, label }) => (
+              <li>
+                <a href={`#${id}`} class="flex items-center justify-between gap-3 rounded-lg p-3 text-sm font-medium transition-colors duration-150 hover:bg-[#f5effb] hover:text-[#7639b5] min-[360px]:max-[899px]:gap-1 min-[360px]:max-[899px]:px-2 min-[360px]:max-[899px]:text-[13px]">
+                  <span>{label}</span><span class="text-[#7639b5]" aria-hidden="true">↓</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div class="mx-5 my-6 hidden flex-col items-start gap-2.5 text-[13px] text-[#655d6e] min-[900px]:flex">
+          <p class="text-sm font-bold text-[#30273b]">Have a question?</p>
+          <p>We're happy to help.</p>
+          <a class={linkClasses} href="tel:+61390598144">(03) 9059 8144</a>
+          <a class:list={[linkClasses, "mt-2"]} href="/contact-us/#contact">Get in touch <span aria-hidden="true">→</span></a>
+        </div>
+      </aside>
+
+      <div class="min-w-0">
+      <section id="general" class={sectionClasses} aria-labelledby="general-heading">
+        <h2 id="general-heading" class={sectionHeadingClasses}>General policies</h2>
+        <div class="text-[15px] leading-[1.85] [&_p+p]:mt-4">
+          <p>
             At Fizz Kidz we consider the health, safety and wellbeing of kids
             and young people to be our priority. We strive to create a safe and
             welcoming environment that allows all children to participate and
             have fun in our parties and programs.
           </p>
-          <h4 class="font-lilita text-xl">Staff</h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Our team</h3>
+          <p>
             Fizz Kidz recruits staff that have had significant experience
             working with and caring for children. Each party or program is
             facilitated by a certified Fizz Kidz facilitator. Our team of Fizz
@@ -39,8 +73,8 @@ import Layout from "@/layout/Layout.astro";
             Kidz child has an allergic reaction. Our hosts have also undergone
             food safe handling training.
           </p>
-          <h4 class="font-lilita text-xl">Allergy</h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Allergies</h3>
+          <p>
             Fizz Kidz strives to maintain a nut-free environment. All foods
             provided at the Fizz Kidz Venue are nut free (some items state 'May
             Contain nuts') and we do our best to ensure all food brought into
@@ -51,21 +85,23 @@ import Layout from "@/layout/Layout.astro";
             Kidz does not take responsibility if a child has an allergic
             reaction.
           </p>
-          <h4 class="font-lilita text-xl">Products</h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Products</h3>
+          <p>
             Fizz Kidz has undergone research and testing of all the ingredients
             used to make the creations. We believe our products are safe and
             appropriate for children to use and enjoy. In every Fizz Kidz store
             you will find a list of ingredients which you're welcome to look
             through and ask questions about. If you have any concerns, please
-            feel free to contact us on (03) 9059 8144.
+            feel free to contact us on <a class={linkClasses} href="tel:+61390598144">(03) 9059 8144</a>.
           </p>
-          <h4 class="font-lilita text-xl">Lost Property</h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Lost property</h3>
+          <p>
             Lost property will be held at the studio for 4 weeks following any
             program, party, or class. We kindly encourage families to check for
             any missing items and collect them during this time.
-            <br /><br />After this 4-week period, unclaimed low-value items
+          </p>
+          <p>
+            After this 4-week period, unclaimed low-value items
             (such as clothing, drink bottles, and lunch boxes) will be donated
             to a local charity or op shop, or responsibly disposed of. Please
             note that perishable items will be discarded immediately for hygiene
@@ -73,11 +109,12 @@ import Layout from "@/layout/Layout.astro";
             make every reasonable effort to locate and contact the owner.
           </p>
         </div>
-      </Step>
-      <Step title="Payment Policies" color="#4FE16D">
-        <div slot="content">
-          <h4 class="font-lilita text-xl">Party Payment</h4>
-          <p class="mb-4">
+      </section>
+      <section id="parties" class={sectionClasses} aria-labelledby="parties-heading">
+        <h2 id="parties-heading" class={sectionHeadingClasses}>Parties</h2>
+        <div class="text-[15px] leading-[1.85] [&_p+p]:mt-4">
+          <h3 class={subheadingClasses}>Payment</h3>
+          <p>
             Payment is made at the end of a Fizz Kidz party after our party
             hosts have counted the number of guest that attended the party. All
             guests who participate in the creation making process during a party
@@ -88,86 +125,112 @@ import Layout from "@/layout/Layout.astro";
             payment cannot be made card, an EFT to the Fizz Kidz account can be
             processed on the day before leaving the venue.
           </p>
-          <h4 class="font-lilita text-xl">Party Cancellation Policy</h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Cancellation and rescheduling</h3>
+          <p>
             While we would much prefer to not charge for a service that has not
             been received, please understand that a cancelled party would have
             otherwise been taken by another customer. A cancelled or rescheduled
             event may incur the following fees:
-            <br /><br />
-            $150.00 if cancelled or rescheduled within 3 weeks of the event.
-            <br /><br />
-            $300.00 if cancelled or rescheduled within 2 weeks of the event.
-            <br /><br />
-            $450.00 if cancelled or rescheduled within 1 week of the event.
           </p>
-          <h4 class="font-lilita text-xl">Holiday Program Payment</h4>
-          <p class="mb-4">
+          <div class="mt-6 overflow-hidden rounded-[0.875rem] border border-[#e9e3ee]">
+            <table class="w-full text-left text-sm print:break-inside-avoid">
+              <caption class="sr-only">Party cancellation and rescheduling fees</caption>
+              <thead class="bg-[#f8f6fa]">
+                <tr>
+                  <th scope="col" class="px-4 py-3.5 font-bold">Notice before the event</th>
+                  <th scope="col" class="whitespace-nowrap px-4 py-3.5 text-right font-bold tabular-nums">Fee</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-[#e9e3ee]">
+                  <th scope="row" class="px-4 py-3.5 font-normal">Within 3 weeks</th>
+                  <td class="whitespace-nowrap px-4 py-3.5 text-right font-medium tabular-nums">$150.00</td>
+                </tr>
+                <tr class="border-t border-[#e9e3ee]">
+                  <th scope="row" class="px-4 py-3.5 font-normal">Within 2 weeks</th>
+                  <td class="whitespace-nowrap px-4 py-3.5 text-right font-medium tabular-nums">$300.00</td>
+                </tr>
+                <tr class="border-t border-[#e9e3ee]">
+                  <th scope="row" class="px-4 py-3.5 font-normal">Within 1 week</th>
+                  <td class="whitespace-nowrap px-4 py-3.5 text-right font-medium tabular-nums">$450.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section id="holiday-programs" class={sectionClasses} aria-labelledby="holiday-programs-heading">
+        <h2 id="holiday-programs-heading" class={sectionHeadingClasses}>Holiday programs</h2>
+        <div class="text-[15px] leading-[1.85] [&_p+p]:mt-4">
+          <h3 class={subheadingClasses}>Payment</h3>
+          <p>
             Payment for holiday programs can be made prior to drop-off via the
             Fizz Kidz website. If payment cannot be made via cash or card, an
             EFT to the Fizz Kidz account can be processed.
           </p>
-          <h4 class="font-lilita text-xl">
-            Holiday Programv Cancellation Policy
-          </h4>
-          <p class="mb-4">
-            If you have paid online and can no longer attend the holiday
-            program, please let us know 48 hours before and we will refund you.
-          </p>
+          <div class="mt-7 rounded-r-xl border-l-[3px] border-[#aa78d8] bg-[#faf7fe] p-6">
+            <h3 class={subheadingClasses}>{HOLIDAY_PROGRAM_POLICY.title}</h3>
+            {HOLIDAY_PROGRAM_POLICY.paragraphs.map((paragraph) => <p class="last:text-[13px] last:text-[#655d6e]">{paragraph}</p>)}
+          </div>
         </div>
-      </Step>
-      <div id="privacy"></div>
-      <Step title="Privacy Policy" color="#9044E2">
-        <div slot="content">
-          <p class="mb-4">
+      </section>
+      <section id="privacy" class={sectionClasses} aria-labelledby="privacy-heading">
+        <h2 id="privacy-heading" class={sectionHeadingClasses}>Privacy policy</h2>
+        <div class="text-[15px] leading-[1.85] [&_p+p]:mt-4">
+          <p>
             Fizz Kidz Australia Pty Ltd is committed to providing quality
             services to you and this policy outlines our ongoing obligations to
             you in respect of how we manage your Personal Information.
-            <br /><br />
+          </p>
+          <p>
             We have adopted the Australian Privacy Principles (APPs) contained in
             the Privacy Act 1988 (Cth) (the Privacy Act). The NPPs govern the way
             in which we collect, use, disclose, store, secure and dispose of your
             Personal Information.
-            <br /><br />
-            A copy of the Australian Privacy Principles may be obtained from the website
-            of The Office of the Australian Information Commissioner at https://www.oaic.gov.au/.
           </p>
-          <h4 class="font-lilita text-xl">
+          <p>
+            A copy of the Australian Privacy Principles may be obtained from the website
+            of <a class={linkClasses} href="https://www.oaic.gov.au/">The Office of the Australian Information Commissioner</a>.
+          </p>
+          <h3 class={subheadingClasses}>
             What is Personal Information and why do we collect it?
-          </h4>
-          <p class="mb-4">
+          </h3>
+          <p>
             Personal Information is information or an opinion that identifies an
             individual. Examples of Personal Information we collect includes
             names, addresses, email addresses, phone and facsimile numbers.
-            <br /><br />
+          </p>
+          <p>
             This Personal Information is obtained in many ways including interviews,
             correspondence, by telephone and facsimile, by email, via our website
             www.fizzkidz.com.au, from your website, from media and publications, from
             other publicly available sources, from cookies and from third parties.
             We don't guarantee website links or policy of authorized third parties.
-            <br /><br />
+          </p>
+          <p>
             We collect your Personal Information for the primary purpose of providing
             our services to you, providing information to our clients and marketing.
             We may also use your Personal Information for secondary purposes closely
             related to the primary purpose, in circumstances where you would reasonably
             expect such use or disclosure. You may unsubscribe from our mailing/marketing
             lists at any time by contacting us in writing.
-            <br /><br />
+          </p>
+          <p>
             When we collect Personal Information we will, where appropriate and where
             possible, explain to you why we are collecting the information and how
             we plan to use it.
           </p>
-          <h4 class="font-lilita text-xl">Sensitive Information</h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Sensitive information</h3>
+          <p>
             Sensitive information is defined in the Privacy Act to include
             information or opinion about such things as an individual's racial
             or ethnic origin, political opinions, membership of a political
             association, religious or philosophical beliefs, membership of a
             trade union or other professional body, criminal record or health
             information.
-            <br /><br />
-            Sensitive information will be used by us only:
-            <ul class="mb-4 list-disc pl-4">
+          </p>
+          <p>Sensitive information will be used by us only:</p>
+            <ul class="mt-3 list-disc space-y-2 pl-5 marker:text-[#7639b5]">
               <li>For the primary purpose for which it was obtained</li>
               <li>
                 For a secondary purpose that is directly related to the primary
@@ -177,60 +240,57 @@ import Layout from "@/layout/Layout.astro";
                 With your consent; or where required or authorized by law.
               </li>
             </ul>
-          </p>
-          <h4 class="font-lilita text-xl">Third Parties</h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Third parties</h3>
+          <p>
             Where reasonable and practicable to do so, we will collect your
             Personal Information only from you. However, in some circumstances
             we may be provided with information by third parties. In such a case
             we will take reasonable steps to ensure that you are made aware of
             the information provided to us by the third party.
           </p>
-          <h4 class="font-lilita text-xl">
-            Disclosure of Personal Information
-          </h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Disclosure of Personal Information</h3>
+          <p>
             Your Personal Information may be disclosed in a number of
             circumstances including the following:
-            <ul class="mb-4 list-disc pl-4">
+          </p>
+            <ul class="mt-3 list-disc space-y-2 pl-5 marker:text-[#7639b5]">
               <li>
                 Third parties where you consent to the use or disclosure; and
               </li>
               <li>Where required or authorized by law.</li>
             </ul>
-          </p>
-          <h4 class="font-lilita text-xl">
-            Security of Personal Information
-          </h4><p class="mb-4">
+          <h3 class={subheadingClasses}>Security of Personal Information</h3>
+          <p>
             Our Personal Information is stored in a manner that reasonably
             protects it from misuse and loss and from unauthorized access,
             modification or disclosure.
-            <br /><br />
+          </p>
+          <p>
             When your Personal Information is no longer needed for the purpose for
             which it was obtained, we will take reasonable steps to destroy or permanently
             de-identify your Personal Information. However, most of the Personal Information
             is or will be stored in client files which will be kept by us for a minimum
             of 7 years.
           </p>
-          <h4 class="font-lilita text-xl">
+          <h3 class={subheadingClasses}>
             Access to your Personal Information
-          </h4>
-          <p class="mb-4">
+          </h3>
+          <p>
             You may access the Personal Information we hold about you and to
             update and/or correct it, subject to certain exceptions. If you wish
             to access your Personal Information, please contact us in writing.
-            <br /><br />
+          </p>
+          <p>
             Fizz Kidz Australia Pty Ltd will not charge any fee for your access request,
             but may charge an administrative fee for providing a copy of your Personal
             Information.
-            <br /><br />
+          </p>
+          <p>
             In order to protect your Personal Information we may require identification
             from you before releasing the requested information.
           </p>
-          <h4 class="font-lilita text-xl">
-            Maintaining the Quality of your Personal Information
-          </h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Maintaining the quality of your Personal Information</h3>
+          <p>
             It is important to us that your Personal Information is up to date.
             We will take reasonable steps to make sure that your Personal
             Information is accurate, complete and up-to-date. If you find that
@@ -238,28 +298,30 @@ import Layout from "@/layout/Layout.astro";
             advise us as soon as practicable so we can update our records and
             ensure we can continue to provide quality services to you.
           </p>
-          <h4 class="font-lilita text-xl">Policy Updates</h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Policy updates</h3>
+          <p>
             This Policy may change from time to time and is available on our
             website.
           </p>
-          <h4 class="font-lilita text-xl">
-            Privacy Policy Complaints and Enquiries
-          </h4>
-          <p class="mb-4">
+          <h3 class={subheadingClasses}>Privacy complaints and enquiries</h3>
+          <p>
             If you have any queries or complaints about our Privacy Policy
             please contact us at:
-            <br /><br />
-            Fizz Kidz Australia Pty Ltd
-            <br /><br />
-            20 Glenferrire Road, Malvern 3144
-            <br /><br />
-            bookings@fizzkidz.com.au
-            <br /><br />
-            03 90598144
           </p>
+          <address class="mt-5 flex flex-col items-start gap-1.5 rounded-xl border border-[#e9e3ee] p-5 not-italic [overflow-wrap:anywhere] print:break-inside-avoid">
+            <strong>
+            Fizz Kidz Australia Pty Ltd
+            </strong>
+            <span>
+            20 Glenferrire Road, Malvern 3144
+            </span>
+            <a class={linkClasses} href="mailto:bookings@fizzkidz.com.au">bookings@fizzkidz.com.au</a>
+            <a class={linkClasses} href="tel:+61390598144">(03) 9059 8144</a>
+          </address>
         </div>
-      </Step>
-    </section>
+      </section>
+      <a class="inline-flex items-center gap-3 text-sm font-medium text-[#7639b5] underline-offset-[0.2em] hover:underline print:hidden" href="#general">Back to policies <span aria-hidden="true">↑</span></a>
+      </div>
+    </div>
   </main>
 </Layout>

@@ -2,6 +2,8 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { HOLIDAY_PROGRAM_POLICY } from '@fizz-kidz/core'
+
 import { MailClient } from './sendgrid.client'
 
 vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
@@ -62,5 +64,29 @@ describe('booking confirmation message formatting', () => {
         expect(message.querySelector('b')).toBeNull()
         expect(message.textContent).toContain('paint & decorate')
         expect(message.textContent).toContain('<b>Bring "aprons"</b>')
+    })
+})
+
+describe('holiday program confirmation email', () => {
+    beforeEach(() => vi.clearAllMocks())
+
+    it('renders the rescheduled copy and management link', async () => {
+        const client = await MailClient.getInstance()
+        const managementUrl = 'https://bookings.fizzkidz.com.au/programs/manage/123#token=abc'
+        await client.sendEmail('holidayProgramConfirmation', 'parent@example.com', {
+            parentName: 'Parent',
+            location: 'Malvern',
+            address: 'Studio address',
+            receiptUrl: undefined,
+            bookings: [{ datetime: 'Alex - Friday, 2 October, 10am', confirmationPage: managementUrl }],
+            rescheduled: true,
+            policy: HOLIDAY_PROGRAM_POLICY,
+        })
+        const { default: mail } = await import('@sendgrid/mail')
+        const payload = vi.mocked(mail.send).mock.calls[0][0]
+        if (Array.isArray(payload) || !payload.html) throw new Error('Expected a single HTML email')
+        const document = new DOMParser().parseFromString(payload.html, 'text/html')
+        expect(document.querySelector('a[href*="/programs/manage/"]')?.getAttribute('href')).toBe(managementUrl)
+        expect(document.body.textContent).toContain('Your holiday-program session has been rescheduled.')
     })
 })

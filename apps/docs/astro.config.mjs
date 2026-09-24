@@ -73,7 +73,7 @@ export default defineConfig({
                                     link: 'services/holiday-programs/attendance',
                                 },
                                 {
-                                    label: 'Cancellations and Refunds',
+                                    label: 'Cancellations and Rescheduling',
                                     link: 'services/holiday-programs/cancellations-and-refunds',
                                 },
                             ],

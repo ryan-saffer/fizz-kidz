@@ -1,6 +1,8 @@
 import { Button, Modal } from 'antd'
 import React from 'react'
 
+import { HOLIDAY_PROGRAM_POLICY } from '@fizz-kidz/core'
+
 type Props = {
     open: boolean
     onClose: () => void
@@ -9,7 +11,7 @@ type Props = {
 const CancellationPolicyModal: React.FC<Props> = ({ open, onClose }) => {
     return (
         <Modal
-            title="Cancellation Policy"
+            title={HOLIDAY_PROGRAM_POLICY.title}
             open={open}
             onCancel={() => onClose()}
             footer={
@@ -18,13 +20,9 @@ const CancellationPolicyModal: React.FC<Props> = ({ open, onClose }) => {
                 </Button>
             }
         >
-            <p>
-                A full refund will be automatically issued for cancellations made more than 48 hours before the program.
-            </p>
-            <p>Cancellations made less than 48 hours before the program will not be refunded.</p>
-            <p>
-                <i>This policy can change at any time at our discretion.</i>
-            </p>
+            {HOLIDAY_PROGRAM_POLICY.paragraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+            ))}
         </Modal>
     )
 }
