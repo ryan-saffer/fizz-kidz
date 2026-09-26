@@ -23,3 +23,6 @@
 # mempalace
 entities.json
 mempalace.yaml
+
+# agent worktrees
+.claude/worktrees/

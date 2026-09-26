@@ -12,7 +12,7 @@ import {
     type WebsiteFormId,
 } from '@fizz-kidz/core'
 
-import { generateDiscountCode } from '@/features/holiday-programs/core/discount-codes/generate-discount-code'
+import { generateDiscountCode } from '@/features/discount-codes/core/generate-discount-code'
 import { MixpanelClient } from '@/integrations/mixpanel/mixpanel.client'
 import { logError } from '@/integrations/observability/log-error'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'

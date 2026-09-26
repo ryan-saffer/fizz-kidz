@@ -44,4 +44,14 @@ Scope tests with `vp test --run --project portal` or `vp test --run --project se
 - New Portal UI should prefer shadcn/ui and Zustand. MUI and Ant Design are legacy.
 - Backend browser routes must match in `app/http/app.ts`, `firebase.json`, and the root Vite proxy.
 
+## Code Review
+
+Reviews (and new code) follow these rules:
+
+- Don't over-engineer. Skip rare edge cases that are unlikely in production; log them with `logError` (Cloud Logging) instead, and fix them if they turn up often.
+- Keep files and folders cleanly structured, so it's easy to see where things live.
+- Portal features prefer a dedicated Zustand store over prop drilling, with the feature's core logic in the store rather than spread through components, so how a feature works can be read in one place.
+- Avoid Firestore unless it's absolutely necessary; the plan is to migrate off it. Don't add collections, documents or fields for edge cases like locks, claims or processing markers on an order or booking. If Firestore seems genuinely needed, ask first.
+- Follow the app's existing patterns. Don't add architecture for a single use case (e.g. a dedicated tRPC middleware or router changes for one feature). If something genuinely needs it, ask first; if the existing architecture has a real problem affecting the wider codebase, raise it as an issue instead of solving it for one feature.
+
 Do not touch unrelated worktree changes or commit credentials. Build the affected app after changing build configuration, and update the nearest README when an important boundary changes.

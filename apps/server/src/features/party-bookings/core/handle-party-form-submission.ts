@@ -27,7 +27,11 @@ import { logError } from '@/integrations/observability/log-error'
 import { SanityClient } from '@/integrations/sanity/sanity.client'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 
-export async function handlePartyFormSubmission(responses: PaperformSubmission<PartyForm>) {
+export async function handlePartyFormSubmission(
+    responses: PaperformSubmission<PartyForm>,
+    /** The custom form's cake, which its synthetic Paperform submission can't carry. */
+    customCake?: Booking['cake']
+) {
     const sanity = await SanityClient.getInstance()
     const catalogue = await sanity.getBirthdayPartyBookingCatalogue()
     const formMapper = new PartyFormMapper(responses, catalogue)
@@ -36,6 +40,7 @@ export async function handlePartyFormSubmission(responses: PaperformSubmission<P
     let mappedBooking: Partial<Booking> = {}
     try {
         mappedBooking = formMapper.mapToBooking(existingBooking.type, existingBooking.location)
+        if (customCake) mappedBooking.cake = customCake
         if (responses.getFieldValue('party_or_cake_form') === 'party') {
             mappedBooking.partyFormFilledIn = true
         }

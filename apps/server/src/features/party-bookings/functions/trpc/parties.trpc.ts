@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { preparePartyFormV2Schema, submitPartyFormV2Schema } from '@fizz-kidz/core'
 import type {
     Booking,
     GenerateInvitation,
@@ -18,6 +19,9 @@ import { createPartyBooking } from '@/features/party-bookings/core/create-party-
 import { deletePartyBooking } from '@/features/party-bookings/core/delete-party-booking'
 import { generateInvitation } from '@/features/party-bookings/core/generate-invitation'
 import { getCakeFormUrl, getPartyFormUrl } from '@/features/party-bookings/core/party-form-urls'
+import { preparePartyFormV2 } from '@/features/party-bookings/core/party-form-v2/checkout/prepare-party-form-v2'
+import { submitPartyFormV2 } from '@/features/party-bookings/core/party-form-v2/checkout/submit-party-form-v2'
+import { getPartyFormV2Config } from '@/features/party-bookings/core/party-form-v2/config/get-party-form-v2-config'
 import { generateAndLinkInvitation } from '@/features/party-bookings/core/rsvp/edit-invitation-v2'
 import { generateInvitationUrl } from '@/features/party-bookings/core/rsvp/generate-invitation-url'
 import { generateInvitationV2 } from '@/features/party-bookings/core/rsvp/generate-invitation-v2'
@@ -86,6 +90,13 @@ export const partiesRouter = router({
     getPaperformEmbedConfig: publicProcedure
         .input(z.object({ bookingId: z.string(), partyOrCakeForm: z.enum(['party', 'cake']) }))
         .query(({ input }) => getPartyFormEmbedConfig(input.bookingId, input.partyOrCakeForm)),
+    getPartyFormV2Config: publicProcedure
+        .input(z.object({ bookingId: z.string() }))
+        .query(({ input }) => getPartyFormV2Config(input.bookingId)),
+    preparePartyFormV2: publicProcedure
+        .input(preparePartyFormV2Schema)
+        .mutation(({ input }) => preparePartyFormV2(input)),
+    submitPartyFormV2: publicProcedure.input(submitPartyFormV2Schema).mutation(({ input }) => submitPartyFormV2(input)),
     generateInvitation: publicProcedure
         .input((input: unknown) => input as GenerateInvitation)
         .mutation(({ input }) => generateInvitation(input)),

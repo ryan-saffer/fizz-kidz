@@ -9,7 +9,7 @@ import { processPaylabPayment } from './process-play-lab-payment'
 
 import { throwCustomTrpcError, throwTrpcError } from '@/app/trpc/transport-errors'
 import { ClassFullError, CustomTrpcError, PaymentMethodInvalidError } from '@/app/trpc/trpc.errors'
-import { getDiscountCodeRedemptionKey } from '@/features/holiday-programs/core/discount-codes/check-discount-code'
+import { getDiscountCodeRedemptionKey } from '@/features/discount-codes/core/check-discount-code'
 import { AcuityClient } from '@/integrations/acuity/acuity.client'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { MixpanelClient } from '@/integrations/mixpanel/mixpanel.client'

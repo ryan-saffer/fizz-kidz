@@ -1,18 +1,15 @@
 import { publicProcedure, authenticatedProcedure, router } from '@/app/trpc/trpc'
+import { checkDiscountCode } from '@/features/discount-codes/core/check-discount-code'
+import { type CreateDiscountCode, createDiscountCode } from '@/features/discount-codes/core/create-discount-code'
+import {
+    type CreateDiscountCodeFromInvitation,
+    createDiscountCodeFromInvitation,
+} from '@/features/discount-codes/core/create-discount-code-from-invitation'
 import { checkGiftCardBalance } from '@/features/gift-cards/check-gift-card-balance'
 import {
     type HolidayProgramBookingProps,
     bookHolidayProgram,
 } from '@/features/holiday-programs/core/book-holiday-program'
-import { checkDiscountCode } from '@/features/holiday-programs/core/discount-codes/check-discount-code'
-import {
-    type CreateDiscountCode,
-    createDiscountCode,
-} from '@/features/holiday-programs/core/discount-codes/create-discount-code'
-import {
-    type CreateDiscountCodeFromInvitation,
-    createDiscountCodeFromInvitation,
-} from '@/features/holiday-programs/core/discount-codes/create-discount-code-from-invitation'
 import { getMedicalPlanUrl } from '@/features/medical-plans/get-medical-plan-url'
 import { MEDICAL_PLAN_PREFIXES } from '@/features/medical-plans/medical-plan-path'
 
