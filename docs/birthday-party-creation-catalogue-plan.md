@@ -246,7 +246,7 @@ Run the relevant repository checks at the end of each phase. Phase 1 must includ
 - Server Sanity adapter: `apps/server/src/integrations/sanity/sanity.client.ts`
 - Paperform client and field mapping: `apps/server/src/integrations/paperforms/paperform.client.ts`
 - Submission mapping: `apps/server/src/features/party-bookings/core/party-form-mapper.ts`
-- Portal booking editor: `apps/portal/src/features/bookings/parties/forms/ExistingBookingForm/index.tsx`
+- Portal booking editor: `apps/portal/src/features/bookings/parties/components/form/party-booking-form.tsx`
 
 ## External references
 

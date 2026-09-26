@@ -16,7 +16,6 @@ import {
 import { styled } from '@mui/material/styles'
 import { MobileDatePicker } from '@mui/x-date-pickers'
 import { StaticDatePicker } from '@mui/x-date-pickers'
-import { CalendarPlus } from 'lucide-react'
 import { DateTime } from 'luxon'
 import { useState } from 'react'
 
@@ -24,14 +23,13 @@ import { STUDIOS, capitalise } from '@fizz-kidz/core'
 
 import { useStickyNavbar } from '@app/root/use-sticky-navbar'
 import { useOrg } from '@session/use-org'
-import { Button as MyButton } from '@shared/components/ui/button'
 import { useSidebar } from '@shared/components/ui/sidebar'
 
 import { useLocationFilter } from '../location-filter/location-filter.hook'
 import { DateNavigationContext } from './date-navigation.context'
 
 import type { LocationFilter } from '../location-filter/location-filter.context'
-import type { FC, PropsWithChildren } from 'react'
+import type { FC, PropsWithChildren, ReactNode } from 'react'
 
 const PREFIX = 'BookingsPage'
 
@@ -149,26 +147,18 @@ const Root = styled('div')(({ theme }) => ({
     [`& .${classes.toolbar}`]: theme.mixins.toolbar,
 }))
 
-type WithButton = {
-    showButton: true
-    buttonLabel: string
-    onButtonPressed: () => void
-}
-
-type WithoutButton = {
-    showButton: false
-}
-
 type Props = {
     label: string
-} & (WithButton | WithoutButton)
+    /** Shown beside the heading to staff who can create bookings. */
+    action?: ReactNode
+}
 
 function midnight(date: DateTime) {
     return date.set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
 }
 
 export const DateNavigation: FC<PropsWithChildren<Props>> = (props) => {
-    const { showButton, children } = props
+    const { action, children } = props
 
     const { hasPermission } = useOrg()
     const createPermissions = hasPermission('bookings:create')
@@ -230,12 +220,7 @@ export const DateNavigation: FC<PropsWithChildren<Props>> = (props) => {
                         >
                             Parties, Events & Incursions
                         </StyledHeading>
-                        {createPermissions && showButton && (
-                            <MyButton className="twp" variant="outline" onClick={props.onButtonPressed}>
-                                <CalendarPlus className="mr-2 h-4 w-4" />
-                                New Booking
-                            </MyButton>
-                        )}
+                        {createPermissions && action}
                     </div>
                     <div style={{ display: 'flex', gap: 12, flexDirection: wrapFilter ? 'column' : 'row' }}>
                         <div

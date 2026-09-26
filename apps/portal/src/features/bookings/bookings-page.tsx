@@ -1,104 +1,109 @@
-import { Chip } from '@mui/material'
-import { useState } from 'react'
+import { CalendarPlus, ChevronDown, PartyPopper, Ticket } from 'lucide-react'
+import { useEffect, useState } from 'react'
+
+import { Button } from '@shared/components/ui/button'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@shared/components/ui/dropdown-menu'
+import { cn } from '@shared/lib/tailwind'
 
 import { DateNavigation } from './date-navigation/date-navigation'
 import Incursions from './events/incursions'
 import { FilterContextProvider } from './location-filter/location-filter.provider'
-import NewBookingDialog from './new-booking-dialog'
+import NewEventDialog from './new-event-dialog'
 import { PartiesAndEvents } from './parties-and-events'
+import { PartyBookingDialog } from './parties/components/party-booking-dialog'
+import { getPartyBookingPrefill } from './parties/state/party-booking-form'
+import { usePartyBookingsStore } from './parties/state/party-bookings-store'
 
 type Tab = 'parties' | 'incursions'
-type NewBookingType = 'party' | 'event'
 
-const PARTY_PREFILL_QUERY_KEYS = ['parentName', 'parentEmail', 'parentMobile', 'type', 'location', 'zohoDealId']
+const TABS: { value: Tab; label: string }[] = [
+    { value: 'parties', label: 'Parties & Events' },
+    { value: 'incursions', label: 'Incursions' },
+]
 
-const hasPrefillQueryParams = (searchParams: URLSearchParams) => {
-    return (
-        searchParams.get('bookingType') === 'event' ||
-        PARTY_PREFILL_QUERY_KEYS.some((key) => !!searchParams.get(key)?.trim())
-    )
-}
-
-const getInitialBookingType = (searchParams: URLSearchParams): NewBookingType => {
-    return searchParams.get('bookingType') === 'event' ? 'event' : 'party'
-}
+const getSearchParams = () =>
+    typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search)
 
 export const BookingsPage = () => {
-    const searchParams =
-        typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search)
-    const initialBookingType = getInitialBookingType(searchParams)
-    const [openNewBooking, setOpenNewBooking] = useState(() => {
-        return hasPrefillQueryParams(searchParams)
-    })
-
-    const [selectedTab, setSelectedTab] = useState<Tab>(() =>
-        initialBookingType === 'event' && searchParams.get('eventType')?.trim().toLowerCase() === 'incursion'
+    const [openNewEvent, setOpenNewEvent] = useState(() => getSearchParams().get('bookingType') === 'event')
+    const [selectedTab, setSelectedTab] = useState<Tab>(() => {
+        const params = getSearchParams()
+        return params.get('bookingType') === 'event' && params.get('eventType')?.trim().toLowerCase() === 'incursion'
             ? 'incursions'
             : 'parties'
-    )
+    })
+
+    // a CRM link can prefill a new party booking
+    useEffect(() => {
+        const params = getSearchParams()
+        if (params.get('bookingType') === 'event') return
+        const prefill = getPartyBookingPrefill(params)
+        if (prefill) usePartyBookingsStore.getState().openCreate(prefill)
+    }, [])
 
     return (
         <FilterContextProvider>
             <DateNavigation
                 label="Bookings"
-                showButton
-                buttonLabel="New Booking"
-                onButtonPressed={() => setOpenNewBooking(true)}
+                action={
+                    <NewBookingMenu
+                        onNewParty={() => usePartyBookingsStore.getState().openCreate()}
+                        onNewEvent={() => setOpenNewEvent(true)}
+                    />
+                }
             >
-                <div style={{ marginTop: 16 }}>
-                    <div style={{ display: 'flex', gap: 12 }}>
-                        <StyledChip
-                            label="Parties & Events"
-                            value="parties"
-                            selectedValue={selectedTab}
-                            handleClick={() => setSelectedTab('parties')}
-                        />
-                        <StyledChip
-                            label="Incursions"
-                            value="incursions"
-                            selectedValue={selectedTab}
-                            handleClick={() => setSelectedTab('incursions')}
-                        />
-                    </div>
+                <div className="twp mt-4 flex gap-2">
+                    {TABS.map((tab) => (
+                        <button
+                            key={tab.value}
+                            type="button"
+                            aria-pressed={selectedTab === tab.value}
+                            className={cn(
+                                'rounded-full border bg-white px-4 py-2 text-sm font-medium transition-colors',
+                                selectedTab === tab.value
+                                    ? 'border-fizz-purple-dark text-fizz-purple-dark'
+                                    : 'border-transparent text-slate-700 hover:border-slate-300'
+                            )}
+                            onClick={() => setSelectedTab(tab.value)}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
                 </div>
                 {selectedTab === 'parties' && <PartiesAndEvents />}
                 {selectedTab === 'incursions' && <Incursions />}
-                <NewBookingDialog
-                    open={openNewBooking}
-                    initialBookingType={initialBookingType}
-                    onBookingCreated={() => setOpenNewBooking(false)}
-                />
+                <PartyBookingDialog />
+                <NewEventDialog open={openNewEvent} onClose={() => setOpenNewEvent(false)} />
             </DateNavigation>
         </FilterContextProvider>
     )
 }
 
-const StyledChip = ({
-    label,
-    value,
-    selectedValue,
-    handleClick,
-}: {
-    label: string
-    value: Tab
-    selectedValue: Tab
-    handleClick: () => void
-}) => {
+function NewBookingMenu({ onNewParty, onNewEvent }: { onNewParty: () => void; onNewEvent: () => void }) {
     return (
-        <Chip
-            label={label}
-            variant="outlined"
-            onClick={handleClick}
-            sx={{
-                background: 'white',
-                fontWeight: 450,
-                color: selectedValue === value ? '#3883FE' : '1E1E1E',
-                borderColor: selectedValue === value ? '#3883FE' : 'white',
-                '& .MuiChip-label': {
-                    fontSize: 16,
-                    padding: 2,
-                },
-            }}
-        />
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button className="twp" variant="outline">
+                    <CalendarPlus className="mr-2 h-4 w-4" />
+                    New Booking
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="twp z-[1302]">
+                <DropdownMenuItem onClick={onNewParty}>
+                    <PartyPopper className="mr-2 h-4 w-4" />
+                    Party
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onNewEvent}>
+                    <Ticket className="mr-2 h-4 w-4" />
+                    Event
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     )
 }
