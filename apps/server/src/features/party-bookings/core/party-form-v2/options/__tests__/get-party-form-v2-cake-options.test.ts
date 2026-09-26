@@ -6,17 +6,22 @@ import { getPartyFormV2CakeOptions } from '../get-party-form-v2-cake-options'
 
 const { getOptions } = vi.hoisted(() => ({ getOptions: vi.fn() }))
 vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
-vi.mock('@/integrations/square/core/get-catalog-item-options', () => ({ getCatalogItemOptions: getOptions }))
+vi.mock('@/integrations/square/core/get-catalog-item-options', async (importOriginal) => ({
+    ...(await importOriginal<object>()),
+    getCatalogItemOptions: getOptions,
+}))
 
 const { itemId, designListId, flavourListId, servingListId, candleListId } = PARTY_CAKE_SQUARE_CATALOG.dev
 const studio = getSquareLocationId('test')
-const option = (id: string, priceCents = 0, locationOverrides: object[] = []) => ({
-    id,
-    name: `${id} name`,
-    priceCents,
-    imageUrl: null,
-    locationOverrides,
-})
+const option = (
+    id: string,
+    priceCents = 0,
+    locationOverrides: object[] = [],
+    presence: { locationIds: string[] | null; absentAtLocationIds: string[] } = {
+        locationIds: null,
+        absentAtLocationIds: [],
+    }
+) => ({ id, name: `${id} name`, priceCents, imageUrl: null, locationOverrides, ...presence })
 const list = (
     id: string,
     modifiers: ReturnType<typeof option>[],
@@ -25,7 +30,7 @@ const list = (
 ) => [id, { id, name: id, minSelected, maxSelected, modifiers }] as const
 
 describe('party form cake options from Square', () => {
-    it('returns every cake option sold at the studio, with studio prices and the flavour limits', async () => {
+    it('returns every cake option sold (and not sold out) at the studio, with studio prices and the flavour limits', async () => {
         getOptions.mockResolvedValue({
             variations: [
                 option('small', 8900, [{ locationId: studio, priceCents: 9900, soldOut: false }]),
@@ -41,7 +46,17 @@ describe('party form cake options from Square', () => {
                     1,
                     1
                 ),
-                list(flavourListId, [option('vanilla'), option('mango')], 1, 2),
+                list(
+                    flavourListId,
+                    [
+                        option('vanilla'),
+                        option('mango'),
+                        option('lemon', 0, [], { locationIds: null, absentAtLocationIds: [studio] }),
+                        option('mint', 0, [], { locationIds: ['another-studio'], absentAtLocationIds: [] }),
+                    ],
+                    1,
+                    2
+                ),
                 list(servingListId, [option('cup', 1900)]),
                 list(candleListId, [option('candles', 1200), option('own-candles')]),
             ]),

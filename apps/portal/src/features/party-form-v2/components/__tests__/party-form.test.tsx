@@ -430,6 +430,13 @@ describe('Party form guided journey', () => {
         expect(submit.mock.calls[0][0]).toMatchObject({ checkoutId: null, token: '' })
     })
 
+    it('returns to the welcome screen with Back on the first step', async () => {
+        const user = setup()
+        await user.click(screen.getByRole('button', { name: 'Next' }))
+        await user.click(screen.getByRole('button', { name: 'Back' }))
+        expect(await screen.findByRole('heading', { name: 'Fizz Kidz Party Details' })).toBeTruthy()
+    })
+
     it('omits food and cake steps when they are unavailable', async () => {
         const user = setup({ type: 'mobile', cakeOptions: null })
         await user.click(screen.getByRole('button', { name: 'Next' }))

@@ -39,11 +39,17 @@ export async function processPartyFormV2Submission(
         })
 
     const booking = await DatabaseClient.getPartyBooking(payload.bookingId)
+    // one cake per party is checked when preparing, so a different cake is one ordered (e.g. in another tab) since then
+    const cake = partyFormV2BookingCake(payload)
+    if (cake && booking.cake && JSON.stringify(cakeSummary(booking.cake)) !== JSON.stringify(cakeSummary(cake)))
+        logError('Party form paid for a second cake; the booking cake was replaced and may need a refund', undefined, {
+            submissionId,
+            bookingId: payload.bookingId,
+            previousCake: booking.cake.selection,
+            newCake: cake.selection,
+        })
     await restoreTakeHomeInventory(submissionId, payload, booking)
-    await handlePartyFormSubmission(
-        buildPartyFormV2Submission(payload, booking, submissionId),
-        partyFormV2BookingCake(payload)
-    )
+    await handlePartyFormSubmission(buildPartyFormV2Submission(payload, booking, submissionId), cake)
     await DatabaseClient.markPartyFormSubmissionApplied(submissionId)
 }
 
@@ -82,3 +88,11 @@ async function restoreTakeHomeInventory(submissionId: string, payload: PartyForm
         logError('Unable to restore Square inventory for party form goodies', error, { submissionId })
     }
 }
+
+const cakeSummary = ({ selection, size, flavours, served, candles }: NonNullable<Booking['cake']>) => [
+    selection,
+    size,
+    [...flavours].sort(),
+    served,
+    candles,
+]

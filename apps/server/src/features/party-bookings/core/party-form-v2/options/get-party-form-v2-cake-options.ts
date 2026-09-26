@@ -1,7 +1,11 @@
 import { getSquareLocationId, PARTY_CAKE_SQUARE_CATALOG, type Studio } from '@fizz-kidz/core'
 
 import { env } from '@/app/init/firebase'
-import { type CatalogOption, getCatalogItemOptions } from '@/integrations/square/core/get-catalog-item-options'
+import {
+    type CatalogOption,
+    getCatalogItemOptions,
+    isSoldAtLocation,
+} from '@/integrations/square/core/get-catalog-item-options'
 
 export type PartyFormV2CakeOption = { id: string; name: string; priceCents: number; imageUrl: string | null }
 
@@ -17,7 +21,7 @@ export type PartyFormV2CakeOptions = {
 
 /**
  * Everything on the cake step comes from the Square cake item: sizes are its variations; designs, flavours,
- * serving and candles are its modifier lists. Options sold out at the studio are left out, and prices use
+ * serving and candles are its modifier lists. Options not sold or sold out at the studio are left out, and prices use
  * the studio's price where Square has one.
  */
 export async function getPartyFormV2CakeOptions(studio: Studio): Promise<PartyFormV2CakeOptions> {
@@ -26,9 +30,10 @@ export async function getPartyFormV2CakeOptions(studio: Studio): Promise<PartyFo
     const { variations, modifierLists } = await getCatalogItemOptions(itemId)
 
     const atStudio = (options: CatalogOption[]) =>
-        options.flatMap(({ id, name, priceCents, imageUrl, locationOverrides }) => {
+        options.flatMap((option) => {
+            const { id, name, priceCents, imageUrl, locationOverrides } = option
             const override = locationOverrides.find((it) => it.locationId === locationId)
-            if (override?.soldOut) return []
+            if (!isSoldAtLocation(option, locationId) || override?.soldOut) return []
             return [{ id, name, imageUrl, priceCents: override?.priceCents ?? priceCents }]
         })
     const list = (listId: string) => {

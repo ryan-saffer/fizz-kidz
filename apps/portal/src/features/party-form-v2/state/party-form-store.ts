@@ -129,6 +129,8 @@ export const usePartyFormStore = create<State & Actions>((set, get) => ({
     start: () => get().goTo(0),
 
     goTo: (index) => {
+        // Back from the first step returns to the welcome screen
+        if (index < 0) return set({ stage: 'welcome', currentStep: 0, stepError: false })
         set({ stage: 'steps', currentStep: index, stepError: false })
         if (get().steps[index]?.key === 'review') void get().prepare()
     },

@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
     getBooking: vi.fn(),
     handle: vi.fn(),
     inventory: vi.fn(),
+    logError: vi.fn(),
 }))
 vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
 vi.mock('@/integrations/firebase/database.client', () => ({
@@ -24,14 +25,14 @@ vi.mock('@/integrations/firebase/database.client', () => ({
 vi.mock('@/features/party-bookings/core/handle-party-form-submission', () => ({
     handlePartyFormSubmission: mocks.handle,
 }))
-vi.mock('../../build-party-form-v2-submission', () => ({
+vi.mock('../../build-party-form-v2-submission', async (importOriginal) => ({
+    ...(await importOriginal<object>()),
     buildPartyFormV2Submission: () => 'responses',
-    partyFormV2BookingCake: () => undefined,
 }))
 vi.mock('@/integrations/square/square.client', () => ({
     SquareClient: { getInstance: async () => ({ inventory: { batchCreateChanges: mocks.inventory } }) },
 }))
-vi.mock('@/integrations/observability/log-error', () => ({ logError: vi.fn() }))
+vi.mock('@/integrations/observability/log-error', () => ({ logError: mocks.logError }))
 
 const payload: PartyFormV2 = { mode: 'cake', bookingId: 'booking', takeHomeBags: { lollyBags: 12 }, products: {} }
 
@@ -70,6 +71,30 @@ describe('processing a party form submission', () => {
         await processPartyFormV2Submission('square-order', payload, 'square-order')
         expect(mocks.handle).not.toHaveBeenCalled()
         expect(mocks.markApplied).not.toHaveBeenCalled()
+    })
+    it('logs a second cake paid for since the checkout was prepared, but not a replay of its own cake', async () => {
+        const cake = {
+            selection: 'Rainbow Ice-Cream Cake',
+            size: 'Small (12-15 serves)',
+            flavours: ['Vanilla'],
+            served: 'Waffle Cones',
+            candles: 'Include candles',
+        }
+        mocks.getBooking.mockResolvedValue({ location: 'malvern', cake })
+        await processPartyFormV2Submission('square-order', { ...payload, cake }, 'square-order')
+        expect(mocks.logError).not.toHaveBeenCalled()
+
+        mocks.getBooking.mockResolvedValue({
+            location: 'malvern',
+            cake: { ...cake, selection: 'Unicorn Ice-Cream Cake' },
+        })
+        await processPartyFormV2Submission('square-order', { ...payload, cake }, 'square-order')
+        expect(mocks.logError).toHaveBeenCalledWith(
+            expect.stringContaining('second cake'),
+            undefined,
+            expect.objectContaining({ previousCake: 'Unicorn Ice-Cream Cake', newCake: 'Rainbow Ice-Cream Cake' })
+        )
+        expect(mocks.handle).toHaveBeenLastCalledWith('responses', cake)
     })
     it('still applies the booking when Square inventory is unavailable', async () => {
         mocks.inventory.mockRejectedValue(new Error('Square unavailable'))
