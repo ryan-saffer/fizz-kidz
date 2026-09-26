@@ -32,6 +32,8 @@ Birthday-party instruction group labels and colours are package-owned: the serve
 
 The Existing Booking form reads its creation menus from the server's Sanity catalogue. It filters choices by studio/mobile availability and preserves a booking's retired or historical selection without offering that value on other bookings.
 
+The custom [party details form](src/features/party-form-v2/README.md) at `/party-form-v2?id=<bookingId>` uses TanStack Form for a guided customer journey, Sanity creation photos, and a review before checkout.
+
 ## Run It
 
 ```bash

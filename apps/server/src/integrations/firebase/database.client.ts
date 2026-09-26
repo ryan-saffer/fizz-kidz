@@ -17,6 +17,7 @@ import type {
     InventoryStockLevel,
     InventoryStockMovement,
     InventoryUsageRule,
+    PartyFormSubmission,
     PreschoolProgramEnrolment,
     RecursivePartial,
     Rsvp,
@@ -26,6 +27,7 @@ import type {
     DiscountCodeRedemption,
 } from '@fizz-kidz/core'
 
+import { DocumentNotFoundError } from './document-not-found-error'
 import { FirestoreClient } from './firestore.client'
 import { FirestoreRefs, type Document } from './firestore.refs'
 
@@ -89,7 +91,7 @@ class Client {
         if (data) {
             return this.#convertTimestamps<T>(data)
         } else {
-            throw new Error(`Cannot find document at path '${ref.path}' with id '${ref.id}'`)
+            throw new DocumentNotFoundError(ref.path, ref.id)
         }
     }
 
@@ -414,8 +416,13 @@ class Client {
         }
     }
 
-    async createDiscountCodeRedemption(discountCodeRedemption: WithoutId<DiscountCodeRedemption>) {
-        return this.#createDocument(discountCodeRedemption, (await FirestoreRefs.discountCodeRedemptions()).doc())
+    async createDiscountCodeRedemption(discountCodeRedemption: WithoutId<DiscountCodeRedemption>, id?: string) {
+        const collection = await FirestoreRefs.discountCodeRedemptions()
+        return this.#createDocument(discountCodeRedemption, id ? collection.doc(id) : collection.doc())
+    }
+
+    async hasDiscountCodeRedemption(id: string) {
+        return (await (await FirestoreRefs.discountCodeRedemptions()).doc(id).get()).exists
     }
 
     async getDiscountCodeRedemptions(redemptionKey: string) {
@@ -464,6 +471,19 @@ class Client {
 
     setZohoAccessToken(accessToken: string) {
         return this.#updateDocument(FirestoreRefs.zohoAccessToken(), { accessToken, isRefreshing: false })
+    }
+
+    async createPartyFormSubmission(submissionId: string, submission: WithoutId<PartyFormSubmission>) {
+        return this.#createDocument(submission, await FirestoreRefs.partyFormSubmission(submissionId))
+    }
+
+    /** Undefined when no submission has been saved with this id yet. */
+    async getPartyFormSubmission(submissionId: string) {
+        return (await (await FirestoreRefs.partyFormSubmission(submissionId)).get()).data()
+    }
+
+    markPartyFormSubmissionApplied(submissionId: string) {
+        return this.#updateDocument(FirestoreRefs.partyFormSubmission(submissionId), { bookingApplied: true })
     }
 
     async claimPartyFormSubmissionProcessing(submissionId: string, bookingId: string) {

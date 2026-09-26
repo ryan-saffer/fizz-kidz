@@ -85,6 +85,22 @@ export default {
                         hover: '#02c2de',
                     },
                 },
+                // customer-facing party form
+                party: {
+                    ink: '#302440',
+                    muted: '#6e6279',
+                    pink: '#a92c83',
+                    'pink-dark': '#8c216b',
+                    line: '#e7dfe9',
+                    cream: '#fcfaf7',
+                    tint: '#fcf6fc',
+                    lilac: '#f1eaf6',
+                    placeholder: '#eee6f3',
+                },
+            },
+            backgroundImage: {
+                'party-glow':
+                    'radial-gradient(ellipse at 96% 5%, #eee4fa 0, transparent 38%), radial-gradient(ellipse at 0% 70%, #fce8ee 0, transparent 32%)',
             },
             borderRadius: {
                 lg: 'var(--radius)',
@@ -116,11 +132,16 @@ export default {
                         transform: 'scale(1)',
                     },
                 },
+                'party-enter': {
+                    from: { opacity: '0', transform: 'translateY(8px)' },
+                    to: { opacity: '1', transform: 'translateY(0)' },
+                },
             },
             animation: {
                 'accordion-down': 'accordion-down 0.2s ease-out',
                 'accordion-up': 'accordion-up 0.2s ease-out',
                 grow: 'grow 0.1s ease-in-out',
+                'party-enter': 'party-enter 0.3s ease both',
             },
             fontFamily: {
                 lilita: ['LilitaOne'],

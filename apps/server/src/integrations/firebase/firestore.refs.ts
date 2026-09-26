@@ -18,6 +18,7 @@ import type {
     InventoryStockLevel,
     InventoryStockMovement,
     InventoryUsageRule,
+    PartyFormSubmission,
     Studio,
 } from '@fizz-kidz/core'
 
@@ -171,6 +172,16 @@ export class FirestoreRefs {
 
     static async partyFormSubmissionProcessingDoc(submissionId: string) {
         return (await this.partyFormSubmissionProcessing()).doc(submissionId)
+    }
+
+    static async partyFormSubmissions() {
+        return (await FirestoreClient.getInstance()).collection(
+            'partyFormSubmissions'
+        ) as Collection<PartyFormSubmission>
+    }
+
+    static async partyFormSubmission(submissionId: string) {
+        return (await this.partyFormSubmissions()).doc(submissionId)
     }
 
     static async googleBusinessProfileReviews() {

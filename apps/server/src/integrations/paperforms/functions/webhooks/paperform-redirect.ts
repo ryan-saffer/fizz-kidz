@@ -20,6 +20,7 @@ import type { Square } from 'square'
 import { env } from '@/app/init/firebase'
 import { handlePartyFormSubmission } from '@/features/party-bookings/core/handle-party-form-submission'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
+import { DocumentNotFoundError } from '@/integrations/firebase/document-not-found-error'
 import { logError } from '@/integrations/observability/log-error'
 import { buildHostedPaperformUrl } from '@/integrations/paperforms/core/hosted-paperform-url'
 import { getPartyFormEmbedConfig } from '@/integrations/paperforms/core/party-form-prefill'
@@ -49,7 +50,7 @@ partyFormRedirect.get('/party-form', async (req, res) => {
         res.redirect(303, buildHostedPaperformUrl('party', { id: bookingId }))
         return
     } catch (err) {
-        if (err instanceof Error && err.message.includes('Cannot find document')) {
+        if (err instanceof DocumentNotFoundError) {
             res.redirect(303, NOT_FOUND_REDIRECT)
             return
         }
@@ -75,7 +76,7 @@ partyFormRedirect.get('/cake-form', async (req, res) => {
         res.redirect(303, buildHostedPaperformUrl('cake', { id: bookingId }))
         return
     } catch (err) {
-        if (err instanceof Error && err.message.includes('Cannot find document')) {
+        if (err instanceof DocumentNotFoundError) {
             res.redirect(303, NOT_FOUND_REDIRECT)
             return
         }
