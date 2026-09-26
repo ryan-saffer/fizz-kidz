@@ -1,4 +1,4 @@
-import { useStore } from '@tanstack/react-form'
+import { useSelector } from '@tanstack/react-form'
 import { Pencil } from 'lucide-react'
 
 import { BRING_OWN_CAKE, orderedQuantities, PRODUCTS, TAKE_HOME_BAGS } from '@fizz-kidz/core'
@@ -12,7 +12,7 @@ import type { PartyStepKey } from '../../state/steps'
 export function PartyReview() {
     const form = usePartyFormApi()
     const config = usePartyConfig()
-    const values = useStore(form.store, (state) => state.values)
+    const values = useSelector(form.store, (state) => state.values)
     const steps = usePartyFormStore((state) => state.steps)
     const onEdit = usePartyFormStore((state) => state.editStep)
     const locked = useIsCheckoutLocked()

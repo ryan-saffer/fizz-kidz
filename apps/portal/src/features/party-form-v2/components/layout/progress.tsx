@@ -1,4 +1,4 @@
-import { useStore } from '@tanstack/react-form'
+import { useSelector } from '@tanstack/react-form'
 import { Check } from 'lucide-react'
 
 import { useIsCheckoutLocked, usePartyFormApi, usePartyFormStore } from '../../state/party-form-store'
@@ -11,7 +11,7 @@ export function PartyProgress() {
     const { goTo, advance, lastReachableStep } = usePartyFormStore.getState()
     const locked = useIsCheckoutLocked()
     // recalculated whenever the answers or their validation change
-    const lastReachable = useStore(form.store, (state) => lastReachableStep(state.values))
+    const lastReachable = useSelector(form.store, (state) => lastReachableStep(state.values))
     const disabled = advancing || locked
     return (
         <nav className="mx-auto mt-2.5 max-w-[860px] sm:mt-1.5" aria-label="Party form progress">

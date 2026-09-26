@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 import {
     MAX_PARTY_FORM_FOOD_ADDITIONS,
+    partyFormV2RequiresPayment,
     submitPartyFormV2Schema,
     type PartyFormV2,
     type PartyFormV2Checkout,
@@ -178,6 +179,11 @@ export const usePartyFormStore = create<State & Actions>((set, get) => ({
         const { config, form, mode, server, applied } = get()
         if (!config || !form || !server) return
         const payload = toPayload(config, form.state.values, mode)
+        // with nothing paid now there's no checkout: submit sends the answers and the server checks them then
+        if (!partyFormV2RequiresPayment(payload)) {
+            set({ payload, checkout: null, preparing: false, needsRefresh: false, error: '' })
+            return
+        }
         set({ payload, checkout: null, preparing: true, needsRefresh: false, error: '' })
         // a newer prepare (e.g. applying a code) replaces this one
         const isCurrent = () => get().payload === payload
@@ -198,8 +204,9 @@ export const usePartyFormStore = create<State & Actions>((set, get) => ({
 
     pay: async (token = '', buyerVerificationToken = '') => {
         const { config, payload, checkout, preparing, attempt, needsRefresh } = get()
-        if (!config || !payload || !checkout || preparing || attempt || needsRefresh) return
-        const request = { payload, checkoutId: checkout.checkoutId, token, buyerVerificationToken }
+        if (!config || !payload || preparing || attempt) return
+        if (partyFormV2RequiresPayment(payload) && (!checkout || needsRefresh)) return
+        const request = { payload, checkoutId: checkout?.checkoutId ?? null, token, buyerVerificationToken }
         savePaymentAttempt(config.bookingId, request)
         set({ attempt: request, error: '' })
         await get().checkPayment()
@@ -220,9 +227,14 @@ export const usePartyFormStore = create<State & Actions>((set, get) => ({
         } catch (error) {
             const code = (error as { data?: { code?: string } }).data?.code
             if (code && code !== 'INTERNAL_SERVER_ERROR') {
-                // a definite failure charges nothing, so the customer starts a new checkout
+                // a definite failure charges nothing; a paid checkout then needs replacing
                 clearPaymentAttempt(config.bookingId)
-                set({ attempt: null, processing: false, needsRefresh: true, error: getErrorMessage(error) })
+                set({
+                    attempt: null,
+                    processing: false,
+                    needsRefresh: attempt.checkoutId !== null,
+                    error: getErrorMessage(error),
+                })
             } else {
                 // a lost response may follow a successful charge, so the same request is checked again
                 set((state) => ({

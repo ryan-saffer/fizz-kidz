@@ -32,75 +32,91 @@ export function PartyPayment() {
     const [giftCardNumber, setGiftCardNumber] = useState('')
 
     if (processing) return <PaymentStatus />
+    if (payload && !partyFormV2RequiresPayment(payload))
+        // nothing to pay now (food is paid at the end of the party), so there's no payment section
+        return (
+            <div>
+                {error && (
+                    <p role="alert" className="mb-4 text-red-600">
+                        {error}
+                    </p>
+                )}
+                {paying ? (
+                    <LoadingState title="Submitting your party details" description="Please keep this page open." />
+                ) : (
+                    <PrimaryButton type="button" className="w-full" onClick={() => void pay()}>
+                        Submit
+                    </PrimaryButton>
+                )}
+            </div>
+        )
 
     return (
         <Section title="Payment" aria-label="Payment">
             <fieldset disabled={preparing || paying} className="min-w-0">
-                {payload && partyFormV2RequiresPayment(payload) && (
-                    <div className="mb-5 grid gap-5">
-                        <div>
-                            <Label htmlFor="party-discount-code">Discount Code</Label>
-                            <div className="mt-2 flex gap-2">
-                                <Input
-                                    id="party-discount-code"
-                                    className={inputClassName}
-                                    value={discountCode}
-                                    onChange={(event) => setDiscountCode(event.target.value)}
-                                />
-                                <Button
-                                    type="button"
-                                    disabled={!discountCode.trim()}
-                                    onClick={() => applyCodes({ discountCode: discountCode.trim() })}
-                                >
-                                    Apply discount
-                                </Button>
-                            </div>
-                            {applied.discountCode && (
-                                <Button
-                                    type="button"
-                                    variant="link"
-                                    onClick={() => {
-                                        applyCodes({ discountCode: '' })
-                                        setDiscountCode('')
-                                    }}
-                                >
-                                    Remove discount
-                                </Button>
-                            )}
+                <div className="mb-5 grid gap-5">
+                    <div>
+                        <Label htmlFor="party-discount-code">Discount Code</Label>
+                        <div className="mt-2 flex gap-2">
+                            <Input
+                                id="party-discount-code"
+                                className={inputClassName}
+                                value={discountCode}
+                                onChange={(event) => setDiscountCode(event.target.value)}
+                            />
+                            <Button
+                                type="button"
+                                disabled={!discountCode.trim()}
+                                onClick={() => applyCodes({ discountCode: discountCode.trim() })}
+                            >
+                                Apply discount
+                            </Button>
                         </div>
-                        <div>
-                            <Label htmlFor="party-gift-card">Gift Card</Label>
-                            <div className="mt-2 flex gap-2">
-                                <Input
-                                    id="party-gift-card"
-                                    className={inputClassName}
-                                    autoComplete="off"
-                                    value={giftCardNumber}
-                                    onChange={(event) => setGiftCardNumber(event.target.value)}
-                                />
-                                <Button
-                                    type="button"
-                                    disabled={!giftCardNumber.trim()}
-                                    onClick={() => applyCodes({ giftCardNumber: giftCardNumber.trim() })}
-                                >
-                                    Apply gift card
-                                </Button>
-                            </div>
-                            {applied.giftCardNumber && (
-                                <Button
-                                    type="button"
-                                    variant="link"
-                                    onClick={() => {
-                                        applyCodes({ giftCardNumber: '' })
-                                        setGiftCardNumber('')
-                                    }}
-                                >
-                                    Remove gift card
-                                </Button>
-                            )}
-                        </div>
+                        {applied.discountCode && (
+                            <Button
+                                type="button"
+                                variant="link"
+                                onClick={() => {
+                                    applyCodes({ discountCode: '' })
+                                    setDiscountCode('')
+                                }}
+                            >
+                                Remove discount
+                            </Button>
+                        )}
                     </div>
-                )}
+                    <div>
+                        <Label htmlFor="party-gift-card">Gift Card</Label>
+                        <div className="mt-2 flex gap-2">
+                            <Input
+                                id="party-gift-card"
+                                className={inputClassName}
+                                autoComplete="off"
+                                value={giftCardNumber}
+                                onChange={(event) => setGiftCardNumber(event.target.value)}
+                            />
+                            <Button
+                                type="button"
+                                disabled={!giftCardNumber.trim()}
+                                onClick={() => applyCodes({ giftCardNumber: giftCardNumber.trim() })}
+                            >
+                                Apply gift card
+                            </Button>
+                        </div>
+                        {applied.giftCardNumber && (
+                            <Button
+                                type="button"
+                                variant="link"
+                                onClick={() => {
+                                    applyCodes({ giftCardNumber: '' })
+                                    setGiftCardNumber('')
+                                }}
+                            >
+                                Remove gift card
+                            </Button>
+                        )}
+                    </div>
+                </div>
             </fieldset>
             {preparing && <LoadingState title="Updating your payment summary" />}
             {error && (

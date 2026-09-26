@@ -49,6 +49,6 @@ Persisted names (the `partyFormSubmissions` collection, the `party-form` discoun
 
 ## Rollout
 
-The custom form will go live at one pilot studio first, alongside the Paperform, and then at every studio. Customers receive `/forms/party?id=…` links, which `hosted-paperform-redirect.ts` resolves at click time. That redirect is where the switch happens, so links sent before launch move over too (see the TODO there).
+The custom form is being piloted at Malvern, alongside the Paperform everywhere else. Every party and cake form link (emails and the portal's copy-link buttons) is `/forms/party?id=…` or `/forms/cake?id=…`, which `hosted-paperform-redirect.ts` resolves at click time: bookings at a studio in `CUSTOM_PARTY_FORM_PILOT_STUDIOS` go to `/party-form-v2` (with `mode=cake` for cake links), everyone else to the Paperform. Full launch means redirecting every booking there, which also moves links sent before launch over (see the TODO).
 
 While both forms are live they share the booking pipeline and the Square catalogue. The Paperform keeps its own cake, flavour and addition lists, so changes made in Square must also be made in the Paperform until it is retired. Square does not enforce the cake item's required modifier lists on API orders, so the Paperform checkout keeps working.

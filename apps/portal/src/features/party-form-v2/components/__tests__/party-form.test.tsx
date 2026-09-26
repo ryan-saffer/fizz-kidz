@@ -414,6 +414,22 @@ describe('Party form guided journey', () => {
         expect(within(progress).getByText('Step 1 of 2')).toBeTruthy()
     })
 
+    it('submits without a payment section when nothing is paid now', async () => {
+        submit.mockReset().mockResolvedValue({ status: 'completed', receiptUrl: null })
+        const user = setup()
+        await reachCreations(user)
+        await chooseCreations(user)
+        // food, bring-my-own cake, no goodies and no notes: nothing to pay today
+        while (!screen.queryByRole('heading', { name: 'Review' }))
+            await user.click(screen.getByRole('button', { name: 'Next' }))
+        expect(screen.queryByRole('region', { name: 'Payment' })).toBeNull()
+        expect(screen.queryByText('$0.00')).toBeNull()
+        await user.click(screen.getByRole('button', { name: 'Submit' }))
+        expect(await screen.findByText('Party details received')).toBeTruthy()
+        expect(prepare).not.toHaveBeenCalled()
+        expect(submit.mock.calls[0][0]).toMatchObject({ checkoutId: null, token: '' })
+    })
+
     it('omits food and cake steps when they are unavailable', async () => {
         const user = setup({ type: 'mobile', cakeOptions: null })
         await user.click(screen.getByRole('button', { name: 'Next' }))

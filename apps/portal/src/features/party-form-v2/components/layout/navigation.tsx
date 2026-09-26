@@ -1,4 +1,4 @@
-import { useStore } from '@tanstack/react-form'
+import { useSelector } from '@tanstack/react-form'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 import { Button } from '@shared/components/ui/button'
@@ -17,7 +17,7 @@ export function PartyNavigation() {
     const isReview = usePartyFormStore((state) => state.steps[state.currentStep]?.key === 'review')
     const advancing = usePartyFormStore((state) => state.advancing)
     const locked = useIsCheckoutLocked()
-    const total = useStore(form.store, (state) => calculateTotal(state.values, config))
+    const total = useSelector(form.store, (state) => calculateTotal(state.values, config))
     const back = () => usePartyFormStore.getState().goTo(usePartyFormStore.getState().currentStep - 1)
     return (
         <footer
