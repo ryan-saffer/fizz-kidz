@@ -39,10 +39,7 @@ apiRouter.use(
             const errorCode = getErrorCode(error.cause ?? error, error.code)
             const payload = {
                 path,
-                input:
-                    path === 'parties.submitPartyFormV2' || path === 'parties.preparePartyFormV2'
-                        ? '[payment input redacted]'
-                        : input,
+                input,
                 errorCode,
                 cause: error.cause,
             }

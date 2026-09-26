@@ -21,7 +21,9 @@ const Paperform = lazy(() =>
     import('../features/forms/paperform-page.js').then((module) => ({ default: module.Paperform }))
 )
 const PartyFormV2Page = lazy(() =>
-    import('../features/party-form-v2/party-form-v2-page.js').then((module) => ({ default: module.PartyFormV2Page }))
+    import('../features/party-form-v2/pages/party-form-v2-page.js').then((module) => ({
+        default: module.PartyFormV2Page,
+    }))
 )
 const SignUpPage = lazy(() =>
     import('../features/authentication/pages/sign-up-page.js').then((module) => ({ default: module.SignUpPage }))

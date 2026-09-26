@@ -233,6 +233,9 @@ describe('SanityClient', () => {
         ])
         const sanity = await getSanityClient()
         const result = await sanity.getBirthdayPartyFormImages()
+        // Website cards no longer have bookingOrder. Filtering on it removes every photo.
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('"creations": websiteCards[]'))
+        expect(fetch).not.toHaveBeenCalledWith(expect.stringContaining('bookingOrder'))
         expect(fetch).toHaveBeenCalledWith(expect.stringContaining('coalesce(image, creation->image)'))
         expect(imageUrlBuilder.image).toHaveBeenCalledWith(image)
         expect(imageUrlBuilder.width).toHaveBeenCalledWith(720)

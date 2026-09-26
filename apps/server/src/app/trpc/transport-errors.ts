@@ -44,7 +44,8 @@ export function throwTrpcError(
     error?: unknown,
     additionalInfo: object = {}
 ): never {
-    Sentry.captureException(error)
+    // plain validation errors (no underlying error) are expected, so only real failures go to Sentry
+    if (error !== undefined) Sentry.captureException(error)
     throw new TRPCError({
         code,
         message,

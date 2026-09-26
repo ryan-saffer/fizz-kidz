@@ -1,21 +1,37 @@
 # Party details form
 
-`/party-form-v2?id=<bookingId>` is the custom customer party-details journey. It uses TanStack Form and a dedicated layout in `party-form-v2.css`.
+`/party-form-v2?id=<bookingId>` is the custom customer party-details journey, replacing the hosted Paperform. It uses Zustand, TanStack Form and Tailwind; the `party` colours, `party-glow` background and `party-enter` animation are in the portal Tailwind config. The server side is in `apps/server/src/features/party-bookings/core/party-form-v2`.
 
-The welcome screen leads into party details, creations, studio food, cake where available, take-home goodies, personal notes, and review. Forward navigation is available when every preceding step has valid required answers, including conditional cake questions. Clearing a required answer blocks later steps again. Inactive steps stay mounted but hidden so TanStack retains their validators and values. The final submit validates the whole form before calling tRPC. Answers live in memory until submission; refreshing starts the form again.
+## How it works
 
-`party-form-v2-creations.tsx` owns theme browsing and photo choices. All themes are shown by default; parents can filter to a single theme. Selections survive filter changes, and a creation offered in multiple themes can only be selected once. The server combines the operational booking catalogue with Sanity package-card images, using each card's image override or the creation's default image. Photos are resized on Sanity's CDN with crop and hotspot settings preserved. Availability still comes from the booking catalogue.
+Start with `state/party-form-store.ts`. The store holds the whole journey: the steps for this booking, navigation and validation, the review step's checkout (discount code, gift card) and paying, including checking an unclear payment again. Components read from it and call its actions rather than passing state down.
 
-`party-form-v2-experience.tsx` contains the welcome, progress, step headings and review. Display prices in `party-form-v2-pricing.ts` cover new cake and gift purchases only. Food stays on the party invoice, and existing purchases are shown separately. The server's Square catalogue determines the actual checkout amount.
+- `state/form.ts` is the TanStack form: the answers, their defaults and validators, and `toPayload`, which turns them into what the server receives. The store reads and validates it; step components render its fields.
+- `state/steps.ts` lists the steps for a booking and mode.
+- `components/party-form.tsx` creates the form, registers it and the two tRPC mutations with the store, and renders the current stage.
+- `components/steps/` has one component per step, plus the creation and addition pickers and the review summary. `components/layout/` has the page shell, welcome, progress bar, step heading, Back/Next bar and confirmation. `components/payment/` has the Square checkout and the payment status panel. `components/common/` has the shared cards, fields and `LoadingState`.
+- `utils/display.ts` has display prices and names; `utils/copy.ts` has the Paperform copy for creation questions.
 
-`party-form-v2-payment.tsx` embeds Square Web Payments on the review step, following the preschool-v2 card-tokenisation and buyer-verification flow. Preparing checkout sends the answers, discount code and optional gift-card number to the server. The server creates an unpaid catalogue-priced order and returns its total, discount, gift-card contribution and remaining card amount. Changing answers or applied codes prepares a new unpaid order. Card details stay in Square's inputs.
+`?mode=cake` opens the cake form, which only has the cake and goodies steps and review (see the server README). The mode only changes the step list and some wording; only listed steps are mounted, so party questions never validate in cake mode. A cake already on the booking shows read-only, and each goodie shows how many were already ordered. Where cakes can't be ordered (`cakeOptions` is null), the cake step is left out.
 
-The final TanStack validation runs before submitting the prepared checkout ID and card tokens. Gift cards can cover part or all of the total; fully discounted and zero-cost submissions need no card. A successful submission shows confirmation and a receipt link when Square provides one. An ambiguous payment response locks editing and retries the same checkout and token through **Check payment status**. The exact pending request is saved in this tab's session storage before payment; reloading opens recovery rather than preparing another order. This contains only Square tokens, never card details, and is removed after a confirmed result. A definite decline unlocks editing and requires **Refresh payment summary** before a new payment attempt. No Square checkout link or browser redirect completes a payment.
+## Steps and validation
 
-Headings, paragraphs, question labels and helper text use the production Paperform `4c6karmx`, version 79, including its non-question content blocks and studio/mobile differences. Preserve that wording rather than adding or rewriting customer copy. Package question copy and bag labels live in `party-form-v2-copy.ts`. Review, navigation and filtering use short functional labels. Food additions, cake choices and take-home gifts use the shared option lists in `@fizz-kidz/core`; creation names and availability come from Sanity.
+Moving forward (Next, or jumping ahead on the progress bar) validates every earlier step and shows the first incomplete one. Inactive steps stay mounted but hidden so TanStack keeps their values and validators. Answers live in memory until submission; a refresh starts again.
 
-Run the journey tests with:
+The creation picker shows every theme by default and can filter to one; a creation offered in several themes can only be picked once. Creations and their studio/mobile availability come from Sanity. The cake step (sizes, designs with photos, flavours and their limits, serving, candles, prices), food additions and take-home goodies come from Square through the form config. Goodies are sold in lots of at least 12, so the first + jumps to 12; once ordered, they can be topped up one at a time.
+
+Headings, paragraphs and question labels follow the production Paperform `4c6karmx` (version 79), including its studio/mobile differences. Keep that wording rather than rewriting customer copy.
+
+## Payment
+
+Entering the review step prepares a checkout: the store sends the answers (and any discount code or gift card) and the server returns the Square-priced summary. Food is paid at the end of the party, so it isn't included. `components/payment/party-payment.tsx` embeds Square Web Payments (Apple Pay, Google Pay and card; wallets skip buyer verification). Card details stay in Square's inputs.
+
+Paying sends the same answers with the checkout id and Square token. The request is kept in this tab's session storage until the server confirms it or it definitely fails, so a reload shows the payment status panel and checks the same payment instead of starting another. It holds only Square's single-use token. An unclear result locks editing and offers **Check payment status**; after a few unconfirmed checks the customer is asked to email us rather than pay again. A definite failure (e.g. a declined card) unlocks editing and needs **Refresh payment summary** for a new checkout.
+
+## Tests
+
+Tests live in a `__tests__` folder next to the file they cover (e.g. `components/__tests__/party-form.test.tsx` tests `components/party-form.tsx`). This is being tried here, in the server party form and in payments before the rest of the repo.
 
 ```bash
-vp test --run --project portal apps/portal/src/features/party-form-v2/party-form-v2-form.test.tsx
+vp test --run --project portal apps/portal/src/features/party-form-v2
 ```

@@ -29,18 +29,18 @@ import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 
 export async function handlePartyFormSubmission(
     responses: PaperformSubmission<PartyForm>,
-    customSubmissionId?: string
+    /** The custom form's cake, which its synthetic Paperform submission can't carry. */
+    customCake?: Booking['cake']
 ) {
     const sanity = await SanityClient.getInstance()
     const catalogue = await sanity.getBirthdayPartyBookingCatalogue()
     const formMapper = new PartyFormMapper(responses, catalogue)
-    const existingBooking = customSubmissionId
-        ? await DatabaseClient.getPartyFormV2BookingSnapshot(customSubmissionId, formMapper.bookingId)
-        : await DatabaseClient.getPartyBooking(formMapper.bookingId)
+    const existingBooking = await DatabaseClient.getPartyBooking(formMapper.bookingId)
 
     let mappedBooking: Partial<Booking> = {}
     try {
         mappedBooking = formMapper.mapToBooking(existingBooking.type, existingBooking.location)
+        if (customCake) mappedBooking.cake = customCake
         if (responses.getFieldValue('party_or_cake_form') === 'party') {
             mappedBooking.partyFormFilledIn = true
         }
@@ -50,17 +50,6 @@ export async function handlePartyFormSubmission(
     }
 
     const mailClient = await MailClient.getInstance()
-    const sentNotifications = customSubmissionId
-        ? ((await DatabaseClient.getPartyFormV2Submission(customSubmissionId)).notifications ?? {})
-        : {}
-    async function sendNotification(key: string, send: () => Promise<unknown>) {
-        if (sentNotifications[key]) return
-        await send()
-        if (customSubmissionId) {
-            await DatabaseClient.markPartyFormV2NotificationSent(customSubmissionId, key)
-            sentNotifications[key] = true
-        }
-    }
 
     const takeHomeBags = ObjectKeys(mappedBooking.takeHomeBags || {}).map((key) => ({
         name: TAKE_HOME_BAGS[key].displayValue,
@@ -196,15 +185,7 @@ export async function handlePartyFormSubmission(
         products: mergeRecord(ObjectKeys(PRODUCTS), existingBooking.products, mappedBooking.products),
     }
     try {
-        if (customSubmissionId) {
-            await DatabaseClient.applyPartyFormV2BookingUpdate(customSubmissionId, formMapper.bookingId, (current) => ({
-                ...mappedBooking,
-                takeHomeBags: mergeRecord(ObjectKeys(TAKE_HOME_BAGS), current.takeHomeBags, mappedBooking.takeHomeBags),
-                products: mergeRecord(ObjectKeys(PRODUCTS), current.products, mappedBooking.products),
-            }))
-        } else {
-            await DatabaseClient.updatePartyBooking(formMapper.bookingId, mergedBooking)
-        }
+        await DatabaseClient.updatePartyBooking(formMapper.bookingId, mergedBooking)
     } catch (err) {
         logError('error updating party booking', err, mappedBooking)
         throwFunctionsError('internal', 'error updating party booking', err, mappedBooking)
@@ -326,116 +307,107 @@ export async function handlePartyFormSubmission(
 
     if (orderedTakeHomeBags || orderedProducts) {
         try {
-            await sendNotification('takeHomeNotification', () =>
-                mailClient.sendEmail(
-                    'takeHomeNotification',
-                    studioContactEmail,
-                    {
-                        parentName: `${fullBooking.parentFirstName} ${fullBooking.parentLastName}`,
-                        dateTime: DateTime.fromJSDate(existingBooking.dateTime, {
-                            zone: 'Australia/Melbourne',
-                        }).toLocaleString({
-                            weekday: 'short',
-                            month: 'short',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true,
-                        }),
-                        location: capitalise(fullBooking.location),
-                        mobile: fullBooking.parentMobile,
-                        email: fullBooking.parentEmail,
-                        ...(takeHomeBags.length > 0 && { takeHomeBags }),
-                        ...(products.length > 0 && { products }),
-                    },
-                    {
-                        replyTo: fullBooking.parentEmail,
-                    }
-                )
+            await mailClient.sendEmail(
+                'takeHomeNotification',
+                studioContactEmail,
+                {
+                    parentName: `${fullBooking.parentFirstName} ${fullBooking.parentLastName}`,
+                    dateTime: DateTime.fromJSDate(existingBooking.dateTime, {
+                        zone: 'Australia/Melbourne',
+                    }).toLocaleString({
+                        weekday: 'short',
+                        month: 'short',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                    }),
+                    location: capitalise(fullBooking.location),
+                    mobile: fullBooking.parentMobile,
+                    email: fullBooking.parentEmail,
+                    ...(takeHomeBags.length > 0 && { takeHomeBags }),
+                    ...(products.length > 0 && { products }),
+                },
+                {
+                    replyTo: fullBooking.parentEmail,
+                }
             )
         } catch (err) {
             logError(`error sending take home notification for booking with id: '${formMapper.bookingId}'`, err)
-            if (customSubmissionId) throw err
         }
     }
 
     // email the cake company if a cake was chosen
     if (mappedBooking.cake) {
-        const cake = mappedBooking.cake
         try {
-            await sendNotification('cakeNotification', () =>
-                mailClient.sendEmail(
-                    'cakeNotification',
-                    env === 'prod' ? 'orders@birthdaycakeshop.com.au' : 'ryansaffer@gmail.com',
-                    {
-                        parentName: fullBooking.parentFirstName,
-                        dateTime: DateTime.fromJSDate(existingBooking.dateTime, {
-                            zone: 'Australia/Melbourne',
-                        }).toLocaleString({
-                            weekday: 'short',
-                            month: 'short',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true,
-                        }),
-                        studio: `${capitalise(fullBooking.location)} - ${getStudioAddress(fullBooking.location)}`,
-                        mobile: fullBooking.parentMobile,
-                        email: fullBooking.parentEmail,
-                        cakeSelection: cake.selection,
-                        cakeSize: cake.size,
-                        cakeFlavours: cake.flavours.join(', '),
-                        cakeServed: cake.served,
-                        cakeCandles: cake.candles,
-                        cakeMessage: cake.message,
-                    },
-                    {
-                        bcc: [studioContactEmail],
-                    }
-                )
+            await mailClient.sendEmail(
+                'cakeNotification',
+                env === 'prod' ? 'orders@birthdaycakeshop.com.au' : 'ryansaffer@gmail.com',
+                {
+                    parentName: fullBooking.parentFirstName,
+                    dateTime: DateTime.fromJSDate(existingBooking.dateTime, {
+                        zone: 'Australia/Melbourne',
+                    }).toLocaleString({
+                        weekday: 'short',
+                        month: 'short',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                    }),
+                    studio: `${capitalise(fullBooking.location)} - ${getStudioAddress(fullBooking.location)}`,
+                    mobile: fullBooking.parentMobile,
+                    email: fullBooking.parentEmail,
+                    cakeSelection: mappedBooking.cake.selection,
+                    cakeSize: mappedBooking.cake.size,
+                    cakeFlavours: mappedBooking.cake.flavours.join(', '),
+                    cakeServed: mappedBooking.cake.served,
+                    cakeCandles: mappedBooking.cake.candles,
+                    cakeMessage: mappedBooking.cake.message,
+                },
+                {
+                    bcc: [studioContactEmail],
+                }
             )
         } catch (err) {
             logError(`error sending cake notification email for booking with id: ${formMapper.bookingId}`, err, {
                 booking: mappedBooking,
             })
-            if (customSubmissionId) throw err
         }
     }
 
     // email birthday cake shop if new take home bags were ordered
     if (mappedBooking.takeHomeBags && ObjectKeys(mappedBooking.takeHomeBags).length > 0) {
         try {
-            await sendNotification('takeHomeBagNotification', () =>
-                mailClient.sendEmail(
-                    'takeHomeBagNotification',
-                    env === 'prod' ? 'orders@birthdaycakeshop.com.au' : 'ryansaffer@gmail.com',
-                    {
-                        parentName: `${fullBooking.parentFirstName} ${fullBooking.parentLastName}`,
-                        dateTime: DateTime.fromJSDate(existingBooking.dateTime, {
-                            zone: 'Australia/Melbourne',
-                        }).toLocaleString({
-                            weekday: 'short',
-                            month: 'short',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true,
-                        }),
-                        studio: `${capitalise(fullBooking.location)} - ${getStudioAddress(fullBooking.location)}`,
-                        mobile: fullBooking.parentMobile,
-                        email: fullBooking.parentEmail,
-                        ...(existingBooking.takeHomeBags
-                            ? {
-                                  hasExistingTakeHomeBags: true,
-                                  oldTakeHomeBags: ObjectKeys(existingBooking.takeHomeBags).map((key) => ({
-                                      name: TAKE_HOME_BAGS[key].displayValue,
-                                      quantity: existingBooking.takeHomeBags?.[key]?.toString() || '0',
-                                  })),
-                              }
-                            : { hasExistingTakeHomeBags: false }),
-                        newTakeHomeBags: takeHomeBags,
-                    }
-                )
+            await mailClient.sendEmail(
+                'takeHomeBagNotification',
+                env === 'prod' ? 'orders@birthdaycakeshop.com.au' : 'ryansaffer@gmail.com',
+                {
+                    parentName: `${fullBooking.parentFirstName} ${fullBooking.parentLastName}`,
+                    dateTime: DateTime.fromJSDate(existingBooking.dateTime, {
+                        zone: 'Australia/Melbourne',
+                    }).toLocaleString({
+                        weekday: 'short',
+                        month: 'short',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                    }),
+                    studio: `${capitalise(fullBooking.location)} - ${getStudioAddress(fullBooking.location)}`,
+                    mobile: fullBooking.parentMobile,
+                    email: fullBooking.parentEmail,
+                    ...(existingBooking.takeHomeBags
+                        ? {
+                              hasExistingTakeHomeBags: true,
+                              oldTakeHomeBags: ObjectKeys(existingBooking.takeHomeBags).map((key) => ({
+                                  name: TAKE_HOME_BAGS[key].displayValue,
+                                  quantity: existingBooking.takeHomeBags?.[key]?.toString() || '0',
+                              })),
+                          }
+                        : { hasExistingTakeHomeBags: false }),
+                    newTakeHomeBags: takeHomeBags,
+                }
             )
         } catch (err) {
             logError(
@@ -445,54 +417,50 @@ export async function handlePartyFormSubmission(
                     booking: mappedBooking,
                 }
             )
-            if (customSubmissionId) throw err
         }
     }
 
     if (responses.getFieldValue('party_or_cake_form') !== 'cake') {
         try {
-            await sendNotification('partyFormConfirmation', () =>
-                mailClient.sendEmail(
-                    'partyFormConfirmation',
-                    fullBooking.parentEmail,
-                    {
-                        parentName: fullBooking.parentFirstName,
-                        numberOfChildren: fullBooking.numberOfChildren,
-                        creations,
-                        isTyeDyeParty: creations.find((it) => it.includes('Tie Dye')) !== undefined,
-                        hasAdditions: additions.length !== 0,
-                        additions,
-                        isMobile: fullBooking.type === 'mobile',
-                        hasQuestions: fullBooking.questions !== '' || fullBooking.questions !== undefined,
-                        contactPhone: customerContact.phoneDisplay,
-                        contactSignoff: customerContact.contactSignoff,
-                        contactName: customerContact.contactName || '',
-                        includesFood: fullBooking.type === 'studio' && fullBooking.includesFood,
-                        hasTakeHomeBags: takeHomeBags.length > 0 || products.length > 0,
-                        takeHomeBags: [...takeHomeBags, ...products],
-                        ...(fullBooking.cake && {
-                            cake: {
-                                selection: fullBooking.cake.selection,
-                                size: fullBooking.cake.size,
-                                flavours: fullBooking.cake.flavours.join(', '),
-                                served: fullBooking.cake.served,
-                                candles: fullBooking.cake.candles,
-                                message: fullBooking.cake.message,
-                            },
-                        }),
-                    },
-                    {
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: studioContactEmail,
+            await mailClient.sendEmail(
+                'partyFormConfirmation',
+                fullBooking.parentEmail,
+                {
+                    parentName: fullBooking.parentFirstName,
+                    numberOfChildren: fullBooking.numberOfChildren,
+                    creations,
+                    isTyeDyeParty: creations.find((it) => it.includes('Tie Dye')) !== undefined,
+                    hasAdditions: additions.length !== 0,
+                    additions,
+                    isMobile: fullBooking.type === 'mobile',
+                    hasQuestions: fullBooking.questions !== '' || fullBooking.questions !== undefined,
+                    contactPhone: customerContact.phoneDisplay,
+                    contactSignoff: customerContact.contactSignoff,
+                    contactName: customerContact.contactName || '',
+                    includesFood: fullBooking.type === 'studio' && fullBooking.includesFood,
+                    hasTakeHomeBags: takeHomeBags.length > 0 || products.length > 0,
+                    takeHomeBags: [...takeHomeBags, ...products],
+                    ...(fullBooking.cake && {
+                        cake: {
+                            selection: fullBooking.cake.selection,
+                            size: fullBooking.cake.size,
+                            flavours: fullBooking.cake.flavours.join(', '),
+                            served: fullBooking.cake.served,
+                            candles: fullBooking.cake.candles,
+                            message: fullBooking.cake.message,
                         },
-                        replyTo: studioContactEmail,
-                    }
-                )
+                    }),
+                },
+                {
+                    from: {
+                        name: 'Fizz Kidz',
+                        email: studioContactEmail,
+                    },
+                    replyTo: studioContactEmail,
+                }
             )
         } catch (err) {
             logError(`error sending party form confirmation email for booking with id: '${formMapper.bookingId}'`, err)
-            if (customSubmissionId) throw err
         }
     } else {
         // only send cake form confirmation if they actually chose something

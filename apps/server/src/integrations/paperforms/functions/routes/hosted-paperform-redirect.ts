@@ -1,5 +1,6 @@
 import express from 'express'
 
+import { DocumentNotFoundError } from '@/integrations/firebase/document-not-found-error'
 import { logError } from '@/integrations/observability/log-error'
 import {
     buildHostedPaperformClientUrl,
@@ -40,10 +41,14 @@ hostedPaperformRedirect.get('/:form', async (req, res) => {
             await getPartyFormEmbedConfig(bookingId, form)
         }
 
+        // TODO(party-form-v2 rollout): every party and cake form link we send lands here, including links sent months ago.
+        // Pilot: redirect 'party' bookings at the pilot studio to `${getApplicationDomain(env)}/party-form-v2?id=<bookingId>`
+        // and 'cake' bookings to the same page with `&mode=cake`, leaving every other studio on the Paperform.
+        // Full launch: redirect all of them, which also moves old links over.
         res.redirect(303, buildHostedPaperformClientUrl(form, params))
         return
     } catch (err) {
-        if (err instanceof Error && err.message.includes('Cannot find document')) {
+        if (err instanceof DocumentNotFoundError) {
             res.redirect(303, NOT_FOUND_REDIRECT)
             return
         }

@@ -108,7 +108,7 @@ const HOLIDAY_PROGRAM_SCHEDULE_QUERY = `
 const BIRTHDAY_PARTY_FORM_IMAGES_QUERY = `
     *[_type == "birthdayPartyPackage" && status == "active" && defined(key)] {
         key,
-        "creations": websiteCards[defined(bookingOrder)] {
+        "creations": websiteCards[] {
             "key": creation->key,
             "image": coalesce(image, creation->image),
             "alt": coalesce(alt, creation->name)
