@@ -4,7 +4,7 @@ import { describe, it } from 'vite-plus/test'
 
 import type { BirthdayPartyBookingCatalogue } from '@fizz-kidz/core'
 
-import { getBirthdayPartyCreationMenu } from './creation-menu'
+import { getBirthdayPartyCreationMenu } from '../creation-menu'
 
 const catalogue: BirthdayPartyBookingCatalogue = {
     creations: [
@@ -48,6 +48,46 @@ describe('getBirthdayPartyCreationMenu', () => {
             ['fairySlime']
         )
         strictEqual(menu.previouslySelected, undefined)
+    })
+
+    it('lists a creation offered in several packages once, under the first', () => {
+        const menu = getBirthdayPartyCreationMenu(
+            {
+                creations: [
+                    ...catalogue.creations,
+                    {
+                        bookingChannels: ['studio'],
+                        key: 'glitter',
+                        legacyLabels: [],
+                        name: 'Glitter',
+                        status: 'active',
+                    },
+                ],
+                packages: [
+                    ...catalogue.packages,
+                    {
+                        creations: [{ key: 'fairySlime' }, { key: 'glitter' }],
+                        key: 'sparkle',
+                        name: 'Sparkle',
+                        position: 2,
+                        status: 'active',
+                    },
+                    { creations: [{ key: 'glitter' }], key: 'glam', name: 'Glam', position: 3, status: 'active' },
+                ],
+            },
+            'studio'
+        )
+
+        deepStrictEqual(
+            menu.packages.map((partyPackage) => [
+                partyPackage.name,
+                partyPackage.creations.map((creation) => creation.key),
+            ]),
+            [
+                ['Fairy', ['fairySlime']],
+                ['Sparkle', ['glitter']],
+            ]
+        )
     })
 
     it('retains a selected retired creation without adding it to current choices', () => {

@@ -1,17 +1,17 @@
-import { Grid, Skeleton, Stack, Typography } from '@mui/material'
 import { Toaster } from 'sonner'
 
 import type { FirestoreBooking, StandardEvent, WithId } from '@fizz-kidz/core'
 import { ObjectKeys, capitalise } from '@fizz-kidz/core'
 
 import { useOrg } from '@session/use-org'
+import { Skeleton } from '@shared/components/ui/skeleton'
 import { getOrgName } from '@shared/lib/studio-utils'
 
 import EventPanel from './events/event-panel'
 import { useEvents } from './events/use-events'
 import { useLocationFilter } from './location-filter/location-filter.hook'
-import PartyPanel from './parties/party-panel'
-import { usePartyBookings } from './parties/use-party-bookings'
+import { PartyBookingCard } from './parties/components/party-booking-card'
+import { usePartyBookings } from './parties/hooks/use-party-bookings'
 
 export const PartiesAndEvents = () => {
     const { selectedLocation } = useLocationFilter()
@@ -25,9 +25,9 @@ export const PartiesAndEvents = () => {
     return (
         <>
             <Toaster richColors />
-            {loading && [1, 2, 3].map((idx) => <BookingsSkeleton key={idx} />)}
+            {loading && [1, 2].map((idx) => <BookingsSkeleton key={idx} />)}
             {bookings.status === 'loaded' && events.status === 'loaded' && !loading && (
-                <Grid item xs sm md>
+                <div className="flex flex-col gap-6 pt-4">
                     {currentOrg === 'master' ? (
                         ObjectKeys(bookings.result).map(
                             (location) =>
@@ -47,11 +47,14 @@ export const PartiesAndEvents = () => {
                             events={events.result[currentOrg!]}
                         />
                     )}
-                </Grid>
+                </div>
             )}
         </>
     )
 }
+
+// a calendar event links to `?id=<bookingId>`, which opens that booking
+const linkedBookingId = () => new URLSearchParams(window.location.search).get('id')
 
 const LocationBookings = ({
     name,
@@ -62,61 +65,47 @@ const LocationBookings = ({
     bookings: WithId<FirestoreBooking>[]
     events: StandardEvent[]
 }) => {
+    const sortedBookings = [...bookings].sort((a, b) => a.dateTime.toMillis() - b.dateTime.toMillis())
+
     return (
-        <>
-            <h2 className="lilita" style={{ margin: 0, paddingTop: 16 }}>
-                {name}
-            </h2>
-            <div style={{ paddingTop: 12 }}>
-                {bookings.length === 0 && events.length === 0 && (
-                    <div
-                        style={{
-                            background: 'white',
-                            padding: 16,
-                            paddingLeft: 24,
-                            borderRadius: 12,
-                        }}
-                    >
-                        <Typography variant="overline">No bookings on this day</Typography>
-                    </div>
-                )}
-                {bookings.length > 0 && (
-                    <div style={{ marginBottom: 8 }}>
-                        <h6 className="lilita" style={{ fontSize: 16, margin: 0, paddingBottom: 8 }}>
-                            Parties
-                        </h6>
-                        {bookings.map((booking) => (
-                            <PartyPanel key={booking.id} booking={booking} />
-                        ))}
-                    </div>
-                )}
-                {events.length > 0 && (
-                    <div>
-                        <h6 className="lilita" style={{ fontSize: 16, margin: 0, padding: '8px 0 8px 0' }}>
-                            Events
-                        </h6>
-                        {events.map((event) => (
-                            <EventPanel key={event.id} event={event} />
-                        ))}
-                    </div>
-                )}
-            </div>
-        </>
+        <section className="flex flex-col gap-3">
+            <h2 className="m-0 font-lilita text-2xl font-normal text-slate-900">{name}</h2>
+            {bookings.length === 0 && events.length === 0 && (
+                <p className="m-0 rounded-xl border border-dashed border-slate-300 bg-white/60 px-4 py-5 text-sm text-slate-500">
+                    No bookings on this day
+                </p>
+            )}
+            {sortedBookings.length > 0 && (
+                <div className="flex flex-col gap-2">
+                    <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Parties · {sortedBookings.length}
+                    </h3>
+                    {sortedBookings.map((booking) => (
+                        <PartyBookingCard
+                            key={booking.id}
+                            booking={booking}
+                            defaultOpen={booking.id === linkedBookingId()}
+                        />
+                    ))}
+                </div>
+            )}
+            {events.length > 0 && (
+                <div className="flex flex-col gap-2">
+                    <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Events</h3>
+                    {events.map((event) => (
+                        <EventPanel key={event.id} event={event} />
+                    ))}
+                </div>
+            )}
+        </section>
     )
 }
 
 const BookingsSkeleton = () => (
-    <>
-        <Skeleton variant="rounded" width={170} height={30} sx={{ marginBottom: 1, marginTop: 2 }} />
-        <div style={{ marginLeft: 8 }}>
-            <Stack gap={1}>
-                <Skeleton variant="rounded" height={20} width={80} />
-                <Skeleton variant="rounded" height={40} />
-                <Skeleton variant="rounded" height={40} />
-                <Skeleton variant="rounded" height={20} width={80} />
-                <Skeleton variant="rounded" height={40} />
-                <Skeleton variant="rounded" height={40} />
-            </Stack>
-        </div>
-    </>
+    <div className="twp flex flex-col gap-2 pt-6">
+        <Skeleton className="h-7 w-44" />
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-16 w-full rounded-xl" />
+        <Skeleton className="h-16 w-full rounded-xl" />
+    </div>
 )
