@@ -15,6 +15,7 @@ import Incursions from './events/incursions'
 import { FilterContextProvider } from './location-filter/location-filter.provider'
 import NewEventDialog from './new-event-dialog'
 import { PartiesAndEvents } from './parties-and-events'
+import { CheckoutDialog } from './parties/checkout/components/checkout-dialog'
 import { PartyBookingDialog } from './parties/components/party-booking-dialog'
 import { getPartyBookingPrefill } from './parties/state/party-booking-form'
 import { usePartyBookingsStore } from './parties/state/party-bookings-store'
@@ -78,6 +79,7 @@ export const BookingsPage = () => {
                 {selectedTab === 'parties' && <PartiesAndEvents />}
                 {selectedTab === 'incursions' && <Incursions />}
                 <PartyBookingDialog />
+                <CheckoutDialog />
                 <NewEventDialog open={openNewEvent} onClose={() => setOpenNewEvent(false)} />
             </DateNavigation>
         </FilterContextProvider>

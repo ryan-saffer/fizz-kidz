@@ -64,6 +64,7 @@ export function PartyBookingCard({
 function PartyTags({ booking }: { booking: FirestoreBooking }) {
     return (
         <>
+            {booking.payment && <Tag className="bg-emerald-100 text-emerald-800">Paid</Tag>}
             {booking.oldPrices && <Tag className="bg-orange-100 text-orange-800">Old prices</Tag>}
             {booking.type === 'studio' && !booking.includesFood && (
                 <Tag className="bg-rose-100 text-rose-800">Self-catered</Tag>

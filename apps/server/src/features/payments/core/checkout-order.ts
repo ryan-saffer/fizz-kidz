@@ -5,6 +5,9 @@ import type { Square } from 'square'
 /** The Square order discount holding the customer's discount code. */
 export const DISCOUNT_CODE_UID = 'discount-code'
 
+/** The Square order discount holding a discount the booking flow applied itself. */
+export const ORDER_DISCOUNT_UID = 'order-discount'
+
 /**
  * What a checkout remembers between preparing and paying. It lives on the Square order, not in our database. Square
  * allows ten metadata entries per order; these take seven and leave the rest to the booking flow.

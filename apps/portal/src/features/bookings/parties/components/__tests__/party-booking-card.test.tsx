@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import type { FirestoreBooking, WithId } from '@fizz-kidz/core'
 
+import { useCheckoutStore } from '../../checkout/state/checkout-store'
 import { usePartyBookingsStore } from '../../state/party-bookings-store'
 import { PartyBookingCard } from '../party-booking-card'
 
@@ -70,10 +71,10 @@ const booking = {
     dateTime: { toDate: () => new Date('2026-07-11T00:00:00.000Z') },
 } as unknown as WithId<FirestoreBooking>
 
-function renderCard() {
+function renderCard(props: Partial<WithId<FirestoreBooking>> = {}) {
     return render(
         <QueryClientProvider client={new QueryClient()}>
-            <PartyBookingCard booking={booking} />
+            <PartyBookingCard booking={{ ...booking, ...props } as WithId<FirestoreBooking>} />
         </QueryClientProvider>
     )
 }
@@ -140,6 +141,38 @@ describe('PartyBookingCard', () => {
         expect(copyPartyFormLink).toHaveBeenCalledWith(booking)
         expect(copyCakeFormLink).not.toHaveBeenCalled()
         vi.unstubAllGlobals()
+    })
+
+    it('opens the checkout to collect payment for a studio party', async () => {
+        renderCard()
+        await userEvent.click(screen.getByRole('button', { expanded: false }))
+        await userEvent.click(screen.getByRole('button', { name: 'Collect payment' }))
+        expect(useCheckoutStore.getState().booking?.id).toBe('booking-1')
+        useCheckoutStore.getState().close()
+    })
+
+    it('shows a paid party instead of collecting payment again', async () => {
+        renderCard({
+            payment: {
+                squareOrderId: 'order',
+                totalCents: 69800,
+                giftCardCents: 0,
+                discountCents: 0,
+                chargedChildren: 14,
+                receiptUrl: 'https://receipt',
+                paidAt: '2026-07-11T02:00:00.000Z',
+            },
+        })
+        expect(screen.getAllByText('Paid').length).toBeGreaterThan(0)
+        await userEvent.click(screen.getByRole('button', { expanded: false }))
+        expect(screen.queryByRole('button', { name: 'Collect payment' })).toBeNull()
+        expect(screen.getByRole('link', { name: /Paid \$698\.00/ }).getAttribute('href')).toBe('https://receipt')
+    })
+
+    it("doesn't collect payment for mobile parties", async () => {
+        renderCard({ type: 'mobile', address: '1 Main St' })
+        await userEvent.click(screen.getByRole('button', { expanded: false }))
+        expect(screen.queryByRole('button', { name: 'Collect payment' })).toBeNull()
     })
 
     it('hides editing from staff who can only view bookings', async () => {

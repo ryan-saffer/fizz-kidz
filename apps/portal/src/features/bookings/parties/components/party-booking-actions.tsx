@@ -1,6 +1,16 @@
-import { Link2, Loader2, Mail, MoreHorizontal, Pencil, Trash2, UsersRound } from 'lucide-react'
+import {
+    CheckCircle2,
+    CreditCard,
+    Link2,
+    Loader2,
+    Mail,
+    MoreHorizontal,
+    Pencil,
+    Trash2,
+    UsersRound,
+} from 'lucide-react'
 
-import { getInvitationShareUrl } from '@fizz-kidz/core'
+import { getInvitationShareUrl, formatCents } from '@fizz-kidz/core'
 import type { FirestoreBooking, WithId } from '@fizz-kidz/core'
 
 import { useOrg } from '@session/use-org'
@@ -18,11 +28,13 @@ import {
     DropdownMenuTrigger,
 } from '@shared/components/ui/dropdown-menu'
 
+import { useCheckoutStore } from '../checkout/state/checkout-store'
 import { usePartyBookingsStore } from '../state/party-bookings-store'
 
 export function PartyBookingActions({ booking }: { booking: WithId<FirestoreBooking> }) {
     const { hasPermission } = useOrg()
     const canEdit = hasPermission('bookings:edit')
+    const canCollectPayment = hasPermission('bookings:collect-payment') && booking.type === 'studio'
     const confirm = useConfirm()
     const busy = usePartyBookingsStore((state) => state.busyBookingId === booking.id)
     const store = usePartyBookingsStore.getState
@@ -37,6 +49,20 @@ export function PartyBookingActions({ booking }: { booking: WithId<FirestoreBook
 
     return (
         <div className="flex flex-wrap items-center justify-end gap-2">
+            {booking.payment ? (
+                <PaidBadge payment={booking.payment} />
+            ) : (
+                canCollectPayment && (
+                    <Button
+                        size="sm"
+                        className="bg-emerald-600 text-white hover:bg-emerald-700"
+                        onClick={() => useCheckoutStore.getState().open(booking)}
+                    >
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Collect payment
+                    </Button>
+                )
+            )}
             {canEdit && (
                 <Button size="sm" variant="darkPurple" onClick={() => store().openEdit(booking)}>
                     <Pencil className="mr-2 h-4 w-4" />
@@ -109,5 +135,23 @@ export function PartyBookingActions({ booking }: { booking: WithId<FirestoreBook
                 </DropdownMenu>
             )}
         </div>
+    )
+}
+
+function PaidBadge({ payment }: { payment: NonNullable<FirestoreBooking['payment']> }) {
+    const label = (
+        <>
+            <CheckCircle2 className="h-4 w-4" />
+            Paid {formatCents(payment.totalCents)}
+        </>
+    )
+    const className =
+        'inline-flex min-h-9 items-center gap-1.5 rounded-md bg-emerald-50 px-3 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-200'
+    return payment.receiptUrl ? (
+        <a href={payment.receiptUrl} target="_blank" rel="noreferrer" className={`${className} hover:bg-emerald-100`}>
+            {label}
+        </a>
+    ) : (
+        <span className={className}>{label}</span>
     )
 }

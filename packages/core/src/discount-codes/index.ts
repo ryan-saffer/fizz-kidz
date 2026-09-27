@@ -17,7 +17,7 @@ export type DiscountCodeRedemption = {
     normalizedCustomerEmail: string
     redemptionKey: string
     customerName: string
-    bookingType: 'holiday-program' | 'play-lab' | 'preschool-program-v2' | 'party-form'
+    bookingType: 'holiday-program' | 'play-lab' | 'preschool-program-v2' | 'party-form' | 'party-checkout'
     amountCents: number
     discountType: DiscountCode['discountType']
     discountAmount: number

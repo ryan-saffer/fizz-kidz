@@ -122,14 +122,29 @@ const config: PartyFormV2Config = {
     additions: [
         {
             key: 'fairyBread',
+            variationId: 'fairy-bread',
             name: 'Fairy Bread',
             description: 'Buttered bread with hundreds and thousands',
             imageUrl: 'https://example.com/fairy-bread.jpg',
             priceCents: 3000,
         },
-        { key: 'wedges', name: 'Wedges', description: null, imageUrl: null, priceCents: 3000 },
-        { key: 'chickenNuggets', name: 'Chicken Nuggets', description: null, imageUrl: null, priceCents: 3500 },
-        { key: 'fruitPlatter', name: 'Fruit Platter', description: null, imageUrl: null, priceCents: 4500 },
+        { key: 'wedges', variationId: null, name: 'Wedges', description: null, imageUrl: null, priceCents: 3000 },
+        {
+            key: 'chickenNuggets',
+            variationId: null,
+            name: 'Chicken Nuggets',
+            description: null,
+            imageUrl: null,
+            priceCents: 3500,
+        },
+        {
+            key: 'fruitPlatter',
+            variationId: null,
+            name: 'Fruit Platter',
+            description: null,
+            imageUrl: null,
+            priceCents: 4500,
+        },
     ],
     packages: [
         {

@@ -14,6 +14,10 @@ Start with `state/party-bookings-store.ts`. The store holds how the feature work
 - `components/form/` has the form and its fields. `fields.tsx` wraps shadcn inputs for TanStack fields; `creation-field.tsx` groups creations by package using `utils/creation-menu.ts`.
 - `utils/display.ts` formats times, creations, additions and purchased goodies for the summary.
 
+## Collecting payment
+
+Studio parties are charged at the studio once they're over, from the booking's **Collect payment** button. See [`checkout/README.md`](checkout/README.md).
+
 ## Creating and editing
 
 A new booking collects each birthday child (name, birthday, and the age they're turning, filled in from the birthday); the booking's `childName` and `childAge` are joined from them. Creations, food additions, questions and fun facts come later from the parent's party form, so they're only in the edit form.

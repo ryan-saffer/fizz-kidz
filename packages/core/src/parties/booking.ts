@@ -4,6 +4,7 @@ import type { Studio } from '../core/studio'
 import type { Addition } from './additions'
 import type { BirthdayPartyCreationKey } from './birthday-party-catalogue'
 import type { CakeFlavours } from './CakeFlavours'
+import type { PartyPayment } from './party-checkout'
 import type { ProductType } from './products'
 import type { TakeHomeBagType } from './take-home-bags'
 /// <reference lib="dom" />
@@ -54,6 +55,8 @@ export type BaseBooking = AdditionKeyValues & {
     takeHomeBags?: Partial<Record<TakeHomeBagType, number>>
     products?: Partial<Record<ProductType, number>>
     useRsvpSystem: boolean | undefined
+    // collected at the studio once the party is over
+    payment?: PartyPayment
 } & (
         | {
               invitationId: undefined
