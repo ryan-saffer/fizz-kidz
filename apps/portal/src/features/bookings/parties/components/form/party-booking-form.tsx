@@ -72,13 +72,13 @@ export function PartyBookingForm({ dialog }: { dialog: PartyBookingDialogState }
                         {dialog.mode === 'create' && (
                             <form.Field name="sendConfirmationEmail">
                                 {(field) => (
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex w-fit cursor-pointer items-center gap-2">
                                         <Checkbox
                                             id={field.name}
                                             checked={field.state.value}
                                             onCheckedChange={(checked) => field.handleChange(checked === true)}
                                         />
-                                        <Label htmlFor={field.name} className="font-normal">
+                                        <Label htmlFor={field.name} className="cursor-pointer font-normal">
                                             Send the parent a confirmation email
                                         </Label>
                                     </div>
