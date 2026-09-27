@@ -334,6 +334,20 @@ export class MailClient {
                     useMjml: true,
                 }
             }
+            case 'partyPaymentReceipt':
+                return {
+                    emailInfo: {
+                        to,
+                        from: {
+                            name: 'Fizz Kidz',
+                            email: 'bookings@fizzkidz.com.au',
+                        },
+                        subject: subject || 'Your Fizz Kidz party receipt',
+                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
+                    },
+                    template: 'party_payment_receipt.mjml',
+                    useMjml: true,
+                }
             case 'partyBookingConfirmation':
                 return {
                     emailInfo: {

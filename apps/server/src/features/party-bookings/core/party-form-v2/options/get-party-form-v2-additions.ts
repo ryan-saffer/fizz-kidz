@@ -14,6 +14,8 @@ import { listCatalogCategoryItems } from '@/integrations/square/core/list-catalo
 
 export type PartyFormV2AdditionOption = {
     key: PartyFormV2Addition
+    /** The Square variation ordered for it. */
+    variationId: string | null
     name: string
     description: string | null
     imageUrl: string | null
@@ -42,6 +44,7 @@ export async function getPartyFormV2Additions(studio: Studio): Promise<PartyForm
             return [
                 {
                     key,
+                    variationId: item.variationId,
                     name: item.name,
                     description: item.description,
                     imageUrl: item.imageUrl,

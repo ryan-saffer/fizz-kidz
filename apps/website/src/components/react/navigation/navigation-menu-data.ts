@@ -97,7 +97,6 @@ export function createNavigationMenu(packageLinks: Readonly<MenuLink[]>): MenuIt
                 { type: 'link', title: 'Contact Us', path: '/contact-us/', isNew: false },
                 { type: 'link', title: 'Gift Cards', path: '/gift-cards/', isNew: true },
                 { type: 'link', title: 'Careers', path: '/careers/', isNew: false },
-                { type: 'link', title: 'Our Team', path: '/our-team/', isNew: false },
                 { type: 'link', title: 'Policies', path: '/policies/', isNew: false },
             ],
         },

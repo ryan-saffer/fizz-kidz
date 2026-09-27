@@ -6,6 +6,7 @@ declare global {
             FIREBASE_CONFIG: string
             MIXPANEL_API_KEY: string
             SQUARE_TOKEN: string
+            SQUARE_WEBHOOK_SIGNATURE_KEY: string
             ACUITY_USER_ID: string
             ACUITY_API_KEY: string
             ESIGNATURES_SECRET: string

@@ -1,0 +1,92 @@
+<mjml>
+    <mj-head>
+        <mj-attributes>
+            <mj-all font-family="'Trebuchet MS', 'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-all>
+            <mj-text
+                font-weight="400"
+                font-size="16px"
+                color="#000000"
+                line-height="24px"
+                font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+            ></mj-text>
+        </mj-attributes>
+        <mj-style inline="inline">
+            .footer-link {
+                color: #888888;
+            }
+        </mj-style>
+    </mj-head>
+    <mj-body background-color="#E7E7E7" width="600px">
+        <mj-section background-color="#9B3EEA" padding-bottom="0px">
+            <mj-column width="100%">
+                <mj-spacer height="30px" />
+                <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
+                    Thanks for partying with us!
+                </mj-text>
+                <mj-spacer height="20px" />
+            </mj-column>
+        </mj-section>
+        <mj-wrapper padding-top="0" padding-bottom="0">
+            <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px">
+                <mj-column width="100%">
+                    <mj-text font-size="16px"> Hi {{ parentName }}, </mj-text>
+                    <mj-text font-size="16px">
+                        Thank you for celebrating {{ birthday }} birthday with us at our {{ studio }} on {{ date }}.
+                        Here is your receipt.
+                    </mj-text>
+                    <mj-table font-size="15px" line-height="22px" padding-top="10px">
+                        {{#lines}}
+                        <tr style="border-bottom: 1px solid #eeeeee">
+                            <td style="padding: 8px 0">{{ label }}</td>
+                            <td style="padding: 8px 0; text-align: right; white-space: nowrap">{{ amount }}</td>
+                        </tr>
+                        {{/lines}}
+                        {{#discount}}
+                        <tr style="border-bottom: 1px solid #eeeeee">
+                            <td style="padding: 8px 0">Discount</td>
+                            <td style="padding: 8px 0; text-align: right; white-space: nowrap">−{{ discount }}</td>
+                        </tr>
+                        {{/discount}}
+                        <tr>
+                            <td style="padding: 12px 0 4px; font-weight: bold">Total paid</td>
+                            <td style="padding: 12px 0 4px; text-align: right; font-weight: bold">{{ total }}</td>
+                        </tr>
+                        {{#giftCard}}
+                        <tr>
+                            <td style="padding: 0; color: #666666; font-size: 13px">Including gift card</td>
+                            <td style="padding: 0; text-align: right; color: #666666; font-size: 13px">
+                                {{ giftCard }}
+                            </td>
+                        </tr>
+                        {{/giftCard}}
+                    </mj-table>
+                    {{#receiptUrl}}
+                    <mj-text font-size="15px" align="center" padding-top="20px">
+                        <a href="{{receiptUrl}}">View your Square payment receipt</a>
+                    </mj-text>
+                    {{/receiptUrl}}
+                    <mj-text font-size="16px">
+                        If you have any questions, just reply to this email or call us on {{ contactPhone }}.
+                    </mj-text>
+                    <mj-text font-size="16px"> The Fizz Kidz Team </mj-text>
+                </mj-column>
+            </mj-section>
+        </mj-wrapper>
+        <mj-wrapper full-width="full-width">
+            <mj-section padding-top="0">
+                <mj-group>
+                    <mj-column width="100%" padding-right="0">
+                        <mj-text color="#445566" font-size="11px" align="center" line-height="16px" font-weight="bold">
+                            <a class="footer-link" href="mailto:{{contactEmail}}">{{ contactEmail }}</a
+                            >&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;<a
+                                class="footer-link"
+                                href="https://www.fizzkidz.com.au"
+                                >www.fizzkidz.com.au</a
+                            >
+                        </mj-text>
+                    </mj-column>
+                </mj-group>
+            </mj-section>
+        </mj-wrapper>
+    </mj-body>
+</mjml>

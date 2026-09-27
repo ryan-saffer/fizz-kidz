@@ -18,6 +18,7 @@ import type {
     InventoryStockMovement,
     InventoryUsageRule,
     PartyFormSubmission,
+    PartyPayment,
     PreschoolProgramEnrolment,
     RecursivePartial,
     Rsvp,
@@ -152,6 +153,21 @@ class Client {
 
     updatePartyBooking(bookingId: string, booking: Partial<Booking>) {
         return this.#updateDocument(FirestoreRefs.partyBooking(bookingId), booking)
+    }
+
+    /**
+     * Records a party's payment unless that order is already recorded. It's a transaction so the terminal webhook and
+     * the iPad checking at the same moment only record (and email) it once.
+     */
+    async recordPartyPayment(bookingId: string, payment: PartyPayment) {
+        const firestore = await FirestoreClient.getInstance()
+        const ref = await FirestoreRefs.partyBooking(bookingId)
+        return firestore.runTransaction(async (tx) => {
+            const previous = (await tx.get(ref)).data()?.payment
+            if (previous?.squareOrderId === payment.squareOrderId) return { recorded: false as const }
+            tx.update(ref, { payment })
+            return { recorded: true as const, replacedOrderId: previous?.squareOrderId ?? null }
+        })
     }
 
     async getPartyBookingsForCapacityReport(input: { startDate: Date; endDate: Date; studio: StudioOrMaster }) {

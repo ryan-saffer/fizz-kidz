@@ -12,9 +12,16 @@ export type CheckoutSummary = {
     subtotalCents: number
     discountCents: number
     discountCode: string
+    /** A discount the booking flow applied itself, after the discount code. */
+    orderDiscountCents: number
     totalCents: number
     giftCardCents: number
     giftCardLast4: string
     cardCents: number
     items: { label: string; amountCents: number }[]
+}
+
+/** Cents as Australian dollars, e.g. 69800 → '$698.00'. */
+export function formatCents(cents: number) {
+    return `$${(cents / 100).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }

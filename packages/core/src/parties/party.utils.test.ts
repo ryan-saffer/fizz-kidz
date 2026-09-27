@@ -79,14 +79,45 @@ describe('party utilities', () => {
             deepStrictEqual(getBookingCreationDisplayValues(booking), [])
         })
 
-        it('uses the stable key when a historical creation is not in Sanity', () => {
+        it('spells out the key when a historical creation is not in Sanity, or the catalogue is unavailable', () => {
             const booking = {
                 creation1: 'futureCatalogueCreation',
+                creation2: 'sparklingLipBalm',
+                creation3: undefined,
+            } as BaseBooking
+
+            deepStrictEqual(getBookingCreationDisplayValues(booking, creationNames), [
+                'Future Catalogue Creation',
+                'Sparkling Lip Balm',
+            ])
+            deepStrictEqual(getBookingCreationDisplayValues(booking), [
+                'Future Catalogue Creation',
+                'Sparkling Lip Balm',
+            ])
+        })
+
+        it("finds an older booking's creation by its legacy label", () => {
+            const booking = {
+                creation1: 'Glitter Slime (old)',
                 creation2: undefined,
                 creation3: undefined,
             } as BaseBooking
 
-            deepStrictEqual(getBookingCreationDisplayValues(booking), ['futureCatalogueCreation'])
+            deepStrictEqual(
+                getBookingCreationDisplayValues(booking, {
+                    creations: [
+                        {
+                            bookingChannels: ['studio'],
+                            key: 'glitterSlime',
+                            legacyLabels: ['glitter slime (old)'],
+                            name: 'Glitter Slime',
+                            status: 'retired',
+                        },
+                    ],
+                    packages: [],
+                }),
+                ['Glitter Slime']
+            )
         })
 
         it('uses the current catalogue name', () => {
