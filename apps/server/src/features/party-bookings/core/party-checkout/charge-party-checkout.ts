@@ -3,6 +3,7 @@ import type { PartyCheckoutStatus, PartyPayment, PartyTerminalCheckout, StartPar
 import { getBlockedReason } from './get-party-checkout'
 import { getPartyCheckoutMetadata, getPartyCheckoutNote } from './prepare-party-checkout'
 import { sendPartyPaymentReceipt } from './send-party-payment-receipt'
+import { syncPartyPaymentToZoho } from './sync-party-payment-to-zoho'
 
 import { throwTrpcError } from '@/app/trpc/transport-errors'
 import { ORDER_DISCOUNT_UID, readCheckoutMetadata } from '@/features/payments/core/checkout-order'
@@ -50,7 +51,10 @@ async function settle(bookingId: string, checkoutId: string, result: TerminalPay
     return result
 }
 
-/** Records the payment on the booking once, however many times it's checked, then emails the receipt. */
+/**
+ * Records the payment on the booking once, however many times it's checked, then emails the receipt and adds the
+ * payment to the party's Zoho deal.
+ */
 async function recordPartyPayment(bookingId: string, checkoutId: string, receiptUrl: string | null) {
     const booking = await DatabaseClient.getPartyBooking(bookingId)
     if (booking.payment?.squareOrderId === checkoutId) return
@@ -85,5 +89,10 @@ async function recordPartyPayment(bookingId: string, checkoutId: string, receipt
         await sendPartyPaymentReceipt(booking, order, payment)
     } catch (error) {
         logError('Party payment collected, but unable to email the receipt', error, { bookingId, checkoutId })
+    }
+    try {
+        await syncPartyPaymentToZoho(booking, order, payment)
+    } catch (error) {
+        logError('Party payment collected, but unable to add it to the Zoho deal', error, { bookingId, checkoutId })
     }
 }

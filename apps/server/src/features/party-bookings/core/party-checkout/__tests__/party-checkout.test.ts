@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
     getTerminalPayment: vi.fn(),
     order: vi.fn(),
     sendReceipt: vi.fn(),
+    syncToZoho: vi.fn(),
     logError: vi.fn(),
 }))
 vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
@@ -38,6 +39,7 @@ vi.mock('@/integrations/square/square.client', () => ({
     SquareClient: { getInstance: async () => ({ orders: { get: mocks.order } }) },
 }))
 vi.mock('../send-party-payment-receipt', () => ({ sendPartyPaymentReceipt: mocks.sendReceipt }))
+vi.mock('../sync-party-payment-to-zoho', () => ({ syncPartyPaymentToZoho: mocks.syncToZoho }))
 vi.mock('@/integrations/observability/log-error', () => ({ logError: mocks.logError }))
 
 const prices = getPartyPriceList('dev', false)
@@ -222,7 +224,7 @@ describe('charging a party', () => {
         })
     })
 
-    it('records the payment on the booking once and emails the receipt', async () => {
+    it('records the payment on the booking once, emails the receipt and adds it to Zoho', async () => {
         expect(await getPartyCheckoutStatus(charge)).toEqual({ status: 'paid', receiptUrl: 'https://receipt' })
         expect(mocks.recordPartyPayment).toHaveBeenCalledWith('booking', {
             squareOrderId: 'order',
@@ -235,11 +237,13 @@ describe('charging a party', () => {
             paidAt: expect.any(String),
         })
         expect(mocks.sendReceipt).toHaveBeenCalledTimes(1)
+        expect(mocks.syncToZoho).toHaveBeenCalledTimes(1)
 
         mocks.booking.payment = mocks.recordPartyPayment.mock.calls[0][1]
         await getPartyCheckoutStatus(charge)
         expect(mocks.recordPartyPayment).toHaveBeenCalledTimes(1)
         expect(mocks.sendReceipt).toHaveBeenCalledTimes(1)
+        expect(mocks.syncToZoho).toHaveBeenCalledTimes(1)
     })
 
     it('logs a party paid twice, keeping the latest payment', async () => {
@@ -257,12 +261,15 @@ describe('charging a party', () => {
         mocks.recordPartyPayment.mockResolvedValue({ recorded: false })
         expect(await getPartyCheckoutStatus(charge)).toMatchObject({ status: 'paid' })
         expect(mocks.sendReceipt).not.toHaveBeenCalled()
+        expect(mocks.syncToZoho).not.toHaveBeenCalled()
     })
 
-    it('still reports the payment when the receipt email fails', async () => {
+    it('still reports the payment when the receipt email or Zoho fails', async () => {
         mocks.sendReceipt.mockRejectedValue(new Error('SendGrid down'))
+        mocks.syncToZoho.mockRejectedValue(new Error('Zoho down'))
         expect(await getPartyCheckoutStatus(charge)).toMatchObject({ status: 'paid' })
-        expect(mocks.logError).toHaveBeenCalled()
+        expect(mocks.logError).toHaveBeenCalledTimes(2)
+        expect(mocks.syncToZoho).toHaveBeenCalledTimes(1)
     })
 
     it("records nothing for a charge that didn't go through", async () => {

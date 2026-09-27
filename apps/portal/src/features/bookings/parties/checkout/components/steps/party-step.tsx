@@ -27,13 +27,13 @@ export function PartyStep() {
                             selected={answers.partyLength === partyLength}
                             onSelect={() => setAnswers({ partyLength })}
                             title={`${partyLength} hours`}
-                            detail={`${formatCents(priceFor(partyLength, answers.includesFood)?.priceCents ?? 0)} per child`}
                         />
                     ))}
                 </div>
             </StepSection>
 
-            <StepSection title="Food package">
+            {/* the price per child depends on both, so it's shown once the length is chosen */}
+            <StepSection title="Food package" description={`Price per child for a ${answers.partyLength} hour party.`}>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {[true, false].map((includesFood) => (
                         <OptionCard
