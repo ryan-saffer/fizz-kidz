@@ -7,6 +7,7 @@ import { createContext } from '@/app/trpc/trpc'
 import { getErrorCode, type AppErrorCode } from '@/app/trpc/trpc.errors'
 import { googleReviewsRoute } from '@/features/google-business-profile/functions/routes/google-reviews'
 import { invitationEntryRedirect } from '@/features/party-bookings/functions/webhooks/invitation-redirect'
+import { partyCheckoutWebhook } from '@/features/party-bookings/functions/webhooks/party-checkout.webhook'
 import { acuityWebhook } from '@/integrations/acuity/functions/acuity.webhook'
 import { esignaturesWebhook } from '@/integrations/esignatures.io/functions/esignatures.webhook'
 import { hostedPaperformRedirect } from '@/integrations/paperforms/functions/routes/hosted-paperform-redirect'
@@ -78,6 +79,7 @@ webhooks.use('/webhooks', [
     acuityWebhook,
     esignaturesWebhook,
     paperformWebhook,
+    partyCheckoutWebhook,
     partyFormRedirect,
     invitationEntryRedirect,
 ])

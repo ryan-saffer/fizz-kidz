@@ -1,5 +1,5 @@
 import { Close as CloseIcon } from '@mui/icons-material'
-import { AppBar, CssBaseline, Dialog, IconButton, Paper, Slide, Tab, Tabs, Toolbar, Typography } from '@mui/material'
+import { AppBar, CssBaseline, Dialog, IconButton, Paper, Slide, Toolbar, Typography } from '@mui/material'
 import { grey } from '@mui/material/colors'
 import { styled } from '@mui/material/styles'
 import { DateTime } from 'luxon'
@@ -7,12 +7,11 @@ import React, { useState } from 'react'
 
 import { useDateNavigation } from './date-navigation/date-navigation.hooks'
 import { NewEventForm } from './events/forms/new-event-form'
-import { NewBookingForm } from './parties/forms/NewBookingForm'
 
 import type { TransitionProps } from '@mui/material/transitions'
 import type { ReactElement, Ref } from 'react'
 
-const PREFIX = 'NewBookingDialog'
+const PREFIX = 'NewEventDialog'
 
 const classes = {
     layout: `${PREFIX}-layout`,
@@ -53,8 +52,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 
 type Props = {
     open: boolean
-    initialBookingType?: 'party' | 'event'
-    onBookingCreated: (date?: Date) => void
+    onClose: () => void
 }
 
 const Transition = React.forwardRef(
@@ -66,16 +64,16 @@ const Transition = React.forwardRef(
     ) => <Slide direction="up" ref={ref} {...props} />
 )
 
-const NewBookingDialog: React.FC<Props> = ({ open, initialBookingType = 'party', onBookingCreated }) => {
+/** Books an event. Party bookings have their own sheet. */
+const NewEventDialog: React.FC<Props> = ({ open, onClose }) => {
     // used to ensure form mounts on each open. See https://github.com/reactjs/react-modal/issues/106#issuecomment-546658885
     const [key, setKey] = useState(0)
-    const [value, setValue] = useState(initialBookingType === 'event' ? 1 : 0)
 
     const { setDate } = useDateNavigation()
 
     function handleBookingCreated(date?: Date) {
         setKey(key + 1)
-        onBookingCreated()
+        onClose()
         if (date) {
             setDate(DateTime.fromJSDate(date))
         }
@@ -103,22 +101,17 @@ const NewBookingDialog: React.FC<Props> = ({ open, initialBookingType = 'party',
                         <CloseIcon />
                     </IconButton>
                     <Typography variant="h6" color="inherit">
-                        New Booking
+                        New Event Booking
                     </Typography>
                 </Toolbar>
             </AppBar>
             <main key={key} className={classes.layout}>
-                <Tabs value={value} onChange={(_, value) => setValue(value)} variant="fullWidth">
-                    <Tab label="Party Booking" />
-                    <Tab label="Event Booking" />
-                </Tabs>
                 <Paper className={classes.paper}>
-                    {value === 0 && <NewBookingForm onSuccess={handleBookingCreated} />}
-                    {value === 1 && <NewEventForm onSuccess={handleBookingCreated} />}
+                    <NewEventForm onSuccess={handleBookingCreated} />
                 </Paper>
             </main>
         </StyledDialog>
     )
 }
 
-export default NewBookingDialog
+export default NewEventDialog

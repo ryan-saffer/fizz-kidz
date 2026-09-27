@@ -2,6 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import autoprefixer from 'autoprefixer'
+import tailwindcssAnimate from 'tailwindcss-animate'
 import backgroundPatterns from 'tailwindcss-bg-patterns'
 import { scopedPreflightStyles } from 'tailwindcss-scoped-preflight'
 
@@ -159,6 +160,8 @@ export default {
         }),
         autoprefixer,
         backgroundPatterns,
+        // the enter/exit animations shadcn components use (animate-in, fade-in, slide-in-from-*...)
+        tailwindcssAnimate,
         ({ addUtilities }) => {
             addUtilities({
                 // a custom utility class to make screen full screen when within the dashboard.

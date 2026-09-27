@@ -1319,6 +1319,20 @@ export class ZohoClient {
         })
     }
 
+    /** Sets the deal's amount to what was paid, and adds a note with the payment's details. */
+    async recordPartyPayment({ dealId, amountCents, note }: { dealId: string; amountCents: number; note: string }) {
+        await this.#request({
+            endpoint: 'Deals',
+            method: 'PUT',
+            data: [{ id: dealId, Amount: amountCents / 100 }],
+        })
+        await this.#request({
+            endpoint: `Deals/${dealId}/Notes`,
+            method: 'POST',
+            data: [{ Note_Title: 'Party payment', Note_Content: note }],
+        })
+    }
+
     markPartyDealClosedLost(zohoDealId: string, lostReason: PartyLostReason, lostReasonOther: string | undefined) {
         return this.#request({
             endpoint: 'Deals',

@@ -2,7 +2,7 @@
 
 The shared server-side payment module for booking flows that take payments through Square. It owns the money: pricing in Square, discount codes, gift cards, card and wallet payments, and replays. Booking flows own everything else: what is being bought, their own UI, and what happens once payment succeeds.
 
-Currently used by the custom party form. Preschool v2 and holiday programs are to move onto it; Play Lab is deprecated.
+Currently used by the custom party form and the party checkout (charging a party on a Square Terminal). Preschool v2 and holiday programs are to move onto it; Play Lab is deprecated.
 
 Tests live in a `__tests__` folder next to the file they cover (e.g. `core/__tests__/pay-checkout.test.ts` tests `core/pay-checkout.ts`). This is being tried here and in the party form before the rest of the repo.
 
@@ -15,6 +15,20 @@ Tests live in a `__tests__` folder next to the file they cover (e.g. `core/__tes
    - `processing` — Square's response was lost or unclear. Call again with the same input.
    - Definite failures throw tRPC errors (`PAYMENT_METHOD_INVALID`, `GIFT_CARD_INACTIVE`, `BAD_REQUEST` asking the customer to refresh the payment summary). The customer then prepares a new checkout.
 4. **Do the booking work after `paid`**, idempotently, since a replay can reach it again.
+
+A booking flow can also pass `orderDiscount` to `prepareCheckout`: a discount it decided itself (e.g. staff making up for a problem), taken off the whole order after the discount code and shown as `orderDiscountCents`. Paying with `payCheckout` re-checks only the discount code, so don't combine the two there.
+
+## On a Square Terminal
+
+In person, the card is taken on a Square Terminal instead of with a token (`core/terminal-payment.ts`):
+
+- **`startTerminalPayment`** authorises the gift-card share, then sends the rest of a prepared order to a terminal with `autocomplete: false`, so nothing is captured until the order is paid. A gift card covering everything pays straight away.
+- **`getTerminalPayment`** reports `waiting`, `paid` or `canceled` (with the reason: the customer cancelled, staff cancelled, or the terminal timed out). Once the terminal payment completes, it pays the order with it and the gift-card share, capturing both. A cancelled charge releases the gift-card share; a terminal payment that completes after being cancelled is never captured, and Square cancels it. Safe to call repeatedly.
+- **`cancelTerminalPayment`** asks the terminal to cancel. A customer who already paid still completes.
+
+Square keys (`<order id>-gift`, `-terminal`, `-pay`) make each step happen once per order, so sending a cancelled charge again means preparing a new checkout. Square doesn't email receipts for Terminal API payments; the booking flow sends its own.
+
+`core/terminals.ts` lists the terminals paired with the portal at a location and pairs new ones with a device code. In dev it returns Square's sandbox test devices instead, since the sandbox can't pair real terminals.
 
 ## How it works
 

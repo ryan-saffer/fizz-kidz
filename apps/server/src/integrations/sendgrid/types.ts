@@ -126,6 +126,20 @@ export type Emails = {
     }
 
     // BIRTHDAY PARTIES
+    partyPaymentReceipt: {
+        parentName: string
+        /** e.g. "Mia's 7th" */
+        birthday: string
+        date: string
+        studio: string
+        lines: { label: string; amount: string }[]
+        discount: string
+        giftCard: string
+        total: string
+        receiptUrl: string
+        contactEmail: string
+        contactPhone: string
+    }
     partyBookingConfirmation: {
         header: string
         openingLine: string

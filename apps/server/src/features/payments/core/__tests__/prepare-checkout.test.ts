@@ -58,6 +58,7 @@ describe('preparing a checkout', () => {
             subtotalCents: 10000,
             discountCents: 1000,
             discountCode: 'SAVE',
+            orderDiscountCents: 0,
             totalCents: 9000,
             giftCardCents: 4000,
             giftCardLast4: '1234',
@@ -111,6 +112,44 @@ describe('preparing a checkout', () => {
             'no remaining balance'
         )
         expect(mocks.create).not.toHaveBeenCalled()
+    })
+    it("takes the booking flow's own discount off after the discount code, up to the rest of the order", async () => {
+        mocks.discount.mockResolvedValue({ id: 'code-id', code: 'SAVE', discountType: 'price', discountAmount: 20 })
+        expect(
+            await prepareCheckout({ ...input, discountCode: 'SAVE', orderDiscount: { name: 'Discount', cents: 3000 } })
+        ).toMatchObject({ discountCents: 2000, orderDiscountCents: 3000, totalCents: 5000, cardCents: 5000 })
+        expect(mocks.create.mock.calls[0][0].order.discounts[1]).toMatchObject({
+            uid: 'order-discount',
+            name: 'Discount',
+            scope: 'ORDER',
+            type: 'FIXED_AMOUNT',
+            amountMoney: { amount: 3000n },
+        })
+
+        expect(await prepareCheckout({ ...input, orderDiscount: { name: 'Discount', cents: 50000 } })).toMatchObject({
+            orderDiscountCents: 10000,
+            totalCents: 0,
+        })
+    })
+    it("names a line by its item and variation, leaving out Square's default variation", async () => {
+        mocks.calculate.mockResolvedValueOnce({
+            order: {
+                totalMoney: { amount: 70500n },
+                lineItems: [
+                    {
+                        quantity: '15',
+                        name: 'Studio Party',
+                        variationName: '1.5 Hour Party',
+                        totalMoney: { amount: 70500n },
+                    },
+                    { quantity: '1', name: 'Wedges', variationName: 'Regular', totalMoney: { amount: 3000n } },
+                ],
+            },
+        })
+        expect((await prepareCheckout(input)).items).toEqual([
+            { label: '15 × Studio Party – 1.5 Hour Party', amountCents: 70500 },
+            { label: '1 × Wedges', amountCents: 3000 },
+        ])
     })
     it('lets a price code larger than the order cover all of it', async () => {
         mocks.discount.mockResolvedValue({ id: 'code-id', code: 'SAVE', discountType: 'price', discountAmount: 150 })

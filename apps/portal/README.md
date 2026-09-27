@@ -30,7 +30,7 @@ Birthday Party and Holiday Program creation instructions come from Sanity throug
 
 Birthday-party instruction group labels and colours are package-owned: the server derives the `Parties` label from Sanity's canonical package name and returns its primary colour to the Portal.
 
-The Existing Booking form reads its creation menus from the server's Sanity catalogue. It filters choices by studio/mobile availability and preserves a booking's retired or historical selection without offering that value on other bookings.
+Staff book and edit parties from the [bookings page](src/features/bookings/parties/README.md). Its creation menus come from the server's Sanity catalogue: they filter choices by studio/mobile availability and keep a booking's retired or historical selection without offering that value on other bookings.
 
 The custom [party details form](src/features/party-form-v2/README.md) at `/party-form-v2?id=<bookingId>` uses TanStack Form for a guided customer journey, Sanity creation photos, and a review before checkout.
 

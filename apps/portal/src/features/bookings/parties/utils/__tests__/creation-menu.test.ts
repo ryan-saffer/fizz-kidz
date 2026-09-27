@@ -4,7 +4,7 @@ import { describe, it } from 'vite-plus/test'
 
 import type { BirthdayPartyBookingCatalogue } from '@fizz-kidz/core'
 
-import { getBirthdayPartyCreationMenu } from './creation-menu'
+import { getBirthdayPartyCreationMenu } from '../creation-menu'
 
 const catalogue: BirthdayPartyBookingCatalogue = {
     creations: [
@@ -50,6 +50,46 @@ describe('getBirthdayPartyCreationMenu', () => {
         strictEqual(menu.previouslySelected, undefined)
     })
 
+    it('lists a creation offered in several packages once, under the first', () => {
+        const menu = getBirthdayPartyCreationMenu(
+            {
+                creations: [
+                    ...catalogue.creations,
+                    {
+                        bookingChannels: ['studio'],
+                        key: 'glitter',
+                        legacyLabels: [],
+                        name: 'Glitter',
+                        status: 'active',
+                    },
+                ],
+                packages: [
+                    ...catalogue.packages,
+                    {
+                        creations: [{ key: 'fairySlime' }, { key: 'glitter' }],
+                        key: 'sparkle',
+                        name: 'Sparkle',
+                        position: 2,
+                        status: 'active',
+                    },
+                    { creations: [{ key: 'glitter' }], key: 'glam', name: 'Glam', position: 3, status: 'active' },
+                ],
+            },
+            'studio'
+        )
+
+        deepStrictEqual(
+            menu.packages.map((partyPackage) => [
+                partyPackage.name,
+                partyPackage.creations.map((creation) => creation.key),
+            ]),
+            [
+                ['Fairy', ['fairySlime']],
+                ['Sparkle', ['glitter']],
+            ]
+        )
+    })
+
     it('retains a selected retired creation without adding it to current choices', () => {
         const menu = getBirthdayPartyCreationMenu(catalogue, 'studio', 'unicornSoap')
 
@@ -63,13 +103,13 @@ describe('getBirthdayPartyCreationMenu', () => {
     it('retains an unknown historical key with a safe label', () => {
         const menu = getBirthdayPartyCreationMenu(catalogue, 'studio', 'historicalKey')
 
-        deepStrictEqual(menu.previouslySelected, { key: 'historicalKey', name: 'historicalKey' })
+        deepStrictEqual(menu.previouslySelected, { key: 'historicalKey', name: 'Historical Key' })
     })
 
     it('retains the historical selection when the catalogue cannot be loaded', () => {
         const menu = getBirthdayPartyCreationMenu(undefined, 'studio', 'unicornSoap')
 
         deepStrictEqual(menu.packages, [])
-        deepStrictEqual(menu.previouslySelected, { key: 'unicornSoap', name: 'unicornSoap' })
+        deepStrictEqual(menu.previouslySelected, { key: 'unicornSoap', name: 'Unicorn Soap' })
     })
 })

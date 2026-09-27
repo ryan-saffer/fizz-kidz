@@ -82,6 +82,7 @@ const quote: PartyFormV2Checkout = {
     subtotalCents: 10000,
     discountCents: 0,
     discountCode: '',
+    orderDiscountCents: 0,
     totalCents: 10000,
     giftCardCents: 0,
     giftCardLast4: '',

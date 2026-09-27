@@ -32,6 +32,7 @@ export async function preparePartyFormV2({
             subtotalCents: 0,
             discountCents: 0,
             discountCode: '',
+            orderDiscountCents: 0,
             totalCents: 0,
             giftCardCents: 0,
             giftCardLast4: '',

@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto'
 
-import type { CheckoutProgram, CheckoutSummary } from '@fizz-kidz/core'
+import { withoutSquareTags, type CheckoutProgram, type CheckoutSummary } from '@fizz-kidz/core'
 
-import { DISCOUNT_CODE_UID, getDiscountCodeCents, writeCheckoutMetadata } from './checkout-order'
+import { DISCOUNT_CODE_UID, getDiscountCodeCents, ORDER_DISCOUNT_UID, writeCheckoutMetadata } from './checkout-order'
 
 import type { Square } from 'square'
 
@@ -29,6 +29,11 @@ export type PrepareCheckoutInput = {
     /** Extra order metadata for the booking flow, such as its booking id. */
     metadata?: Record<string, string>
     discountCode?: string
+    /**
+     * A discount the booking flow decided itself (e.g. staff making up for a problem), taken off the whole order after
+     * the discount code. At most the rest of the order.
+     */
+    orderDiscount?: { name: string; cents: number }
     giftCardNumber?: string
 }
 
@@ -74,7 +79,21 @@ export async function prepareCheckout(input: PrepareCheckoutInput): Promise<Chec
             },
         ]
     }
-    const totalCents = subtotalCents - (discount?.cents ?? 0)
+    const afterCodeCents = subtotalCents - (discount?.cents ?? 0)
+    const orderDiscountCents = Math.min(input.orderDiscount?.cents ?? 0, afterCodeCents)
+    if (input.orderDiscount && orderDiscountCents > 0) {
+        orderInput.discounts = [
+            ...(orderInput.discounts ?? []),
+            {
+                uid: ORDER_DISCOUNT_UID,
+                name: input.orderDiscount.name,
+                scope: 'ORDER',
+                type: 'FIXED_AMOUNT',
+                amountMoney: { currency: 'AUD', amount: BigInt(orderDiscountCents) },
+            },
+        ]
+    }
+    const totalCents = afterCodeCents - orderDiscountCents
 
     let giftCard = { id: '', cents: 0, last4: '' }
     if (input.giftCardNumber && totalCents > 0) {
@@ -106,6 +125,7 @@ export async function prepareCheckout(input: PrepareCheckoutInput): Promise<Chec
         subtotalCents,
         discountCents: discount?.cents ?? 0,
         discountCode: discount?.code ?? '',
+        orderDiscountCents,
         totalCents,
         giftCardCents: giftCard.cents,
         giftCardLast4: giftCard.last4,
@@ -125,7 +145,7 @@ function describeLineItems(lines: Square.OrderLineItem[]) {
             .filter((modifier) => modifier.amountCents > 0)
         return [
             {
-                label: `${line.quantity} × ${line.name ?? 'Item'}`,
+                label: `${line.quantity} × ${describeItem(line)}`,
                 amountCents:
                     Number(line.totalMoney?.amount ?? 0) -
                     modifiers.reduce((sum, modifier) => sum + modifier.amountCents, 0),
@@ -133,4 +153,15 @@ function describeLineItems(lines: Square.OrderLineItem[]) {
             ...modifiers,
         ]
     })
+}
+
+/**
+ * The item's name, with its variation when it has more than Square's default one (e.g. 'Studio Party – 2 Hour Party'),
+ * without Square's staff-facing tags.
+ */
+export function describeItem(line: Square.OrderLineItem) {
+    const name = withoutSquareTags(line.name ?? 'Item')
+    return line.variationName && line.variationName !== 'Regular'
+        ? `${name} – ${withoutSquareTags(line.variationName)}`
+        : name
 }

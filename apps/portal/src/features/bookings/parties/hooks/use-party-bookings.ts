@@ -6,10 +6,9 @@ import type { FirestoreBooking, Service, Studio, WithId } from '@fizz-kidz/core'
 import { STUDIOS } from '@fizz-kidz/core'
 
 import { useDateNavigation } from '@features/bookings/date-navigation/date-navigation.hooks'
+import { useLocationFilter } from '@features/bookings/location-filter/location-filter.hook'
 import useFirebase from '@integrations/firebase/use-firebase'
 import { useOrg } from '@session/use-org'
-
-import { useLocationFilter } from '../location-filter/location-filter.hook'
 
 export function usePartyBookings() {
     const firebase = useFirebase()

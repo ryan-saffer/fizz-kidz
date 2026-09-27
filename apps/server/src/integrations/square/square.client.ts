@@ -28,9 +28,9 @@ export class SquareClient {
     async #initialise() {
         this.#status = 'initialising'
         const { SquareClient: Square, SquareEnvironment } = await import('square')
-        const token = env === 'dev' ? process.env.SQUARE_DEV_TOKEN : process.env.SQUARE_PROD_TOKEN
+        // each environment's .env holds its own token (sandbox in dev, production in prod)
         const environment = env === 'dev' ? SquareEnvironment.Sandbox : SquareEnvironment.Production
-        this.#client = new Square({ token, version: '2025-04-16', environment })
+        this.#client = new Square({ token: process.env.SQUARE_TOKEN, version: '2025-04-16', environment })
         this.#status = 'initialised'
     }
 }
