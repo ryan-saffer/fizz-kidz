@@ -18,14 +18,6 @@ export function getPartyTimes(booking: FirestoreBooking) {
     return { start: format(start), end: format(getPartyEndDate(start, booking.partyLength)) }
 }
 
-export function getPartyDate(booking: FirestoreBooking) {
-    return DateTime.fromJSDate(booking.dateTime.toDate(), { zone: ZONE }).toFormat('cccc d LLLL yyyy')
-}
-
-export function getPartyLengthLabel(length: FirestoreBooking['partyLength']) {
-    return length === '1' ? '1 hour' : `${length} hours`
-}
-
 /** Each birthday child and the age they're turning. Older bookings only have one combined name and age. */
 export function getBirthdayChildren(booking: FirestoreBooking) {
     const children = booking.children?.filter((child) => child.name.trim())

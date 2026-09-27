@@ -1,48 +1,24 @@
 import { useQuery } from '@tanstack/react-query'
-import {
-    CalendarClock,
-    CheckCircle2,
-    Circle,
-    Mail,
-    MapPin,
-    NotebookPen,
-    PartyPopper,
-    Phone,
-    UtensilsCrossed,
-} from 'lucide-react'
+import { CheckCircle2, Clock3, NotebookPen, PartyPopper, UtensilsCrossed } from 'lucide-react'
 
-import { capitalise } from '@fizz-kidz/core'
 import type { FirestoreBooking, WithId } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
 import { cn } from '@shared/lib/tailwind'
 
-import {
-    getAdditionNames,
-    getBirthdayChildren,
-    getCreationNames,
-    getPartyDate,
-    getPartyLengthLabel,
-    getPartyTimes,
-    getPurchasedGoodies,
-} from '../utils/display'
+import { getAdditionNames, getBirthdayChildren, getCreationNames, getPurchasedGoodies } from '../utils/display'
 import { PartyBookingActions } from './party-booking-actions'
 
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-/** A booking at a glance, in three sections: the party itself, its food, and notes. */
 export function PartyBookingSummary({ booking }: { booking: WithId<FirestoreBooking> }) {
     return (
-        <div className="flex flex-col gap-3 border-t border-slate-100 bg-slate-50 p-3 sm:p-4">
+        <div className="space-y-3 border-t border-slate-300 bg-white p-3 text-sm leading-5 text-slate-900 [overflow-wrap:anywhere] sm:p-4">
+            <PartyDetails booking={booking} />
+            <Food booking={booking} />
+            <Notes booking={booking} />
             <PartyBookingActions booking={booking} />
-            <div className="grid grid-cols-1 items-start gap-3 md:grid-cols-2">
-                <PartyDetails booking={booking} />
-                <div className="flex flex-col gap-3">
-                    <Food booking={booking} />
-                    <Notes booking={booking} />
-                </div>
-            </div>
         </div>
     )
 }
@@ -50,96 +26,79 @@ export function PartyBookingSummary({ booking }: { booking: WithId<FirestoreBook
 function PartyDetails({ booking }: { booking: FirestoreBooking }) {
     const trpc = useTRPC()
     const { data: catalogue } = useQuery(trpc.creations.getBirthdayPartyBookingCatalogue.queryOptions())
-    const times = getPartyTimes(booking)
+    const children = getBirthdayChildren(booking)
     const creations = getCreationNames(booking, catalogue)
+    const FormIcon = booking.partyFormFilledIn ? CheckCircle2 : Clock3
 
     return (
         <Section
-            tone="party"
             icon={PartyPopper}
             title="Party details"
+            iconClassName="text-violet-600"
+            headerClassName="border-violet-200 bg-violet-50"
             status={
-                booking.partyFormFilledIn ? (
-                    <Pill className="bg-emerald-100 text-emerald-800">
-                        <CheckCircle2 className="h-3.5 w-3.5" /> Party form done
-                    </Pill>
-                ) : (
-                    <Pill className="bg-white text-slate-600 ring-1 ring-slate-200">
-                        <Circle className="h-3.5 w-3.5" /> Party form not done
-                    </Pill>
-                )
+                <span
+                    className={cn(
+                        'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-semibold ring-1 ring-inset',
+                        booking.partyFormFilledIn
+                            ? 'bg-emerald-100 text-emerald-900 ring-emerald-200'
+                            : 'bg-amber-100 text-amber-900 ring-amber-200'
+                    )}
+                >
+                    <FormIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
+                    {booking.partyFormFilledIn ? 'Party form done' : 'Party form not done'}
+                </span>
             }
         >
-            <Subsection tone="party" title="When & where">
-                <IconLine icon={CalendarClock}>
-                    <span className="font-medium">{getPartyDate(booking)}</span>
-                    <span className="block text-slate-600">
-                        {times.start} – {times.end} · {getPartyLengthLabel(booking.partyLength)}
-                    </span>
-                </IconLine>
-                <IconLine icon={MapPin}>
-                    {booking.type === 'mobile'
-                        ? booking.address || 'Mobile party'
-                        : `${capitalise(booking.location)} studio`}
-                </IconLine>
-            </Subsection>
-
-            <Subsection tone="party" title="Parent">
-                <p className="font-semibold text-slate-900">
-                    {booking.parentFirstName} {booking.parentLastName}
-                </p>
-                <IconLine icon={Mail}>
-                    <a className="break-all text-violet-700 hover:underline" href={`mailto:${booking.parentEmail}`}>
-                        {booking.parentEmail}
-                    </a>
-                </IconLine>
-                <IconLine icon={Phone}>
-                    <a className="text-violet-700 hover:underline" href={`tel:${booking.parentMobile}`}>
-                        {booking.parentMobile}
-                    </a>
-                </IconLine>
-            </Subsection>
-
-            <Subsection tone="party" title="Children">
-                <div className="flex flex-wrap gap-2">
-                    {getBirthdayChildren(booking).map((child, index) => (
-                        <span
-                            key={index}
-                            className="inline-flex items-baseline gap-1.5 rounded-lg bg-violet-50 px-2.5 py-1.5 text-sm ring-1 ring-violet-100"
-                        >
-                            <span className="font-semibold text-slate-900">{child.name}</span>
-                            <span className="text-violet-700">turning {child.age}</span>
-                        </span>
+            <dl className="divide-y divide-slate-100">
+                <Detail label={children.length > 1 ? 'Birthday children' : 'Birthday child'}>
+                    {children.map((child, index) => (
+                        <div key={index} className="flex flex-wrap items-baseline gap-x-2">
+                            <p className="text-base font-semibold">{child.name}</p>
+                            <p className="font-medium text-violet-700">turning {child.age}</p>
+                        </div>
                     ))}
-                </div>
-                <p className="text-sm text-slate-600">
+                </Detail>
+                <Detail label="Parent">
+                    <p className="text-base font-semibold">
+                        {booking.parentFirstName} {booking.parentLastName}
+                    </p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-slate-600">
+                        <a className="hover:text-violet-700 hover:underline" href={`tel:${booking.parentMobile}`}>
+                            {booking.parentMobile}
+                        </a>
+                        <a className="hover:text-violet-700 hover:underline" href={`mailto:${booking.parentEmail}`}>
+                            {booking.parentEmail}
+                        </a>
+                    </div>
+                </Detail>
+                <Detail label="Number of children">
                     {booking.numberOfChildren ? (
-                        <>
-                            <span className="font-semibold text-slate-900">{booking.numberOfChildren}</span> children
-                            coming
-                        </>
+                        <p className="text-base font-semibold tabular-nums">{booking.numberOfChildren}</p>
                     ) : (
-                        'Number of children not confirmed yet'
+                        <Empty>Not confirmed yet</Empty>
                     )}
-                </p>
-            </Subsection>
-
-            <Subsection tone="party" title="Creations">
-                {creations.length > 0 ? (
-                    <ol className="flex flex-col gap-1.5">
-                        {creations.map((creation, index) => (
-                            <li key={index} className="flex items-center gap-2 text-sm font-medium text-slate-900">
-                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-600 text-[11px] font-bold text-white">
-                                    {index + 1}
-                                </span>
-                                {creation}
-                            </li>
-                        ))}
-                    </ol>
-                ) : (
-                    <Empty>Not chosen yet</Empty>
+                </Detail>
+                <Detail label="Creations">
+                    {creations.length > 0 ? (
+                        <ol className="space-y-1">
+                            {creations.map((creation, index) => (
+                                <li key={index} className="flex items-baseline gap-2 font-semibold">
+                                    <span className="text-xs font-medium tabular-nums text-violet-600">
+                                        {index + 1}.
+                                    </span>
+                                    {creation}
+                                </li>
+                            ))}
+                        </ol>
+                    ) : (
+                        <Empty>Not chosen yet</Empty>
+                    )}
+                </Detail>
+                {booking.type === 'mobile' && (
+                    <Detail label="Party address">{booking.address || <Empty>No address yet</Empty>}</Detail>
                 )}
-            </Subsection>
+            </dl>
         </Section>
     )
 }
@@ -147,216 +106,177 @@ function PartyDetails({ booking }: { booking: FirestoreBooking }) {
 function Food({ booking }: { booking: FirestoreBooking }) {
     const additions = booking.type === 'studio' ? getAdditionNames(booking) : []
     const goodies = getPurchasedGoodies(booking)
+    const cake = booking.cake
 
     return (
         <Section
-            tone="food"
             icon={UtensilsCrossed}
-            title="Food"
+            title="Food & extras"
+            iconClassName="text-blue-600"
+            headerClassName="border-blue-200 bg-blue-50"
             status={
-                booking.type === 'mobile' ? (
-                    <Pill className="bg-white text-slate-600 ring-1 ring-slate-200">Mobile party</Pill>
-                ) : booking.includesFood ? (
-                    <Pill className="bg-emerald-100 text-emerald-800">Food package included</Pill>
-                ) : (
-                    <Pill className="bg-rose-100 text-rose-800">Self-catered</Pill>
-                )
+                <span
+                    className={cn(
+                        'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-semibold ring-1 ring-inset',
+                        booking.type === 'mobile'
+                            ? 'bg-slate-100 text-slate-700 ring-slate-200'
+                            : booking.includesFood
+                              ? 'bg-emerald-100 text-emerald-900 ring-emerald-200'
+                              : 'bg-amber-100 text-amber-900 ring-amber-200'
+                    )}
+                >
+                    {booking.type === 'studio' && booking.includesFood && (
+                        <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0" />
+                    )}
+                    {booking.type === 'mobile'
+                        ? 'Mobile party'
+                        : booking.includesFood
+                          ? 'Food package included'
+                          : 'Self-catered'}
+                </span>
             }
         >
-            {booking.type === 'studio' && (
-                <Subsection
-                    tone="food"
-                    title="Food additions"
-                    status={additions.length > 0 && <PayStatus paid={false} />}
-                >
-                    {additions.length > 0 ? (
-                        <ul className="flex flex-wrap gap-1.5">
-                            {additions.map((addition) => (
-                                <li
-                                    key={addition}
-                                    className="rounded-md bg-amber-50 px-2 py-1 text-sm font-medium text-amber-900 ring-1 ring-amber-200"
-                                >
-                                    {addition}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <Empty>No additions</Empty>
-                    )}
-                </Subsection>
-            )}
-
-            <Subsection tone="food" title="Cake" status={booking.cake && <PayStatus paid />}>
-                {booking.cake ? (
+            <dl className="divide-y divide-slate-100">
+                {booking.type === 'studio' && (
                     <>
-                        <p className="font-semibold text-slate-900">{booking.cake.selection}</p>
-                        <dl className="grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-1 text-sm">
-                            <CakeDetail label="Size">{booking.cake.size}</CakeDetail>
-                            <CakeDetail label="Flavours">{booking.cake.flavours.join(', ')}</CakeDetail>
-                            <CakeDetail label="Served">{booking.cake.served}</CakeDetail>
-                            <CakeDetail label="Candles">{booking.cake.candles}</CakeDetail>
-                            {booking.cake.message && <CakeDetail label="Message">“{booking.cake.message}”</CakeDetail>}
-                        </dl>
+                        <Detail label="Food additions">
+                            {additions.length > 0 ? (
+                                <>
+                                    <ul className="space-y-1 font-semibold">
+                                        {additions.map((addition, index) => (
+                                            <li key={index}>{addition}</li>
+                                        ))}
+                                    </ul>
+                                    <p className="mt-0.5 text-xs text-amber-800">Pay at party</p>
+                                </>
+                            ) : (
+                                <Empty>None ordered</Empty>
+                            )}
+                        </Detail>
+                        <Detail label="Cake">
+                            {cake ? (
+                                <>
+                                    <p className="font-medium">
+                                        {cake.selection} <Paid />
+                                    </p>
+                                    <p className="text-slate-600">
+                                        {[cake.size, cake.flavours.join(', '), cake.served, cake.candles]
+                                            .filter(Boolean)
+                                            .join(' · ')}
+                                    </p>
+                                    {cake.message && <p className="text-slate-600">Message: {cake.message}</p>}
+                                </>
+                            ) : (
+                                <Empty>None ordered</Empty>
+                            )}
+                        </Detail>
                     </>
-                ) : (
-                    <Empty>No cake ordered</Empty>
                 )}
-            </Subsection>
-
-            {goodies.length > 0 && (
-                <Subsection tone="food" title="Take-home goodies" status={<PayStatus paid />}>
-                    <ul className="flex flex-col gap-1 text-sm text-slate-900">
-                        {goodies.map((goodie) => (
-                            <li key={goodie.name}>
-                                <span className="font-semibold tabular-nums">{goodie.quantity} ×</span> {goodie.name}
-                            </li>
-                        ))}
-                    </ul>
-                </Subsection>
+                {(booking.type === 'studio' || goodies.length > 0) && (
+                    <Detail label="Take-home items">
+                        {goodies.length > 0 ? (
+                            <div>
+                                <ul>
+                                    {goodies.map((goodie) => (
+                                        <li key={goodie.name}>
+                                            <span className="mr-1 font-semibold tabular-nums">{goodie.quantity} ×</span>
+                                            <span>{goodie.name}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <Paid />
+                            </div>
+                        ) : (
+                            <Empty>None ordered</Empty>
+                        )}
+                    </Detail>
+                )}
+            </dl>
+            {booking.type === 'mobile' && (
+                <p className="px-3 py-2.5 text-slate-500 sm:px-4">No food package for mobile parties</p>
             )}
         </Section>
     )
 }
 
 function Notes({ booking }: { booking: FirestoreBooking }) {
-    const hasNotes = booking.notes || booking.questions || booking.funFacts
+    const notes = [
+        { label: 'Staff notes', text: booking.notes },
+        { label: 'Fun facts', text: booking.funFacts },
+        { label: 'Parent questions', text: booking.questions },
+    ].filter((note) => note.text?.trim())
 
     return (
-        <Section tone="notes" icon={NotebookPen} title="Notes">
-            {!hasNotes && (
-                <Subsection tone="notes">
+        <Section
+            icon={NotebookPen}
+            title="Notes & fun facts"
+            iconClassName="text-amber-700"
+            headerClassName="border-amber-200 bg-amber-50"
+        >
+            {notes.length > 0 ? (
+                <dl className="divide-y divide-slate-100">
+                    {notes.map((note) => (
+                        <Detail key={note.label} label={note.label}>
+                            <p className="whitespace-pre-wrap font-medium">{note.text}</p>
+                        </Detail>
+                    ))}
+                </dl>
+            ) : (
+                <p className="px-3 py-2.5 sm:px-4">
                     <Empty>No notes yet</Empty>
-                </Subsection>
-            )}
-            {booking.notes && (
-                <Subsection tone="notes" title="Staff notes">
-                    <p className="whitespace-pre-wrap rounded-lg bg-amber-50 px-3 py-2 text-sm text-slate-900 ring-1 ring-amber-200">
-                        {booking.notes}
-                    </p>
-                </Subsection>
-            )}
-            {booking.questions && (
-                <Subsection tone="notes" title="Parent questions">
-                    <p className="whitespace-pre-wrap text-sm text-slate-900">{booking.questions}</p>
-                </Subsection>
-            )}
-            {booking.funFacts && (
-                <Subsection tone="notes" title="Fun facts">
-                    <p className="whitespace-pre-wrap text-sm text-slate-900">{booking.funFacts}</p>
-                </Subsection>
+                </p>
             )}
         </Section>
     )
 }
 
-const TONES = {
-    party: {
-        header: 'bg-violet-50 border-violet-100',
-        icon: 'bg-violet-600',
-        title: 'text-violet-950',
-        label: 'text-violet-700',
-    },
-    food: {
-        header: 'bg-amber-50 border-amber-100',
-        icon: 'bg-amber-500',
-        title: 'text-amber-950',
-        label: 'text-amber-700',
-    },
-    notes: { header: 'bg-sky-50 border-sky-100', icon: 'bg-sky-500', title: 'text-sky-950', label: 'text-sky-700' },
-}
-
-type Tone = keyof typeof TONES
-
 function Section({
-    tone,
     icon: Icon,
     title,
     status,
-    className,
+    iconClassName,
+    headerClassName,
     children,
 }: {
-    tone: Tone
     icon: LucideIcon
     title: string
     status?: ReactNode
-    className?: string
+    iconClassName: string
+    headerClassName: string
     children: ReactNode
 }) {
-    const colours = TONES[tone]
     return (
-        <section className={cn('overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm', className)}>
-            <header className={cn('flex flex-wrap items-center gap-2.5 border-b px-4 py-3', colours.header)}>
-                <span className={cn('flex h-8 w-8 items-center justify-center rounded-lg text-white', colours.icon)}>
-                    <Icon className="h-4 w-4" />
-                </span>
-                <h4 className={cn('flex-1 text-base font-bold', colours.title)}>{title}</h4>
+        <section className="overflow-hidden rounded-lg border border-slate-300 bg-white">
+            <header
+                className={cn(
+                    'flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b px-3 py-2.5 sm:px-4',
+                    headerClassName
+                )}
+            >
+                <h4 className="flex items-center gap-2 text-base font-bold">
+                    <Icon aria-hidden="true" className={cn('h-4 w-4', iconClassName)} />
+                    {title}
+                </h4>
                 {status}
             </header>
-            <div className="divide-y divide-slate-100">{children}</div>
+            {children}
         </section>
     )
 }
 
-function Subsection({
-    tone,
-    title,
-    status,
-    children,
-}: {
-    tone: Tone
-    title?: string
-    status?: ReactNode
-    children: ReactNode
-}) {
+function Detail({ label, children }: { label: string; children: ReactNode }) {
     return (
-        <div className="flex flex-col gap-2 px-4 py-3">
-            {title && (
-                <div className="flex items-center justify-between gap-2">
-                    <h5 className={cn('text-xs font-bold uppercase tracking-wider', TONES[tone].label)}>{title}</h5>
-                    {status}
-                </div>
-            )}
-            {children}
+        <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-baseline gap-x-3 px-3 py-2.5 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-x-4 sm:px-4">
+            <dt className="font-bold text-slate-700">{label}</dt>
+            <dd className="min-w-0">{children}</dd>
         </div>
     )
 }
 
-function IconLine({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode }) {
-    return (
-        <div className="flex items-start gap-2 text-sm text-slate-900">
-            <Icon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-            <div className="min-w-0">{children}</div>
-        </div>
-    )
-}
-
-function CakeDetail({ label, children }: { label: string; children: ReactNode }) {
-    return (
-        <>
-            <dt className="text-slate-500">{label}</dt>
-            <dd className="text-slate-900">{children}</dd>
-        </>
-    )
-}
-
-function Pill({ className, children }: { className: string; children: ReactNode }) {
-    return (
-        <span
-            className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold', className)}
-        >
-            {children}
-        </span>
-    )
-}
-
-function PayStatus({ paid }: { paid: boolean }) {
-    return paid ? (
-        <Pill className="bg-emerald-100 text-emerald-800">Paid</Pill>
-    ) : (
-        <Pill className="bg-rose-100 text-rose-800">Pay at party</Pill>
-    )
+function Paid() {
+    return <span className="text-xs font-medium text-emerald-700">Paid</span>
 }
 
 function Empty({ children }: { children: ReactNode }) {
-    return <p className="text-sm text-slate-400">{children}</p>
+    return <span className="text-sm text-slate-500">{children}</span>
 }

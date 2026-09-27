@@ -103,13 +103,13 @@ describe('getBirthdayPartyCreationMenu', () => {
     it('retains an unknown historical key with a safe label', () => {
         const menu = getBirthdayPartyCreationMenu(catalogue, 'studio', 'historicalKey')
 
-        deepStrictEqual(menu.previouslySelected, { key: 'historicalKey', name: 'historicalKey' })
+        deepStrictEqual(menu.previouslySelected, { key: 'historicalKey', name: 'Historical Key' })
     })
 
     it('retains the historical selection when the catalogue cannot be loaded', () => {
         const menu = getBirthdayPartyCreationMenu(undefined, 'studio', 'unicornSoap')
 
         deepStrictEqual(menu.packages, [])
-        deepStrictEqual(menu.previouslySelected, { key: 'unicornSoap', name: 'unicornSoap' })
+        deepStrictEqual(menu.previouslySelected, { key: 'unicornSoap', name: 'Unicorn Soap' })
     })
 })

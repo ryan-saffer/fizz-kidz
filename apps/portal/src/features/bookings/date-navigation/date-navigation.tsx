@@ -62,7 +62,7 @@ const Root = styled('div')(({ theme }) => ({
     [`&.${classes.root}`]: {
         display: 'flex',
         height: '100%',
-        background: '#F0F2F5',
+        background: '#f1f5f9',
         minHeight: 'calc(100vh - 64px)',
     },
 
@@ -84,7 +84,7 @@ const Root = styled('div')(({ theme }) => ({
 
     [`& .${classes.content}`]: {
         flexGrow: 1,
-        backgroundColor: '#F0F2F5',
+        backgroundColor: '#f1f5f9',
         // padding: theme.spacing(3),
     },
 
