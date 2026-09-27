@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { PARTY_FORM_V2_ADDITIONS } from './party-form-v2'
 
+import type { Studio } from '../core/studio'
 import type { CheckoutSummary } from '../payments/checkout'
 
 /**
@@ -9,6 +10,16 @@ import type { CheckoutSummary } from '../payments/checkout'
  * see `square-party-price.ts`), the food additions, an optional staff discount and gift card, charged on the studio's
  * Square Terminal.
  */
+
+/**
+ * The studios trialling party checkout; the rest don't see it. Every studio has it in dev, for testing on Square's
+ * sandbox.
+ */
+export const PARTY_CHECKOUT_TRIAL_STUDIOS: Studio[] = []
+
+export function isPartyCheckoutAvailable(studio: Studio, env: 'prod' | 'dev') {
+    return env === 'dev' || PARTY_CHECKOUT_TRIAL_STUDIOS.includes(studio)
+}
 
 export const preparePartyCheckoutSchema = z
     .object({

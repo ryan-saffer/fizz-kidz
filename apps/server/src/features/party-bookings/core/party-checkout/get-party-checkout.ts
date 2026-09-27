@@ -1,6 +1,7 @@
 import {
     getPartyPriceList,
     getSquareLocationId,
+    isPartyCheckoutAvailable,
     MIN_CHARGED_CHILDREN,
     type Booking,
     type ChargedPartyLength,
@@ -89,9 +90,10 @@ export async function getPartyCheckout(bookingId: string) {
     } as const
 }
 
-export function getBlockedReason(booking: Pick<Booking, 'payment' | 'type'>) {
+export function getBlockedReason(booking: Pick<Booking, 'payment' | 'type' | 'location'>) {
     if (booking.payment) return 'This party has already been paid.'
     if (booking.type !== 'studio') return 'Only studio parties can be charged at the studio.'
+    if (!isPartyCheckoutAvailable(booking.location, env)) return "Party checkout isn't available at this studio yet."
     return null
 }
 

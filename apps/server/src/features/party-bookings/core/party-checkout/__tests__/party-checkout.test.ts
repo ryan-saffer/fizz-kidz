@@ -7,6 +7,7 @@ import { getPartyCheckout } from '../get-party-checkout'
 import { preparePartyCheckout } from '../prepare-party-checkout'
 
 const mocks = vi.hoisted(() => ({
+    env: 'dev' as 'prod' | 'dev',
     booking: {} as Record<string, unknown>,
     recordPartyPayment: vi.fn(),
     catalogItem: vi.fn(),
@@ -19,7 +20,11 @@ const mocks = vi.hoisted(() => ({
     syncToZoho: vi.fn(),
     logError: vi.fn(),
 }))
-vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
+vi.mock('@/app/init/firebase', () => ({
+    get env() {
+        return mocks.env
+    },
+}))
 vi.mock('@/integrations/firebase/database.client', () => ({
     DatabaseClient: { getPartyBooking: async () => mocks.booking, recordPartyPayment: mocks.recordPartyPayment },
 }))
@@ -65,6 +70,7 @@ const input: PreparePartyCheckout = {
 
 beforeEach(() => {
     vi.clearAllMocks()
+    mocks.env = 'dev'
     mocks.booking = {
         parentFirstName: 'Jane',
         parentLastName: 'Smith',
@@ -149,6 +155,15 @@ describe('the checkout config', () => {
             variations: [variation(old.variations['1.5'].food, '[OLD PRICE] 1.5 Hour Party', 3800, ['elsewhere'])],
         })
         expect(await getPartyCheckout('booking')).toMatchObject({ blocked: expect.stringContaining('old prices') })
+    })
+
+    it("is only offered at the trial studios in prod, so it's hidden everywhere until one's added", async () => {
+        mocks.env = 'prod'
+        expect(await getPartyCheckout('booking')).toMatchObject({ blocked: expect.stringContaining('this studio yet') })
+        await expect(preparePartyCheckout(input)).rejects.toThrow('this studio yet')
+        await expect(
+            startPartyCheckout({ bookingId: 'booking', checkoutId: 'order', deviceId: 'device' })
+        ).rejects.toThrow('this studio yet')
     })
 })
 

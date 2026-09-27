@@ -10,7 +10,7 @@ import {
     UsersRound,
 } from 'lucide-react'
 
-import { getInvitationShareUrl, formatCents } from '@fizz-kidz/core'
+import { getInvitationShareUrl, formatCents, isPartyCheckoutAvailable } from '@fizz-kidz/core'
 import type { FirestoreBooking, WithId } from '@fizz-kidz/core'
 
 import { useOrg } from '@session/use-org'
@@ -34,7 +34,10 @@ import { usePartyBookingsStore } from '../state/party-bookings-store'
 export function PartyBookingActions({ booking }: { booking: WithId<FirestoreBooking> }) {
     const { hasPermission } = useOrg()
     const canEdit = hasPermission('bookings:edit')
-    const canCollectPayment = hasPermission('bookings:collect-payment') && booking.type === 'studio'
+    const canCollectPayment =
+        hasPermission('bookings:collect-payment') &&
+        booking.type === 'studio' &&
+        isPartyCheckoutAvailable(booking.location, import.meta.env.VITE_ENV)
     const confirm = useConfirm()
     const busy = usePartyBookingsStore((state) => state.busyBookingId === booking.id)
     const store = usePartyBookingsStore.getState
