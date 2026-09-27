@@ -6,12 +6,13 @@ import { getPartyBirthdayChildDisplay } from '@fizz-kidz/core'
 
 import { useDateNavigation } from '@features/bookings/date-navigation/date-navigation.hooks'
 import { useTRPC } from '@integrations/trpc'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@shared/components/ui/sheet'
+import { Sheet, SheetContent } from '@shared/components/ui/sheet'
 
 import { useWhileClosing } from '../hooks/use-while-closing'
 import { usePartyBookingsStore } from '../state/party-bookings-store'
 import { DeletePartyBookingDialog } from './delete-party-booking-dialog'
 import { PartyBookingForm } from './form/party-booking-form'
+import { FullScreenHeader } from './full-screen-header'
 
 /**
  * The full screen dialog for booking or editing a party, and the delete dialog. Mounted once on the bookings page,
@@ -32,21 +33,19 @@ export function PartyBookingDialog() {
                     className="twp top-0 flex h-[100dvh] flex-col gap-0 border-0 bg-slate-100 p-0 focus:outline-none"
                     // focusing the first field would pop the keyboard up over the form on the iPads
                     onOpenAutoFocus={(e) => e.preventDefault()}
+                    hideCloseBtn
                 >
                     {dialog && (
                         <>
-                            <SheetHeader className="border-b border-slate-200 bg-white px-4 py-4 text-left sm:px-6">
-                                <div className="mx-auto w-full max-w-3xl pr-8">
-                                    <SheetTitle className="font-lilita text-2xl font-normal">
-                                        {dialog.mode === 'create' ? 'New party booking' : 'Edit party booking'}
-                                    </SheetTitle>
-                                    <SheetDescription>
-                                        {dialog.mode === 'create'
-                                            ? 'Book the party in. The parent fills in creations and food in their party form.'
-                                            : `${getPartyBirthdayChildDisplay(dialog.booking)} party · ${dialog.booking.parentFirstName} ${dialog.booking.parentLastName}`}
-                                    </SheetDescription>
-                                </div>
-                            </SheetHeader>
+                            <FullScreenHeader
+                                className="max-w-3xl"
+                                title={dialog.mode === 'create' ? 'New party booking' : 'Edit party booking'}
+                                description={
+                                    dialog.mode === 'create'
+                                        ? 'Book the party in. The parent fills in creations and food in their party form.'
+                                        : `${getPartyBirthdayChildDisplay(dialog.booking)} party · ${dialog.booking.parentFirstName} ${dialog.booking.parentLastName}`
+                                }
+                            />
                             <PartyBookingForm
                                 key={dialog.mode === 'edit' ? dialog.booking.id : 'new'}
                                 dialog={dialog}
