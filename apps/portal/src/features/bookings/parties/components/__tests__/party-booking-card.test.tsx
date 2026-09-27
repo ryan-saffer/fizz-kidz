@@ -81,10 +81,15 @@ function renderCard(props: Partial<WithId<FirestoreBooking>> = {}) {
 
 beforeEach(() => {
     canEdit = true
+    // CI has no .env, so set the environment the checkout checks
+    vi.stubEnv('VITE_ENV', 'dev')
     usePartyBookingsStore.setState({ dialog: null })
 })
 
-afterEach(cleanup)
+afterEach(() => {
+    cleanup()
+    vi.unstubAllEnvs()
+})
 
 describe('PartyBookingCard', () => {
     it('shows the party at a glance and its details when opened', async () => {
@@ -167,6 +172,13 @@ describe('PartyBookingCard', () => {
         await userEvent.click(screen.getByRole('button', { expanded: false }))
         expect(screen.queryByRole('button', { name: 'Collect payment' })).toBeNull()
         expect(screen.getByRole('link', { name: /Paid \$698\.00/ }).getAttribute('href')).toBe('https://receipt')
+    })
+
+    it("doesn't collect payment in prod at a studio that isn't trialling checkout", async () => {
+        vi.stubEnv('VITE_ENV', 'prod')
+        renderCard()
+        await userEvent.click(screen.getByRole('button', { expanded: false }))
+        expect(screen.queryByRole('button', { name: 'Collect payment' })).toBeNull()
     })
 
     it("doesn't collect payment for mobile parties", async () => {
