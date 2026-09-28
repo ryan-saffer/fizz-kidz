@@ -1,58 +1,54 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { AlertCircle, Loader2 } from 'lucide-react'
 import { useEffect, useLayoutEffect } from 'react'
 
-import { getPartyBirthdayChildDisplay, type Studio } from '@fizz-kidz/core'
+import { getPartyBirthdayChildDisplay } from '@fizz-kidz/core'
 
+import { ChargeStatus } from '@features/terminal-checkout/components/charge-status'
+import { CheckoutSteps } from '@features/terminal-checkout/components/checkout-steps'
+import { TerminalCheckoutProvider } from '@features/terminal-checkout/components/terminal-checkout-provider'
+import {
+    CheckoutLoading,
+    CheckoutProblem,
+    TerminalCheckoutSheet,
+} from '@features/terminal-checkout/components/terminal-checkout-sheet'
 import { useTRPC } from '@integrations/trpc'
-import { Sheet, SheetContent } from '@shared/components/ui/sheet'
+import { useWhileClosing } from '@shared/hooks/use-while-closing'
 
-import { FullScreenHeader } from '../../components/full-screen-header'
-import { useWhileClosing } from '../../hooks/use-while-closing'
-import { useCheckoutStore } from '../state/checkout-store'
-import { ChargeStatus } from './charge-status'
-import { CheckoutSteps } from './checkout-steps'
+import { getEstimateLines, useCheckoutStore } from '../state/checkout-store'
+import { FoodStep } from './steps/food-step'
+import { PartyStep } from './steps/party-step'
 
 /** The full screen checkout for collecting a party's payment. Mounted once on the bookings page. */
 export function CheckoutDialog() {
-    const open = useCheckoutStore((state) => state.booking !== null)
-    const booking = useWhileClosing(useCheckoutStore((state) => state.booking))
+    const open = useCheckoutStore((state) => state.subject !== null)
+    const booking = useWhileClosing(useCheckoutStore((state) => state.subject))
     const close = useCheckoutStore((state) => state.close)
-    const stage = useCheckoutStore((state) => state.stage)
+    const charging = useCheckoutStore((state) => state.stage === 'charging')
 
     // the store outlives the page; a charge still on the terminal resumes when the checkout is opened again
     useEffect(() => () => useCheckoutStore.getState().close(), [])
 
     return (
-        <Sheet
+        <TerminalCheckoutSheet
             open={open}
-            // a charge on the terminal is cancelled or finished first, so it isn't left behind
-            onOpenChange={(open) => !open && stage !== 'charging' && close()}
+            onClose={close}
+            charging={charging}
+            title="Collect payment"
+            description={
+                booking &&
+                `${getPartyBirthdayChildDisplay(booking)} party · ${booking.parentFirstName} ${booking.parentLastName}`
+            }
         >
-            <SheetContent
-                side="bottom"
-                className="twp top-0 flex h-[100dvh] flex-col gap-0 border-0 bg-slate-100 p-0 focus:outline-none"
-                onOpenAutoFocus={(e) => e.preventDefault()}
-                hideCloseBtn
-            >
-                {booking && (
-                    <>
-                        <FullScreenHeader
-                            className="max-w-5xl"
-                            title="Collect payment"
-                            description={`${getPartyBirthdayChildDisplay(booking)} party · ${booking.parentFirstName} ${booking.parentLastName}`}
-                            // a charge on the terminal is cancelled or finished first
-                            closeDisabled={stage === 'charging'}
-                        />
-                        <CheckoutBody key={booking.id} bookingId={booking.id} studio={booking.location} />
-                    </>
-                )}
-            </SheetContent>
-        </Sheet>
+            {booking && (
+                <TerminalCheckoutProvider store={useCheckoutStore} studio={booking.location}>
+                    <CheckoutBody key={booking.id} bookingId={booking.id} />
+                </TerminalCheckoutProvider>
+            )}
+        </TerminalCheckoutSheet>
     )
 }
 
-function CheckoutBody({ bookingId, studio }: { bookingId: string; studio: Studio }) {
+function CheckoutBody({ bookingId }: { bookingId: string }) {
     const trpc = useTRPC()
     // loaded fresh each time the checkout opens, then kept as is so a paid party doesn't swap to "already paid"
     const config = useQuery(
@@ -67,44 +63,41 @@ function CheckoutBody({ bookingId, studio }: { bookingId: string; studio: Studio
     const { mutateAsync: cancel } = useMutation(trpc.parties.cancelPartyCheckout.mutationOptions())
     const ready = useCheckoutStore((state) => state.config !== null && state.config === config.data)
     const stage = useCheckoutStore((state) => state.stage)
+    const answers = useCheckoutStore((state) => state.answers)
 
     useLayoutEffect(() => {
         if (config.data && config.data.blocked === null)
             useCheckoutStore.getState().init({
                 config: config.data,
-                server: { prepare, start, status, cancel },
+                answers: config.data.prefill,
+                server: {
+                    prepare: (answers) => prepare({ bookingId, ...answers }),
+                    start: (input) => start({ bookingId, ...input }),
+                    status: (charge) => status({ bookingId, ...charge }),
+                    cancel: (charge) => cancel({ bookingId, ...charge }),
+                },
             })
-    }, [config.data, prepare, start, status, cancel])
+    }, [config.data, bookingId, prepare, start, status, cancel])
 
-    // the studio's terminal is the one paired with the portal at its Square location
-    const terminals = useQuery(trpc.parties.listPartyTerminals.queryOptions({ studio }))
-    useEffect(() => {
-        if (ready && terminals.data) useCheckoutStore.getState().setTerminals(terminals.data)
-    }, [ready, terminals.data])
-
-    if (config.isPending)
-        return (
-            <Centered>
-                <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-            </Centered>
-        )
-    if (config.isError) return <Problem>Unable to load the party's prices from Square. Please try again.</Problem>
-    if (config.data.blocked !== null) return <Problem>{config.data.blocked}</Problem>
+    if (config.isPending) return <CheckoutLoading />
+    if (config.isError)
+        return <CheckoutProblem>Unable to load the party&apos;s prices from Square. Please try again.</CheckoutProblem>
+    if (config.data.blocked !== null) return <CheckoutProblem>{config.data.blocked}</CheckoutProblem>
     if (!ready) return null
-    return stage === 'editing' ? <CheckoutSteps /> : <ChargeStatus />
-}
-
-function Centered({ children }: { children: React.ReactNode }) {
-    return <div className="flex flex-1 items-center justify-center p-6">{children}</div>
-}
-
-function Problem({ children }: { children: React.ReactNode }) {
+    if (stage !== 'editing')
+        return (
+            <ChargeStatus
+                paidMessage={
+                    <>
+                        A receipt has been emailed to <strong>{config.data.customerEmail}</strong>.
+                    </>
+                }
+            />
+        )
     return (
-        <Centered>
-            <div className="flex max-w-md flex-col items-center gap-3 rounded-2xl bg-white p-8 text-center shadow-sm">
-                <AlertCircle className="h-10 w-10 text-rose-500" />
-                <p className="text-slate-700">{children}</p>
-            </div>
-        </Centered>
+        <CheckoutSteps
+            estimate={getEstimateLines(config.data, answers)}
+            renderStep={(step) => (step === 'party' ? <PartyStep /> : <FoodStep />)}
+        />
     )
 }

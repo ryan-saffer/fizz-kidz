@@ -5,7 +5,6 @@ import {
     preparePartyCheckoutSchema,
     preparePartyFormV2Schema,
     startPartyCheckoutSchema,
-    STUDIOS,
     submitPartyFormV2Schema,
 } from '@fizz-kidz/core'
 import type {
@@ -31,7 +30,6 @@ import {
     startPartyCheckout,
 } from '@/features/party-bookings/core/party-checkout/charge-party-checkout'
 import { getPartyCheckout } from '@/features/party-bookings/core/party-checkout/get-party-checkout'
-import { listPartyTerminals, pairPartyTerminal } from '@/features/party-bookings/core/party-checkout/party-terminals'
 import { preparePartyCheckout } from '@/features/party-bookings/core/party-checkout/prepare-party-checkout'
 import { getCakeFormUrl, getPartyFormUrl } from '@/features/party-bookings/core/party-form-urls'
 import { preparePartyFormV2 } from '@/features/party-bookings/core/party-form-v2/checkout/prepare-party-form-v2'
@@ -47,13 +45,11 @@ import { hostRsvpToParty, guestRsvpToParty } from '@/features/party-bookings/cor
 import { sendPartyBookingConfirmationEmail } from '@/features/party-bookings/core/send-party-booking-confirmation-email'
 import { updatePartyBooking } from '@/features/party-bookings/core/update-party-booking'
 import { UnavailableBirthdayPartyCreationsError } from '@/features/party-bookings/core/validate-booking-creations'
-import { getTerminalPairing } from '@/features/payments/core/terminals'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { getPartyFormEmbedConfig } from '@/integrations/paperforms/core/party-form-prefill'
 
 export type CreatePartyBooking = Booking
 export type UpdatePartyBooking = { bookingId: string; booking: Booking }
-const studio = z.custom<Studio>((value) => typeof value === 'string' && STUDIOS.includes(value as Studio))
 
 export type DeletePartyBooking = {
     bookingId: string
@@ -117,28 +113,19 @@ export const partiesRouter = router({
     submitPartyFormV2: publicProcedure.input(submitPartyFormV2Schema).mutation(({ input }) => submitPartyFormV2(input)),
     getPartyCheckout: authenticatedProcedure
         .input(z.object({ bookingId: z.string() }))
-        .query(({ input }) => getPartyCheckout(input.bookingId)),
+        .query(({ input, ctx }) => getPartyCheckout(input.bookingId, ctx.uid)),
     preparePartyCheckout: authenticatedProcedure
         .input(preparePartyCheckoutSchema)
-        .mutation(({ input }) => preparePartyCheckout(input)),
+        .mutation(({ input, ctx }) => preparePartyCheckout(input, ctx.uid)),
     startPartyCheckout: authenticatedProcedure
         .input(startPartyCheckoutSchema)
-        .mutation(({ input }) => startPartyCheckout(input)),
+        .mutation(({ input, ctx }) => startPartyCheckout(input, ctx.uid)),
     getPartyCheckoutStatus: authenticatedProcedure
         .input(partyTerminalCheckoutSchema)
         .mutation(({ input }) => getPartyCheckoutStatus(input)),
     cancelPartyCheckout: authenticatedProcedure
         .input(partyTerminalCheckoutSchema)
         .mutation(({ input }) => cancelPartyCheckout(input)),
-    listPartyTerminals: authenticatedProcedure
-        .input(z.object({ studio }))
-        .query(({ input }) => listPartyTerminals(input.studio)),
-    pairPartyTerminal: authenticatedProcedure
-        .input(z.object({ studio }))
-        .mutation(({ input }) => pairPartyTerminal(input.studio)),
-    getPartyTerminalPairing: authenticatedProcedure
-        .input(z.object({ deviceCodeId: z.string().min(1) }))
-        .mutation(({ input }) => getTerminalPairing(input.deviceCodeId)),
     generateInvitation: publicProcedure
         .input((input: unknown) => input as GenerateInvitation)
         .mutation(({ input }) => generateInvitation(input)),

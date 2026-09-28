@@ -6,7 +6,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
 import type { FirestoreBooking, WithId } from '@fizz-kidz/core'
 
-import { useCheckoutStore, type CheckoutConfig, type CheckoutServer } from '../../../state/checkout-store'
+import type { TerminalCheckoutServer } from '@features/terminal-checkout/state/terminal-checkout-store'
+
+import { useCheckoutStore, type CheckoutAnswers, type CheckoutConfig } from '../../../state/checkout-store'
 import { PartyStep } from '../party-step'
 
 const config = {
@@ -27,7 +29,11 @@ const config = {
 
 beforeEach(() => {
     useCheckoutStore.getState().open({ id: 'booking', location: 'balwyn' } as WithId<FirestoreBooking>)
-    useCheckoutStore.getState().init({ config, server: {} as CheckoutServer })
+    useCheckoutStore.getState().init({
+        config,
+        answers: config.prefill,
+        server: {} as TerminalCheckoutServer<CheckoutAnswers>,
+    })
 })
 
 afterEach(() => {

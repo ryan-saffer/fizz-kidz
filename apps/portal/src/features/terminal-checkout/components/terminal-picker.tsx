@@ -6,12 +6,12 @@ import { useTRPC } from '@integrations/trpc'
 import type { AppRouter } from '@server/app/trpc/app.trpc'
 import { Button } from '@shared/components/ui/button'
 
-import { useCheckoutStore } from '../state/checkout-store'
+import { useCheckoutStudio, useTerminalCheckout } from '../state/terminal-checkout-context'
 import { OptionCard, StepSection } from './step-section'
 
 import type { inferRouterOutputs } from '@trpc/server'
 
-type Pairing = inferRouterOutputs<AppRouter>['parties']['pairPartyTerminal']
+type Pairing = inferRouterOutputs<AppRouter>['payments']['pairTerminal']
 
 /**
  * The studio's Square Terminal: the one paired with the portal at its Square location, used on any iPad. With none
@@ -19,10 +19,10 @@ type Pairing = inferRouterOutputs<AppRouter>['parties']['pairPartyTerminal']
  */
 export function TerminalPicker() {
     const trpc = useTRPC()
-    const studio = useCheckoutStore((state) => state.booking!.location)
-    const terminals = useQuery(trpc.parties.listPartyTerminals.queryOptions({ studio }))
-    const terminal = useCheckoutStore((state) => state.terminal)
-    const setTerminal = useCheckoutStore((state) => state.setTerminal)
+    const studio = useCheckoutStudio()
+    const terminals = useQuery(trpc.payments.listTerminals.queryOptions({ studio }))
+    const terminal = useTerminalCheckout((state) => state.terminal)
+    const setTerminal = useTerminalCheckout((state) => state.setTerminal)
 
     if (terminals.isPending)
         return (
@@ -75,9 +75,9 @@ export function TerminalPicker() {
 
 function PairTerminal({ onPaired }: { onPaired: () => void }) {
     const trpc = useTRPC()
-    const studio = useCheckoutStore((state) => state.booking!.location)
-    const pair = useMutation(trpc.parties.pairPartyTerminal.mutationOptions())
-    const { mutateAsync: checkPairing } = useMutation(trpc.parties.getPartyTerminalPairing.mutationOptions())
+    const studio = useCheckoutStudio()
+    const pair = useMutation(trpc.payments.pairTerminal.mutationOptions())
+    const { mutateAsync: checkPairing } = useMutation(trpc.payments.getTerminalPairing.mutationOptions())
     const [pairingState, setPairingState] = useState<Pairing | null>(null)
 
     // the code is valid for five minutes; check until the terminal signs in with it

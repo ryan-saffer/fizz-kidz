@@ -1,7 +1,8 @@
 import { formatCents } from '@fizz-kidz/core'
 
+import { OptionCard, StepSection } from '@features/terminal-checkout/components/step-section'
+
 import { toggleAddition, useCheckoutStore } from '../../state/checkout-store'
-import { OptionCard, StepSection } from '../step-section'
 
 /** The food additions to charge, starting from what the parent ordered in their party form. */
 export function FoodStep() {

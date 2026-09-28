@@ -46,7 +46,7 @@
         "embla-carousel-react": "^8.3.0",
         "firebase": "^10.6.0",
         "fuse.js": "^7.3.0",
-        "lucide-react": "^0.562.0",
+        "lucide-react": "^1.48.0",
         "luxon": "^3.4.3",
         "mixpanel-browser": "^2.45.0",
         "moment-timezone": "^0.5.28",

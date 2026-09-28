@@ -3,11 +3,11 @@ import { useState } from 'react'
 
 import { formatCents } from '@fizz-kidz/core'
 
+import { OptionCard, StepSection } from '@features/terminal-checkout/components/step-section'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 
 import { useCheckoutStore } from '../../state/checkout-store'
-import { OptionCard, StepSection } from '../step-section'
 
 /** Confirms how the party is charged: its length, food package and the children who came. */
 export function PartyStep() {

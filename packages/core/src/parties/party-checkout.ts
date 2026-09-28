@@ -2,24 +2,14 @@ import { z } from 'zod'
 
 import { PARTY_FORM_V2_ADDITIONS } from './party-form-v2'
 
-import type { Studio } from '../core/studio'
 import type { CheckoutSummary } from '../payments/checkout'
+import type { TerminalCheckoutStatus } from '../payments/terminal-checkout'
 
 /**
  * Collecting payment for a studio party once it's over: the party price per child (at least `MIN_CHARGED_CHILDREN`,
  * see `square-party-price.ts`), the food additions, an optional staff discount and gift card, charged on the studio's
  * Square Terminal.
  */
-
-/**
- * The studios trialling party checkout; the rest don't see it. Every studio has it in dev, for testing on Square's
- * sandbox.
- */
-export const PARTY_CHECKOUT_TRIAL_STUDIOS: Studio[] = []
-
-export function isPartyCheckoutAvailable(studio: Studio, env: 'prod' | 'dev') {
-    return env === 'dev' || PARTY_CHECKOUT_TRIAL_STUDIOS.includes(studio)
-}
 
 export const preparePartyCheckoutSchema = z
     .object({
@@ -61,14 +51,8 @@ export const partyTerminalCheckoutSchema = z.object({
 export type StartPartyCheckout = z.infer<typeof startPartyCheckoutSchema>
 export type PartyTerminalCheckout = z.infer<typeof partyTerminalCheckoutSchema>
 
-/**
- * Where a charge is up to. `waiting`: on the terminal. `paid`: done. `canceled`: nothing was charged (staff or the
- * customer cancelled, or the terminal timed out), so it can be sent again.
- */
-export type PartyCheckoutStatus =
-    | { status: 'waiting'; terminalCheckoutId: string }
-    | { status: 'paid'; receiptUrl: string | null }
-    | { status: 'canceled'; reason: string }
+/** Where a party charge is up to on the terminal. */
+export type PartyCheckoutStatus = TerminalCheckoutStatus
 
 /** The payment on a party booking, recorded once it's collected. */
 export type PartyPayment = {

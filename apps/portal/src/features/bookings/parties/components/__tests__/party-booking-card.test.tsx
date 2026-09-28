@@ -12,9 +12,10 @@ import { usePartyBookingsStore } from '../../state/party-bookings-store'
 import { PartyBookingCard } from '../party-booking-card'
 
 let canEdit = true
+let role = 'studio-ipad'
 
 vi.mock('@session/use-org', () => ({
-    useOrg: () => ({ hasPermission: () => canEdit }),
+    useOrg: () => ({ hasPermission: () => canEdit, role }),
 }))
 
 vi.mock('@shared/components/dialogs/confirmation/use-confirmation-dialog', () => ({
@@ -81,6 +82,7 @@ function renderCard(props: Partial<WithId<FirestoreBooking>> = {}) {
 
 beforeEach(() => {
     canEdit = true
+    role = 'studio-ipad'
     // CI has no .env, so set the environment the checkout checks
     vi.stubEnv('VITE_ENV', 'dev')
     usePartyBookingsStore.setState({ dialog: null })
@@ -152,7 +154,7 @@ describe('PartyBookingCard', () => {
         renderCard()
         await userEvent.click(screen.getByRole('button', { expanded: false }))
         await userEvent.click(screen.getByRole('button', { name: 'Collect payment' }))
-        expect(useCheckoutStore.getState().booking?.id).toBe('booking-1')
+        expect(useCheckoutStore.getState().subject?.id).toBe('booking-1')
         useCheckoutStore.getState().close()
     })
 
@@ -179,6 +181,14 @@ describe('PartyBookingCard', () => {
         renderCard()
         await userEvent.click(screen.getByRole('button', { expanded: false }))
         expect(screen.queryByRole('button', { name: 'Collect payment' })).toBeNull()
+    })
+
+    it('lets super-admins collect payment at any studio in prod', async () => {
+        vi.stubEnv('VITE_ENV', 'prod')
+        role = 'super-admin'
+        renderCard()
+        await userEvent.click(screen.getByRole('button', { expanded: false }))
+        expect(screen.getByRole('button', { name: 'Collect payment' })).toBeTruthy()
     })
 
     it("doesn't collect payment for mobile parties", async () => {
