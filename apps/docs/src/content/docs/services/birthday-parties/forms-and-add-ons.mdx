@@ -39,8 +39,8 @@ food-package and previous paid-item details.
 | Party Form email       | Parties in the following Tuesday-to-Tuesday window | No `Party Form filled in` filter on the initial send                             |
 | Party Form reminder    | Parties in the upcoming Tuesday-to-Tuesday window  | Any booking already marked `Party Form filled in`                                |
 
-The exact send time is scheduled automatically. If a customer needs the form now, use **Get Party Form link** instead of
-waiting for the scheduled email.
+The exact send time is scheduled automatically. If a customer needs the form now, use **Copy form link > Party form**
+from the booking menu instead of waiting for the scheduled email.
 
 ## Paid now and paid later
 
@@ -51,10 +51,11 @@ waiting for the scheduled email.
       before the form is completed.
     </p>
   </Card>
-  <Card title="Not paid by the form" icon="warning">
+  <Card title="Paid at the party" icon="warning">
     <p>
-      Food additions, party packs and the remaining party balance are stored on the booking but are not line items in
-      this Square checkout. The Portal displays booking additions as <strong>NOT PAID</strong>.
+      Food additions and the party itself are saved on the booking and charged at the party with
+      <a href="/services/birthday-parties/collect-payment/">Collect payment</a>. The Portal labels the additions
+      <strong>Pay at party</strong>. Party packs aren't charged by the form.
     </p>
   </Card>
 </CardGrid>

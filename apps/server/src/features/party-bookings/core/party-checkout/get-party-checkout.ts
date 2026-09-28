@@ -1,7 +1,6 @@
 import {
     getPartyPriceList,
     getSquareLocationId,
-    isPartyCheckoutAvailable,
     MIN_CHARGED_CHILDREN,
     type Booking,
     type ChargedPartyLength,
@@ -12,6 +11,7 @@ import {
 import { getPartyFormV2Additions } from '../party-form-v2/options/get-party-form-v2-additions'
 
 import { env } from '@/app/init/firebase'
+import { canUseTerminalCheckout } from '@/features/payments/core/terminal-checkout-access'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { getCatalogItemOptions, isSoldAtLocation } from '@/integrations/square/core/get-catalog-item-options'
 
@@ -28,9 +28,9 @@ export type PartyPriceOption = {
  * What the checkout offers for a booking, priced by Square: the party price per child for each length and food
  * package, and the studio's food additions. `blocked` explains why a booking can't be charged here.
  */
-export async function getPartyCheckout(bookingId: string) {
+export async function getPartyCheckout(bookingId: string, uid: string) {
     const booking = await DatabaseClient.getPartyBooking(bookingId)
-    const blocked = getBlockedReason(booking)
+    const blocked = await getBlockedReason(booking, uid)
     if (blocked) return { blocked, payment: booking.payment ?? null } as const
 
     const locationId = getSquareLocationId(env === 'prod' ? booking.location : 'test')
@@ -90,10 +90,12 @@ export async function getPartyCheckout(bookingId: string) {
     } as const
 }
 
-export function getBlockedReason(booking: Pick<Booking, 'payment' | 'type' | 'location'>) {
+/** Why staff (`uid`) can't charge a booking, if they can't. */
+export async function getBlockedReason(booking: Pick<Booking, 'payment' | 'type' | 'location'>, uid: string) {
     if (booking.payment) return 'This party has already been paid.'
     if (booking.type !== 'studio') return 'Only studio parties can be charged at the studio.'
-    if (!isPartyCheckoutAvailable(booking.location, env)) return "Party checkout isn't available at this studio yet."
+    if (!(await canUseTerminalCheckout(booking.location, uid)))
+        return "Party checkout isn't available at this studio yet."
     return null
 }
 

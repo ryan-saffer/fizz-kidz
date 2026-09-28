@@ -3,7 +3,7 @@ title: Budgeting in Sling
 description: Understand how Sling estimates roster costs.
 ---
 
-Sling budgeting estimates labour cost from the roster. It is a planning figure, not a payroll result. The estimate uses the wage assigned to each employee-position combination and the loading represented by labels such as `[On Call]`, `[Superhero]`, and `[Sunday]`.
+Sling budgeting estimates labour cost from the roster. It is a planning figure, not a payroll result. The estimate uses the wage assigned to each employee-position combination and the loading represented by labels such as `[On Call]` and `[Sunday]`.
 
 ## How wage data stays current
 
@@ -17,7 +17,7 @@ Sling is a roster estimate, while the Portal and Xero calculate payroll.
 
 - New starters receive a Sling wage estimate in the Friday sync after their first payroll.
 - Birthday rate changes appear after the next Friday sync.
-- Travel allowances, laundry allowances, and other extras are added in Xero payroll only - they never appear in Sling’s budgeting view.
+- Laundry allowances are added when the Portal generates the payroll CSV, and travel and other extras are added in Xero. None of these appear in Sling’s budgeting view.
 - Sling does not calculate overtime penalties.
 
 The final calculation happens when the Portal generates the [payroll CSV](/people/payroll), and then again when the file is reviewed and imported into Xero.

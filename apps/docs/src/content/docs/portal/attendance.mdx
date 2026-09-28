@@ -5,15 +5,17 @@ description: Use Portal attendance lists for Fizz programs.
 
 import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components'
 
-Attendance starts with a program and session. Holiday Program, After School Program, Preschool Program, and Play Lab
-each have their own attendance view.
+Attendance starts with a program and session. Holiday Program, After School Program, and Preschool Program each have
+their own attendance view.
 
 ## Before the session
 
 <Steps>
-  1. Select the correct program from the Portal dashboard. 2. Choose the class or session. Confirm the date, time,
-  studio, and class name. 3. Review every visible safety tag and expand the child row for contact and additional
-  information.
+  <ol>
+    <li>Select the correct program from the Portal dashboard.</li>
+    <li>Choose the class or session. Confirm the date, time, studio, and class name.</li>
+    <li>Review every visible safety tag and expand the child row for contact and additional information.</li>
+  </ol>
 </Steps>
 
 Depending on the program, expanded details can include age, allergies, anaphylaxis and asthma plans, additional notes, parent
@@ -27,13 +29,13 @@ contact details, emergency contacts, booking type, photography permission, or pi
 ## What attendance actions do
 
 <CardGrid>
-  <Card title="Preschool and Play Lab" icon="approve-check-circle">
-    Use **Sign in** and **Sign out** to record attendance. Both screens provide undo actions. Preschool also shows
-    signed-in and signed-out totals and supports switching directly between visible sessions.
+  <Card title="Preschool Program" icon="approve-check-circle">
+    Use **Sign in** and **Sign out** to record attendance, with undo actions for both. The screen also shows signed-in
+    and signed-out totals and supports switching directly between visible sessions.
   </Card>
   <Card title="After School Program" icon="approve-check-circle">
-    Sign children in when they arrive. Sign-out records pickup and signature details for normal after-school sessions;
-    lunchtime classes do not require a pickup signature.
+    Sign children in when they arrive. Sign-out records who collected the child and their signature. Classes starting
+    before 2 pm are lunchtime classes and are signed out without a pickup signature.
   </Card>
   <Card title="Holiday Program" icon="approve-check-circle">
     Sign children in when they arrive. Use the undo action to correct an accidental sign-in.
@@ -47,6 +49,9 @@ These are manual actions. Opening a child row does not mark attendance, and the 
 - Confirm the exact studio, class, date, and time.
 - Use the visible undo action for an accidental sign-in or sign-out.
 - For Preschool, **Not attending** can be changed back with **Mark attending**.
+- For After School Program, open the child's row and use **More** for **Undo Sign In**, **Undo Sign Out**, **Mark Not
+  Attending**, **Mark As Attending**, or **Not Continuing With Term**. See
+  [Parent portal and attendance](/services/after-school-programs/parent-portal-and-attendance/).
 
-Access to program attendance follows each person's Portal responsibilities. If the program is absent from your
-dashboard, ask the person who manages Portal access.
+Every program card shows on the dashboard, but opening one needs the matching Portal access. If you see **You are not
+authorised to view this page**, ask the person who manages Portal access.

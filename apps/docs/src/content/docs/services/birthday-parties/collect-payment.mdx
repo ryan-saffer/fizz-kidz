@@ -1,0 +1,121 @@
+---
+title: Collect party payment
+description: Charge a studio party on the studio's Square Terminal once it's over, and what the family receives.
+---
+
+import { Aside, Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components'
+
+Once a studio party is over, staff charge it from the booking on the studio iPad. The Portal works out the price from
+Square, sends the charge to the studio's Square Terminal and emails the family an itemised receipt.
+
+**Collect payment** appears on studio party bookings for studio iPads and super-admins. Mobile parties aren't charged
+this way.
+
+## What's charged
+
+| Included                                                   | Not included                                               |
+| ---------------------------------------------------------- | ---------------------------------------------------------- |
+| The party price per child, for its length and food package | Cakes, take-home bags and products, paid in the Party Form |
+| One of each food addition                                  | Party packs                                                |
+
+A party is charged for at least 12 children, even if fewer came. Prices come from Square, so the checkout always
+charges the studio's current price.
+
+## Charge a party
+
+<Steps>
+  <ol>
+    <li>
+      <h3>Open the booking and select Collect payment</h3>
+      <p>The checkout opens full screen, with an order summary beside each step for the family to follow.</p>
+    </li>
+    <li>
+      <h3>Confirm the party</h3>
+      <p>
+        Check the party length and food package, and enter the number of children who came. It starts from the booking.
+        Fewer than 12 children are charged as 12.
+      </p>
+    </li>
+    <li>
+      <h3>Confirm the food additions</h3>
+      <p>These start from what the parent ordered in their Party Form. Add or remove any that changed on the day.</p>
+    </li>
+    <li>
+      <h3>Review and charge</h3>
+      <p>
+        The order summary now shows Square's price, which is what's charged. Add a gift card or a discount if needed,
+        then select <strong>Charge</strong>.
+      </p>
+    </li>
+    <li>
+      <h3>The family pays on the terminal</h3>
+      <p>
+        They tap, insert or swipe their card on the studio's terminal. Keep the checkout open until it shows
+        <strong>Payment received</strong>.
+      </p>
+    </li>
+  </ol>
+</Steps>
+
+## Gift cards and discounts
+
+Both are optional and tucked behind links on the review step, since most parties don't need them.
+
+<CardGrid>
+  <Card title="Gift card" icon="approve-check-circle">
+    <p>
+      Enter the card number with <strong>Use a gift card</strong>. Its balance comes off first and the terminal charges
+      the rest. If the card covers everything, the button becomes <strong>Pay with gift card</strong>.
+    </p>
+  </Card>
+  <Card title="Discount" icon="pencil">
+    <p>
+      Enter a dollar amount and a reason with <strong>Add a discount</strong>. The reason is kept for us and isn't shown
+      to the family; their receipt just says "Discount". A discount can cover the whole party.
+    </p>
+  </Card>
+</CardGrid>
+
+## After it's paid
+
+- The family is emailed an itemised receipt, with a link to Square's receipt.
+- The booking shows **Paid**. Its **Paid** amount links to the Square receipt.
+- The party's Zoho deal records the amount paid, with a note of what was charged.
+- A paid party can't be charged again.
+
+## If the charge doesn't go through
+
+The checkout says why: the family cancelled on the terminal, staff cancelled it, or the terminal timed out before they
+paid. Nothing was charged. Select **Send to terminal again** to retry, or **Edit the charge** to change something first.
+
+To stop a charge while it's on the terminal, select **Cancel charge**. If the family had already paid, the checkout
+shows the payment instead.
+
+Closing the checkout or reloading the iPad doesn't lose a charge. Open **Collect payment** again and it picks up where it
+was.
+
+## Troubleshooting
+
+| What you see                                                              | What to do                                                                                                            |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| No **Collect payment** button                                             | It only shows on unpaid studio parties, for studio iPads and super-admins. Check you're signed in on the studio iPad. |
+| A gift card is inactive, has no balance or could not be charged           | Check the number with the family, or remove the gift card and charge their card on the terminal.                      |
+| "This party's price isn't sold at this studio"                            | The party's price isn't set up for the studio in Square. Record the booking and report it.                            |
+| The checkout couldn't check the payment and says it may have gone through | Don't charge again. Reopen the booking: if it shows **Paid**, you're done. If not, record the booking and report it.  |
+
+The studio's terminal is set up once for all Portal payments. See [Studio Square Terminal](/portal/studio-terminal/).
+
+## Related guides
+
+<CardGrid>
+  <LinkCard
+    title="Manage bookings"
+    description="Find the booking and see what else the booking menu does."
+    href="/services/birthday-parties/manage-bookings/"
+  />
+  <LinkCard
+    title="Sell products"
+    description="Charge a customer for our kits on the same terminal."
+    href="/portal/pos/"
+  />
+</CardGrid>

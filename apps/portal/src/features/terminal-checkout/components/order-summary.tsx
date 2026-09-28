@@ -4,20 +4,22 @@ import { formatCents } from '@fizz-kidz/core'
 
 import { cn } from '@shared/lib/tailwind'
 
-import { estimateCharge, useCheckoutStore, type CheckoutAnswers, type CheckoutConfig } from '../state/checkout-store'
+import { useTerminalCheckout } from '../state/terminal-checkout-context'
+import { REVIEW_STEP } from '../state/terminal-checkout-store'
 
 import type { ReactNode } from 'react'
+
+/** A line of the estimate, from the checkout's own copy of Square's prices. */
+export type EstimateLine = { key: string; label: string; detail?: ReactNode; amountCents: number }
 
 /**
  * How the total is made up, for staff to show the customer. It's an estimate from Square's prices while editing, and
  * Square's own priced order on the review step.
  */
-export function OrderSummary({ className }: { className?: string }) {
-    const config = useCheckoutStore((state) => state.config!)
-    const answers = useCheckoutStore((state) => state.answers)
-    const summary = useCheckoutStore((state) => state.summary)
-    const preparing = useCheckoutStore((state) => state.preparing)
-    const onReview = useCheckoutStore((state) => state.step === 'review')
+export function OrderSummary({ estimate, className }: { estimate: EstimateLine[]; className?: string }) {
+    const summary = useTerminalCheckout((state) => state.summary)
+    const preparing = useTerminalCheckout((state) => state.preparing)
+    const onReview = useTerminalCheckout((state) => state.step === REVIEW_STEP)
 
     return (
         <aside
@@ -52,7 +54,7 @@ export function OrderSummary({ className }: { className?: string }) {
                     )}
                 </div>
             ) : (
-                <Estimate config={config} answers={answers} faded={onReview} />
+                <Estimate lines={estimate} faded={onReview} />
             )}
             {!onReview && (
                 <p className="border-t border-slate-100 px-4 py-2 text-xs text-slate-500">
@@ -68,24 +70,17 @@ export function OrderSummary({ className }: { className?: string }) {
     )
 }
 
-function Estimate({ config, answers, faded }: { config: CheckoutConfig; answers: CheckoutAnswers; faded: boolean }) {
-    const estimate = estimateCharge(config, answers)
+function Estimate({ lines, faded }: { lines: EstimateLine[]; faded: boolean }) {
+    const discountCents = useTerminalCheckout((state) => state.answers.discountCents)
+    const itemsCents = lines.reduce((sum, line) => sum + line.amountCents, 0)
     return (
         <div className={cn('flex flex-col gap-1 p-4', faded && 'opacity-60')}>
-            {estimate.party && (
-                <Line
-                    label={`${estimate.chargedChildren} × ${estimate.party.name}`}
-                    detail={`${formatCents(estimate.party.priceCents)} per child`}
-                    amount={formatCents(estimate.partyCents)}
-                />
-            )}
-            {estimate.additions.map((addition) => (
-                <Line key={addition.key} label={addition.name} amount={formatCents(addition.priceCents)} />
+            {lines.length === 0 && <p className="py-1 text-sm text-slate-500">Nothing to charge yet.</p>}
+            {lines.map((line) => (
+                <Line key={line.key} label={line.label} detail={line.detail} amount={formatCents(line.amountCents)} />
             ))}
-            {answers.discountCents > 0 && (
-                <Line label="Discount" amount={`−${formatCents(answers.discountCents)}`} tone="discount" />
-            )}
-            <Total label="Estimated total" cents={estimate.totalCents} />
+            {discountCents > 0 && <Line label="Discount" amount={`−${formatCents(discountCents)}`} tone="discount" />}
+            <Total label="Estimated total" cents={Math.max(itemsCents - discountCents, 0)} />
         </div>
     )
 }

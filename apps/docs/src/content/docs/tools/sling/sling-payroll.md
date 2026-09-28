@@ -30,7 +30,7 @@ See [Payroll](/people/payroll) for CSV generation, exception checks, and the man
 
 ## Core services and shifts
 
-All seven core services have the same structure. Facilitator variants post to one COGS wage account, while Supervisor variants post to a separate Supervisor COGS wage account. Exceptions listed below post to a NON-COGS wage account.
+All seven core services have the same structure. Facilitator variants post to one COGS wage account, while Supervisor variants post to a separate Supervisor COGS wage account. Training and Miscellaneous, listed below, post to a NON-COGS wage account. PIC is paid as an on-call shift, so it posts to COGS like other on-call shifts.
 
 - **Party (in studio)**
 - **Mobile Party**
@@ -42,11 +42,11 @@ All seven core services have the same structure. Facilitator variants post to on
 
 ## Exceptions
 
-| Exception              | Shift names                               | When to use                                                                                                        |
-| ---------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Training               | `Training`, `[Sunday] Training`           | Structured training or shadowing. Posts to Non COGS even when it happens during a program.                         |
-| PIC (Person In Charge) | `PIC`, `[Sunday] PIC`                     | On-call duty manager coverage. Pays the 10% standby rate; avoid rostering it during active delivery.               |
-| Miscellaneous          | `Miscellaneous`, `[Sunday] Miscellaneous` | Work that does not fit a service, such as Head Office customer service. Use sparingly and flag in Slack if unsure. |
+| Exception              | Shift names                               | When to use                                                                                                                      |
+| ---------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Training               | `Training`, `[Sunday] Training`           | Structured training or shadowing. Posts to Non COGS even when it happens during a program.                                       |
+| PIC (Person In Charge) | `PIC`, `[Sunday] PIC`                     | On-call duty manager coverage. Paid as on call: the 10% standby rate, posted to COGS. Avoid rostering it during active delivery. |
+| Miscellaneous          | `Miscellaneous`, `[Sunday] Miscellaneous` | Work that does not fit a service, such as Head Office customer service. Use sparingly and flag in Slack if unsure.               |
 
 ## Rate modifiers and budgeting
 
@@ -66,7 +66,7 @@ Payroll automatically adds a laundry allowance for staff who work eligible unifo
 
 ### Eligible shifts
 
-The allowance applies to hands-on facilitator shifts where staff wear the Fizz Kidz uniform, including standard, Sunday, and called-in variants for:
+The allowance applies to hands-on facilitator shifts where staff wear the Fizz Kidz uniform, including standard and Sunday variants for:
 
 - Party Facilitator
 - Mobile Party Facilitator
@@ -82,8 +82,6 @@ It does not apply to `[On Call]`, PIC, Supervisor, Training, or Miscellaneous sh
 
 The export adds one laundry allowance unit for each eligible day, capped at five days per employee per week. Multiple eligible shifts on one day receive one allowance for that day. Xero controls the value of each unit through the configured pay item.
 
-## Overtime thresholds in Sling
+## Overtime
 
-Sling flags overtime once someone hits 38 hours in a single week. Use the warning as a cue to redistribute hours so most staff stay below the limit.
-
-Remember that `[On Call]` shifts do not count toward overtime in payroll but **do** count toward the Sling warning. If a roster is heavy on `[On Call]` coverage you may safely run over 38 rostered hours, but call it out for Finance so the discrepancy is understood.
+For Sling's 38-hour overtime warning and how it treats `[On Call]` shifts, see [Overtime thresholds in Sling](/tools/sling/sling-budgeting#overtime-thresholds-in-sling). Payroll overtime rules are on [Payroll](/people/payroll#overtime).

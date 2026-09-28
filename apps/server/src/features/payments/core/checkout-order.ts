@@ -39,10 +39,11 @@ export function writeCheckoutMetadata(metadata: CheckoutMetadata): Record<string
 /** Reads a checkout back from its Square order, or null if the order wasn't created by a checkout. */
 export function readCheckoutMetadata(order: Square.Order): CheckoutMetadata | null {
     const metadata = order.metadata ?? {}
-    if (!metadata.program || !metadata.customerEmail) return null
+    if (!metadata.program) return null
     return {
         program: metadata.program as CheckoutProgram,
-        customerEmail: metadata.customerEmail,
+        // empty for a walk-in sale
+        customerEmail: metadata.customerEmail ?? '',
         customerName: metadata.customerName ?? '',
         discountCode: metadata.discountCode ?? '',
         discountCodeId: metadata.discountCodeId ?? '',

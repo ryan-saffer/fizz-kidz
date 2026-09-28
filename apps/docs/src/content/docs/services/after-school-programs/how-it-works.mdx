@@ -5,23 +5,8 @@ description: The after-school program journey from enrolment and free trial to i
 
 import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components'
 
-The after-school program journey joins three systems. The Portal holds the enrolment and family details, Acuity holds
-the individual class appointments, and Square handles the invoice later.
-
-<CardGrid>
-  <Card title="Portal" icon="open-book">
-    One enrolment record is created for each child. It holds their program, family details, continuation choice, invoice
-    link, pickup people, and pickup records.
-  </Card>
-  <Card title="Acuity" icon="calendar">
-    Acuity supplies the programs, dates, prices, and capacity. A successful enrolment creates an appointment for every
-    remaining published session in the selected term.
-  </Card>
-  <Card title="Square" icon="approve-check-circle">
-    Square is not involved when the family first enrols. If they continue after the free trial, staff send a Square
-    invoice for the chosen number of weeks.
-  </Card>
-</CardGrid>
+Families enrol online without paying, try the program for free, and then decide whether to continue for the term. Staff
+send the invoice to families who continue and sign children in and out each week.
 
 ## Journey at a glance
 
@@ -30,12 +15,12 @@ the individual class appointments, and Square handles the invoice later.
     <li>
       <h3>The family chooses a program</h3>
       <p>
-        The enrolment form reads the currently bookable school or studio programs from Acuity. It also uses Acuity's
-        upcoming classes to show the term length, total price, and whether the class has space.
+        The enrolment form shows the school and studio programs currently open for booking, with the term length, total
+        price, and whether the class has space.
       </p>
     </li>
     <li>
-      <h3>The form chooses enrolment or waitlist</h3>
+      <h3>The form offers enrolment or the waitlist</h3>
       <p>
         If the class has space, the family completes the full enrolment form. If it is full, they see a shorter waitlist
         form instead. See{' '}
@@ -43,46 +28,57 @@ the individual class appointments, and Square handles the invoice later.
       </p>
     </li>
     <li>
-      <h3>The enrolment is created without a card</h3>
+      <h3>The child is enrolled without a card</h3>
       <p>
-        No card details are collected. The child's remaining term sessions are booked, and the family receives an
+        No card details are collected. The child is booked into the remaining term sessions, and the family receives an
         enrolment confirmation and parent portal link.
       </p>
     </li>
     <li>
       <h3>The family tries the program</h3>
-      <p>
-        The free trial is part of the term appointments already created in Acuity. The family is not invoiced during the
-        initial enrolment step.
-      </p>
+      <p>The free trial is one of the term sessions already booked. The family is not invoiced when they enrol.</p>
     </li>
     <li>
       <h3>Staff ask whether they are continuing</h3>
       <p>
-        Staff send a continuation email from the invoicing view. The family's choice is written back to the Portal. A
-        yes response prepares the enrolment for invoicing; a no response alerts the bookings team for follow-up. See
+        Staff send a continuation email and the family's answer appears in the Portal. A yes is ready for invoicing; a
+        no alerts the bookings team for follow-up. See{' '}
         <a href="/services/after-school-programs/after-the-trial/">After the trial</a>.
       </p>
     </li>
     <li>
       <h3>Square handles payment</h3>
       <p>
-        Staff select the number of weeks and send the invoice. Square emails the family and the Portal reads Square's
-        latest status. See <a href="/services/after-school-programs/invoicing/">Invoicing</a>.
+        Staff select the number of weeks and send the invoice. Square emails the family, and the Portal shows whether it
+        has been paid. See <a href="/services/after-school-programs/invoicing/">Invoicing</a>.
       </p>
     </li>
     <li>
       <h3>Attendance continues week by week</h3>
       <p>
-        Parents can mark an absence and maintain pickup people in their portal. Staff check children in and out against
-        the matching Acuity session. See
+        Parents can mark an absence and update pickup people in their portal. Staff sign children in and out at each
+        class. See{' '}
         <a href="/services/after-school-programs/parent-portal-and-attendance/">Parent portal and attendance</a>.
       </p>
     </li>
   </ol>
 </Steps>
 
-<Aside type="note" title="One child, one linked journey">
-  When a family enrols more than one child, each child gets a separate Portal enrolment, set of Acuity appointments,
-  parent portal link, continuation choice, and invoice.
+## Tools you will see
+
+<CardGrid>
+  <Card title="Portal" icon="open-book">
+    Where staff manage enrolments, continuation choices, invoices, and attendance. Each child has one enrolment.
+  </Card>
+  <Card title="Acuity" icon="clock">
+    Holds the class dates and places. Enrolling books the child into every remaining class in the term.
+  </Card>
+  <Card title="Square" icon="approve-check-circle">
+    Sends the term invoice after the free trial and takes the payment.
+  </Card>
+</CardGrid>
+
+<Aside type="note" title="One child, one enrolment">
+  When a family enrols more than one child, each child gets their own enrolment, class bookings, parent portal link,
+  continuation choice, and invoice.
 </Aside>

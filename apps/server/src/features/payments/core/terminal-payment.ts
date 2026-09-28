@@ -37,6 +37,13 @@ export async function startTerminalPayment(input: {
     note: string
     /** Booking metadata the order must carry (as passed to `prepareCheckout`). */
     metadata: Record<string, string>
+    /** Kept on the terminal checkout for the booking flow, e.g. its booking id. */
+    referenceId?: string
+    /**
+     * Whether the terminal offers the customer a receipt (email, text or printed) once they've paid. Booking flows that
+     * email their own receipt skip it.
+     */
+    receiptScreen: boolean
 }): Promise<TerminalPaymentResult> {
     const square = await SquareClient.getInstance()
     const { order, checkout } = await getCheckoutOrder(input.checkoutId, input.metadata)
@@ -53,15 +60,14 @@ export async function startTerminalPayment(input: {
             checkout: {
                 amountMoney: { currency: 'AUD', amount: BigInt(terminalCents) },
                 orderId: order.id,
-                referenceId: input.metadata.bookingId,
+                referenceId: input.referenceId,
                 customerId: order.customerId,
                 note: input.note.slice(0, 500),
                 // payments stay authorised until the order is paid with the gift card's share
                 paymentOptions: { autocomplete: false },
                 deviceOptions: {
                     deviceId: input.deviceId,
-                    // the customer is emailed a receipt instead
-                    skipReceiptScreen: true,
+                    skipReceiptScreen: !input.receiptScreen,
                     tipSettings: { allowTipping: false },
                 },
             },

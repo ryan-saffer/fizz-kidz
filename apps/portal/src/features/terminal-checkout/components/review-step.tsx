@@ -6,18 +6,19 @@ import { formatCents } from '@fizz-kidz/core'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 
-import { useCheckoutStore } from '../../state/checkout-store'
-import { StepSection } from '../step-section'
-import { TerminalPicker } from '../terminal-picker'
+import { useTerminalCheckout } from '../state/terminal-checkout-context'
+import { StepSection } from './step-section'
+import { TerminalPicker } from './terminal-picker'
 
 /** Square's price is beside this step. Staff add a discount or gift card if needed, then charge the terminal. */
 export function ReviewStep() {
-    const summary = useCheckoutStore((state) => state.summary)
-    const preparing = useCheckoutStore((state) => state.preparing)
-    const terminal = useCheckoutStore((state) => state.terminal)
-    const error = useCheckoutStore((state) => state.error)
-    const goTo = useCheckoutStore((state) => state.goTo)
-    const charge = useCheckoutStore((state) => state.charge)
+    const summary = useTerminalCheckout((state) => state.summary)
+    const preparing = useTerminalCheckout((state) => state.preparing)
+    const terminal = useTerminalCheckout((state) => state.terminal)
+    const error = useTerminalCheckout((state) => state.error)
+    const goTo = useTerminalCheckout((state) => state.goTo)
+    const previousStep = useTerminalCheckout((state) => state.steps[state.steps.length - 2].key)
+    const charge = useTerminalCheckout((state) => state.charge)
 
     return (
         <div className="flex flex-col gap-4">
@@ -41,7 +42,7 @@ export function ReviewStep() {
                 </p>
             )}
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <Button variant="outline" onClick={() => goTo('food')}>
+                <Button variant="outline" onClick={() => goTo(previousStep)}>
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
@@ -68,8 +69,8 @@ export function ReviewStep() {
 }
 
 function GiftCard() {
-    const applied = useCheckoutStore((state) => state.answers.giftCardNumber)
-    const setAnswers = useCheckoutStore((state) => state.setAnswers)
+    const applied = useTerminalCheckout((state) => state.answers.giftCardNumber)
+    const setAnswers = useTerminalCheckout((state) => state.setAnswers)
     const [open, setOpen] = useState(false)
     const [number, setNumber] = useState('')
 
@@ -94,8 +95,8 @@ function GiftCard() {
 }
 
 function Discount() {
-    const applied = useCheckoutStore((state) => state.answers)
-    const setAnswers = useCheckoutStore((state) => state.setAnswers)
+    const applied = useTerminalCheckout((state) => state.answers)
+    const setAnswers = useTerminalCheckout((state) => state.setAnswers)
     const [open, setOpen] = useState(false)
     const [amount, setAmount] = useState('')
     const [reason, setReason] = useState('')
@@ -132,7 +133,7 @@ function Discount() {
             </div>
             <Input
                 aria-label="Reason for the discount"
-                placeholder="Reason, e.g. the slime activity ran short"
+                placeholder="Reason, e.g. the slime activity ran short or a damaged box"
                 autoComplete="off"
                 maxLength={200}
                 value={reason}

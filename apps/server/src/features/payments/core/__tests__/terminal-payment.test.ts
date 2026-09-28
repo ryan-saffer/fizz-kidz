@@ -28,7 +28,15 @@ const order = (giftCardCents = 0, state = 'OPEN') => ({
     },
     tenders: state === 'COMPLETED' ? [{ paymentId: 'terminal-payment' }] : [],
 })
-const start = () => startTerminalPayment({ checkoutId: 'order', deviceId: 'device', note: "Mia's 7th party", metadata })
+const start = (options: { receiptScreen?: boolean } = {}) =>
+    startTerminalPayment({
+        checkoutId: 'order',
+        deviceId: 'device',
+        note: "Mia's 7th party",
+        metadata,
+        referenceId: 'booking',
+        receiptScreen: options.receiptScreen ?? false,
+    })
 const status = () => getTerminalPayment({ checkoutId: 'order', terminalCheckoutId: 'terminal', metadata })
 
 beforeEach(() => {
@@ -61,6 +69,11 @@ describe('starting a terminal payment', () => {
         })
     })
 
+    it('lets the terminal offer a receipt when the booking flow asks', async () => {
+        await start({ receiptScreen: true })
+        expect(square.terminal.checkouts.create.mock.calls[0][0].checkout.deviceOptions.skipReceiptScreen).toBe(false)
+    })
+
     it('authorises the gift-card share and sends only the rest to the terminal', async () => {
         square.orders.get.mockResolvedValue({ order: order(20000) })
         await start()
@@ -90,6 +103,7 @@ describe('starting a terminal payment', () => {
                 deviceId: 'device',
                 note: '',
                 metadata: { bookingId: 'other' },
+                receiptScreen: false,
             })
         ).rejects.toThrow('different booking')
         expect(square.terminal.checkouts.create).not.toHaveBeenCalled()

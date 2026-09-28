@@ -9,6 +9,7 @@ import { preparePartyCheckout } from '../prepare-party-checkout'
 const mocks = vi.hoisted(() => ({
     env: 'dev' as 'prod' | 'dev',
     booking: {} as Record<string, unknown>,
+    user: vi.fn(),
     recordPartyPayment: vi.fn(),
     catalogItem: vi.fn(),
     additions: vi.fn(),
@@ -26,7 +27,11 @@ vi.mock('@/app/init/firebase', () => ({
     },
 }))
 vi.mock('@/integrations/firebase/database.client', () => ({
-    DatabaseClient: { getPartyBooking: async () => mocks.booking, recordPartyPayment: mocks.recordPartyPayment },
+    DatabaseClient: {
+        getPartyBooking: async () => mocks.booking,
+        recordPartyPayment: mocks.recordPartyPayment,
+        getUser: mocks.user,
+    },
 }))
 vi.mock('@/integrations/square/core/get-catalog-item-options', () => ({
     getCatalogItemOptions: mocks.catalogItem,
@@ -71,6 +76,7 @@ const input: PreparePartyCheckout = {
 beforeEach(() => {
     vi.clearAllMocks()
     mocks.env = 'dev'
+    mocks.user.mockResolvedValue({ accountType: 'staff', roles: { balwyn: 'studio-ipad' } })
     mocks.booking = {
         parentFirstName: 'Jane',
         parentLastName: 'Smith',
@@ -118,7 +124,7 @@ beforeEach(() => {
 
 describe('the checkout config', () => {
     it("offers Square's party prices and the studio's additions, prefilled from the booking", async () => {
-        const config = await getPartyCheckout('booking')
+        const config = await getPartyCheckout('booking', 'staff')
         expect(config).toMatchObject({
             blocked: null,
             minChildren: 12,
@@ -135,18 +141,22 @@ describe('the checkout config', () => {
 
     it('starts at the minimum when the number of children is unknown or below it', async () => {
         mocks.booking.numberOfChildren = ''
-        expect(await getPartyCheckout('booking')).toMatchObject({ prefill: { childrenCount: 12 } })
+        expect(await getPartyCheckout('booking', 'staff')).toMatchObject({ prefill: { childrenCount: 12 } })
         mocks.booking.numberOfChildren = '9'
-        expect(await getPartyCheckout('booking')).toMatchObject({ prefill: { childrenCount: 12 } })
+        expect(await getPartyCheckout('booking', 'staff')).toMatchObject({ prefill: { childrenCount: 12 } })
     })
 
     it("explains why a party can't be charged", async () => {
         mocks.booking.type = 'mobile'
-        expect(await getPartyCheckout('booking')).toMatchObject({ blocked: expect.stringContaining('studio parties') })
+        expect(await getPartyCheckout('booking', 'staff')).toMatchObject({
+            blocked: expect.stringContaining('studio parties'),
+        })
 
         mocks.booking.type = 'studio'
         mocks.booking.payment = { totalCents: 1000 }
-        expect(await getPartyCheckout('booking')).toMatchObject({ blocked: 'This party has already been paid.' })
+        expect(await getPartyCheckout('booking', 'staff')).toMatchObject({
+            blocked: 'This party has already been paid.',
+        })
 
         delete mocks.booking.payment
         mocks.booking.oldPrices = true
@@ -154,22 +164,33 @@ describe('the checkout config', () => {
         mocks.catalogItem.mockResolvedValue({
             variations: [variation(old.variations['1.5'].food, '[OLD PRICE] 1.5 Hour Party', 3800, ['elsewhere'])],
         })
-        expect(await getPartyCheckout('booking')).toMatchObject({ blocked: expect.stringContaining('old prices') })
+        expect(await getPartyCheckout('booking', 'staff')).toMatchObject({
+            blocked: expect.stringContaining('old prices'),
+        })
+    })
+
+    it('is offered to super-admins at every studio', async () => {
+        mocks.env = 'prod'
+        mocks.user.mockResolvedValue({ accountType: 'staff', roles: { master: 'super-admin' } })
+        // past the trial check (the test catalogue holds dev prices, so the prod price list isn't found)
+        expect((await getPartyCheckout('booking', 'staff')).blocked).not.toContain('this studio yet')
     })
 
     it("is only offered at the trial studios in prod, so it's hidden everywhere until one's added", async () => {
         mocks.env = 'prod'
-        expect(await getPartyCheckout('booking')).toMatchObject({ blocked: expect.stringContaining('this studio yet') })
-        await expect(preparePartyCheckout(input)).rejects.toThrow('this studio yet')
+        expect(await getPartyCheckout('booking', 'staff')).toMatchObject({
+            blocked: expect.stringContaining('this studio yet'),
+        })
+        await expect(preparePartyCheckout(input, 'staff')).rejects.toThrow('this studio yet')
         await expect(
-            startPartyCheckout({ bookingId: 'booking', checkoutId: 'order', deviceId: 'device' })
+            startPartyCheckout({ bookingId: 'booking', checkoutId: 'order', deviceId: 'device' }, 'staff')
         ).rejects.toThrow('this studio yet')
     })
 })
 
 describe('preparing a charge', () => {
     it('charges the party price for at least the minimum children, plus one of each addition', async () => {
-        await preparePartyCheckout({ ...input, discountCents: 1500, discountReason: 'Slime ran short' })
+        await preparePartyCheckout({ ...input, discountCents: 1500, discountReason: 'Slime ran short' }, 'staff')
         expect(mocks.prepareCheckout).toHaveBeenCalledWith(
             expect.objectContaining({
                 program: 'party-checkout',
@@ -187,7 +208,7 @@ describe('preparing a charge', () => {
 
     it("uses the old price list for an old-price booking, and doesn't discount by default", async () => {
         mocks.booking.oldPrices = true
-        await preparePartyCheckout({ ...input, childrenCount: 20, additions: [], includesFood: true })
+        await preparePartyCheckout({ ...input, childrenCount: 20, additions: [], includesFood: true }, 'staff')
         const { lineItems, orderDiscount } = mocks.prepareCheckout.mock.calls[0][0]
         expect(lineItems).toEqual([
             { catalogObjectId: getPartyPriceList('dev', true).variations['2'].food, quantity: '20' },
@@ -196,9 +217,11 @@ describe('preparing a charge', () => {
     })
 
     it("refuses a paid booking and additions the studio doesn't offer", async () => {
-        await expect(preparePartyCheckout({ ...input, additions: ['wedges'] })).rejects.toThrow('no longer offered')
+        await expect(preparePartyCheckout({ ...input, additions: ['wedges'] }, 'staff')).rejects.toThrow(
+            'no longer offered'
+        )
         mocks.booking.payment = { totalCents: 1000 }
-        await expect(preparePartyCheckout(input)).rejects.toThrow('already been paid')
+        await expect(preparePartyCheckout(input, 'staff')).rejects.toThrow('already been paid')
         expect(mocks.prepareCheckout).not.toHaveBeenCalled()
     })
 })
@@ -227,7 +250,9 @@ describe('charging a party', () => {
 
     it('ties the terminal charge to the booking', async () => {
         mocks.startTerminalPayment.mockResolvedValue({ status: 'waiting', terminalCheckoutId: 'terminal' })
-        expect(await startPartyCheckout({ bookingId: 'booking', checkoutId: 'order', deviceId: 'device' })).toEqual({
+        expect(
+            await startPartyCheckout({ bookingId: 'booking', checkoutId: 'order', deviceId: 'device' }, 'staff')
+        ).toEqual({
             status: 'waiting',
             terminalCheckoutId: 'terminal',
         })
@@ -236,6 +261,8 @@ describe('charging a party', () => {
             deviceId: 'device',
             note: "Mia's 7th party",
             metadata: { bookingId: 'booking' },
+            referenceId: 'booking',
+            receiptScreen: false,
         })
     })
 

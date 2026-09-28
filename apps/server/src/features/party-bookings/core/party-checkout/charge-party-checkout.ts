@@ -18,9 +18,9 @@ import { logError } from '@/integrations/observability/log-error'
 import { SquareClient } from '@/integrations/square/square.client'
 
 /** Sends a prepared party checkout to the studio's terminal. */
-export async function startPartyCheckout(input: StartPartyCheckout): Promise<PartyCheckoutStatus> {
+export async function startPartyCheckout(input: StartPartyCheckout, uid: string): Promise<PartyCheckoutStatus> {
     const booking = await DatabaseClient.getPartyBooking(input.bookingId)
-    const blocked = getBlockedReason(booking)
+    const blocked = await getBlockedReason(booking, uid)
     if (blocked) throwTrpcError('BAD_REQUEST', blocked)
 
     const result = await startTerminalPayment({
@@ -28,6 +28,9 @@ export async function startPartyCheckout(input: StartPartyCheckout): Promise<Par
         deviceId: input.deviceId,
         note: getPartyCheckoutNote(booking),
         metadata: getPartyCheckoutMetadata(input.bookingId),
+        referenceId: input.bookingId,
+        // the parent is emailed our own receipt
+        receiptScreen: false,
     })
     return settle(input.bookingId, input.checkoutId, result)
 }
