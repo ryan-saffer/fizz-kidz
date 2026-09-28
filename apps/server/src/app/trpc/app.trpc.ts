@@ -7,7 +7,9 @@ import { eventsRouter } from '@/features/events/functions/trpc/events.trpc'
 import { holidayProgramsRouter } from '@/features/holiday-programs/functions/trpc/holiday-programs.trpc'
 import { inventoryRouter } from '@/features/inventory/functions/trpc/inventory.trpc'
 import { partiesRouter } from '@/features/party-bookings/functions/trpc/parties.trpc'
+import { paymentsRouter } from '@/features/payments/functions/trpc/payments.trpc'
 import { playLabRouter } from '@/features/play-lab/functions/trpc/play-lab.trpc'
+import { posRouter } from '@/features/pos/functions/trpc/pos.trpc'
 import { preschoolProgramV2Router } from '@/features/preschool-program-v2/functions/trpc/preschool-program-v2.trpc'
 import { preschoolProgramRouter } from '@/features/preschool-program/functions/trpc/preschool-program.trpc'
 import { reportsRouter } from '@/features/reports/functions/trpc/reports.trpc'
@@ -30,6 +32,8 @@ export const appRouter = router({
     reports: reportsRouter,
     inventory: inventoryRouter,
     websiteForms: websiteFormsRouter,
+    payments: paymentsRouter,
+    pos: posRouter,
 })
 
 export type AppRouter = typeof appRouter

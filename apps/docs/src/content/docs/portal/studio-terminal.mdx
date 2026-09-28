@@ -1,0 +1,78 @@
+---
+title: Studio Square Terminal
+description: Pair the studio's Square Terminal with the Portal, and replace it when needed.
+---
+
+import { Aside, LinkCard, CardGrid, Steps } from '@astrojs/starlight/components'
+
+Each studio has one Square Terminal paired with the Portal. [Collect party payment](/services/birthday-parties/collect-payment/)
+and [Sell products](/portal/pos/) send their charges to it automatically, so staff never choose a terminal.
+
+While it's paired, the terminal takes the Portal's charges instead of running the Square Point of Sale app. It stays paired
+through restarts and changes of Wi-Fi network.
+
+## Pair the terminal
+
+A studio only needs to do this once. With no terminal paired, the review step of a charge shows **Pair the studio's
+terminal**.
+
+<Steps>
+  <ol>
+    <li>
+      <h3>Get a code on the iPad</h3>
+      <p>
+        Select <strong>Get code</strong>. The code lasts five minutes.
+      </p>
+    </li>
+    <li>
+      <h3>Sign in on the terminal with the code</h3>
+      <p>
+        On the terminal, sign out if it's signed in, then choose <strong>Device code</strong> on the sign-in screen and
+        enter the code.
+      </p>
+    </li>
+    <li>
+      <h3>Carry on charging</h3>
+      <p>
+        The iPad notices when the terminal signs in. The terminal is named after the studio, for example Cheltenham
+        Terminal, and every charge at the studio uses it from then on.
+      </p>
+    </li>
+  </ol>
+</Steps>
+
+If the code runs out first, select **Get code** again.
+
+## Replace the terminal
+
+<Steps>
+  <ol>
+    <li>
+      <h3>Remove the old terminal in Square</h3>
+      <p>
+        In the Square Dashboard, open <strong>Devices</strong>, find the old terminal, then choose <strong>⋯</strong>
+        and <strong>Delete</strong>.
+      </p>
+    </li>
+    <li>
+      <h3>Pair the new terminal</h3>
+      <p>Pair it from the iPad as above.</p>
+    </li>
+  </ol>
+</Steps>
+
+<Aside type="note" title="Signing out doesn't unpair">
+  Signing out on the terminal doesn't remove it from the Portal. Deleting it in the Square Dashboard does. Until the old
+  terminal is deleted, the iPad shows both terminals and asks which to use.
+</Aside>
+
+## Related guides
+
+<CardGrid>
+  <LinkCard
+    title="Collect party payment"
+    description="Charge a studio party once it's over."
+    href="/services/birthday-parties/collect-payment/"
+  />
+  <LinkCard title="Sell products" description="Sell our kits to a customer." href="/portal/pos/" />
+</CardGrid>

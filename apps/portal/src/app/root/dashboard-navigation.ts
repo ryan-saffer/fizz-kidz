@@ -9,14 +9,15 @@ import {
     Home,
     Map,
     PartyPopper,
+    CreditCardReader,
     Sparkles,
     TicketPercent,
     TreePalm,
     Users,
 } from 'lucide-react'
 
-import { isFranchiseOrMaster } from '@fizz-kidz/core'
-import type { Permission, StudioOrMaster } from '@fizz-kidz/core'
+import { getTerminalCheckoutStudios, isFranchiseOrMaster } from '@fizz-kidz/core'
+import type { Permission, Role, StudioOrMaster } from '@fizz-kidz/core'
 
 import afterSchool from '@shared/assets/after-school.webp'
 import bodyGlitter from '@shared/assets/body-glitter.webp'
@@ -31,6 +32,7 @@ import type { LucideIcon } from 'lucide-react'
 
 type DashboardNavigationContext = {
     currentOrg: StudioOrMaster | null
+    role: Role | null
     hasPermission: (permission: Permission) => boolean
 }
 
@@ -125,6 +127,24 @@ const dashboardNavigationSections: DashboardNavigationSection[] = [
                 accent: '#F6BA33',
                 accentSoft: 'rgba(242, 221, 174, 0.4)',
                 tag: 'Seasonal',
+            },
+        ],
+    },
+    {
+        title: 'Sales',
+        subtitle: "Charge customers on the studio's Square Terminal.",
+        // studios that don't sell yet don't see it; super-admins always do
+        visible: ({ currentOrg, role, hasPermission }) =>
+            hasPermission('products:sell') &&
+            getTerminalCheckoutStudios(currentOrg, import.meta.env.VITE_ENV, role === 'super-admin').length > 0,
+        items: [
+            {
+                label: 'Point of sale',
+                description: 'Sell our kits to a customer.',
+                to: 'pos',
+                icon: CreditCardReader,
+                accent: '#b14594',
+                accentSoft: 'rgba(177, 69, 148, 0.14)',
             },
         ],
     },

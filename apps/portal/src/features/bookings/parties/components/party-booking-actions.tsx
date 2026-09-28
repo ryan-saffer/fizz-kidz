@@ -10,7 +10,7 @@ import {
     UsersRound,
 } from 'lucide-react'
 
-import { getInvitationShareUrl, formatCents, isPartyCheckoutAvailable } from '@fizz-kidz/core'
+import { getInvitationShareUrl, formatCents, isTerminalCheckoutAvailable } from '@fizz-kidz/core'
 import type { FirestoreBooking, WithId } from '@fizz-kidz/core'
 
 import { useOrg } from '@session/use-org'
@@ -32,12 +32,12 @@ import { useCheckoutStore } from '../checkout/state/checkout-store'
 import { usePartyBookingsStore } from '../state/party-bookings-store'
 
 export function PartyBookingActions({ booking }: { booking: WithId<FirestoreBooking> }) {
-    const { hasPermission } = useOrg()
+    const { hasPermission, role } = useOrg()
     const canEdit = hasPermission('bookings:edit')
     const canCollectPayment =
         hasPermission('bookings:collect-payment') &&
         booking.type === 'studio' &&
-        isPartyCheckoutAvailable(booking.location, import.meta.env.VITE_ENV)
+        isTerminalCheckoutAvailable(booking.location, import.meta.env.VITE_ENV, role === 'super-admin')
     const confirm = useConfirm()
     const busy = usePartyBookingsStore((state) => state.busyBookingId === booking.id)
     const store = usePartyBookingsStore.getState

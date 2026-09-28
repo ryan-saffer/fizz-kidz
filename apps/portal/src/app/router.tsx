@@ -192,6 +192,11 @@ const ReportsPage = lazy(() =>
 const InventoryPage = lazy(() =>
     import('../features/inventory/pages/inventory-page.js').then((module) => ({ default: module.InventoryPage }))
 )
+const PosPage = lazy(() =>
+    import('../features/pos/pages/pos-page.js').then((module) => ({
+        default: module.PosPage,
+    }))
+)
 const CreateInvitationPageV2 = lazy(() =>
     import('../features/rsvp/pages/create-invitation-page.js').then((module) => ({
         default: module.CreateInvitationPage,
@@ -406,6 +411,16 @@ const router = createBrowserRouter([
                             <Suspense fallback={<Loader fullScreen />}>
                                 <ProtectedRoute permission="inventory:read">
                                     <InventoryPage />
+                                </ProtectedRoute>
+                            </Suspense>
+                        ),
+                    },
+                    {
+                        path: 'pos',
+                        Component: () => (
+                            <Suspense fallback={<Loader fullScreen />}>
+                                <ProtectedRoute permission="products:sell">
+                                    <PosPage />
                                 </ProtectedRoute>
                             </Suspense>
                         ),

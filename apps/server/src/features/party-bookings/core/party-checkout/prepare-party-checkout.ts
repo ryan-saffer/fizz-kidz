@@ -22,9 +22,9 @@ import { DatabaseClient } from '@/integrations/firebase/database.client'
  * price per child for the children who came (at least the minimum), one of each food addition, the staff discount and
  * gift card. The order's metadata ties it to the booking.
  */
-export async function preparePartyCheckout(input: PreparePartyCheckout): Promise<PartyCheckoutSummary> {
+export async function preparePartyCheckout(input: PreparePartyCheckout, uid: string): Promise<PartyCheckoutSummary> {
     const booking = await DatabaseClient.getPartyBooking(input.bookingId)
-    const blocked = getBlockedReason(booking)
+    const blocked = await getBlockedReason(booking, uid)
     if (blocked) throwTrpcError('BAD_REQUEST', blocked)
 
     const priceList = getPartyPriceList(env, booking.oldPrices)

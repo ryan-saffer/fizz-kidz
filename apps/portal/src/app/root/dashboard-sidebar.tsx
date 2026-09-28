@@ -21,9 +21,9 @@ import {
 import { UserButton } from './user-button'
 
 export function DashboardSidebar() {
-    const { currentOrg, hasPermission } = useOrg()
+    const { currentOrg, role, hasPermission } = useOrg()
     const { setOpenMobile } = useSidebar()
-    const navigationSections = getDashboardNavigationSections({ currentOrg, hasPermission })
+    const navigationSections = getDashboardNavigationSections({ currentOrg, role, hasPermission })
     const HomeIcon = dashboardHomeItem.icon
 
     return (

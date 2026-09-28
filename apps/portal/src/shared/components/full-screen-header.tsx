@@ -6,7 +6,7 @@ import { cn } from '@shared/lib/tailwind'
 
 import type { ReactNode } from 'react'
 
-/** The header bar of a full screen party dialog, with the close button beside the title rather than in the corner. */
+/** The header bar of a full screen dialog, with the close button beside the title rather than in the corner. */
 export function FullScreenHeader({
     title,
     description,

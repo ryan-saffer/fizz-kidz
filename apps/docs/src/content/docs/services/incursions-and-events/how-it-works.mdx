@@ -1,74 +1,69 @@
 ---
 title: How incursions and events work
-description: How Portal event records connect sibling time slots, Google Calendar, and Zoho.
+description: How incursions and events are created, edited and confirmed in the Portal.
 ---
 
 import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components'
 
-The Portal is where an incursion or standard event is created and viewed. Each time slot has a Google Calendar entry,
-and the linked Zoho deal holds the booking details and session times.
+Incursions and standard events are created and managed in the Portal. Open **Bookings**, then choose **New Booking** >
+**Event**. Existing bookings appear on the **Incursions** and **Parties & Events** tabs.
 
 ## Creating an event
 
 <Steps>
   <ol>
     <li>
-      <h3>Enter the shared booking details</h3>
+      <h3>Enter the booking details</h3>
       <p>
-        The Portal collects the event and organisation, contact details, studio, address, price, notes, invoice link,
-        and event type. Incursions also include their module and expected students per session.
+        Add the event and organisation, contact details, studio, address, price, notes, invoice link, and event type.
+        Incursions also include their module and expected students per session.
       </p>
     </li>
     <li>
       <h3>Add one or more time slots</h3>
       <p>
-        Multiple sessions entered together become sibling slots under one event. They share the same booking details but
-        each keeps its own start time, end time, Portal slot ID, and Google Calendar event ID.
+        Add every session now. Slots can only be added while creating the booking. All slots share the booking details,
+        and each has its own start and end time.
       </p>
     </li>
     <li>
-      <h3>The Portal creates Google Calendar entries</h3>
+      <h3>The calendar and Zoho are updated</h3>
       <p>
-        Each slot becomes a separate entry on the Events calendar using the event name, address, times, and internal
-        notes. The resulting calendar ID is saved back to that Portal slot.
+        Each slot appears on the Events calendar, including incursions. The linked Zoho deal is confirmed or created
+        with the booking details and all session times.
       </p>
     </li>
     <li>
-      <h3>The Zoho deal is updated</h3>
-      <p>The linked business deal is confirmed or created with the booking details and all session times.</p>
-    </li>
-    <li>
-      <h3>An optional confirmation is sent</h3>
+      <h3>The customer receives a confirmation</h3>
       <p>
-        If selected, the customer receives a confirmation containing all slots, the address, price, and staff-written
-        email message. Incursion confirmations also identify the chosen module.
+        <strong>Send confirmation email</strong> is on by default and needs an email message. The confirmation lists all
+        slots, the address, price, and your message. Incursion confirmations also name the chosen module.
       </p>
     </li>
   </ol>
 </Steps>
 
-<Aside type="note" title="Sibling slots are connected, not duplicates">
-  Contact details, organisation, address, event name, price, notes, and other shared fields belong to the whole booking.
-  Dates, times, and calendar IDs belong to each slot.
+<Aside type="note" title="Type and studio are locked">
+  The event type and studio can't be changed after the booking is created, so check them before saving.
 </Aside>
 
 ## What edits change
 
+Edits and deletes do not email the customer.
+
 <CardGrid>
   <Card title="Shared details" icon="puzzle">
-    Editing one sibling updates the shared Portal fields on every slot. The system also updates each Google Calendar
-    entry with those shared details while preserving each sibling's own times.
+    Editing one slot updates the shared details, such as contact, organisation, address, price, and notes, on every slot
+    and on the Events calendar.
   </Card>
-  <Card title="Selected slot times" icon="calendar">
-    The start and end time being edited apply to that slot only. Other sibling sessions keep their existing dates and
-    times.
+  <Card title="Slot times" icon="clock">
+    The start and end time you edit apply to that slot only. Other slots keep their dates and times.
   </Card>
   <Card title="Linked Zoho deal" icon="rocket">
-    Editing a linked booking updates the deal using all current sibling slots.
+    Editing a booking updates the deal with all current slots.
   </Card>
   <Card title="Deleting a slot" icon="warning">
-    Deleting removes that Portal slot and its Google Calendar entry and adjusts the linked Zoho sessions. Deleting the
-    final slot also removes the parent event record.
+    Deleting removes that slot from the Portal and the Events calendar and updates the session times on the Zoho deal.
   </Card>
 </CardGrid>
 

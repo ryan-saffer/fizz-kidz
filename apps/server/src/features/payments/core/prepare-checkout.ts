@@ -18,7 +18,8 @@ export type PrepareCheckoutInput = {
     /** Shown as the order's source in Square, e.g. 'Party Form'. */
     sourceName: string
     locationId: string
-    customer: { firstName: string; lastName: string; email: string }
+    /** Who is paying. Left out for a walk-in sale, which then can't take a discount code. */
+    customer?: { firstName: string; lastName: string; email: string }
     /**
      * What is being bought, priced by the server: Square catalogue items, or names and amounts the booking flow
      * looked up itself. Never amounts sent by the browser.
@@ -46,11 +47,10 @@ export async function prepareCheckout(input: PrepareCheckoutInput): Promise<Chec
     if (input.lineItems.length === 0) throw new Error('A checkout needs at least one line item')
 
     const square = await SquareClient.getInstance()
-    const customerId = await getOrCreateCustomer(
-        input.customer.firstName,
-        input.customer.lastName,
-        input.customer.email
-    )
+    const { customer } = input
+    const customerId = customer
+        ? await getOrCreateCustomer(customer.firstName, customer.lastName, customer.email)
+        : undefined
     const orderInput: Square.Order = {
         locationId: input.locationId,
         customerId,
@@ -65,7 +65,9 @@ export async function prepareCheckout(input: PrepareCheckoutInput): Promise<Chec
 
     let discount: { id: string; code: string; cents: number } | null = null
     if (input.discountCode) {
-        const code = await checkDiscountCode(input.discountCode, input.customer.email)
+        // a code's limits are per customer
+        if (!customer) throw new Error('A discount code needs a customer')
+        const code = await checkDiscountCode(input.discountCode, customer.email)
         if (typeof code === 'string') throwTrpcError('BAD_REQUEST', `Discount code is ${code}.`)
         discount = { id: code.id, code: code.code, cents: getDiscountCodeCents(code, subtotalCents) }
         orderInput.discounts = [
@@ -107,8 +109,8 @@ export async function prepareCheckout(input: PrepareCheckoutInput): Promise<Chec
         ...input.metadata,
         ...writeCheckoutMetadata({
             program: input.program,
-            customerEmail: input.customer.email,
-            customerName: `${input.customer.firstName} ${input.customer.lastName}`.trim(),
+            customerEmail: customer?.email ?? '',
+            customerName: customer ? `${customer.firstName} ${customer.lastName}`.trim() : '',
             discountCode: discount?.code ?? '',
             discountCodeId: discount?.id ?? '',
             giftCardId: giftCard.id,
@@ -121,7 +123,7 @@ export async function prepareCheckout(input: PrepareCheckoutInput): Promise<Chec
     return {
         checkoutId: order.id,
         locationId: input.locationId,
-        customerEmail: input.customer.email,
+        customerEmail: customer?.email ?? '',
         subtotalCents,
         discountCents: discount?.cents ?? 0,
         discountCode: discount?.code ?? '',

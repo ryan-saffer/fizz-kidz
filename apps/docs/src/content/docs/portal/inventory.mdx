@@ -26,18 +26,34 @@ and can generate a shopping list grouped across studios.
 ## Keep stock current
 
 <Steps>
-  1. Confirm the studio shown in the catalogue. 2. Find the item using search, category, or stock-status filters. 3. For
-  quantity items, use **Receive** to add stock or **Set stock** after a count. 4. For level-based items, use **Update
-  level** to choose the current level. 5. Mark an item **Unused here** only when that studio does not track it, not when
-  it is temporarily out of stock.
+  <ol>
+    <li>Confirm the studio shown in the catalogue.</li>
+    <li>Find the item using search, category, or stock-status filters.</li>
+    <li>
+      For quantity items, use <strong>Receive</strong> to add stock or <strong>Set stock</strong> after a count.{' '}
+      <strong>Receive</strong> is hidden while the count is unknown, so set the stock first.
+    </li>
+    <li>
+      For level-based items, use <strong>Update level</strong> to choose the current level.
+    </li>
+    <li>
+      Use the <strong>…</strong> menu for <strong>Mark count unknown</strong> when a count can no longer be trusted, or{' '}
+      <strong>Mark unused here</strong> when that studio does not track the item. Don't mark an item unused when it is
+      only temporarily out of stock.
+    </li>
+    <li>
+      To start tracking an unused item again, select <strong>Track here</strong>.
+    </li>
+  </ol>
 </Steps>
 
-Quantity items hold a numeric count. Level-based items use values such as high, medium, low, out, or unknown. Running-low
-status comes from the item's configured threshold.
+Quantity items hold a numeric count. Level-based items use values such as high, medium, low, out, or unknown. A
+quantity item shows **Running low** when its count reaches the item's threshold; a level-based item shows it at low or
+out.
 
 <Aside type="caution" title="Stock does not reduce itself">
-  Bookings and attendance do not automatically consume inventory. Staff must keep counts or levels current. The system
-  records stock changes, but the catalogue is only as current as the latest update.
+  Bookings and attendance do not automatically consume inventory. Staff must keep counts or levels current, because the
+  catalogue is only as current as the latest update.
 </Aside>
 
 ## Generate a shopping list

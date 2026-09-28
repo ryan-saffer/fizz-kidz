@@ -16,8 +16,8 @@ import {
 import { Label } from '@shared/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@shared/components/ui/radio-group'
 import { Textarea } from '@shared/components/ui/textarea'
+import { useWhileClosing } from '@shared/hooks/use-while-closing'
 
-import { useWhileClosing } from '../hooks/use-while-closing'
 import { usePartyBookingsStore } from '../state/party-bookings-store'
 
 /** Deleting a booking records why it was lost, and also removes its invitation and RSVPs. */

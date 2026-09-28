@@ -6,13 +6,13 @@ import { getPartyBirthdayChildDisplay } from '@fizz-kidz/core'
 
 import { useDateNavigation } from '@features/bookings/date-navigation/date-navigation.hooks'
 import { useTRPC } from '@integrations/trpc'
+import { FullScreenHeader } from '@shared/components/full-screen-header'
 import { Sheet, SheetContent } from '@shared/components/ui/sheet'
+import { useWhileClosing } from '@shared/hooks/use-while-closing'
 
-import { useWhileClosing } from '../hooks/use-while-closing'
 import { usePartyBookingsStore } from '../state/party-bookings-store'
 import { DeletePartyBookingDialog } from './delete-party-booking-dialog'
 import { PartyBookingForm } from './form/party-booking-form'
-import { FullScreenHeader } from './full-screen-header'
 
 /**
  * The full screen dialog for booking or editing a party, and the delete dialog. Mounted once on the bookings page,

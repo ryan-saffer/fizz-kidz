@@ -1,5 +1,7 @@
 import { randomUUID } from 'crypto'
 
+import { capitalise, getSquareLocationId, type Studio } from '@fizz-kidz/core'
+
 import { env } from '@/app/init/firebase'
 import { throwTrpcError } from '@/app/trpc/transport-errors'
 import { SquareClient } from '@/integrations/square/square.client'
@@ -13,7 +15,7 @@ export type TerminalPairing =
 
 /**
  * Square's sandbox can't pair real terminals. It has fixed test devices instead, each acting out one result.
- * Successful sandbox payments must be at most US$25, so sandbox party prices are in cents.
+ * Successful sandbox payments must be at most US$25, so sandbox party and product prices are in cents.
  * https://developer.squareup.com/docs/devtools/sandbox/testing
  */
 const SANDBOX_TERMINALS: Terminal[] = [
@@ -64,4 +66,14 @@ export async function getTerminalPairing(deviceCodeId: string): Promise<Terminal
     if (deviceCode?.status === 'UNPAIRED' && deviceCode.code)
         return { status: 'UNPAIRED', deviceCodeId, code: deviceCode.code, pairBy: deviceCode.pairBy ?? null }
     return { status: 'EXPIRED' }
+}
+
+/** The terminals paired with the portal at a studio (Square's test devices in dev). */
+export function listStudioTerminals(studio: Studio) {
+    return listTerminals(getSquareLocationId(env === 'prod' ? studio : 'test'))
+}
+
+/** Starts pairing the studio's terminal, named after the studio (e.g. 'Cheltenham Terminal'). */
+export function pairStudioTerminal(studio: Studio) {
+    return pairTerminal(getSquareLocationId(env === 'prod' ? studio : 'test'), `${capitalise(studio)} Terminal`)
 }
