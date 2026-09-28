@@ -56,6 +56,10 @@ export default defineConfig({
                                     link: 'services/birthday-parties/rsvp',
                                 },
                                 {
+                                    label: 'Collect Payment',
+                                    link: 'services/birthday-parties/collect-payment',
+                                },
+                                {
                                     label: 'Changes and Problems',
                                     link: 'services/birthday-parties/changes-and-problems',
                                 },
@@ -153,6 +157,14 @@ export default defineConfig({
                         {
                             label: 'Bookings',
                             link: 'portal/bookings',
+                        },
+                        {
+                            label: 'Sell Products',
+                            link: 'portal/pos',
+                        },
+                        {
+                            label: 'Studio Square Terminal',
+                            link: 'portal/studio-terminal',
                         },
                         {
                             label: 'Attendance',

@@ -3,7 +3,7 @@ title: Changes and refunds
 description: How Preschool Program session changes, cancellations and automatic repricing work.
 ---
 
-import { Aside, Badge, Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
+import { Badge, Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
 
 The booking confirmation gives the family a separate <strong>Change / Cancel</strong> link for every child/session.
 Acuity manages the appointment; Square continues to hold the original order and payment.
@@ -24,31 +24,18 @@ Acuity manages the appointment; Square continues to hold the original order and 
     <br />
     The appointment is cancelled and the family is emailed, but no refund is processed.
   </Card>
-  <Card title="Cancel a discounted term date" icon="information">
-    Remaining discounted term sessions are repriced at their standard session price. This may reduce the refund or make
-    it $0.
-  </Card>
 </CardGrid>
 
 ## How the refund is calculated
 
-For cancellations at least 48 hours before the session, the refund is the amount paid minus the newly calculated value
-of all sessions still booked. Whole-term eligibility and the original discount code are included in that calculation.
+For cancellations at least 48 hours before the session, the refund is the amount paid minus the value of all sessions
+still booked. Whole-term eligibility and the original discount code are included in that calculation.
 
-- A whole-term cancellation reprices the remaining discounted dates at the standard session price.
-- A refund can therefore be less than one session's displayed price, or $0.
+- Cancelling a date from a whole-term booking reprices the remaining term dates at the standard session price, so the
+  refund can be less than one session's price, or $0. See
+  [Whole-term bookings](/services/preschool-programs/whole-term-bookings/).
 - Split payments are refunded to the original gift card and card, up to the amount paid with each.
 - The cancellation email states the refunded amount when a refund applies.
-
-<Aside type="note" title="Why a term cancellation can return $0">
-  Imagine the family paid a discounted whole-term total. After one discounted date is removed, the remaining dates
-  return to standard price. If those remaining dates are now worth as much as, or more than, the amount already paid,
-  there is no difference to refund yet.
-</Aside>
-
-<Aside type="tip" title="Whole-term refund amount">
-  The refund is based on the value of everything still booked, not simply the cancelled session's displayed price.
-</Aside>
 
 <LinkCard
   title="Whole-term bookings"

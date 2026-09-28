@@ -22,16 +22,16 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
 
 <CardGrid>
   <Card title="Fizz Kidz Portal" icon="setting">
-    The staff dashboard for bookings, attendance, reports, discount codes, inventory, and other Fizz workflows. What
-    appears depends on your studio and role. [Learn the basics](/portal/basics/).
+    The staff dashboard for bookings, attendance, payments at the studio, reports, discount codes, inventory, and other
+    Fizz workflows. What appears depends on your studio and role. [Learn the basics](/portal/basics/).
   </Card>
   <Card title="Acuity Scheduling" icon="clock">
     Holds class schedules, appointments, and capacity for programs. The Portal reads and updates this information for
     many day-to-day tasks. [How Acuity fits in](/tools/acuity/).
   </Card>
   <Card title="Square" icon="document">
-    Handles customer payments and gift cards. The Portal coordinates booking details around those payments. [How gift
-    cards work](/services/gift-cards/).
+    Handles customer payments and gift cards, including the studio's Square Terminal. The Portal coordinates booking
+    details around those payments. [How Square fits in](/tools/square/).
   </Card>
   <Card title="Fizz technology" icon="puzzle">
     Start with a simple overview of the Portal and the other tools you may see. [See Fizz technology at a
@@ -46,6 +46,11 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
     title="Bookings"
     description="Parties, events, incursions, calendars, and customer confirmations."
     href="/portal/bookings/"
+  />
+  <LinkCard
+    title="Sell products"
+    description="Sell our kits to a customer on the studio's Square Terminal."
+    href="/portal/pos/"
   />
   <LinkCard
     title="Attendance"
@@ -76,6 +81,11 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
     title="Birthday party customer journey"
     description="Follow the technology-supported party journey."
     href="/services/birthday-parties/customer-journey/"
+  />
+  <LinkCard
+    title="Collect party payment"
+    description="Charge a studio party on the studio's Square Terminal once it's over."
+    href="/services/birthday-parties/collect-payment/"
   />
   <LinkCard
     title="Holiday Program bookings"

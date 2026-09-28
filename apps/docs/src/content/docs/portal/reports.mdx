@@ -5,8 +5,8 @@ description: Use the Portal's capacity reports for planning.
 
 import { Aside, Steps } from '@astrojs/starlight/components'
 
-The **Reports** page uses the studio selected at the top right of the Portal. It is available only to people whose role
-includes reporting access.
+The **Reports** page uses the studio selected at the top right of the Portal. It is available to admins when a
+franchise studio or the master organisation is selected.
 
 <Aside type="note" title="Check the selected studio first">
   A report can be accurate and still answer the wrong question if a different studio or the master organisation is
@@ -19,19 +19,30 @@ This report shows upcoming classes, booked children, total capacity, remaining s
 selected studio and the **Updated** time. Use **Refresh** for a new snapshot. Master access can switch between studio and
 daily breakdowns.
 
+Turn on **Compare with previous period** to see whether bookings are ahead of, behind, or level with the previous
+holiday program at the same number of days before it opened.
+
 ## Party Capacity Utilisation
 
-This report counts stored **in-studio** birthday party bookings in the date range and compares that count with the number
-of available booking slots you enter.
+This report shows how full the studio's party slots are: its **in-studio** birthday party bookings compared with the
+party slots available on those dates. The available slots are already set for each date, so there's nothing to enter.
 
 <Steps>
-  1. Choose the start and end dates. 2. Enter the total slots offered in that period. 3. Run the report. 4. Read the
-  booked count and utilisation percentage together.
+  <ol>
+    <li>
+      Choose a <strong>Date range</strong>: the current or upcoming month, the next 30 or 90 days, until the end of the
+      year, or a custom range.
+    </li>
+    <li>
+      Read <strong>Capacity reached</strong> together with the number of in-studio bookings and available slots.
+    </li>
+    <li>Check the weekly breakdown to see which weeks are filling up.</li>
+  </ol>
 </Steps>
 
-For a master report, the entered available slots are applied to each studio. Mobile parties are not included.
+The report updates as soon as you change the dates. With the master organisation selected, choose **Studio breakdown**
+or **Weekly breakdown** to compare studios. Mobile parties are not included.
 
-<Aside type="caution" title="Available slots are not calculated">
-  The Party Capacity report trusts the number you enter. If opening hours, blocked dates, or the studio schedule
-  changed, update that number before comparing periods.
+<Aside type="note" title="Available dates">
+  Party slots are set from 3 July to 31 December 2026, so choose dates within that period.
 </Aside>

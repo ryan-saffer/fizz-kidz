@@ -1,0 +1,95 @@
+---
+title: Sell products
+description: Sell our kits to a customer on the studio's Square Terminal from the Portal.
+---
+
+import { Aside, Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components'
+
+**Sell products** is the studio's till for our kits, such as slime and bath bomb kits. Staff choose what the customer is
+buying on the studio iPad, and the customer pays on the studio's Square Terminal.
+
+Open **Sell products** from the Portal menu. It's available to studio iPads and super-admins. A studio iPad sells at its
+own studio; super-admins choose the studio first.
+
+## Make a sale
+
+<Steps>
+  <ol>
+    <li>
+      <h3>Select New sale</h3>
+      <p>The sale opens full screen, with an order summary for the customer to follow.</p>
+    </li>
+    <li>
+      <h3>Choose the products</h3>
+      <p>
+        Tap a product to add it, then use <strong>+</strong> and <strong>−</strong> to set how many. The products and
+        prices come from Square.
+      </p>
+    </li>
+    <li>
+      <h3>Review and charge</h3>
+      <p>
+        The order summary shows Square's price, which is what's charged. Add a gift card or a discount if needed, then
+        select <strong>Charge</strong>.
+      </p>
+    </li>
+    <li>
+      <h3>The customer pays on the terminal</h3>
+      <p>
+        They tap, insert or swipe their card. The terminal then offers them a receipt by email or text, which Square
+        sends.
+      </p>
+    </li>
+    <li>
+      <h3>Start the next sale</h3>
+      <p>
+        Once it shows <strong>Payment received</strong>, select <strong>New sale</strong> for the next customer, or
+        <strong>Done</strong>.
+      </p>
+    </li>
+  </ol>
+</Steps>
+
+## Gift cards and discounts
+
+<CardGrid>
+  <Card title="Gift card" icon="approve-check-circle">
+    <p>
+      Enter the card number with <strong>Use a gift card</strong>. Its balance comes off first and the terminal charges
+      the rest.
+    </p>
+  </Card>
+  <Card title="Discount" icon="pencil">
+    <p>
+      Enter a dollar amount and a reason with <strong>Add a discount</strong>, for example for a damaged box. The reason
+      is kept for us and isn't shown to the customer.
+    </p>
+  </Card>
+</CardGrid>
+
+## Good to know
+
+- The sale is recorded in Square, and the products' stock goes down there automatically.
+- The customer doesn't need to give their name. Their receipt goes to the email or mobile they enter on the terminal.
+- A cancelled or timed-out charge takes nothing. Select **Send to terminal again** to retry, or **Edit the charge** to
+  change the products first.
+- Reloading the iPad during a charge doesn't lose it. Open **Sell products** again and it picks up where it was.
+
+<Aside type="note" title="Refunds">
+  Refund a sale with the approved Square refund process. The Portal doesn't refund sales.
+</Aside>
+
+## Related guides
+
+<CardGrid>
+  <LinkCard
+    title="Studio Square Terminal"
+    description="Pair the studio's terminal, or replace it."
+    href="/portal/studio-terminal/"
+  />
+  <LinkCard
+    title="Collect party payment"
+    description="Charge a studio party on the same terminal."
+    href="/services/birthday-parties/collect-payment/"
+  />
+</CardGrid>
