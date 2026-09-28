@@ -11,7 +11,10 @@ publish = "apps/docs/dist"
 # Only build when this app changes. Exit code 0 skips the build, 1 continues.
 # Without this, every push to the repo (including apps/portal and apps/server)
 # would trigger a docs build and, for pull requests, a docs deploy preview.
-ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF apps/docs"
+# CACHED_COMMIT_REF is the last build on any branch, so after develop builds, the
+# develop -> main merge looks unchanged. Production compares against the previous
+# main commit instead (the merge commit's first parent).
+ignore = "if [ \"$CONTEXT\" = \"production\" ]; then git diff --quiet HEAD^1 HEAD apps/docs; else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF apps/docs; fi"
 
 [[headers]]
 for = "/*"
