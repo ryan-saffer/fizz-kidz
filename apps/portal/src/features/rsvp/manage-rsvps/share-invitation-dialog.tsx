@@ -12,6 +12,7 @@ import { WhatsappIcon } from '@shared/assets/icons/whatsapp'
 import { Button } from '@shared/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@shared/components/ui/dialog'
 import { Input } from '@shared/components/ui/input'
+import { copyToClipboard } from '@shared/lib/clipboard'
 
 import { useInvitation } from '../hooks/use-invitation'
 
@@ -25,9 +26,13 @@ export function ShareInvitaitonDialog({ isOpen, close }: { isOpen: boolean; clos
         trpc.parties.getInvitationDownloadUrl.mutationOptions()
     )
 
-    function copy() {
-        navigator.clipboard.writeText(inviteUrl)
-        toast.success('Invitation copied to clipboard!')
+    async function copy() {
+        try {
+            await copyToClipboard(inviteUrl)
+            toast.success('Invitation copied to clipboard!')
+        } catch (error) {
+            toast.error((error as Error).message)
+        }
     }
 
     async function downloadInvitation() {

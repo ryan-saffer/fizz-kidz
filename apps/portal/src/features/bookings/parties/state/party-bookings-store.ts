@@ -8,6 +8,7 @@ import type {
     DeletePartyBooking,
     UpdatePartyBooking,
 } from '@server/features/party-bookings/functions/trpc/parties.trpc'
+import { copyToClipboard } from '@shared/lib/clipboard'
 
 import {
     toNewBooking,
@@ -134,24 +135,28 @@ export const usePartyBookingsStore = create<State & Actions>((set, get) => ({
 
     copyPartyFormLink: (booking) =>
         runBookingAction(booking, async (server) => {
-            await copy(await server.getPartyFormUrl({ bookingId: booking.id }))
+            await copyToClipboard(await server.getPartyFormUrl({ bookingId: booking.id }))
             toast.success('Party form link copied.')
         }),
 
     copyCakeFormLink: (booking) =>
         runBookingAction(booking, async (server) => {
-            await copy(await server.getCakeFormUrl({ bookingId: booking.id }))
+            await copyToClipboard(await server.getCakeFormUrl({ bookingId: booking.id }))
             toast.success('Cake form link copied.')
         }),
 
     copyInvitationLink: async (booking) => {
         const env = import.meta.env.VITE_ENV
-        await copy(
-            booking.invitationId
-                ? getInvitationShareUrl(env, import.meta.env.DEV, booking.invitationId)
-                : getInvitationEntryUrl(env, import.meta.env.DEV, booking.id)
-        )
-        toast.success('Invitation link copied.')
+        try {
+            await copyToClipboard(
+                booking.invitationId
+                    ? getInvitationShareUrl(env, import.meta.env.DEV, booking.invitationId)
+                    : getInvitationEntryUrl(env, import.meta.env.DEV, booking.id)
+            )
+            toast.success('Invitation link copied.')
+        } catch (error) {
+            toast.error(getErrorMessage(error))
+        }
     },
 
     resendConfirmationEmail: (booking) =>
@@ -172,10 +177,6 @@ async function runBookingAction(booking: PartyBooking, action: (server: PartyBoo
     } finally {
         usePartyBookingsStore.setState({ busyBookingId: null })
     }
-}
-
-async function copy(text: string) {
-    await navigator.clipboard.writeText(text)
 }
 
 function getErrorMessage(error: unknown) {

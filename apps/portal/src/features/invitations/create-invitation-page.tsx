@@ -27,6 +27,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/p
 import { ScrollArea } from '@shared/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { Separator } from '@shared/components/ui/separator'
+import { copyToClipboard } from '@shared/lib/clipboard'
 import { cn } from '@shared/lib/tailwind'
 
 import { InvitationTemplates } from './constants'
@@ -482,9 +483,13 @@ function SuccessDialog({
     const invitationText = `You're invited to ${childName}'s party!`
     const inviteUrl = `${getApplicationDomain(import.meta.env.VITE_ENV, import.meta.env.DEV)}/invitation/${invitationId}?type=${encodeURIComponent(state.invitation)}`
 
-    const copy = () => {
-        navigator.clipboard.writeText(inviteUrl)
-        toast.success('Invitation copied to clipboard!')
+    const copy = async () => {
+        try {
+            await copyToClipboard(inviteUrl)
+            toast.success('Invitation copied to clipboard!')
+        } catch (error) {
+            toast.error((error as Error).message)
+        }
     }
 
     const firebase = useFirebase()
