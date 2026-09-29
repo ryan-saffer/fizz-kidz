@@ -26,10 +26,32 @@ function MessageScroller({ className, ...props }: React.ComponentProps<typeof Me
     )
 }
 
+// How close to the bottom counts as "at the bottom" once the reader stops scrolling.
+const STICK_TO_BOTTOM_THRESHOLD_PX = 40
+const SCROLL_SETTLE_MS = 150
+
 function MessageScrollerViewport({
     className,
+    onScroll,
+    onWheel,
+    onTouchEnd,
     ...props
 }: React.ComponentProps<typeof MessageScrollerPrimitive.Viewport>) {
+    const { scrollToEnd } = useMessageScroller()
+    const settleTimerRef = React.useRef<number | undefined>(undefined)
+
+    React.useEffect(() => () => window.clearTimeout(settleTimerRef.current), [])
+
+    // Added to the shadcn original: scrolling back to the bottom yourself resumes auto-scroll, as the
+    // scroll-to-end button does. The primitive only resumes within 8px, and trackpad momentum can switch it off again.
+    function resumeAutoScrollWhenSettledAtBottom(viewport: HTMLElement) {
+        window.clearTimeout(settleTimerRef.current)
+        settleTimerRef.current = window.setTimeout(() => {
+            const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight
+            if (distanceFromBottom <= STICK_TO_BOTTOM_THRESHOLD_PX) scrollToEnd()
+        }, SCROLL_SETTLE_MS)
+    }
+
     return (
         <MessageScrollerPrimitive.Viewport
             data-slot="message-scroller-viewport"
@@ -37,6 +59,18 @@ function MessageScrollerViewport({
                 'size-full min-h-0 min-w-0 overflow-y-auto overscroll-contain [contain:content] [scrollbar-gutter:stable] [scrollbar-width:thin] data-[pending-scroll]:invisible',
                 className
             )}
+            onScroll={(event) => {
+                resumeAutoScrollWhenSettledAtBottom(event.currentTarget)
+                onScroll?.(event)
+            }}
+            onWheel={(event) => {
+                resumeAutoScrollWhenSettledAtBottom(event.currentTarget)
+                onWheel?.(event)
+            }}
+            onTouchEnd={(event) => {
+                resumeAutoScrollWhenSettledAtBottom(event.currentTarget)
+                onTouchEnd?.(event)
+            }}
             {...props}
         />
     )
