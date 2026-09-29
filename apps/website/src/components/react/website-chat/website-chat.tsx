@@ -112,6 +112,7 @@ export function WebsiteChat() {
     const [chatId, setChatId] = useState(() => storedChat?.id ?? generateId())
     const [isOpen, setIsOpen] = useState(false)
     const [playLauncherIntro, setPlayLauncherIntro] = useState(shouldPlayLauncherIntro)
+    const [hasFinePointer] = useState(() => window.matchMedia('(pointer: fine)').matches)
     useEffect(() => {
         // Astro moves this persisted widget into each new page, and browsers restart CSS animations on a moved
         // element. Removing the intro classes once it's played stops it replaying on every navigation.
@@ -449,8 +450,9 @@ export function WebsiteChat() {
                     >
                         <div className="flex items-end gap-2 rounded-2xl border border-[#E8DBFD] bg-white p-2 focus-within:border-[#9044E2]">
                             <textarea
-                                // The panel mounts when opened, so this focuses the input on every open.
-                                autoFocus
+                                // The panel mounts when opened, so this focuses the input on every open. Only with a mouse or
+                                // trackpad: on touch screens it would pop up the keyboard over Frankie's welcome messages.
+                                autoFocus={hasFinePointer}
                                 value={input}
                                 onChange={(event) => setInput(event.target.value)}
                                 onKeyDown={handleKeyDown}
