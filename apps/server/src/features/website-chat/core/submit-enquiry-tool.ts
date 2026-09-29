@@ -27,13 +27,15 @@ const SubmitEnquiryInputSchema = z.object({
     location: z
         .enum(values(ContactFormLocationOptions))
         .optional()
-        .describe('Preferred studio. Use at-home for a party at their home. Required for parties and holiday programs'),
+        .describe('Preferred studio, or at-home if we host it at their place. Leave out if they are not sure'),
     suburb: z.string().optional().describe('Suburb, required for at-home parties'),
     preferredDateAndTime: z
         .string()
         .optional()
-        .describe('Preferred date and time, in their words. Required for parties and incursions'),
-    partyTheme: z.enum(values(PartyThemeOptions)).optional().describe('Party theme, required for parties'),
+        .describe(
+            'Preferred date and time in their words; rough is fine, e.g. "late April". Required for parties and incursions'
+        ),
+    partyTheme: z.enum(values(PartyThemeOptions)).optional().describe('Party theme. Leave out if they are not sure'),
     school: z.string().optional().describe('School name, required for incursions'),
     module: z.enum(values(IncursionFormModuleOptions)).optional().describe('Incursion module, required for incursions'),
     numberOfSessions: z.string().optional().describe('Number of incursion sessions, as a whole number'),
@@ -51,14 +53,61 @@ const SubmitEnquiryInputSchema = z.object({
         ),
 })
 
+type SubmitEnquiryInput = z.infer<typeof SubmitEnquiryInputSchema>
+
+const NOT_PROVIDED = 'Not provided yet'
+
+// Details the contact form requires for each service, with the value to send when the customer hasn't given one.
+// Frankie only insists on contact details (and a rough date for bookings); the note tells the team what's missing.
+// The number of incursion sessions has no fallback because the form needs a real number.
+const FORM_FALLBACKS: Partial<
+    Record<SubmitEnquiryInput['service'], Partial<Record<keyof SubmitEnquiryInput, [label: string, value: string]>>>
+> = {
+    party: {
+        location: ['studio', 'other'],
+        partyTheme: ['party theme', 'mix'],
+        preferredDateAndTime: ['preferred date and time', NOT_PROVIDED],
+    },
+    'holiday-program': { location: ['studio', 'other'] },
+    incursion: {
+        school: ['school', NOT_PROVIDED],
+        preferredDateAndTime: ['preferred date', NOT_PROVIDED],
+        module: ['module', 'notSure'],
+        numberOfStudentsPerSession: ['students per session', NOT_PROVIDED],
+    },
+    activation: {
+        organisation: ['organisation', NOT_PROVIDED],
+        preferredDateAndTime: ['preferred date', NOT_PROVIDED],
+        numberOfAttendees: ['number of attendees', NOT_PROVIDED],
+    },
+}
+
+function withFormFallbacks(input: SubmitEnquiryInput) {
+    const filled: Record<string, unknown> = { ...input }
+    const notProvided: string[] = []
+    for (const [field, [label, value]] of Object.entries(FORM_FALLBACKS[input.service] ?? {})) {
+        if (filled[field]) continue
+        filled[field] = value
+        notProvided.push(label)
+    }
+    return { filled, notProvided }
+}
+
 export const submitEnquiryTool = tool({
     description:
-        "Leave an enquiry with the Fizz Kidz team on the customer's behalf. The team follows up and the customer gets a confirmation email. Only call this after the customer has confirmed the details and said yes to sending it.",
+        "Pass the customer's question or booking request to the Fizz Kidz team, who follow up with them. The customer gets a confirmation email. Only call this after the customer has confirmed the details and said yes to sending it.",
     inputSchema: SubmitEnquiryInputSchema,
     execute: async (input, { messages }) => {
+        const { filled, notProvided } = withFormFallbacks(input)
         const enquiry = ContactWebsiteFormSchema.safeParse({
-            ...input,
-            enquiry: `${input.enquiry}\n\n(Left by Frankie, the website chat assistant)`,
+            ...filled,
+            enquiry: [
+                input.enquiry,
+                notProvided.length > 0 && `Not provided yet: ${notProvided.join(', ')}.`,
+                '(Left by Frankie, the website chat assistant)',
+            ]
+                .filter(Boolean)
+                .join('\n\n'),
             reference: 'other',
             referenceOther: 'Website chat',
         })

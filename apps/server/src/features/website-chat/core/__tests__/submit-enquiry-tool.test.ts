@@ -55,15 +55,62 @@ describe('submitEnquiryTool', () => {
         )
     })
 
-    it('reports missing details without sending', async () => {
-        const result = await submit({ ...partyEnquiry, partyTheme: undefined, preferredDateAndTime: undefined })
+    it('sends a party enquiry with just contact details and a rough date', async () => {
+        const minimal = {
+            ...partyEnquiry,
+            location: undefined,
+            partyTheme: undefined,
+            preferredDateAndTime: 'late April',
+        }
+
+        await expect(submit(minimal)).resolves.toEqual({ success: true })
+
+        expect(mocks.process).toHaveBeenCalledWith(
+            {
+                formId: 'contact',
+                data: expect.objectContaining({
+                    location: 'other',
+                    partyTheme: 'mix',
+                    preferredDateAndTime: 'late April',
+                    enquiry: expect.stringContaining('Not provided yet: studio, party theme.'),
+                }),
+            },
+            expect.anything()
+        )
+    })
+
+    it('passes on an events question with just contact details', async () => {
+        await expect(
+            submit({
+                name: 'Sam Lee',
+                email: 'sam.lee@example.com',
+                contactNumber: '0400111222',
+                service: 'activation',
+                enquiry: 'Do you run sensory-friendly activities at shopping centres?',
+            })
+        ).resolves.toEqual({ success: true })
+
+        expect(mocks.process).toHaveBeenCalledWith(
+            {
+                formId: 'contact',
+                data: expect.objectContaining({
+                    service: 'activation',
+                    organisation: 'Not provided yet',
+                    enquiry: expect.stringContaining(
+                        'Not provided yet: organisation, preferred date, number of attendees.'
+                    ),
+                }),
+            },
+            expect.anything()
+        )
+    })
+
+    it('reports details the form still needs without sending', async () => {
+        const result = await submit({ ...partyEnquiry, contactNumber: '123' })
 
         expect(result).toEqual({
             success: false,
-            problems: expect.arrayContaining([
-                expect.stringContaining('partyTheme'),
-                expect.stringContaining('preferredDateAndTime'),
-            ]),
+            problems: [expect.stringContaining('contactNumber')],
         })
         expect(mocks.process).not.toHaveBeenCalled()
     })

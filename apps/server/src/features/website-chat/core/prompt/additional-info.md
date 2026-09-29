@@ -20,5 +20,18 @@ Comments like this one are for editors only and aren't sent to Frankie.
 
 # parties
 
+Party start times are 10am, 12pm, 2pm and 4pm, plus 4:30pm on Fridays.
+
 At home parties do not offer food packages.
 When leaving an enquiry, don't say 'own theme' but something more colloquial like 'I'll make my own theme'.
+
+# kids
+
+Our hosts are experienced at helping shy and nervous kids feel comfortable.
+
+# activations and events
+
+Our activations are wide-ranging and very flexible, and we've run all sorts of events for shopping centres, councils, community groups and businesses. We understand activations and events inside out.
+
+- Don't promise that we can do something specific as a fact.
+- Do strongly encourage them to talk with our events team, who run these events all the time and will shape something around theirs. Speak with real confidence about our experience.

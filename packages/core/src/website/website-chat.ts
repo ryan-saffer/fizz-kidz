@@ -3,18 +3,21 @@ import { z } from 'zod'
 import { WebsiteStudioOptions } from './website-forms'
 
 // AI Gateway model IDs the website chat may use. The widget sends one of these so we can compare models side by side.
-// All are available on the AI Gateway free tier (checked 2026-09-29).
+// Models labelled "(paid credits)" aren't on the AI Gateway free tier (checked 2026-09-30); the rest are.
 export const WebsiteChatModelOptions = [
     { value: 'openai/gpt-5.4-nano', label: 'GPT-5.4 Nano' },
     { value: 'spacexai/grok-4.1-fast-non-reasoning', label: 'Grok 4.1 Fast' },
     { value: 'openai/gpt-4.1-mini', label: 'GPT-4.1 Mini' },
     { value: 'google/gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
     { value: 'openai/gpt-5-mini', label: 'GPT-5 Mini' },
+    { value: 'anthropic/claude-sonnet-5.5', label: 'Claude Sonnet 5.5 (paid credits)' },
+    { value: 'openai/gpt-5.6-luna', label: 'GPT-5.6 Luna (paid credits)' },
+    { value: 'deepseek/deepseek-v4.1-flash', label: 'DeepSeek V4.1 Flash (paid credits)' },
 ] as const
 
 export type WebsiteChatModel = (typeof WebsiteChatModelOptions)[number]['value']
 
-export const DEFAULT_WEBSITE_CHAT_MODEL: WebsiteChatModel = 'openai/gpt-5.4-nano'
+export const DEFAULT_WEBSITE_CHAT_MODEL: WebsiteChatModel = 'openai/gpt-5.6-luna'
 
 export const WebsiteChatModelSchema = z.enum(
     WebsiteChatModelOptions.map(({ value }) => value) as [WebsiteChatModel, ...WebsiteChatModel[]]
@@ -58,8 +61,19 @@ export const WEBSITE_CHAT_NUDGE_DELAY_SECONDS = 40
 const WEBSITE_CHAT_NUDGE_EXCLUDED_PATHS = ['/contact-us/', '/birthday-parties/book-a-party/']
 
 export type WebsiteChatGreeting = {
-    message: string
+    /** Shown one after another, each in its own bubble. */
+    messages: string[]
     suggestions: string[]
+}
+
+/** How Frankie opens a new chat. */
+export const DEFAULT_WEBSITE_CHAT_GREETING: WebsiteChatGreeting = {
+    messages: [
+        'Hi, welcome to Fizz Kidz!',
+        "I'm Frankie. AI with a bit of Fizz. 💜",
+        'What can I help with today? Ask me anything, or I can help you get a booking started. ✨',
+    ],
+    suggestions: ['I have a question', 'Make a booking', 'Just browsing'],
 }
 
 const PARTY_SUGGESTIONS = ["What's included?", 'How much is it?', 'Book a party']
@@ -77,28 +91,28 @@ export function getWebsiteChatNudge({
 
     if (partyPackageName) {
         return {
-            message: `Checking out our ${partyPackageName} parties? 💜 Any questions I can help with?`,
+            messages: [`Checking out our ${partyPackageName} parties? 💜 Any questions I can help with?`],
             suggestions: PARTY_SUGGESTIONS,
         }
     }
 
     if (normalisedPath === '/birthday-parties/at-home-parties/') {
         return {
-            message: 'Thinking about a party at home? 🏡 Any questions I can help with?',
+            messages: ['Thinking about a party at home? 🏡 Any questions I can help with?'],
             suggestions: PARTY_SUGGESTIONS,
         }
     }
 
     if (normalisedPath.startsWith('/birthday-parties/')) {
         return {
-            message: 'Planning a birthday party? 🎉 Any questions I can help with?',
+            messages: ['Planning a birthday party? 🎉 Any questions I can help with?'],
             suggestions: PARTY_SUGGESTIONS,
         }
     }
 
     if (normalisedPath === '/holiday-programs/') {
         return {
-            message: 'Checking out our holiday programs? Any questions I can help with?',
+            messages: ['Checking out our holiday programs? Any questions I can help with?'],
             suggestions: ['When are they on?', 'How much is it?', 'How do I book?'],
         }
     }
@@ -106,13 +120,13 @@ export function getWebsiteChatNudge({
     const studio = WebsiteStudioOptions.find(({ value }) => normalisedPath === `/locations/${value}/`)
     if (studio) {
         return {
-            message: `Checking out our ${studio.label} studio? Any questions I can help with?`,
+            messages: [`Checking out our ${studio.label} studio? Any questions I can help with?`],
             suggestions: ['Birthday parties', 'Holiday programs', 'Something else'],
         }
     }
 
     return {
-        message: "Hi, I'm Frankie! 👋 Any questions I can help with?",
+        messages: ["Hi, I'm Frankie! 👋 Any questions I can help with?"],
         suggestions: ['Birthday party', 'Holiday programs', 'Something else'],
     }
 }

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type R
 import { Streamdown } from 'streamdown'
 
 import {
+    DEFAULT_WEBSITE_CHAT_GREETING,
     DEFAULT_WEBSITE_CHAT_MODEL,
     WEBSITE_CHAT_IDLE_MINUTES,
     WEBSITE_CHAT_MAX_MESSAGE_LENGTH,
@@ -31,16 +32,24 @@ import { WEBSITE_CHAT_URL } from '@/utils/website-chat'
 
 const STORAGE_KEY = 'fizz-website-chat'
 const MUTED_STORAGE_KEY = 'fizz-website-chat-muted'
+const LAUNCHER_INTRO_STORAGE_KEY = 'fizz-website-chat-launcher-intro'
+// Matches the launcher animations in globals.css: 1s delay + 0.55s pop, and the icon wave ending at 2.3s.
+const LAUNCHER_INTRO_MS = 2400
 
+// Opening a new chat: for each greeting message Frankie types, then writes it out word by word.
+// Once the last one is written, the quick replies enter one by one.
+const GREETING_FIRST_TYPING_MS = 1400
+const GREETING_NEXT_TYPING_MS = 1000
+const GREETING_WORD_MS = 45
+const SUGGESTIONS_PAUSE_MS = 400
+const SUGGESTION_STAGGER_MS = 120
+
+// Colours from the stacked Fizz Kidz logo, plus the site's yellow, for small accents around the purple.
+const FIZZ_STRIPE = ['#E91271', '#FFDC5D', '#9ECC47', '#4BC5D9']
 const WEBSITE_CHAT_UNAVAILABLE_MESSAGE = "Sorry, I'm not available right now. Try again soon."
 
-// Shown by the widget before the first message, with quick replies that send as the customer's message.
-// Opening the chat from Frankie's speech bubble uses that page's greeting instead (see getWebsiteChatNudge).
-const DEFAULT_GREETING: WebsiteChatGreeting = {
-    message:
-        "Hi, I'm Frankie. A little AI, a lot of Fizz. 👋 Are you after a birthday party, our holiday programs, or something else?",
-    suggestions: ['Birthday party', 'Holiday programs', 'Something else'],
-}
+// The greeting (DEFAULT_WEBSITE_CHAT_GREETING in core) is shown by the widget before the first message, with quick
+// replies that send as the customer's message. Opening from Frankie's speech bubble uses that page's greeting instead.
 
 type StoredChat = {
     id: string
@@ -71,6 +80,17 @@ function writeStoredChat(chat: StoredChat) {
     }
 }
 
+/** The launcher's entrance plays once per visit, not on every page. */
+function shouldPlayLauncherIntro() {
+    try {
+        if (sessionStorage.getItem(LAUNCHER_INTRO_STORAGE_KEY)) return false
+        sessionStorage.setItem(LAUNCHER_INTRO_STORAGE_KEY, 'true')
+        return true
+    } catch {
+        return true
+    }
+}
+
 function readMuted() {
     try {
         return localStorage.getItem(MUTED_STORAGE_KEY) === 'true'
@@ -91,13 +111,33 @@ export function WebsiteChat() {
     const [storedChat] = useState(readStoredChat)
     const [chatId, setChatId] = useState(() => storedChat?.id ?? generateId())
     const [isOpen, setIsOpen] = useState(false)
+    const [playLauncherIntro, setPlayLauncherIntro] = useState(shouldPlayLauncherIntro)
+    useEffect(() => {
+        // Astro moves this persisted widget into each new page, and browsers restart CSS animations on a moved
+        // element. Removing the intro classes once it's played stops it replaying on every navigation.
+        if (!playLauncherIntro) return
+        const timer = setTimeout(() => setPlayLauncherIntro(false), LAUNCHER_INTRO_MS)
+        return () => clearTimeout(timer)
+    }, [playLauncherIntro])
+    const [greeting, setGreeting] = useState<WebsiteChatGreeting>(() =>
+        // Chats saved before greetings had several messages fall back to the default.
+        Array.isArray(storedChat?.greeting?.messages) ? storedChat.greeting : DEFAULT_WEBSITE_CHAT_GREETING
+    )
+    // A new chat plays the greeting message by message. Restored chats show it straight away.
+    const hasStoredMessages = (storedChat?.messages?.length ?? 0) > 0
+    const [greetingStep, setGreetingStep] = useState(() => (hasStoredMessages ? greeting.messages.length : 0))
+    const [greetingPhase, setGreetingPhase] = useState<'typing' | 'writing' | 'shown'>(() =>
+        hasStoredMessages ? 'shown' : 'typing'
+    )
+    const [greetingWordCount, setGreetingWordCount] = useState(0)
+    // Only animate while it's happening, so reopening the chat doesn't replay it.
+    const [isGreetingAnimating, setIsGreetingAnimating] = useState(false)
     const [model, setModel] = useState<WebsiteChatModel>(
         () =>
             WebsiteChatModelOptions.find((option) => option.value === storedChat?.model)?.value ??
             DEFAULT_WEBSITE_CHAT_MODEL
     )
     const [input, setInput] = useState('')
-    const [greeting, setGreeting] = useState<WebsiteChatGreeting>(storedChat?.greeting ?? DEFAULT_GREETING)
     const modelRef = useRef(model)
     modelRef.current = model
     const greetingRef = useRef(greeting)
@@ -111,7 +151,7 @@ export function WebsiteChat() {
                 body: () => ({
                     model: modelRef.current,
                     pagePath: window.location.pathname,
-                    greeting: greetingRef.current.message,
+                    greeting: greetingRef.current.messages.join(' '),
                 }),
             })
     )
@@ -130,7 +170,13 @@ export function WebsiteChat() {
     const { nudge, dismiss: dismissNudge } = useWebsiteChatNudge({ isChatActive: isOpen || messages.length > 0 })
 
     function openFromNudge() {
-        if (nudge && messages.length === 0) setGreeting(nudge)
+        if (nudge && messages.length === 0) {
+            setGreeting(nudge)
+            setGreetingStep(nudge.messages.length)
+        }
+        // They've just read the bubble, so the greeting appears without typing first.
+        setGreetingPhase('shown')
+        setIsGreetingAnimating(true)
         setIsOpen(true)
     }
 
@@ -147,6 +193,48 @@ export function WebsiteChat() {
         }
         wasTypingRef.current = isTyping
     }, [isTyping, status, isOpen, isMuted])
+
+    function finishGreetingMessage() {
+        const nextStep = greetingStep + 1
+        setGreetingStep(nextStep)
+        setGreetingPhase(nextStep < greeting.messages.length ? 'typing' : 'shown')
+    }
+
+    useEffect(() => {
+        if (!isOpen) {
+            setIsGreetingAnimating(false)
+            return
+        }
+        if (greetingPhase !== 'typing') return
+        const timer = setTimeout(
+            () => {
+                setIsGreetingAnimating(true)
+                if (!isMuted) playReplySound()
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    finishGreetingMessage()
+                    return
+                }
+                setGreetingWordCount(0)
+                setGreetingPhase('writing')
+            },
+            greetingStep === 0 ? GREETING_FIRST_TYPING_MS : GREETING_NEXT_TYPING_MS
+        )
+        return () => clearTimeout(timer)
+        // finishGreetingMessage only reads state that's already listed.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, greetingPhase, greetingStep, isMuted])
+
+    const writingWords = greeting.messages[greetingStep]?.split(' ') ?? []
+    useEffect(() => {
+        if (greetingPhase !== 'writing') return
+        if (greetingWordCount >= writingWords.length) {
+            finishGreetingMessage()
+            return
+        }
+        const timer = setTimeout(() => setGreetingWordCount((count) => count + 1), GREETING_WORD_MS)
+        return () => clearTimeout(timer)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [greetingPhase, greetingWordCount, writingWords.length])
 
     function toggleMuted() {
         setIsMuted((muted) => {
@@ -180,22 +268,34 @@ export function WebsiteChat() {
         stop()
         const id = generateId()
         setChatId(id)
-        setGreeting(DEFAULT_GREETING)
-        writeStoredChat({ id, messages: [], model, lastActivityAt: Date.now(), greeting: DEFAULT_GREETING })
+        setGreeting(DEFAULT_WEBSITE_CHAT_GREETING)
+        setGreetingStep(0)
+        setGreetingPhase('typing')
+        writeStoredChat({
+            id,
+            messages: [],
+            model,
+            lastActivityAt: Date.now(),
+            greeting: DEFAULT_WEBSITE_CHAT_GREETING,
+        })
     }
 
     return (
         <div className="print:hidden">
             {isOpen && (
                 <div
+                    // Above the sticky site header (z-[99]), which otherwise covers the close button on phones.
                     role="dialog"
                     aria-label="Chat with Fizz Kidz"
-                    className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-white font-gotham shadow-2xl sm:inset-auto sm:bottom-24 sm:right-6 sm:h-[min(640px,calc(100dvh-8rem))] sm:w-[400px] sm:rounded-3xl sm:border sm:border-[#E8DBFD]"
+                    className="fixed inset-0 z-[1000] flex flex-col overflow-hidden bg-white font-gotham shadow-2xl duration-200 animate-in fade-in slide-in-from-bottom-4 sm:inset-auto sm:bottom-24 sm:right-6 sm:h-[min(640px,calc(100dvh-8rem))] sm:w-[400px] sm:origin-bottom-right sm:rounded-3xl sm:border sm:border-[#E8DBFD] sm:zoom-in-95"
                 >
                     <header className="flex items-center gap-3 bg-[#9044E2] px-4 py-3 text-white">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white p-1 shadow-sm">
+                            <img src="/images/logo-stacked-192.png" alt="" width={32} height={32} className="h-8 w-8" />
+                        </span>
                         <div className="min-w-0 flex-1">
-                            <p className="font-lilita text-xl leading-tight">Chat with us</p>
-                            <p className="text-xs text-white/80">Ask us anything about parties and programs</p>
+                            <p className="font-lilita text-xl leading-tight">Frankie</p>
+                            <p className="text-xs text-white/80">Ask me anything about parties and programs</p>
                         </div>
                         <button
                             type="button"
@@ -225,6 +325,11 @@ export function WebsiteChat() {
                             <X className="h-5 w-5" />
                         </button>
                     </header>
+                    <div className="flex h-1 shrink-0" aria-hidden="true">
+                        {FIZZ_STRIPE.map((colour) => (
+                            <span key={colour} className="flex-1" style={{ backgroundColor: colour }} />
+                        ))}
+                    </div>
 
                     <select
                         value={model}
@@ -244,18 +349,48 @@ export function WebsiteChat() {
                             <MessageScrollerViewport className="px-4">
                                 <MessageScrollerContent className="gap-4 py-4">
                                     <MessageScrollerItem messageId="welcome">
-                                        <AssistantBubble>{greeting.message}</AssistantBubble>
+                                        <div className="flex flex-col gap-2">
+                                            {greeting.messages.map((text, index) => {
+                                                const isFullyShown =
+                                                    messages.length > 0 ||
+                                                    greetingPhase === 'shown' ||
+                                                    index < greetingStep
+                                                if (isFullyShown)
+                                                    return <AssistantBubble key={index}>{text}</AssistantBubble>
+                                                if (index !== greetingStep) return null
+                                                return (
+                                                    <AssistantBubble key={index}>
+                                                        {greetingPhase === 'writing' ? (
+                                                            writingWords.slice(0, greetingWordCount).join(' ')
+                                                        ) : (
+                                                            <TypingDots />
+                                                        )}
+                                                    </AssistantBubble>
+                                                )
+                                            })}
+                                        </div>
                                     </MessageScrollerItem>
 
-                                    {messages.length === 0 && (
+                                    {messages.length === 0 && greetingPhase === 'shown' && (
                                         <MessageScrollerItem messageId="suggestions">
                                             <div className="flex flex-wrap gap-2">
-                                                {greeting.suggestions.map((suggestion) => (
+                                                {greeting.suggestions.map((suggestion, index) => (
                                                     <button
                                                         key={suggestion}
                                                         type="button"
                                                         onClick={() => send(suggestion)}
-                                                        className="rounded-full border border-[#9044E2] px-3 py-1.5 text-left text-sm text-[#542785] transition-colors hover:bg-[#F7F2FE]"
+                                                        className={cn(
+                                                            'rounded-full border border-[#9044E2] px-3 py-1.5 text-left text-sm text-[#542785] transition-colors hover:bg-[#F7F2FE]',
+                                                            isGreetingAnimating &&
+                                                                'duration-300 animate-in fade-in fill-mode-both slide-in-from-bottom-1 motion-reduce:animate-none'
+                                                        )}
+                                                        style={
+                                                            isGreetingAnimating
+                                                                ? {
+                                                                      animationDelay: `${SUGGESTIONS_PAUSE_MS + index * SUGGESTION_STAGGER_MS}ms`,
+                                                                  }
+                                                                : undefined
+                                                        }
                                                     >
                                                         {suggestion}
                                                     </button>
@@ -291,11 +426,7 @@ export function WebsiteChat() {
                                     {isTyping && (
                                         <MessageScrollerItem messageId="typing">
                                             <AssistantBubble>
-                                                <span className="flex gap-1 py-1" aria-label="Typing">
-                                                    <span className="h-2 w-2 animate-bounce rounded-full bg-[#9044E2] [animation-delay:-0.3s]" />
-                                                    <span className="h-2 w-2 animate-bounce rounded-full bg-[#9044E2] [animation-delay:-0.15s]" />
-                                                    <span className="h-2 w-2 animate-bounce rounded-full bg-[#9044E2]" />
-                                                </span>
+                                                <TypingDots />
                                             </AssistantBubble>
                                         </MessageScrollerItem>
                                     )}
@@ -312,7 +443,10 @@ export function WebsiteChat() {
                         </MessageScroller>
                     </MessageScrollerProvider>
 
-                    <form onSubmit={handleSubmit} className="border-t border-[#E8DBFD] p-3">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="border-t border-[#E8DBFD] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3"
+                    >
                         <div className="flex items-end gap-2 rounded-2xl border border-[#E8DBFD] bg-white p-2 focus-within:border-[#9044E2]">
                             <textarea
                                 // The panel mounts when opened, so this focuses the input on every open.
@@ -351,13 +485,13 @@ export function WebsiteChat() {
             )}
 
             {nudge && !isOpen && (
-                <div className="fixed bottom-24 right-6 z-50 w-[min(280px,calc(100vw-3rem))] duration-300 animate-in fade-in slide-in-from-bottom-2">
+                <div className="fixed bottom-20 right-4 z-50 w-[min(280px,calc(100vw-2rem))] duration-300 animate-in fade-in slide-in-from-bottom-2 sm:bottom-24 sm:right-6">
                     <button
                         type="button"
                         onClick={openFromNudge}
                         className="w-full rounded-2xl rounded-br-md border border-[#E8DBFD] bg-white px-4 py-3 pr-9 text-left font-gotham text-sm text-[#1F1433] shadow-lg transition-colors hover:bg-[#F7F2FE]"
                     >
-                        {nudge.message}
+                        {nudge.messages.join(' ')}
                     </button>
                     <button
                         type="button"
@@ -374,14 +508,21 @@ export function WebsiteChat() {
                 type="button"
                 onClick={() => setIsOpen((open) => !open)}
                 className={cn(
-                    'fixed bottom-6 right-6 z-50 flex h-14 items-center gap-2 rounded-full bg-[#9044E2] px-5 font-lilita text-lg text-white shadow-lg transition-colors hover:bg-[#7732BE]',
-                    isOpen && 'hidden sm:flex'
+                    // Icon only on phones; with the label from tablet width up.
+                    'fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center gap-2 rounded-full bg-[#9044E2] font-lilita text-lg text-white shadow-lg transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#7732BE] sm:bottom-6 sm:right-6 sm:h-14',
+                    // A pill with the label when closed; a circle around the close icon when open.
+                    isOpen ? 'hidden sm:flex sm:w-14' : 'sm:w-auto sm:px-5',
+                    playLauncherIntro && 'chat-launcher-enter'
                 )}
                 aria-expanded={isOpen}
                 aria-label={isOpen ? 'Close chat' : 'Chat with us'}
             >
-                {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
-                {!isOpen && <span>Chat with us</span>}
+                {isOpen ? (
+                    <X className="h-6 w-6" />
+                ) : (
+                    <MessageCircle className={cn('h-5 w-5 sm:h-6 sm:w-6', playLauncherIntro && 'chat-launcher-wave')} />
+                )}
+                {!isOpen && <span className="hidden sm:inline">Chat with us</span>}
             </button>
         </div>
     )
@@ -432,6 +573,16 @@ function EnquiryStatus({ state, output }: { state: string; output: unknown }) {
         )
     }
     return null
+}
+
+function TypingDots() {
+    return (
+        <span className="flex gap-1 py-1" aria-label="Typing">
+            <span className="h-2 w-2 animate-bounce rounded-full bg-[#9044E2] [animation-delay:-0.3s]" />
+            <span className="h-2 w-2 animate-bounce rounded-full bg-[#9044E2] [animation-delay:-0.15s]" />
+            <span className="h-2 w-2 animate-bounce rounded-full bg-[#9044E2]" />
+        </span>
+    )
 }
 
 function AssistantBubble({ children }: { children: ReactNode }) {

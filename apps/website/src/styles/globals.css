@@ -91,3 +91,70 @@ html {
     text-decoration: underline;
     text-underline-offset: 2px;
 }
+
+/* Website chat launcher: pops in once per visit, then the icon waves hello. */
+@keyframes chat-launcher-in {
+    0% {
+        opacity: 0;
+        transform: translateY(16px) scale(0.6);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(-4px) scale(1.06);
+    }
+    80% {
+        transform: translateY(0) scale(0.98);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes chat-launcher-wave {
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+    20% {
+        transform: rotate(-14deg);
+    }
+    40% {
+        transform: rotate(10deg);
+    }
+    60% {
+        transform: rotate(-6deg);
+    }
+    80% {
+        transform: rotate(3deg);
+    }
+}
+
+/* `backwards` keeps it hidden during the delay without overriding the hover lift afterwards. */
+.chat-launcher-enter {
+    animation: chat-launcher-in 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) 1s backwards;
+}
+
+.chat-launcher-wave {
+    transform-origin: 50% 80%;
+    animation: chat-launcher-wave 0.7s ease-in-out 1.6s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chat-launcher-enter {
+        animation-name: chat-launcher-fade;
+        animation-timing-function: ease-out;
+    }
+
+    .chat-launcher-wave {
+        animation: none;
+    }
+}
+
+@keyframes chat-launcher-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

@@ -583,6 +583,18 @@ class Client {
         return (await FirestoreRefs.websiteChat(chat.id)).set(chat)
     }
 
+    async listWebsiteChats() {
+        const snapshot = await (await FirestoreRefs.websiteChats()).orderBy('startedAt', 'desc').get()
+        return snapshot.docs.map((doc) => doc.data())
+    }
+
+    async deleteWebsiteChats(ids: string[]) {
+        const firestore = await FirestoreClient.getInstance()
+        const batch = firestore.batch()
+        for (const id of ids) batch.delete(await FirestoreRefs.websiteChat(id))
+        await batch.commit()
+    }
+
     async getActiveWebsiteChats() {
         const snapshot = await (await FirestoreRefs.websiteChats()).where('status', '==', 'active').get()
         return snapshot.docs.map((doc) => doc.data())

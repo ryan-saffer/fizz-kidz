@@ -33,6 +33,8 @@ Conversations never end explicitly. `finishWebsiteChats` runs on the `background
 
 Enquiries left by Frankie also add the chat transcript to the Zoho deal description.
 
+Super-admins can read every transcript in the Portal under **Chat Transcripts** (`/dashboard/website-chats`). They can also delete transcripts from the table. The `websiteChats` tRPC router checks the `website-chats:read` and `website-chats:delete` permissions, which only super-admins have, because transcripts include customers' contact details.
+
 The schedule lives in Cloud Scheduler, not in code. Create it once per project:
 
 ```bash
