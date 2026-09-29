@@ -83,3 +83,11 @@
 html {
     scroll-behavior: smooth;
 }
+
+/* Website chat replies (rendered by Streamdown). */
+.website-chat-markdown a {
+    color: #7732be;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}

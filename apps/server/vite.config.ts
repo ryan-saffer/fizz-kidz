@@ -50,6 +50,8 @@ export default defineConfig({
             { from: 'src/**/*.png', to: outDir, flatten: false },
             { from: 'src/**/*.ttf', to: outDir, flatten: false },
         ],
+        // Website chat prompt files are imported as text.
+        loader: { '.md': 'text' },
         checks: { legacyCjs: false },
         plugins:
             isWatch || process.env.FUNCTIONS_EMULATOR === 'true' || !process.env.SENTRY_AUTH_TOKEN

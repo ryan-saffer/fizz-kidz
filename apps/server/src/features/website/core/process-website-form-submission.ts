@@ -46,12 +46,21 @@ async function runZohoTask({
     }
 }
 
+type ProcessWebsiteFormOptions = {
+    /** A website chat transcript, added to the Zoho deal for contact enquiries left by the chat assistant. */
+    chatTranscript?: string
+}
+
 export function processWebsiteFormSubmission(
     submission: HolidayProgramDiscountSubmission
 ): Promise<HolidayProgramDiscountCode>
-export function processWebsiteFormSubmission(submission: StandardWebsiteFormSubmission): Promise<void>
+export function processWebsiteFormSubmission(
+    submission: StandardWebsiteFormSubmission,
+    options?: ProcessWebsiteFormOptions
+): Promise<void>
 export async function processWebsiteFormSubmission(
-    submission: WebsiteFormSubmission
+    submission: WebsiteFormSubmission,
+    options: ProcessWebsiteFormOptions = {}
 ): Promise<HolidayProgramDiscountCode | void> {
     const formId = submission.formId
     const requestBody = submission.data
@@ -168,6 +177,9 @@ export async function processWebsiteFormSubmission(
                 const [firstName, lastName] = formData['name'].split(' ')
 
                 const service = formData.service
+                const dealDescription = options.chatTranscript
+                    ? `${formData.enquiry}\n\n--- Website chat transcript ---\n\n${options.chatTranscript}`
+                    : formData.enquiry
 
                 await runZohoTask({
                     description: 'contact form sync',
@@ -206,7 +218,7 @@ export async function processWebsiteFormSubmission(
                                     suburb: formData.suburb,
                                     reference: formData.reference ?? 'other',
                                     partyTheme: formData.partyTheme,
-                                    enquiry: formData.enquiry,
+                                    enquiry: dealDescription,
                                 })
                                 break
                             }
@@ -241,7 +253,7 @@ export async function processWebsiteFormSubmission(
                                     ...(formData.module && { module: ModuleDisplayValueMap[formData.module] }),
                                     numberOfSessions: formData.numberOfSessions,
                                     numberOfStudentsPerSession: formData.numberOfStudentsPerSession,
-                                    enquiry: formData.enquiry,
+                                    enquiry: dealDescription,
                                     reference: formData.reference,
                                 })
                                 break
@@ -265,7 +277,7 @@ export async function processWebsiteFormSubmission(
                                     preferredDateAndTime: formData.preferredDateAndTime || '',
                                     numberOfAttendees: formData.numberOfAttendees,
                                     budget: formData.budget,
-                                    enquiry: formData.enquiry,
+                                    enquiry: dealDescription,
                                     reference: formData.reference,
                                 })
                                 break

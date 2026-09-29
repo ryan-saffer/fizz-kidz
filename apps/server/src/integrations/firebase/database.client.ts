@@ -26,6 +26,7 @@ import type {
     StudioOrMaster,
     WithoutId,
     DiscountCodeRedemption,
+    WebsiteChat,
 } from '@fizz-kidz/core'
 
 import { DocumentNotFoundError } from './document-not-found-error'
@@ -571,6 +572,24 @@ class Client {
     async createPaymentIdempotencyKey(key: string) {
         const ref = await FirestoreRefs.paymentIdempotencyKey(key)
         return ref.create({ createdAt: FieldValue.serverTimestamp() })
+    }
+
+    async getWebsiteChat(id: string) {
+        const snapshot = await (await FirestoreRefs.websiteChat(id)).get()
+        return snapshot.exists ? snapshot.data() : undefined
+    }
+
+    async setWebsiteChat(chat: WebsiteChat) {
+        return (await FirestoreRefs.websiteChat(chat.id)).set(chat)
+    }
+
+    async getActiveWebsiteChats() {
+        const snapshot = await (await FirestoreRefs.websiteChats()).where('status', '==', 'active').get()
+        return snapshot.docs.map((doc) => doc.data())
+    }
+
+    async updateWebsiteChat(id: string, chat: Partial<WebsiteChat>) {
+        return (await FirestoreRefs.websiteChat(id)).update(chat)
     }
 
     async upsertGoogleBusinessProfileReviews(reviews: GoogleBusinessProfileReview[]) {

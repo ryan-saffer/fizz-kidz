@@ -8,15 +8,25 @@ import LoadingIndicator from "astro-loading-indicator/component";
 import { absoluteUrl, createSchemaGraph, type JsonLd } from "@/utils/seo";
 import lilitaFontUrl from "@fizz-kidz/ui/assets/fonts/LilitaOne.woff2?url";
 import googleTagManagerScript from "./google-tag-manager.js?raw";
+import { WebsiteChat } from "@/react-components/website-chat/website-chat";
+import { IS_WEBSITE_CHAT_ENABLED } from "@/utils/website-chat";
 
 type Props = {
   title: string;
   description: string;
   noIndex?: boolean;
+  /** Lets the website chat mention the party package the visitor is looking at. */
+  chatPartyPackage?: string;
   schema?: JsonLd | JsonLd[];
 };
 
-const { title, description, noIndex = false, schema = [] } = Astro.props;
+const {
+  title,
+  description,
+  noIndex = false,
+  schema = [],
+  chatPartyPackage,
+} = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 const socialImage = absoluteUrl("/open-graph/home.jpg");
@@ -53,6 +63,11 @@ const schemaGraph = createSchemaGraph({
     <title>{title}</title>
     <meta name="description" content={description} />
     {noIndex && <meta name="robots" content="noindex, nofollow" />}
+    {
+      chatPartyPackage && (
+        <meta name="fizz-chat-party-package" content={chatPartyPackage} />
+      )
+    }
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
@@ -119,6 +134,7 @@ const schemaGraph = createSchemaGraph({
       <slot class="flex-1" />
     </div>
     <Footer />
+    {IS_WEBSITE_CHAT_ENABLED && <WebsiteChat client:only="react" transition:persist="website-chat" />}
     <script>
       document.addEventListener("astro:page-load", () => {
         if (window.location.hash) {

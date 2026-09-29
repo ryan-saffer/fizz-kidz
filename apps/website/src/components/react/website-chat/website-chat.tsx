@@ -1,0 +1,498 @@
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport, generateId, type UIMessage } from 'ai'
+import { ArrowUp, CircleCheck, LoaderCircle, MessageCircle, RotateCcw, Square, Volume2, VolumeX, X } from 'lucide-react'
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react'
+import { Streamdown } from 'streamdown'
+
+import {
+    DEFAULT_WEBSITE_CHAT_MODEL,
+    WEBSITE_CHAT_IDLE_MINUTES,
+    WEBSITE_CHAT_MAX_MESSAGE_LENGTH,
+    WebsiteChatModelOptions,
+    type WebsiteChatGreeting,
+    type WebsiteChatModel,
+} from '@fizz-kidz/core'
+
+import { useWebsiteChatNudge } from './use-website-chat-nudge'
+import { playReplySound, playSendSound } from './website-chat-sounds'
+
+import { cn } from '@/react-lib/utils'
+import { Bubble, BubbleContent } from '@/react-ui/bubble'
+import { Message, MessageContent } from '@/react-ui/message'
+import {
+    MessageScroller,
+    MessageScrollerButton,
+    MessageScrollerContent,
+    MessageScrollerItem,
+    MessageScrollerProvider,
+    MessageScrollerViewport,
+} from '@/react-ui/message-scroller'
+import { WEBSITE_CHAT_URL } from '@/utils/website-chat'
+
+const STORAGE_KEY = 'fizz-website-chat'
+const MUTED_STORAGE_KEY = 'fizz-website-chat-muted'
+
+const WEBSITE_CHAT_UNAVAILABLE_MESSAGE = "Sorry, I'm not available right now. Try again soon."
+
+// Shown by the widget before the first message, with quick replies that send as the customer's message.
+// Opening the chat from Frankie's speech bubble uses that page's greeting instead (see getWebsiteChatNudge).
+const DEFAULT_GREETING: WebsiteChatGreeting = {
+    message:
+        "Hi, I'm Frankie. A little AI, a lot of Fizz. 👋 Are you after a birthday party, our holiday programs, or something else?",
+    suggestions: ['Birthday party', 'Holiday programs', 'Something else'],
+}
+
+type StoredChat = {
+    id: string
+    messages: UIMessage[]
+    model: WebsiteChatModel
+    lastActivityAt: number
+    greeting: WebsiteChatGreeting
+}
+
+function readStoredChat(): Partial<StoredChat> | undefined {
+    try {
+        const stored = sessionStorage.getItem(STORAGE_KEY)
+        if (!stored) return undefined
+        const chat = JSON.parse(stored) as Partial<StoredChat>
+        // The server finishes idle conversations, so an old one starts afresh (keeping the model choice).
+        const isIdle = !chat.lastActivityAt || Date.now() - chat.lastActivityAt > WEBSITE_CHAT_IDLE_MINUTES * 60 * 1000
+        return isIdle ? { model: chat.model } : chat
+    } catch {
+        return undefined
+    }
+}
+
+function writeStoredChat(chat: StoredChat) {
+    try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(chat))
+    } catch {
+        // Storage can be unavailable (private mode). The chat still works for this page.
+    }
+}
+
+function readMuted() {
+    try {
+        return localStorage.getItem(MUTED_STORAGE_KEY) === 'true'
+    } catch {
+        return false
+    }
+}
+
+function writeMuted(muted: boolean) {
+    try {
+        localStorage.setItem(MUTED_STORAGE_KEY, String(muted))
+    } catch {
+        // Storage can be unavailable. Muting still applies for this visit.
+    }
+}
+
+export function WebsiteChat() {
+    const [storedChat] = useState(readStoredChat)
+    const [chatId, setChatId] = useState(() => storedChat?.id ?? generateId())
+    const [isOpen, setIsOpen] = useState(false)
+    const [model, setModel] = useState<WebsiteChatModel>(
+        () =>
+            WebsiteChatModelOptions.find((option) => option.value === storedChat?.model)?.value ??
+            DEFAULT_WEBSITE_CHAT_MODEL
+    )
+    const [input, setInput] = useState('')
+    const [greeting, setGreeting] = useState<WebsiteChatGreeting>(storedChat?.greeting ?? DEFAULT_GREETING)
+    const modelRef = useRef(model)
+    modelRef.current = model
+    const greetingRef = useRef(greeting)
+    greetingRef.current = greeting
+    const lastActivityAtRef = useRef(storedChat?.lastActivityAt ?? Date.now())
+
+    const [transport] = useState(
+        () =>
+            new DefaultChatTransport({
+                api: WEBSITE_CHAT_URL,
+                body: () => ({
+                    model: modelRef.current,
+                    pagePath: window.location.pathname,
+                    greeting: greetingRef.current.message,
+                }),
+            })
+    )
+    const { messages, sendMessage, status, stop, error } = useChat({
+        id: chatId,
+        messages: chatId === storedChat?.id ? storedChat.messages : undefined,
+        transport,
+    })
+
+    useEffect(() => {
+        if (messages.length > 0 && (status === 'ready' || status === 'error')) {
+            writeStoredChat({ id: chatId, messages, model, lastActivityAt: lastActivityAtRef.current, greeting })
+        }
+    }, [chatId, messages, model, status, greeting])
+
+    const { nudge, dismiss: dismissNudge } = useWebsiteChatNudge({ isChatActive: isOpen || messages.length > 0 })
+
+    function openFromNudge() {
+        if (nudge && messages.length === 0) setGreeting(nudge)
+        setIsOpen(true)
+    }
+
+    const isBusy = status === 'submitted' || status === 'streaming'
+    // The stream starts before any words arrive (models think first), so "typing" lasts until the reply has content.
+    const isTyping = isBusy && !hasVisibleReply(messages[messages.length - 1])
+
+    const [isMuted, setIsMuted] = useState(readMuted)
+    const wasTypingRef = useRef(isTyping)
+    useEffect(() => {
+        // One sound per reply, as its first words appear.
+        if (wasTypingRef.current && !isTyping && status === 'streaming' && isOpen && !isMuted) {
+            playReplySound()
+        }
+        wasTypingRef.current = isTyping
+    }, [isTyping, status, isOpen, isMuted])
+
+    function toggleMuted() {
+        setIsMuted((muted) => {
+            writeMuted(!muted)
+            return !muted
+        })
+    }
+
+    function send(text: string) {
+        const trimmed = text.trim()
+        if (!trimmed || isBusy) return
+        lastActivityAtRef.current = Date.now()
+        if (!isMuted) playSendSound()
+        sendMessage({ text: trimmed })
+        setInput('')
+    }
+
+    function handleSubmit(event: FormEvent) {
+        event.preventDefault()
+        send(input)
+    }
+
+    function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+        if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+            event.preventDefault()
+            send(input)
+        }
+    }
+
+    function restart() {
+        stop()
+        const id = generateId()
+        setChatId(id)
+        setGreeting(DEFAULT_GREETING)
+        writeStoredChat({ id, messages: [], model, lastActivityAt: Date.now(), greeting: DEFAULT_GREETING })
+    }
+
+    return (
+        <div className="print:hidden">
+            {isOpen && (
+                <div
+                    role="dialog"
+                    aria-label="Chat with Fizz Kidz"
+                    className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-white font-gotham shadow-2xl sm:inset-auto sm:bottom-24 sm:right-6 sm:h-[min(640px,calc(100dvh-8rem))] sm:w-[400px] sm:rounded-3xl sm:border sm:border-[#E8DBFD]"
+                >
+                    <header className="flex items-center gap-3 bg-[#9044E2] px-4 py-3 text-white">
+                        <div className="min-w-0 flex-1">
+                            <p className="font-lilita text-xl leading-tight">Chat with us</p>
+                            <p className="text-xs text-white/80">Ask us anything about parties and programs</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={toggleMuted}
+                            className="rounded-full p-2 hover:bg-white/15"
+                            aria-label={isMuted ? 'Turn chat sounds on' : 'Turn chat sounds off'}
+                            aria-pressed={isMuted}
+                        >
+                            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                        </button>
+                        {messages.length > 0 && (
+                            <button
+                                type="button"
+                                onClick={restart}
+                                className="rounded-full p-2 hover:bg-white/15"
+                                aria-label="Start a new chat"
+                            >
+                                <RotateCcw className="h-4 w-4" />
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => setIsOpen(false)}
+                            className="rounded-full p-2 hover:bg-white/15"
+                            aria-label="Close chat"
+                        >
+                            <X className="h-5 w-5" />
+                        </button>
+                    </header>
+
+                    <select
+                        value={model}
+                        onChange={(event) => setModel(event.target.value as WebsiteChatModel)}
+                        className="border-b border-[#E8DBFD] bg-[#F7F2FE] px-4 py-1.5 text-xs text-[#542785] outline-none"
+                        aria-label="Model (testing only)"
+                    >
+                        {WebsiteChatModelOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                Testing: {option.label}
+                            </option>
+                        ))}
+                    </select>
+
+                    <MessageScrollerProvider autoScroll defaultScrollPosition="end">
+                        <MessageScroller className="flex-1">
+                            <MessageScrollerViewport className="px-4">
+                                <MessageScrollerContent className="gap-4 py-4">
+                                    <MessageScrollerItem messageId="welcome">
+                                        <AssistantBubble>{greeting.message}</AssistantBubble>
+                                    </MessageScrollerItem>
+
+                                    {messages.length === 0 && (
+                                        <MessageScrollerItem messageId="suggestions">
+                                            <div className="flex flex-wrap gap-2">
+                                                {greeting.suggestions.map((suggestion) => (
+                                                    <button
+                                                        key={suggestion}
+                                                        type="button"
+                                                        onClick={() => send(suggestion)}
+                                                        className="rounded-full border border-[#9044E2] px-3 py-1.5 text-left text-sm text-[#542785] transition-colors hover:bg-[#F7F2FE]"
+                                                    >
+                                                        {suggestion}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </MessageScrollerItem>
+                                    )}
+
+                                    {messages.map((message) => (
+                                        <MessageScrollerItem key={message.id} messageId={message.id}>
+                                            {message.role === 'user' ? (
+                                                <Message align="end">
+                                                    <MessageContent>
+                                                        <Bubble align="end">
+                                                            <BubbleContent className="whitespace-pre-wrap rounded-2xl rounded-br-md bg-[#9044E2] text-white">
+                                                                {getMessageText(message)}
+                                                            </BubbleContent>
+                                                        </Bubble>
+                                                    </MessageContent>
+                                                </Message>
+                                            ) : (
+                                                <AssistantMessage
+                                                    message={message}
+                                                    isStreaming={
+                                                        status === 'streaming' &&
+                                                        message.id === messages[messages.length - 1]?.id
+                                                    }
+                                                />
+                                            )}
+                                        </MessageScrollerItem>
+                                    ))}
+
+                                    {isTyping && (
+                                        <MessageScrollerItem messageId="typing">
+                                            <AssistantBubble>
+                                                <span className="flex gap-1 py-1" aria-label="Typing">
+                                                    <span className="h-2 w-2 animate-bounce rounded-full bg-[#9044E2] [animation-delay:-0.3s]" />
+                                                    <span className="h-2 w-2 animate-bounce rounded-full bg-[#9044E2] [animation-delay:-0.15s]" />
+                                                    <span className="h-2 w-2 animate-bounce rounded-full bg-[#9044E2]" />
+                                                </span>
+                                            </AssistantBubble>
+                                        </MessageScrollerItem>
+                                    )}
+
+                                    {error && (
+                                        <MessageScrollerItem messageId="error">
+                                            {/* Failures read as a message from Frankie, so the chat still feels live. */}
+                                            <AssistantBubble>{WEBSITE_CHAT_UNAVAILABLE_MESSAGE}</AssistantBubble>
+                                        </MessageScrollerItem>
+                                    )}
+                                </MessageScrollerContent>
+                            </MessageScrollerViewport>
+                            <MessageScrollerButton />
+                        </MessageScroller>
+                    </MessageScrollerProvider>
+
+                    <form onSubmit={handleSubmit} className="border-t border-[#E8DBFD] p-3">
+                        <div className="flex items-end gap-2 rounded-2xl border border-[#E8DBFD] bg-white p-2 focus-within:border-[#9044E2]">
+                            <textarea
+                                // The panel mounts when opened, so this focuses the input on every open.
+                                autoFocus
+                                value={input}
+                                onChange={(event) => setInput(event.target.value)}
+                                onKeyDown={handleKeyDown}
+                                maxLength={WEBSITE_CHAT_MAX_MESSAGE_LENGTH}
+                                rows={1}
+                                placeholder="Type your question…"
+                                aria-label="Message"
+                                className="max-h-32 min-h-[2.25rem] flex-1 resize-none bg-transparent px-2 py-1.5 text-base outline-none [field-sizing:content] sm:text-sm"
+                            />
+                            {isBusy ? (
+                                <button
+                                    type="button"
+                                    onClick={() => stop()}
+                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#542785] text-white"
+                                    aria-label="Stop"
+                                >
+                                    <Square className="h-3.5 w-3.5 fill-current" />
+                                </button>
+                            ) : (
+                                <button
+                                    type="submit"
+                                    disabled={!input.trim()}
+                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#9044E2] text-white transition-colors hover:bg-[#7732BE] disabled:opacity-40"
+                                    aria-label="Send"
+                                >
+                                    <ArrowUp className="h-5 w-5" />
+                                </button>
+                            )}
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {nudge && !isOpen && (
+                <div className="fixed bottom-24 right-6 z-50 w-[min(280px,calc(100vw-3rem))] duration-300 animate-in fade-in slide-in-from-bottom-2">
+                    <button
+                        type="button"
+                        onClick={openFromNudge}
+                        className="w-full rounded-2xl rounded-br-md border border-[#E8DBFD] bg-white px-4 py-3 pr-9 text-left font-gotham text-sm text-[#1F1433] shadow-lg transition-colors hover:bg-[#F7F2FE]"
+                    >
+                        {nudge.message}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={dismissNudge}
+                        className="absolute right-2 top-2 rounded-full p-1 text-[#542785]/70 hover:bg-[#F7F2FE] hover:text-[#542785]"
+                        aria-label="Dismiss"
+                    >
+                        <X className="h-3.5 w-3.5" />
+                    </button>
+                </div>
+            )}
+
+            <button
+                type="button"
+                onClick={() => setIsOpen((open) => !open)}
+                className={cn(
+                    'fixed bottom-6 right-6 z-50 flex h-14 items-center gap-2 rounded-full bg-[#9044E2] px-5 font-lilita text-lg text-white shadow-lg transition-colors hover:bg-[#7732BE]',
+                    isOpen && 'hidden sm:flex'
+                )}
+                aria-expanded={isOpen}
+                aria-label={isOpen ? 'Close chat' : 'Chat with us'}
+            >
+                {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+                {!isOpen && <span>Chat with us</span>}
+            </button>
+        </div>
+    )
+}
+
+function AssistantMessage({ message, isStreaming }: { message: UIMessage; isStreaming: boolean }) {
+    return (
+        <div className="flex flex-col gap-2">
+            {message.parts.map((part, index) => {
+                if (part.type === 'text' && part.text.trim()) {
+                    return (
+                        <AssistantBubble key={index}>
+                            <Streamdown
+                                className="website-chat-markdown"
+                                linkSafety={{ enabled: true, onLinkCheck: isFizzKidzUrl }}
+                                isAnimating={isStreaming && index === message.parts.length - 1}
+                            >
+                                {linkifyBareUrls(part.text)}
+                            </Streamdown>
+                        </AssistantBubble>
+                    )
+                }
+                if (part.type === 'tool-submit_enquiry') {
+                    return <EnquiryStatus key={index} state={part.state} output={part.output} />
+                }
+                return null
+            })}
+        </div>
+    )
+}
+
+function EnquiryStatus({ state, output }: { state: string; output: unknown }) {
+    const isSent = state === 'output-available' && (output as { success?: boolean } | undefined)?.success === true
+    if (isSent) {
+        return (
+            <p className="flex items-center gap-1.5 text-xs font-semibold text-[#2F8F46]">
+                <CircleCheck className="h-4 w-4" />
+                Enquiry sent to the Fizz Kidz team
+            </p>
+        )
+    }
+    if (state === 'input-streaming' || state === 'input-available') {
+        return (
+            <p className="flex items-center gap-1.5 text-xs text-[#542785]">
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+                Sending your enquiry…
+            </p>
+        )
+    }
+    return null
+}
+
+function AssistantBubble({ children }: { children: ReactNode }) {
+    return (
+        <Message>
+            <MessageContent>
+                <Bubble variant="muted">
+                    <BubbleContent className="rounded-2xl rounded-bl-md bg-[#F7F2FE] text-[#1F1433]">
+                        {children}
+                    </BubbleContent>
+                </Bubble>
+            </MessageContent>
+        </Message>
+    )
+}
+
+function getMessageText(message: UIMessage) {
+    return message.parts
+        .filter((part) => part.type === 'text')
+        .map((part) => part.text)
+        .join('')
+}
+
+function isFizzKidzUrl(url: string) {
+    try {
+        return new URL(url).hostname.endsWith('fizzkidz.com.au')
+    } catch {
+        return false
+    }
+}
+
+// Frankie is told to always use named links, but models occasionally write a bare URL.
+// Turn bare Fizz Kidz URLs into named links, e.g. https://www.fizzkidz.com.au/contact-us/ becomes [Contact us](...).
+function linkifyBareUrls(text: string) {
+    return text.replace(/(?<![(<[])https?:\/\/[^\s)\]>]+/g, (match) => {
+        const url = match.replace(/[.,!?;:'"]+$/, '')
+        const trailing = match.slice(url.length)
+        const label = getLinkLabel(url)
+        return label ? `[${label}](${url})${trailing}` : match
+    })
+}
+
+function getLinkLabel(url: string) {
+    try {
+        const { hostname, pathname } = new URL(url)
+        if (hostname === 'bookings.fizzkidz.com.au') return 'Book online'
+        if (!hostname.endsWith('fizzkidz.com.au')) return undefined
+        const slug = pathname.split('/').filter(Boolean).pop()
+        if (!slug) return 'Fizz Kidz'
+        const words = slug.replace(/-/g, ' ')
+        return words.charAt(0).toUpperCase() + words.slice(1)
+    } catch {
+        return undefined
+    }
+}
+
+function hasVisibleReply(message: UIMessage | undefined) {
+    return (
+        message?.role === 'assistant' &&
+        message.parts.some(
+            (part) => (part.type === 'text' && part.text.trim() !== '') || part.type === 'tool-submit_enquiry'
+        )
+    )
+}
