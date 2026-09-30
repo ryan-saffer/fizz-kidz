@@ -55,7 +55,7 @@ export async function streamWebsiteChat({
             saveWebsiteChat({ id: chatId, messages: updatedMessages, model, pagePath }),
         onError: (error) => {
             logError('Website chat stream failed', error, { model, pagePath })
-            return "Sorry, I'm not available right now. Try again soon."
+            return 'Oops, my fizz has gone a little flat! 🫧 Give me a moment and try again, or call the team on (03) 9059 8144.'
         },
     })
 }

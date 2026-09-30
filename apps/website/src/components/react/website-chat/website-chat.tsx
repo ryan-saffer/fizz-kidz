@@ -46,7 +46,8 @@ const SUGGESTION_STAGGER_MS = 120
 
 // Colours from the stacked Fizz Kidz logo, plus the site's yellow, for small accents around the purple.
 const FIZZ_STRIPE = ['#E91271', '#FFDC5D', '#9ECC47', '#4BC5D9']
-const WEBSITE_CHAT_UNAVAILABLE_MESSAGE = "Sorry, I'm not available right now. Try again soon."
+const WEBSITE_CHAT_UNAVAILABLE_MESSAGE =
+    'Oops, my fizz has gone a little flat! 🫧 Give me a moment and try again, or call the team on (03) 9059 8144.'
 
 // The greeting (DEFAULT_WEBSITE_CHAT_GREETING in core) is shown by the widget before the first message, with quick
 // replies that send as the customer's message. Opening from Frankie's speech bubble uses that page's greeting instead.
