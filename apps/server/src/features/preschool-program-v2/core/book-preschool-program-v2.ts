@@ -20,7 +20,8 @@ import { getOrCreateCustomer } from '@/integrations/square/core/get-or-create-cu
 import { getSquareError } from '@/integrations/square/square.client'
 
 const TERM_LOOKBACK_MONTHS = 6
-const TERM_BOUNDARY_GAP_DAYS = 14
+/** Three weeks between classes, so one skipped week (e.g. a public holiday) stays in the same term. */
+const TERM_BOUNDARY_GAP_DAYS = 21
 
 export type BookPreschoolProgramV2Props = {
     idempotencyKey: string
@@ -295,7 +296,7 @@ function isClassFullTermDiscounted(
     )
 }
 
-/** Finds the inferred term block containing a class using weekday/time grouping and two-week boundaries. */
+/** Finds the inferred term block containing a class using weekday/time grouping and three-week boundaries. */
 function getTermClassesForClass(klass: AcuityTypes.Api.Class, allClasses: AcuityTypes.Api.Class[]) {
     const groupKey = getClassGroupKey(klass)
     const groupClasses = allClasses
@@ -311,11 +312,14 @@ function getTermClassesForClass(klass: AcuityTypes.Api.Class, allClasses: Acuity
 
     groupClasses.forEach((candidate) => {
         const previousClass = currentTerm.at(-1)
+        // Rounded so a daylight saving change (a 23 or 25 hour day) doesn't move a class across the boundary.
         const gapDays = previousClass
-            ? DateTime.fromISO(candidate.time, { setZone: true }).diff(
-                  DateTime.fromISO(previousClass.time, { setZone: true }),
-                  'days'
-              ).days
+            ? Math.round(
+                  DateTime.fromISO(candidate.time, { setZone: true }).diff(
+                      DateTime.fromISO(previousClass.time, { setZone: true }),
+                      'days'
+                  ).days
+              )
             : 0
 
         if (previousClass && gapDays >= TERM_BOUNDARY_GAP_DAYS) {
