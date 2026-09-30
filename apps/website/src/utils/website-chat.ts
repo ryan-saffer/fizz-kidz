@@ -6,5 +6,5 @@ export const WEBSITE_CHAT_URL =
           ? 'https://australia-southeast1-bookings-prod.cloudfunctions.net/api/api/chat'
           : 'https://australia-southeast1-booking-system-6435d.cloudfunctions.net/api/api/chat'
 
-// Prototype: the chat is hidden from production builds and the model picker is only for testing.
-export const IS_WEBSITE_CHAT_ENABLED = import.meta.env.MODE !== 'prod'
+// The model picker is for comparing models while testing. Production always uses the server's default model.
+export const IS_MODEL_PICKER_ENABLED = import.meta.env.MODE !== 'prod'

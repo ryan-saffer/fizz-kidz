@@ -1,5 +1,7 @@
 import type { WebsiteChatTranscriptMessage } from '@fizz-kidz/core'
 
+import { CONTEXT_NOTE_PREFIX } from './website-chat-context'
+
 import type { ModelMessage, UIMessage } from 'ai'
 
 export function getTranscriptFromUIMessages(messages: UIMessage[]): WebsiteChatTranscriptMessage[] {
@@ -29,7 +31,9 @@ export function getTranscriptFromModelMessages(messages: ModelMessage[]): Websit
             typeof message.content === 'string'
                 ? message.content
                 : message.content
-                      .map((part) => (part.type === 'text' ? part.text : ''))
+                      .map((part) =>
+                          part.type === 'text' && !part.text.startsWith(CONTEXT_NOTE_PREFIX) ? part.text : ''
+                      )
                       .join('')
                       .trim()
         return text ? [{ role: message.role === 'user' ? 'customer' : 'frankie', text }] : []

@@ -28,7 +28,7 @@ import {
     MessageScrollerProvider,
     MessageScrollerViewport,
 } from '@/react-ui/message-scroller'
-import { WEBSITE_CHAT_URL } from '@/utils/website-chat'
+import { IS_MODEL_PICKER_ENABLED, WEBSITE_CHAT_URL } from '@/utils/website-chat'
 
 const STORAGE_KEY = 'fizz-website-chat'
 const MUTED_STORAGE_KEY = 'fizz-website-chat-muted'
@@ -150,7 +150,7 @@ export function WebsiteChat() {
             new DefaultChatTransport({
                 api: WEBSITE_CHAT_URL,
                 body: () => ({
-                    model: modelRef.current,
+                    ...(IS_MODEL_PICKER_ENABLED && { model: modelRef.current }),
                     pagePath: window.location.pathname,
                     greeting: greetingRef.current.messages.join(' '),
                 }),
@@ -332,18 +332,20 @@ export function WebsiteChat() {
                         ))}
                     </div>
 
-                    <select
-                        value={model}
-                        onChange={(event) => setModel(event.target.value as WebsiteChatModel)}
-                        className="border-b border-[#E8DBFD] bg-[#F7F2FE] px-4 py-1.5 text-xs text-[#542785] outline-none"
-                        aria-label="Model (testing only)"
-                    >
-                        {WebsiteChatModelOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                Testing: {option.label}
-                            </option>
-                        ))}
-                    </select>
+                    {IS_MODEL_PICKER_ENABLED && (
+                        <select
+                            value={model}
+                            onChange={(event) => setModel(event.target.value as WebsiteChatModel)}
+                            className="border-b border-[#E8DBFD] bg-[#F7F2FE] px-4 py-1.5 text-xs text-[#542785] outline-none"
+                            aria-label="Model (testing only)"
+                        >
+                            {WebsiteChatModelOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    Testing: {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    )}
 
                     <MessageScrollerProvider autoScroll defaultScrollPosition="end">
                         <MessageScroller className="flex-1">

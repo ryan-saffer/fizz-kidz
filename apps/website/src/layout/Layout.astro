@@ -9,7 +9,6 @@ import { absoluteUrl, createSchemaGraph, type JsonLd } from "@/utils/seo";
 import lilitaFontUrl from "@fizz-kidz/ui/assets/fonts/LilitaOne.woff2?url";
 import googleTagManagerScript from "./google-tag-manager.js?raw";
 import { WebsiteChat } from "@/react-components/website-chat/website-chat";
-import { IS_WEBSITE_CHAT_ENABLED } from "@/utils/website-chat";
 
 type Props = {
   title: string;
@@ -134,7 +133,7 @@ const schemaGraph = createSchemaGraph({
       <slot class="flex-1" />
     </div>
     <Footer />
-    {IS_WEBSITE_CHAT_ENABLED && <WebsiteChat client:only="react" transition:persist="website-chat" />}
+    <WebsiteChat client:only="react" transition:persist="website-chat" />
     <script>
       document.addEventListener("astro:page-load", () => {
         if (window.location.hash) {

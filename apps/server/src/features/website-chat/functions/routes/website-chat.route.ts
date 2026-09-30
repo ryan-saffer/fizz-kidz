@@ -12,6 +12,7 @@ import {
 
 import { streamWebsiteChat, websiteChatTools } from '../../core/stream-website-chat'
 
+import { env } from '@/app/init/firebase'
 import { logError } from '@/integrations/observability/log-error'
 
 const WebsiteChatRequestSchema = z.object({
@@ -50,7 +51,8 @@ websiteChatRoute.post('/chat', async (req, res) => {
         const stream = await streamWebsiteChat({
             chatId: body.data.id,
             messages: messages.data,
-            model: body.data.model,
+            // The widget's model picker is for testing only, so production always uses the default model.
+            model: env === 'prod' ? DEFAULT_WEBSITE_CHAT_MODEL : body.data.model,
             pagePath: body.data.pagePath,
             greeting: body.data.greeting,
         })

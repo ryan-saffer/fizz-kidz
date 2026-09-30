@@ -5,6 +5,7 @@ import { WebsiteStudioOptions } from './website-forms'
 // AI Gateway model IDs the website chat may use. The widget sends one of these so we can compare models side by side.
 // Models labelled "(paid credits)" aren't on the AI Gateway free tier (checked 2026-09-30); the rest are.
 export const WebsiteChatModelOptions = [
+    { value: 'openai/gpt-6-luna', label: 'GPT-6 Luna (paid credits)' },
     { value: 'openai/gpt-5.4-nano', label: 'GPT-5.4 Nano' },
     { value: 'spacexai/grok-4.1-fast-non-reasoning', label: 'Grok 4.1 Fast' },
     { value: 'openai/gpt-4.1-mini', label: 'GPT-4.1 Mini' },
@@ -17,7 +18,7 @@ export const WebsiteChatModelOptions = [
 
 export type WebsiteChatModel = (typeof WebsiteChatModelOptions)[number]['value']
 
-export const DEFAULT_WEBSITE_CHAT_MODEL: WebsiteChatModel = 'openai/gpt-5.6-luna'
+export const DEFAULT_WEBSITE_CHAT_MODEL: WebsiteChatModel = 'openai/gpt-6-luna'
 
 export const WebsiteChatModelSchema = z.enum(
     WebsiteChatModelOptions.map(({ value }) => value) as [WebsiteChatModel, ...WebsiteChatModel[]]

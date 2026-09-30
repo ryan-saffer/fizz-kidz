@@ -5,7 +5,8 @@ import type { WebsiteChatModel } from '@fizz-kidz/core'
 
 import { saveWebsiteChat } from './save-website-chat'
 import { submitEnquiryTool } from './submit-enquiry-tool'
-import { getWebsiteChatPageContext, WEBSITE_CHAT_INSTRUCTIONS } from './website-chat-instructions'
+import { getWebsiteChatPageContext, withContextNote } from './website-chat-context'
+import { WEBSITE_CHAT_INSTRUCTIONS } from './website-chat-instructions'
 
 import { logError } from '@/integrations/observability/log-error'
 
@@ -28,11 +29,12 @@ export async function streamWebsiteChat({
     const result = streamText({
         // Plain model IDs are routed through the Vercel AI Gateway using AI_GATEWAY_API_KEY.
         model,
-        instructions: [
-            { role: 'system', content: WEBSITE_CHAT_INSTRUCTIONS },
-            { role: 'system', content: getWebsiteChatPageContext({ pagePath, greeting }) },
-        ],
-        messages: await convertToModelMessages(messages, { tools }),
+        // Identical for every request, so providers can serve it from their prompt cache.
+        instructions: WEBSITE_CHAT_INSTRUCTIONS,
+        messages: withContextNote(
+            await convertToModelMessages(messages, { tools }),
+            getWebsiteChatPageContext({ pagePath, greeting })
+        ),
         tools,
         // Lets the model reply after a tool call, e.g. to confirm an enquiry was sent.
         stopWhen: isStepCount(4),
