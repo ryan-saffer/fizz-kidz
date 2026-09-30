@@ -1,7 +1,16 @@
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, generateId, type UIMessage } from 'ai'
 import { ArrowUp, CircleCheck, LoaderCircle, MessageCircle, RotateCcw, Square, Volume2, VolumeX, X } from 'lucide-react'
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react'
+import {
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    type AnimationEvent,
+    type FormEvent,
+    type KeyboardEvent,
+    type ReactNode,
+} from 'react'
 import { Streamdown } from 'streamdown'
 
 import {
@@ -33,8 +42,15 @@ import { IS_MODEL_PICKER_ENABLED, WEBSITE_CHAT_URL } from '@/utils/website-chat'
 const STORAGE_KEY = 'fizz-website-chat'
 const MUTED_STORAGE_KEY = 'fizz-website-chat-muted'
 const LAUNCHER_INTRO_STORAGE_KEY = 'fizz-website-chat-launcher-intro'
-// Matches the launcher animations in globals.css: 1s delay + 0.55s pop, and the icon wave ending at 2.3s.
-const LAUNCHER_INTRO_MS = 2400
+// On a visit's first page, the launcher waits before appearing so visitors can settle in.
+const LAUNCHER_DELAY_MS = 10000
+// Matches the launcher animations in globals.css: a 0.7s slide up, then the icon wave (just after the label has
+// expanded) ending at 2.8s.
+const LAUNCHER_INTRO_MS = 3000
+// The launcher arrives as an icon, then its "Chat with us" label expands in before the icon waves. The label stays
+// on wider screens; on phones it collapses back to the icon after a few seconds.
+const LAUNCHER_LABEL_DELAY_MS = 900
+const LAUNCHER_MOBILE_LABEL_MS = 3900
 
 // Opening a new chat: for each greeting message Frankie types, then writes it out word by word.
 // Once the last one is written, the quick replies enter one by one.
@@ -82,13 +98,19 @@ function writeStoredChat(chat: StoredChat) {
 }
 
 /** The launcher's entrance plays once per visit, not on every page. */
-function shouldPlayLauncherIntro() {
+function hasSeenLauncherIntro() {
     try {
-        if (sessionStorage.getItem(LAUNCHER_INTRO_STORAGE_KEY)) return false
-        sessionStorage.setItem(LAUNCHER_INTRO_STORAGE_KEY, 'true')
-        return true
+        return sessionStorage.getItem(LAUNCHER_INTRO_STORAGE_KEY) === 'true'
     } catch {
-        return true
+        return false
+    }
+}
+
+function markLauncherIntroSeen() {
+    try {
+        sessionStorage.setItem(LAUNCHER_INTRO_STORAGE_KEY, 'true')
+    } catch {
+        // Without storage the intro plays again on the next full page load, which is acceptable.
     }
 }
 
@@ -112,15 +134,60 @@ export function WebsiteChat() {
     const [storedChat] = useState(readStoredChat)
     const [chatId, setChatId] = useState(() => storedChat?.id ?? generateId())
     const [isOpen, setIsOpen] = useState(false)
-    const [playLauncherIntro, setPlayLauncherIntro] = useState(shouldPlayLauncherIntro)
+    // The panel stays mounted while its exit animation plays, then onPanelAnimationEnd closes it.
+    const [isClosing, setIsClosing] = useState(false)
+    function openChat() {
+        setIsClosing(false)
+        setIsOpen(true)
+    }
+    function closeChat() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) setIsOpen(false)
+        else setIsClosing(true)
+    }
+    function onPanelAnimationEnd(event: AnimationEvent<HTMLDivElement>) {
+        // Children animate too (quick replies, typing dots), and their animationend events bubble up here.
+        if (event.target !== event.currentTarget || !isClosing) return
+        setIsClosing(false)
+        setIsOpen(false)
+    }
+    const [playLauncherIntro, setPlayLauncherIntro] = useState(() => !hasSeenLauncherIntro())
+    const [isLauncherShown, setIsLauncherShown] = useState(() => !playLauncherIntro)
+    // Matches Tailwind's `sm` breakpoint, where the launcher keeps its label.
+    const [isWideScreen] = useState(() => window.matchMedia('(min-width: 640px)').matches)
+    const [isLauncherLabelShown, setIsLauncherLabelShown] = useState(() => !playLauncherIntro && isWideScreen)
+    // The label animates its width to exactly its text width, so the whole transition is visible movement.
+    // Measured again once fonts load, since the brand font changes the width.
+    const [launcherLabelWidth, setLauncherLabelWidth] = useState<number>()
+    const measureLauncherLabel = useCallback((label: HTMLSpanElement | null) => {
+        if (!label) return
+        setLauncherLabelWidth(label.scrollWidth)
+        void document.fonts?.ready.then(() => setLauncherLabelWidth(label.scrollWidth))
+    }, [])
+    useEffect(() => {
+        if (isLauncherShown) return
+        const timer = setTimeout(() => {
+            markLauncherIntroSeen()
+            setIsLauncherShown(true)
+        }, LAUNCHER_DELAY_MS)
+        return () => clearTimeout(timer)
+    }, [isLauncherShown])
     const [hasFinePointer] = useState(() => window.matchMedia('(pointer: fine)').matches)
     useEffect(() => {
         // Astro moves this persisted widget into each new page, and browsers restart CSS animations on a moved
         // element. Removing the intro classes once it's played stops it replaying on every navigation.
-        if (!playLauncherIntro) return
-        const timer = setTimeout(() => setPlayLauncherIntro(false), LAUNCHER_INTRO_MS)
+        if (!playLauncherIntro || !isLauncherShown) return
+        const labelTimer = setTimeout(() => setIsLauncherLabelShown(true), LAUNCHER_LABEL_DELAY_MS)
+        const introTimer = setTimeout(() => setPlayLauncherIntro(false), LAUNCHER_INTRO_MS)
+        return () => {
+            clearTimeout(labelTimer)
+            clearTimeout(introTimer)
+        }
+    }, [playLauncherIntro, isLauncherShown])
+    useEffect(() => {
+        if (!isLauncherLabelShown || isWideScreen) return
+        const timer = setTimeout(() => setIsLauncherLabelShown(false), LAUNCHER_MOBILE_LABEL_MS)
         return () => clearTimeout(timer)
-    }, [playLauncherIntro])
+    }, [isLauncherLabelShown, isWideScreen])
     const [greeting, setGreeting] = useState<WebsiteChatGreeting>(() =>
         // Chats saved before greetings had several messages fall back to the default.
         Array.isArray(storedChat?.greeting?.messages) ? storedChat.greeting : DEFAULT_WEBSITE_CHAT_GREETING
@@ -179,7 +246,7 @@ export function WebsiteChat() {
         // They've just read the bubble, so the greeting appears without typing first.
         setGreetingPhase('shown')
         setIsGreetingAnimating(true)
-        setIsOpen(true)
+        openChat()
     }
 
     const isBusy = status === 'submitted' || status === 'streaming'
@@ -289,7 +356,15 @@ export function WebsiteChat() {
                     // Above the sticky site header (z-[99]), which otherwise covers the close button on phones.
                     role="dialog"
                     aria-label="Chat with Fizz Kidz"
-                    className="fixed inset-0 z-[1000] flex flex-col overflow-hidden bg-white font-gotham shadow-2xl duration-200 animate-in fade-in slide-in-from-bottom-4 sm:inset-auto sm:bottom-24 sm:right-6 sm:h-[min(640px,calc(100dvh-8rem))] sm:w-[400px] sm:origin-bottom-right sm:rounded-3xl sm:border sm:border-[#E8DBFD] sm:zoom-in-95"
+                    className={cn(
+                        'fixed inset-0 z-[1000] flex flex-col overflow-hidden bg-white font-gotham shadow-2xl motion-reduce:animate-none sm:inset-auto sm:bottom-24 sm:right-6 sm:h-[min(640px,calc(100dvh-8rem))] sm:w-[400px] sm:origin-bottom-right sm:rounded-3xl sm:border sm:border-[#E8DBFD]',
+                        // Phones: a full-screen sheet sliding up from the bottom edge. Wider screens: a small grow and fade
+                        // from the launcher. Closing plays the reverse.
+                        isClosing
+                            ? 'duration-200 ease-in animate-out fill-mode-forwards slide-out-to-bottom-full sm:fade-out sm:zoom-out-95 sm:slide-out-to-bottom-4'
+                            : 'duration-300 ease-out animate-in slide-in-from-bottom-full sm:duration-200 sm:fade-in sm:zoom-in-95 sm:slide-in-from-bottom-4'
+                    )}
+                    onAnimationEnd={onPanelAnimationEnd}
                 >
                     <header className="flex items-center gap-3 bg-[#9044E2] px-4 py-3 text-white">
                         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white p-1 shadow-sm">
@@ -320,7 +395,7 @@ export function WebsiteChat() {
                         )}
                         <button
                             type="button"
-                            onClick={() => setIsOpen(false)}
+                            onClick={closeChat}
                             className="rounded-full p-2 hover:bg-white/15"
                             aria-label="Close chat"
                         >
@@ -509,26 +584,41 @@ export function WebsiteChat() {
                 </div>
             )}
 
-            <button
-                type="button"
-                onClick={() => setIsOpen((open) => !open)}
-                className={cn(
-                    // Icon only on phones; with the label from tablet width up.
-                    'fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center gap-2 rounded-full bg-[#9044E2] font-lilita text-lg text-white shadow-lg transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#7732BE] sm:bottom-6 sm:right-6 sm:h-14',
-                    // A pill with the label when closed; a circle around the close icon when open.
-                    isOpen ? 'hidden sm:flex sm:w-14' : 'sm:w-auto sm:px-5',
-                    playLauncherIntro && 'chat-launcher-enter'
-                )}
-                aria-expanded={isOpen}
-                aria-label={isOpen ? 'Close chat' : 'Chat with us'}
-            >
-                {isOpen ? (
-                    <X className="h-6 w-6" />
-                ) : (
-                    <MessageCircle className={cn('h-5 w-5 sm:h-6 sm:w-6', playLauncherIntro && 'chat-launcher-wave')} />
-                )}
-                {!isOpen && <span className="hidden sm:inline">Chat with us</span>}
-            </button>
+            {isLauncherShown && (
+                <button
+                    type="button"
+                    onClick={() => (isOpen ? closeChat() : openChat())}
+                    className={cn(
+                        // A round icon, with the "Chat with us" label expanding beside it (see isLauncherLabelShown).
+                        'fixed bottom-4 right-4 z-50 flex h-12 items-center justify-center rounded-full bg-[#9044E2] px-3.5 font-lilita text-lg text-white shadow-lg transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#7732BE] sm:bottom-6 sm:right-6 sm:h-14',
+                        // A pill with the label when closed; a circle around the close icon when open.
+                        isOpen ? 'hidden sm:flex sm:w-14 sm:px-0' : 'sm:px-4',
+                        playLauncherIntro && 'chat-launcher-enter'
+                    )}
+                    aria-expanded={isOpen}
+                    aria-label={isOpen ? 'Close chat' : 'Chat with us'}
+                >
+                    {isOpen ? (
+                        <X className="h-6 w-6" />
+                    ) : (
+                        <MessageCircle
+                            className={cn('h-5 w-5 sm:h-6 sm:w-6', playLauncherIntro && 'chat-launcher-wave')}
+                        />
+                    )}
+                    {!isOpen && (
+                        <span
+                            ref={measureLauncherLabel}
+                            className={cn(
+                                'overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] [transition-duration:500ms] ease-in-out motion-reduce:transition-none',
+                                isLauncherLabelShown ? 'ml-2 mr-1 opacity-100' : 'ml-0 mr-0 opacity-0'
+                            )}
+                            style={{ maxWidth: isLauncherLabelShown ? (launcherLabelWidth ?? 160) : 0 }}
+                        >
+                            Chat with us
+                        </span>
+                    )}
+                </button>
+            )}
         </div>
     )
 }

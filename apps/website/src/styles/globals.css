@@ -92,21 +92,15 @@ html {
     text-underline-offset: 2px;
 }
 
-/* Website chat launcher: pops in once per visit, then the icon waves hello. */
+/* Website chat launcher: slides up once per visit, its label expands, then the icon waves hello. */
 @keyframes chat-launcher-in {
-    0% {
+    from {
         opacity: 0;
-        transform: translateY(16px) scale(0.6);
+        transform: translateY(calc(100% + 1.5rem));
     }
-    60% {
+    to {
         opacity: 1;
-        transform: translateY(-4px) scale(1.06);
-    }
-    80% {
-        transform: translateY(0) scale(0.98);
-    }
-    100% {
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
     }
 }
 
@@ -129,14 +123,14 @@ html {
     }
 }
 
-/* `backwards` keeps it hidden during the delay without overriding the hover lift afterwards. */
+/* `backwards` rather than `both`, so the finished animation doesn't override the hover lift. */
 .chat-launcher-enter {
-    animation: chat-launcher-in 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) 1s backwards;
+    animation: chat-launcher-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 .chat-launcher-wave {
     transform-origin: 50% 80%;
-    animation: chat-launcher-wave 0.7s ease-in-out 1.6s;
+    animation: chat-launcher-wave 0.7s ease-in-out 2.1s;
 }
 
 @media (prefers-reduced-motion: reduce) {

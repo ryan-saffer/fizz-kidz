@@ -24,7 +24,11 @@ Party start times are 10am, 12pm, 2pm and 4pm, plus 4:30pm on Fridays.
 
 Every studio party also includes a birthday throne for the birthday child and access to our Fizz Kidz digital invitations.
 
-Parties can host up to 28 children, with a maximum of 40 people in the studio (adults and children combined). Parties are designed for kids turning 4 and up.
+Parties can host up to 28 children, with a maximum of 40 people in the studio (adults and children combined).
+
+Ages and younger guests: parties are for 4th birthdays and up. That's about the birthday child, not the guests, so it's normal and fine for some 3-year-old friends to come along to a 4th birthday. Any child left at the party without a parent or guardian must be toilet trained. Younger children who aren't toilet trained are very welcome to join in when their parent or guardian stays and supervises them.
+
+Younger siblings: it's generally fine for a few younger siblings to join in, e.g. a 3-year-old brother at a 5th birthday. If it's more than a few, suggest they check with the team. Any child who makes creations counts towards party numbers; little ones who just watch don't.
 
 Party dates fill quickly, so it's worth getting an enquiry in early.
 
