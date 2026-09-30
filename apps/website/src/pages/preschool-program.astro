@@ -571,6 +571,7 @@ const sessionSlots = [
                     title: "Tuesday Sessions",
                     dates:
                       "13, 20 & 27 October; 3, 10, 17 & 24 November; 1, 8 & 15 December",
+                    note: "No session on 3 November (Melbourne Cup Day) at Essendon or Werribee. Geelong runs as usual.",
                     cardColor: "#DFF8FF",
                     borderColor: "#52D6F0",
                     pillColor: "#11C6E8",
@@ -581,6 +582,7 @@ const sessionSlots = [
                     title: "Friday Sessions",
                     dates:
                       "16, 23 & 30 October; 6, 13, 20 & 27 November; 4, 11 & 18 December",
+                    note: undefined,
                     cardColor: "#FBE4F2",
                     borderColor: "#F06AB1",
                     pillColor: "#F14EA1",
@@ -615,6 +617,11 @@ const sessionSlots = [
                         <p class="mt-3 font-gotham text-base text-[#4F4F4F] md:text-lg">
                           {dayCard.dates}
                         </p>
+                        {dayCard.note && (
+                          <p class="mt-2 font-gotham text-sm text-[#4F4F4F] md:text-base">
+                            {dayCard.note}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>

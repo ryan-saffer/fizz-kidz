@@ -12,7 +12,8 @@ export type SessionGroup = {
     isFullTermBookable: boolean
 }
 
-export const TERM_BOUNDARY_GAP_DAYS = 14
+/** Three weeks between classes, so one skipped week (e.g. a public holiday) stays in the same term. */
+export const TERM_BOUNDARY_GAP_DAYS = 21
 
 type BaseSessionGroup = Omit<SessionGroup, 'key' | 'classes' | 'bookableClasses' | 'isFullTermBookable'> & {
     classes: LocalAcuityClass[]
@@ -69,7 +70,7 @@ export function filterAttendanceClassesForCurrentTerms(
     return classes.filter((klass) => isUpcoming(klass) || activeTermClassIds.has(klass.id))
 }
 
-/** Splits one weekday/time group whenever consecutive classes are at least two weeks apart. */
+/** Splits one weekday/time group whenever consecutive classes are at least three weeks apart. */
 function splitIntoTermGroups(baseKey: string, group: BaseSessionGroup, now: Date) {
     const sortedClasses = group.classes.sort((a, b) => a.time.getTime() - b.time.getTime())
     const termGroups: SessionGroup[] = []
@@ -77,8 +78,9 @@ function splitIntoTermGroups(baseKey: string, group: BaseSessionGroup, now: Date
 
     sortedClasses.forEach((klass) => {
         const previousClass = currentTerm.at(-1)
+        // Rounded so a daylight saving change (a 23 or 25 hour day) doesn't move a class across the boundary.
         const gapDays = previousClass
-            ? DateTime.fromJSDate(klass.time).diff(DateTime.fromJSDate(previousClass.time), 'days').days
+            ? Math.round(DateTime.fromJSDate(klass.time).diff(DateTime.fromJSDate(previousClass.time), 'days').days)
             : 0
 
         if (previousClass && gapDays >= TERM_BOUNDARY_GAP_DAYS) {
