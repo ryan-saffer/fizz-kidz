@@ -30,7 +30,7 @@ Very short visits and automatic interactions before GTM starts can be missed. Ex
 
 The chat widget (`src/components/react/website-chat`) is hidden from production builds while it's a prototype. It streams replies from `POST /api/chat` on the server's Functions URL, since Firebase Hosting would buffer them. See `apps/server/src/features/website-chat/README.md`.
 
-The chat's knowledge of the site is a hand-maintained copy in `apps/server/src/features/website-chat/core/prompt/website.md`. When you change customer-facing content here (services, packages, prices, dates, policies, studios, links or page URLs), update that file in the same change.
+The chat's knowledge of the site is a hand-maintained copy in `apps/server/src/features/website-chat/core/prompt/website.md`. When you change customer-facing content here (services, packages, prices, dates, policies, studios, links or page URLs), finish by updating Frankie's knowledge with the `update-frankie-knowledge` skill (`.agents/skills/update-frankie-knowledge/SKILL.md`).
 
 ## Less Static Than It Looks
 

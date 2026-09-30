@@ -15,15 +15,9 @@ They're joined in that order into one system prompt (`core/website-chat-instruct
 
 ## Keeping `website.md` current
 
-`website.md` contains only what's on the public website, so it can be rebuilt from scratch at any time without losing anything. Never add custom information to it; that belongs in `additional-info.md`.
+`website.md` contains only what's on the public website, so it can be rebuilt from scratch at any time without losing anything. Custom information belongs in `additional-info.md`.
 
-When the website changes meaningfully (a new party package, new holiday program dates, price changes), review the customer-facing website against it and update or rebuild it:
-
-- Use only customer-facing content: `apps/website/src/pages`, `apps/website/src/components`, and the Sanity-driven pages as they render on the live site. Never the internal staff knowledge base (`apps/docs`).
-- Quote prices and dates exactly as the website shows them. Don't infer or calculate.
-- Use absolute `https://www.fizzkidz.com.au/...` links that exist on the live site.
-- Remove anything that has finished, such as past holiday program weeks.
-- Update the `Last updated` line at the top.
+To bring it back in line after the website changes, ask an agent to "update Frankie's knowledge". The steps and rules live in [`.agents/skills/update-frankie-knowledge`](../../../../../.agents/skills/update-frankie-knowledge/SKILL.md).
 
 ## Transcripts and analytics
 

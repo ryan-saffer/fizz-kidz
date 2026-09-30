@@ -1,6 +1,6 @@
-Last updated: 29 September 2026. Built only from the public website, so it can be regenerated from scratch at any time.
+Last updated: 30 September 2026. Built only from the public website, so it can be regenerated from scratch at any time.
 
-All URLs below are on the live site https://www.fizzkidz.com.au (booking links are on https://bookings.fizzkidz.com.au). Prices are quoted exactly as the website shows them. If a price or detail is not listed here, say so and suggest an enquiry.
+All URLs below are on the live site https://www.fizzkidz.com.au (booking links are on https://bookings.fizzkidz.com.au). Prices are quoted exactly as the website shows them. If a price or detail isn't here, follow "When you don't know" in the instructions.
 
 # About Fizz Kidz
 
@@ -270,20 +270,19 @@ The old Play Lab page (https://www.fizzkidz.com.au/play-lab/) now redirects to t
 
 "A weekly 2-hour science, art and sensory adventure for children aged 2.5 to 5 years." It builds confidence, independence and school readiness through intentional play, with a new hands-on art and science adventure every week.
 
-- Runs throughout the school term. Book the full term or come casually.
+- Runs at our Essendon, Geelong and Werribee studios, every Tuesday and Friday during the school term.
+- Book the full term or come casually.
 - Each 2-hour session is $39.00.
-- Term booking: book for the term before the term begins and save 20%, a special term rate of $31.20 per child, per session. (FAQ wording: book all nine sessions in a Wednesday or Friday term before the term starts.)
+- Term booking: book every Tuesday or Friday session in the term before the term starts and save 20%, a special term rate of $31.20 per child, per session.
 - Casual: book individual sessions whenever suits; as many or as few as you like.
-- Sessions on Wednesdays or Fridays (or a mix), 9:30am to 11:30am.
+- Sessions on Tuesdays or Fridays (or a mix of both days), 9:30am to 11:30am.
 - Drop-off program (parents don't stay).
 - Led by qualified Early Childhood educators. Small group sizes.
-- The website does not say which studio(s) run the preschool program. Suggest checking the booking page or contacting the team.
 
-Latest schedule on the site (Term 3, 2026, which has now finished):
+Term 4, 2026 schedule (every session 9:30am to 11:30am, at Essendon, Geelong and Werribee):
 
-- Wednesday sessions, 9:30am to 11:30am: 22 & 29 July; 5, 12, 19 & 26 August; 2, 9 & 16 September.
-- Friday sessions, 9:30am to 11:30am: 24 & 31 July; 7, 14, 21 & 28 August; 4, 11 & 18 September.
-  Term 4 dates are not listed on the website yet; suggest the booking page or an enquiry.
+- Tuesday sessions: 13, 20 & 27 October; 3, 10, 17 & 24 November; 1, 8 & 15 December. No session on 3 November (Melbourne Cup Day) at Essendon or Werribee. Geelong runs as usual.
+- Friday sessions: 16, 23 & 30 October; 6, 13, 20 & 27 November; 4, 11 & 18 December.
 
 Daily session structure: 9:30 welcome and free play; 9:45 science and sensory projects; 10:15 morning tea break; 10:30 creative craft (guided project); 11:15 movement and dance; 11:25 story time and home time prep; 11:30 session ends (pickup).
 
@@ -291,12 +290,13 @@ What happens in each session: creative craft activity, science and sensory play,
 
 Preschool FAQs:
 
-- How do I book? Choose as many Wednesday and Friday sessions as you like and pay online when you book. You can include both days in the same checkout.
+- How do I book? Choose your studio, then as many Tuesday and Friday sessions as you like and pay online when you book. You can include both days in the same checkout.
+- Where is it held? At our Essendon, Geelong and Werribee studios, every Tuesday and Friday during the school term.
 - What age group? Children aged 2.5 to 5 years old. Activities are adapted to each developmental stage.
 - Do I stay with my child? No, it is a drop-off program. Facilitators provide gentle guidance and support throughout.
 - What activities? Creative projects, sensory exploration, science experiments, movement, music and story time. Children take home their creations each week.
 - How long is each session? 9:30am to 11:30am.
-- Cost? $39 per child per session. Book all nine sessions in a Wednesday or Friday term before the term starts for 20% off, which brings it to $31.20 per session, per child.
+- Cost? $39 per child per session. Book every Tuesday or Friday session in the term before the term starts for 20% off, which brings it to $31.20 per session, per child.
 - Can I cancel? Cancellations made more than 48 hours before a session are automatically refunded. If a full-term booking no longer includes every session in its discounted group, the refund is recalculated at the standard session price.
 - My child has special needs. Is it appropriate? Absolutely. We welcome all children. Please call us so we can chat about how best to support your child.
 
