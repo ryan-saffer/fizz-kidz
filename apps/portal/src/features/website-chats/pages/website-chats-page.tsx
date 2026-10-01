@@ -164,7 +164,7 @@ export function WebsiteChatsPage() {
             </div>
 
             <AlertDialog open={isConfirmingDelete} onOpenChange={setIsConfirmingDelete}>
-                <AlertDialogContent>
+                <AlertDialogContent className="twp">
                     <AlertDialogHeader>
                         <AlertDialogTitle>
                             Delete {selectedIds.size === 1 ? 'this transcript' : `${selectedIds.size} transcripts`}?

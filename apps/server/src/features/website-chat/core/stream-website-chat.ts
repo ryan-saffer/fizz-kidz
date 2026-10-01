@@ -5,7 +5,7 @@ import type { WebsiteChatModel } from '@fizz-kidz/core'
 
 import { saveWebsiteChat } from './save-website-chat'
 import { submitEnquiryTool } from './submit-enquiry-tool'
-import { getWebsiteChatPageContext, withContextNote } from './website-chat-context'
+import { getWebsiteChatPageContext, withContextNote, withRecentHistory } from './website-chat-context'
 import { WEBSITE_CHAT_INSTRUCTIONS } from './website-chat-instructions'
 
 import { logError } from '@/integrations/observability/log-error'
@@ -32,7 +32,7 @@ export async function streamWebsiteChat({
         // Identical for every request, so providers can serve it from their prompt cache.
         instructions: WEBSITE_CHAT_INSTRUCTIONS,
         messages: withContextNote(
-            await convertToModelMessages(messages, { tools }),
+            await convertToModelMessages(withRecentHistory(messages), { tools }),
             getWebsiteChatPageContext({ pagePath, greeting })
         ),
         tools,

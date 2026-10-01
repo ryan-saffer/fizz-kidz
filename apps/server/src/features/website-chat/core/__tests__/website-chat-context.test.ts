@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { CONTEXT_NOTE_PREFIX, withContextNote } from '../website-chat-context'
+import { CONTEXT_NOTE_PREFIX, withContextNote, withRecentHistory } from '../website-chat-context'
 import { getTranscriptFromModelMessages } from '../website-chat-transcript'
 
-import type { ModelMessage } from 'ai'
+import type { ModelMessage, UIMessage } from 'ai'
 
 const conversation: ModelMessage[] = [
     { role: 'user', content: 'Hi' },
@@ -29,5 +29,25 @@ describe('withContextNote', () => {
         const transcript = getTranscriptFromModelMessages(withContextNote(conversation, 'Today is Wednesday.'))
 
         expect(transcript.at(-1)).toEqual({ role: 'customer', text: 'Do you have a studio in Essendon?' })
+    })
+})
+
+describe('withRecentHistory', () => {
+    const chat = (count: number): UIMessage[] =>
+        Array.from({ length: count }, (_, index) => ({
+            id: String(index),
+            role: index % 2 === 0 ? 'user' : 'assistant',
+            parts: [{ type: 'text', text: `message ${index}` }],
+        }))
+
+    it('keeps short chats whole', () => {
+        expect(withRecentHistory(chat(10), 60)).toHaveLength(10)
+    })
+
+    it('keeps the latest messages of long chats, starting on a customer message', () => {
+        const recent = withRecentHistory(chat(101), 60)
+
+        expect(recent[0]).toMatchObject({ id: '42', role: 'user' })
+        expect(recent.at(-1)).toMatchObject({ id: '100' })
     })
 })
