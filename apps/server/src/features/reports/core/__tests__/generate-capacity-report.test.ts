@@ -84,9 +84,9 @@ describe('generateCapacityReport', () => {
         })
         deepStrictEqual(mobileOnly.overall, {
             bookedSlots: 1,
-            availableSlots: 2,
-            utilisationPercentage: 50,
-            byPartyType: [{ type: 'mobile', bookedSlots: 1, availableSlots: 2, utilisationPercentage: 50 }],
+            availableSlots: 4,
+            utilisationPercentage: 25,
+            byPartyType: [{ type: 'mobile', bookedSlots: 1, availableSlots: 4, utilisationPercentage: 25 }],
         })
 
         const both = await generateCapacityReport({
@@ -97,11 +97,11 @@ describe('generateCapacityReport', () => {
         })
         deepStrictEqual(both.overall, {
             bookedSlots: 2,
-            availableSlots: 11,
-            utilisationPercentage: (2 / 11) * 100,
+            availableSlots: 13,
+            utilisationPercentage: (2 / 13) * 100,
             byPartyType: [
                 { type: 'studio', bookedSlots: 1, availableSlots: 9, utilisationPercentage: (1 / 9) * 100 },
-                { type: 'mobile', bookedSlots: 1, availableSlots: 2, utilisationPercentage: 50 },
+                { type: 'mobile', bookedSlots: 1, availableSlots: 4, utilisationPercentage: 25 },
             ],
         })
     })
@@ -177,8 +177,8 @@ describe('generateCapacityReport', () => {
 
         const expected = {
             bookedSlots: 3,
-            availableSlots: 10 * STUDIOS.length,
-            utilisationPercentage: (3 / (10 * STUDIOS.length)) * 100,
+            availableSlots: 12 * STUDIOS.length,
+            utilisationPercentage: (3 / (12 * STUDIOS.length)) * 100,
             byPartyType: [
                 {
                     type: 'studio',
@@ -189,8 +189,8 @@ describe('generateCapacityReport', () => {
                 {
                     type: 'mobile',
                     bookedSlots: 1,
-                    availableSlots: 2 * STUDIOS.length,
-                    utilisationPercentage: (1 / (2 * STUDIOS.length)) * 100,
+                    availableSlots: 4 * STUDIOS.length,
+                    utilisationPercentage: (1 / (4 * STUDIOS.length)) * 100,
                 },
             ],
         }
