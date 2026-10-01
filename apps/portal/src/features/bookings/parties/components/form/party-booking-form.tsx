@@ -20,6 +20,7 @@ import { AdditionsField } from './additions-field'
 import { ChildrenFields } from './children-fields'
 import { CreationField } from './creation-field'
 import { DateField, FormSection, SelectField, TextAreaField, TextField, TimeField } from './fields'
+import { PaidOrders } from './paid-orders'
 
 const PARTY_TYPE_OPTIONS = [
     { value: 'studio', label: 'Studio' },
@@ -65,6 +66,7 @@ export function PartyBookingForm({ dialog }: { dialog: PartyBookingDialogState }
                     {dialog.mode === 'create' ? <ChildrenFields form={form} /> : <ChildFields form={form} />}
                     <PartyFields form={form} editing={dialog.mode === 'edit'} />
                     {dialog.mode === 'edit' && <PartyDetailsFields form={form} />}
+                    {dialog.mode === 'edit' && <PaidOrders booking={dialog.booking} />}
                     <FormSection title="Notes">
                         <form.Field name="notes">
                             {(field) => <TextAreaField field={field} label="Staff notes" />}
