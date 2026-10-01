@@ -120,7 +120,7 @@ export function HolidayProgramCapacityReport() {
     const reportQuery = useQuery(
         trpc.reports.generateHolidayProgramCapacityReport.queryOptions(
             { studio: currentOrg ?? 'master', comparePreviousPeriod },
-            { enabled: Boolean(currentOrg) }
+            { enabled: Boolean(open && currentOrg) }
         )
     )
 

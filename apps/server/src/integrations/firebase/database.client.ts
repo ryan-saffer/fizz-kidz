@@ -179,7 +179,7 @@ class Client {
         }
 
         const snap = await partiesQuery.get()
-        return snap.docs.map((doc) => doc.data()).filter((booking) => booking.type === 'studio')
+        return snap.docs.map((doc) => doc.data())
     }
 
     async listPartyBookingsForInventoryShoppingList(input: { startDate: Date; endDate: Date; location?: Studio }) {

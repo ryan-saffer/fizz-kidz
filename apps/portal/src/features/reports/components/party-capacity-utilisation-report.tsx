@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { addDays, addMonths, endOfMonth, format } from 'date-fns'
-import { Cake, CalendarIcon, ChevronDown, ExternalLink, LoaderCircle } from 'lucide-react'
+import { Cake, CalendarIcon, Check, ChevronDown, ExternalLink, House, LoaderCircle, Store } from 'lucide-react'
 import { useState } from 'react'
 
 import {
     PARTY_BOOKING_CAPACITY_END_DATE,
     PARTY_BOOKING_CAPACITY_START_DATE,
+    type PartyBookingCapacityType,
     type Studio,
     type StudioOrMaster,
 } from '@fizz-kidz/core'
@@ -30,26 +31,38 @@ type CapacityReportResult = {
     startDate: string
     endDate: string
     studio: StudioOrMaster
+    partyTypes: PartyBookingCapacityType[]
     overall: CapacityReportSummary
     studios: CapacityReportStudioResult[]
     weeks: CapacityReportWeekResult[]
 }
 
-type CapacityReportSummary = {
+type CapacitySlots = {
     bookedSlots: number
     availableSlots: number
     utilisationPercentage: number
+}
+
+type CapacityReportSummary = CapacitySlots & {
+    byPartyType: (CapacitySlots & { type: PartyBookingCapacityType })[]
 }
 
 type CapacityReportStudioSummary = CapacityReportSummary & {
     studio: Studio
 }
 
-type CapacityReportWeekSummary = CapacityReportSummary & { startDate: string; endDate: string }
+type CapacityReportWeekSummary = CapacityReportSummary & {
+    startDate: string
+    endDate: string
+}
 
-type CapacityReportStudioResult = CapacityReportStudioSummary & { weeks: CapacityReportWeekSummary[] }
+type CapacityReportStudioResult = CapacityReportStudioSummary & {
+    weeks: CapacityReportWeekSummary[]
+}
 
-type CapacityReportWeekResult = CapacityReportWeekSummary & { studios: CapacityReportStudioSummary[] }
+type CapacityReportWeekResult = CapacityReportWeekSummary & {
+    studios: CapacityReportStudioSummary[]
+}
 
 type MasterBreakdownView = 'studio' | 'weekly'
 type DateRangePreset =
@@ -60,11 +73,30 @@ type DateRangePreset =
     | 'until-end-of-year'
     | 'custom'
 
+const PARTY_TYPES: PartyBookingCapacityType[] = ['studio', 'mobile']
+
+const PARTY_TYPE_LABELS: Record<PartyBookingCapacityType, string> = {
+    studio: 'In-studio',
+    mobile: 'At home',
+}
+
+const PARTY_TYPE_ICONS: Record<PartyBookingCapacityType, typeof Store> = {
+    studio: Store,
+    mobile: House,
+}
+
+const getBookingsLabel = (partyTypes: PartyBookingCapacityType[]) =>
+    partyTypes.length === 1 ? `${PARTY_TYPE_LABELS[partyTypes[0]]} bookings` : 'In-studio and at-home bookings'
+
 const formatPercent = (value: number) =>
     new Intl.NumberFormat('en-AU', {
         maximumFractionDigits: 1,
         minimumFractionDigits: value % 1 === 0 ? 0 : 1,
     }).format(value)
+
+// A period with no available slots has no meaningful utilisation
+const formatUtilisation = ({ availableSlots, utilisationPercentage }: CapacitySlots) =>
+    availableSlots === 0 ? '–' : `${formatPercent(utilisationPercentage)}%`
 
 const formatReportDate = (value: string) => format(new Date(`${value}T00:00:00`), 'd MMMM yyyy')
 
@@ -129,10 +161,11 @@ export function PartyCapacityUtilisationReport() {
     const [open, setOpen] = useState(false)
     const [{ startDate, endDate }, setDateRange] = useState(getDefaultDateRange)
     const [dateRangePreset, setDateRangePreset] = useState<DateRangePreset>('next-90-days')
+    const [partyTypes, setPartyTypes] = useState(PARTY_TYPES)
     const reportQuery = useQuery(
         trpc.reports.generateCapacityReport.queryOptions(
-            { startDate, endDate, studio: currentOrg ?? 'master' },
-            { enabled: Boolean(currentOrg && startDate && endDate) }
+            { startDate, endDate, studio: currentOrg ?? 'master', partyTypes },
+            { enabled: Boolean(open && currentOrg && startDate && endDate) }
         )
     )
     const result = reportQuery.data ?? null
@@ -151,7 +184,8 @@ export function PartyCapacityUtilisationReport() {
                             <Cake className="h-5 w-5 text-[#B14594]" /> Birthday Party Capacity
                         </CardTitle>
                         <CardDescription className="text-slate-600">
-                            See how many available in-studio birthday party slots have been booked over a date range.
+                            See how many available in-studio and at-home birthday party slots have been booked over a
+                            date range.
                         </CardDescription>
                     </span>
                     <ChevronDown
@@ -212,7 +246,7 @@ export function PartyCapacityUtilisationReport() {
                             </div>
                         ) : null}
 
-                        <div className="rounded-2xl border border-[#B14594]/15 bg-[#fff7fb] p-4 text-sm text-slate-600">
+                        <div className="rounded-2xl border border-[#00c2e3]/25 bg-[#00c2e3]/[0.06] p-4 text-sm text-slate-600">
                             Capacity is calculated from the published party schedule from{' '}
                             {formatReportDate(PARTY_BOOKING_CAPACITY_START_DATE)} to{' '}
                             {formatReportDate(PARTY_BOOKING_CAPACITY_END_DATE)}.
@@ -220,10 +254,33 @@ export function PartyCapacityUtilisationReport() {
                                 href="https://docs.google.com/spreadsheets/d/1gJ4H1THdA2l3FJt6r6XSq2c40YZTuU2ENzEEpPYJiXI/edit?usp=sharing"
                                 target="_blank"
                                 rel="noreferrer"
-                                className="mt-2 flex w-fit items-center gap-1 font-bold text-[#8d3676] underline-offset-4 hover:underline"
+                                className="mt-2 flex w-fit items-center gap-1 font-bold text-[#007f96] underline-offset-4 hover:underline"
                             >
                                 View slot schedule and calculations <ExternalLink className="h-3.5 w-3.5" />
                             </a>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <Label id="capacity-party-types">Party types</Label>
+                            <div role="group" aria-labelledby="capacity-party-types" className="flex flex-wrap gap-2">
+                                {PARTY_TYPES.map((type) => (
+                                    <PartyTypeChip
+                                        key={type}
+                                        type={type}
+                                        selected={partyTypes.includes(type)}
+                                        // At least one party type must stay selected
+                                        locked={partyTypes.length === 1 && partyTypes.includes(type)}
+                                        onToggle={() =>
+                                            setPartyTypes((current) =>
+                                                // Keep a stable order so the report query is cached by selection
+                                                PARTY_TYPES.filter((it) =>
+                                                    it === type ? !current.includes(it) : current.includes(it)
+                                                )
+                                            )
+                                        }
+                                    />
+                                ))}
+                            </div>
                         </div>
 
                         {reportQuery.isError ? (
@@ -284,15 +341,37 @@ function OverallCapacityCard({ report }: { report: CapacityReportResult }) {
             <div>
                 <p className="m-0 text-sm font-bold uppercase tracking-[0.2em] text-white/70">Capacity reached</p>
                 <p className="m-0 mt-2 text-6xl font-black leading-none sm:text-7xl">
-                    {formatPercent(report.overall.utilisationPercentage)}%
+                    {formatUtilisation(report.overall)}
                 </p>
+                {report.overall.byPartyType.length > 1 ? (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                        {report.overall.byPartyType.map((summary) => {
+                            const Icon = PARTY_TYPE_ICONS[summary.type]
+                            return (
+                                <div
+                                    key={summary.type}
+                                    className="flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-sm ring-1 ring-white/20"
+                                >
+                                    <Icon className="h-4 w-4 text-white/80" />
+                                    <span className="text-white/80">{PARTY_TYPE_LABELS[summary.type]}</span>
+                                    <span className="font-black">{formatUtilisation(summary)}</span>
+                                    <span className="text-white/70">
+                                        ({summary.bookedSlots} of {summary.availableSlots})
+                                    </span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                ) : null}
                 <p className="m-0 mt-3 text-sm text-white/80">
                     {getOrgName(report.studio)} from {formatReportDate(report.startDate)} to{' '}
                     {formatReportDate(report.endDate)}
                 </p>
             </div>
             <div className="rounded-2xl bg-white/15 p-4 ring-1 ring-white/20 sm:min-w-64">
-                <p className="m-0 text-xs font-bold uppercase tracking-wide text-white/70">In-studio bookings</p>
+                <p className="m-0 text-xs font-bold uppercase tracking-wide text-white/70">
+                    {getBookingsLabel(report.partyTypes)}
+                </p>
                 <p className="m-0 mt-1 text-xl font-black">
                     {report.overall.bookedSlots} of {report.overall.availableSlots} slots booked
                 </p>
@@ -301,6 +380,40 @@ function OverallCapacityCard({ report }: { report: CapacityReportResult }) {
                 </p>
             </div>
         </section>
+    )
+}
+
+function PartyTypeChip({
+    type,
+    selected,
+    locked,
+    onToggle,
+}: {
+    type: PartyBookingCapacityType
+    selected: boolean
+    locked: boolean
+    onToggle: () => void
+}) {
+    const Icon = PARTY_TYPE_ICONS[type]
+
+    return (
+        <button
+            type="button"
+            aria-pressed={selected}
+            disabled={locked}
+            title={locked ? 'At least one party type must be selected' : undefined}
+            className={cn(
+                'flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-colors disabled:cursor-not-allowed',
+                selected
+                    ? 'border-[#B14594] bg-[#B14594]/10 text-[#8d3676] shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-500 hover:border-[#B14594]/40 hover:text-[#B14594]'
+            )}
+            onClick={onToggle}
+        >
+            <Icon className="h-4 w-4" />
+            {PARTY_TYPE_LABELS[type]}
+            {selected ? <Check className="h-4 w-4" /> : null}
+        </button>
     )
 }
 
@@ -372,11 +485,34 @@ function BreakdownHeading({ title, summary }: { title: string; summary: Capacity
                     {summary.bookedSlots} of {summary.availableSlots} slots booked
                 </p>
             </div>
-            <Badge className="w-fit border-[#00c2e3]/20 bg-[#00c2e3]/10 text-[#007f96] hover:bg-[#00c2e3]/10">
-                {formatPercent(summary.utilisationPercentage)}% full
-            </Badge>
+            <div className="flex flex-wrap items-center gap-3">
+                <PartyTypeUtilisation summary={summary} />
+                <Badge className="w-fit border-[#00c2e3]/20 bg-[#00c2e3]/10 text-[#007f96] hover:bg-[#00c2e3]/10">
+                    {summary.availableSlots === 0 ? '–' : `${formatUtilisation(summary)} full`}
+                </Badge>
+            </div>
         </div>
     )
+}
+
+// Per-type utilisation, only shown when more than one party type is selected
+function PartyTypeUtilisation({ summary }: { summary: CapacityReportSummary }) {
+    if (summary.byPartyType.length < 2) return null
+
+    return summary.byPartyType.map((typeSummary) => {
+        const Icon = PARTY_TYPE_ICONS[typeSummary.type]
+        return (
+            <span
+                key={typeSummary.type}
+                title={`${PARTY_TYPE_LABELS[typeSummary.type]}: ${typeSummary.bookedSlots} of ${typeSummary.availableSlots} slots booked`}
+                className="flex items-center gap-1 text-sm text-slate-500"
+            >
+                <Icon className="h-3.5 w-3.5" aria-hidden />
+                <span className="sr-only">{PARTY_TYPE_LABELS[typeSummary.type]}</span>
+                <span className="font-bold text-slate-700">{formatUtilisation(typeSummary)}</span>
+            </span>
+        )
+    })
 }
 
 function CapacityRows({
@@ -400,9 +536,10 @@ function CapacityRows({
                                 {row.bookedSlots} of {row.availableSlots} slots booked
                             </p>
                         </div>
-                        <p className="m-0 text-lg font-black text-[#B14594]">
-                            {formatPercent(row.utilisationPercentage)}%
-                        </p>
+                        <div className="flex flex-wrap items-center justify-end gap-3">
+                            <PartyTypeUtilisation summary={row} />
+                            <p className="m-0 text-lg font-black text-[#B14594]">{formatUtilisation(row)}</p>
+                        </div>
                     </div>
                 )
             })}

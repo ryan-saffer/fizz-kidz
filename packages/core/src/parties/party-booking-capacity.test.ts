@@ -5,7 +5,7 @@ import { describe, it } from 'vite-plus/test'
 import { getPartyBookingCapacity } from './party-booking-capacity'
 
 describe('getPartyBookingCapacity', () => {
-    it('matches every daily slot value in the published CSV', () => {
+    it('matches every daily studio slot value in the published CSV', () => {
         const expectedSlotsByDate: Record<string, number> = {
             '2026-07-03': 0,
             '2026-07-04': 3,
@@ -88,18 +88,31 @@ describe('getPartyBookingCapacity', () => {
         }
 
         for (const [date, slots] of Object.entries(expectedSlotsByDate)) {
-            strictEqual(getPartyBookingCapacity(date, date), slots, date)
+            strictEqual(getPartyBookingCapacity(date, date, ['studio']), slots, date)
         }
     })
 
     it('sums the CSV slots per studio for an inclusive date range', () => {
-        strictEqual(getPartyBookingCapacity('2026-07-03', '2026-07-05'), 5)
-        strictEqual(getPartyBookingCapacity('2026-07-17', '2026-07-19'), 9)
-        strictEqual(getPartyBookingCapacity('2026-12-18', '2026-12-20'), 2)
+        strictEqual(getPartyBookingCapacity('2026-07-03', '2026-07-05', ['studio']), 5)
+        strictEqual(getPartyBookingCapacity('2026-07-17', '2026-07-19', ['studio']), 9)
+        strictEqual(getPartyBookingCapacity('2026-12-18', '2026-12-20', ['studio']), 2)
+    })
+
+    it('matches the published at-home slot schedule', () => {
+        strictEqual(getPartyBookingCapacity('2026-07-17', '2026-07-17', ['mobile']), 0)
+        strictEqual(getPartyBookingCapacity('2026-07-18', '2026-07-18', ['mobile']), 1)
+        strictEqual(getPartyBookingCapacity('2026-07-19', '2026-07-19', ['mobile']), 1)
+        strictEqual(getPartyBookingCapacity('2026-07-04', '2026-07-05', ['mobile']), 1)
+        strictEqual(getPartyBookingCapacity('2026-12-18', '2026-12-27', ['mobile']), 0)
+        strictEqual(getPartyBookingCapacity('2026-07-03', '2026-12-31', ['mobile']), 38)
+    })
+
+    it('sums studio and mobile slots when both types are requested', () => {
+        strictEqual(getPartyBookingCapacity('2026-07-17', '2026-07-19', ['studio', 'mobile']), 11)
     })
 
     it('treats dates without party booking slots as zero capacity', () => {
-        strictEqual(getPartyBookingCapacity('2026-07-06', '2026-07-09'), 0)
-        strictEqual(getPartyBookingCapacity('2026-12-25', '2026-12-31'), 0)
+        strictEqual(getPartyBookingCapacity('2026-07-06', '2026-07-09', ['studio', 'mobile']), 0)
+        strictEqual(getPartyBookingCapacity('2026-12-28', '2026-12-31', ['studio', 'mobile']), 0)
     })
 })

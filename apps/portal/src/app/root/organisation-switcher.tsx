@@ -78,7 +78,13 @@ export function OrganisationSwitcher() {
                                 }}
                             >
                                 <span className="flex min-w-0 items-center gap-3">
-                                    <span className="h-2 w-2 shrink-0 rounded-full bg-slate-300 group-hover:bg-[#B14594]" />
+                                    <span
+                                        className={cn(
+                                            'h-2 w-2 shrink-0 rounded-full',
+                                            // Make Corporate Studios easy to spot among the studios
+                                            org === 'master' ? 'bg-[#00c2e3]' : 'bg-slate-300 group-hover:bg-[#B14594]'
+                                        )}
+                                    />
                                     <span className="truncate">{getOrgName(org)}</span>
                                 </span>
                                 <ArrowRight className="h-4 w-4 shrink-0 translate-x-1 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
