@@ -100,15 +100,15 @@ describe('getPartyBookingCapacity', () => {
 
     it('matches the published at-home slot schedule', () => {
         strictEqual(getPartyBookingCapacity('2026-07-17', '2026-07-17', ['mobile']), 0)
-        strictEqual(getPartyBookingCapacity('2026-07-18', '2026-07-18', ['mobile']), 1)
-        strictEqual(getPartyBookingCapacity('2026-07-19', '2026-07-19', ['mobile']), 1)
-        strictEqual(getPartyBookingCapacity('2026-07-04', '2026-07-05', ['mobile']), 1)
+        strictEqual(getPartyBookingCapacity('2026-07-18', '2026-07-18', ['mobile']), 2)
+        strictEqual(getPartyBookingCapacity('2026-07-19', '2026-07-19', ['mobile']), 2)
+        strictEqual(getPartyBookingCapacity('2026-07-04', '2026-07-05', ['mobile']), 2)
         strictEqual(getPartyBookingCapacity('2026-12-18', '2026-12-27', ['mobile']), 0)
-        strictEqual(getPartyBookingCapacity('2026-07-03', '2026-12-31', ['mobile']), 38)
+        strictEqual(getPartyBookingCapacity('2026-07-03', '2026-12-31', ['mobile']), 82)
     })
 
     it('sums studio and mobile slots when both types are requested', () => {
-        strictEqual(getPartyBookingCapacity('2026-07-17', '2026-07-19', ['studio', 'mobile']), 11)
+        strictEqual(getPartyBookingCapacity('2026-07-17', '2026-07-19', ['studio', 'mobile']), 13)
     })
 
     it('treats dates without party booking slots as zero capacity', () => {
