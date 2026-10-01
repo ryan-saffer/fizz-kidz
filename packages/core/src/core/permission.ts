@@ -13,6 +13,8 @@ const PERMISSIONS = [
     'inventory:write',
     'inventory:stocktake',
     'inventory:shopping-list',
+    'website-chats:read',
+    'website-chats:delete',
     'admin', // everything else.. could be broken down, but unneccesary for now.
 ] as const
 
@@ -52,5 +54,7 @@ export const RolePermissionMap: Record<Role, Permission[]> = {
         'inventory:write',
         'inventory:stocktake',
         'inventory:shopping-list',
+        'website-chats:read',
+        'website-chats:delete',
     ],
 }

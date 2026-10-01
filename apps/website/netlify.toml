@@ -1,7 +1,9 @@
 [build]
 command = "npm run build --workspace website"
 publish = "apps/website/dist"
-ignore = "if [ -n \"$INCOMING_HOOK_TITLE\" ]; then exit 1; fi; if [ \"$BRANCH\" = \"main\" ] || [ \"$BRANCH\" = \"develop\" ]; then exit 0; fi; git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF apps/website packages/core packages/ui package.json package-lock.json .node-version"
+# Exit 0 cancels the build. The first build of a PR has no cache, so CACHED_COMMIT_REF equals COMMIT_REF
+# and there is nothing to diff against: always build then.
+ignore = "if [ -n \"$INCOMING_HOOK_TITLE\" ]; then exit 1; fi; if [ \"$BRANCH\" = \"main\" ] || [ \"$BRANCH\" = \"develop\" ]; then exit 0; fi; if [ \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" ]; then exit 1; fi; git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF apps/website packages/core packages/ui package.json package-lock.json .node-version"
 
 [context.deploy-preview]
 command = "npm run build:dev --workspace website"

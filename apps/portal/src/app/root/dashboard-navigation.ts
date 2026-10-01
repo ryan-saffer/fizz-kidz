@@ -8,6 +8,7 @@ import {
     HandCoins,
     Home,
     Map,
+    MessagesSquare,
     PartyPopper,
     CreditCardReader,
     Sparkles,
@@ -236,6 +237,15 @@ const dashboardNavigationSections: DashboardNavigationSection[] = [
                 icon: Archive,
                 accent: '#9ecc48',
                 accentSoft: 'rgba(158, 204, 72, 0.16)',
+            },
+            {
+                label: 'Chat Transcripts',
+                description: 'Read every conversation customers have had with Frankie on the website.',
+                to: 'website-chats',
+                icon: MessagesSquare,
+                accent: '#b14594',
+                accentSoft: 'rgba(177, 69, 148, 0.14)',
+                visible: ({ hasPermission }) => hasPermission('website-chats:read'),
             },
             {
                 label: 'Territory Mapping',

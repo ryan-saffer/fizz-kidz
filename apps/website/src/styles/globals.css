@@ -83,3 +83,72 @@
 html {
     scroll-behavior: smooth;
 }
+
+/* Website chat replies (rendered by Streamdown). */
+.website-chat-markdown a {
+    color: #7732be;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Website chat launcher: slides up once per visit, its label expands, then the icon waves hello. */
+@keyframes chat-launcher-in {
+    from {
+        opacity: 0;
+        transform: translateY(calc(100% + 1.5rem));
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes chat-launcher-wave {
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+    20% {
+        transform: rotate(-14deg);
+    }
+    40% {
+        transform: rotate(10deg);
+    }
+    60% {
+        transform: rotate(-6deg);
+    }
+    80% {
+        transform: rotate(3deg);
+    }
+}
+
+/* `backwards` rather than `both`, so the finished animation doesn't override the hover lift. */
+.chat-launcher-enter {
+    animation: chat-launcher-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.chat-launcher-wave {
+    transform-origin: 50% 80%;
+    animation: chat-launcher-wave 0.7s ease-in-out 2.1s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chat-launcher-enter {
+        animation-name: chat-launcher-fade;
+        animation-timing-function: ease-out;
+    }
+
+    .chat-launcher-wave {
+        animation: none;
+    }
+}
+
+@keyframes chat-launcher-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

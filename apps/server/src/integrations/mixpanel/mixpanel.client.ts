@@ -140,6 +140,15 @@ export type MixpanelEvent = {
         referenceOther?: string
         partyTheme?: string
     }
+    'website-chat-finished': {
+        distinct_id: string
+        chatId: string
+        messageCount: number
+        durationMinutes: number
+        outcome: 'enquiry' | 'none'
+        model: string
+        entryPage: string | null
+    }
     'google-business-profile-review': {
         distinct_id: string
         notificationType: 'NEW_REVIEW' | 'UPDATED_REVIEW'
@@ -297,6 +306,7 @@ const EventNameMap: Record<keyof MixpanelEvent, string> = {
     'invitation-coupon-signup': 'Invitation Coupon Code Signup',
     'holiday-program-website-discount': 'Website Holiday Program Discount Generated',
     'website-enquiry': 'Website Enquiry',
+    'website-chat-finished': 'Website Chat Finished',
     'google-business-profile-review': 'Google Review',
     'holiday-program-checkout-reached': 'Holiday Program Checkout Reached',
     'holiday-program-booking': 'Holiday Program Booking',
