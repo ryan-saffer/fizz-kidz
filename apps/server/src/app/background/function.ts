@@ -17,6 +17,7 @@ import { updateSlingWages } from '@/features/staff/core/payroll/update-sling-wag
 import { remindAboutTurning18NextMonth } from '@/features/staff/core/remind-about-turning-18-next-month'
 import { remindAboutWwcc } from '@/features/staff/core/remind-about-wwcc'
 import { sendMinimumShiftLengthReport } from '@/features/staff/core/send-minimum-shift-length-report'
+import { finishIdleWebsiteChats } from '@/features/website-chat/core/finish-idle-website-chats'
 import { logError } from '@/integrations/observability/log-error'
 import { handlePaperformSubmission } from '@/integrations/paperforms/functions/pubsub/paperform.pubsub'
 
@@ -78,6 +79,10 @@ export const pubsub = onMessagePublished(
                 case 'cleanUpStaleInvitations':
                     // 1st of each month at 3:00am
                     await cleanUpStaleInvitations()
+                    break
+                case 'finishWebsiteChats':
+                    // every 15 minutes
+                    await finishIdleWebsiteChats()
                     break
                 default:
                     assertNever(name)

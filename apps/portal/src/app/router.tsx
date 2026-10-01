@@ -192,6 +192,16 @@ const ReportsPage = lazy(() =>
 const InventoryPage = lazy(() =>
     import('../features/inventory/pages/inventory-page.js').then((module) => ({ default: module.InventoryPage }))
 )
+const WebsiteChatsPage = lazy(() =>
+    import('../features/website-chats/pages/website-chats-page.js').then((module) => ({
+        default: module.WebsiteChatsPage,
+    }))
+)
+const WebsiteChatTranscriptPage = lazy(() =>
+    import('../features/website-chats/pages/website-chat-transcript-page.js').then((module) => ({
+        default: module.WebsiteChatTranscriptPage,
+    }))
+)
 const PosPage = lazy(() =>
     import('../features/pos/pages/pos-page.js').then((module) => ({
         default: module.PosPage,
@@ -411,6 +421,26 @@ const router = createBrowserRouter([
                             <Suspense fallback={<Loader fullScreen />}>
                                 <ProtectedRoute permission="inventory:read">
                                     <InventoryPage />
+                                </ProtectedRoute>
+                            </Suspense>
+                        ),
+                    },
+                    {
+                        path: 'website-chats',
+                        Component: () => (
+                            <Suspense fallback={<Loader fullScreen />}>
+                                <ProtectedRoute permission="website-chats:read">
+                                    <WebsiteChatsPage />
+                                </ProtectedRoute>
+                            </Suspense>
+                        ),
+                    },
+                    {
+                        path: 'website-chats/:chatId',
+                        Component: () => (
+                            <Suspense fallback={<Loader fullScreen />}>
+                                <ProtectedRoute permission="website-chats:read">
+                                    <WebsiteChatTranscriptPage />
                                 </ProtectedRoute>
                             </Suspense>
                         ),

@@ -20,8 +20,10 @@ import type {
     InventoryUsageRule,
     PartyFormSubmission,
     Studio,
+    WebsiteChat,
 } from '@fizz-kidz/core'
 
+import { timestampConverter } from './firestore-converters'
 import { FirestoreClient } from './firestore.client'
 
 import type { FieldValue, CollectionGroup } from 'firebase-admin/firestore'
@@ -182,6 +184,16 @@ export class FirestoreRefs {
 
     static async partyFormSubmission(submissionId: string) {
         return (await this.partyFormSubmissions()).doc(submissionId)
+    }
+
+    static async websiteChats() {
+        return (await FirestoreClient.getInstance())
+            .collection('websiteChats')
+            .withConverter(timestampConverter) as Collection<WebsiteChat>
+    }
+
+    static async websiteChat(id: string) {
+        return (await this.websiteChats()).doc(id)
     }
 
     static async googleBusinessProfileReviews() {

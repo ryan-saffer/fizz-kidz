@@ -14,6 +14,7 @@ import { preschoolProgramV2Router } from '@/features/preschool-program-v2/functi
 import { preschoolProgramRouter } from '@/features/preschool-program/functions/trpc/preschool-program.trpc'
 import { reportsRouter } from '@/features/reports/functions/trpc/reports.trpc'
 import { staffRouter } from '@/features/staff/functions/trpc/staff.trpc'
+import { websiteChatsRouter } from '@/features/website-chat/functions/trpc/website-chats.trpc'
 import { websiteFormsRouter } from '@/features/website/functions/trpc/website-forms.trpc'
 import { acuityRouter } from '@/integrations/acuity/functions/trpc/acuity.trpc'
 
@@ -32,6 +33,7 @@ export const appRouter = router({
     reports: reportsRouter,
     inventory: inventoryRouter,
     websiteForms: websiteFormsRouter,
+    websiteChats: websiteChatsRouter,
     payments: paymentsRouter,
     pos: posRouter,
 })

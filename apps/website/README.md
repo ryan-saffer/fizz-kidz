@@ -26,6 +26,12 @@ Website forms use the Zod schemas, inferred payload types, and select options ex
 
 Very short visits and automatic interactions before GTM starts can be missed. Explicit `dataLayer` events stay queued. This changes loading order, not the container's Analytics or Ads configuration. Run the loader tests with `npm run test:gtm --workspace website`.
 
+## Website Chat
+
+The chat widget (`src/components/react/website-chat`) is hidden from production builds while it's a prototype. It streams replies from `POST /api/chat` on the server's Functions URL, since Firebase Hosting would buffer them. See `apps/server/src/features/website-chat/README.md`.
+
+The chat's knowledge of the site is a hand-maintained copy in `apps/server/src/features/website-chat/core/prompt/website.md`. When you change customer-facing content here (services, packages, prices, dates, policies, studios, links or page URLs), finish by updating Frankie's knowledge with the `update-frankie-knowledge` skill (`.agents/skills/update-frankie-knowledge/SKILL.md`).
+
 ## Less Static Than It Looks
 
 - `src/pages/api/uploadthing.ts` handles uploads.
