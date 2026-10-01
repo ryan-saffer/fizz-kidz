@@ -1,5 +1,6 @@
 import { pipeUIMessageStreamToResponse, safeValidateUIMessages } from 'ai'
 import express from 'express'
+import { logger } from 'firebase-functions/v2'
 import { z } from 'zod'
 
 import {
@@ -27,23 +28,31 @@ export const websiteChatRoute = express.Router()
 
 // Streams the reply, so the website calls the function URL directly. Firebase Hosting would buffer the response.
 websiteChatRoute.post('/chat', async (req, res) => {
+    // Rejections show Frankie's "fizz has gone flat" message, so each one is logged with its reason.
+    function reject(error: string, details: Record<string, unknown>) {
+        logger.warn(`Website chat request rejected: ${error}`, details)
+        res.status(400).json({ error })
+    }
+
     const body = WebsiteChatRequestSchema.safeParse(req.body)
     if (!body.success) {
-        res.status(400).json({ error: 'Invalid chat request' })
+        reject('Invalid chat request', { issues: body.error.issues })
         return
     }
 
     const messages = await safeValidateUIMessages({ messages: body.data.messages, tools: websiteChatTools })
     if (!messages.success) {
-        res.status(400).json({ error: 'Invalid chat messages' })
+        reject('Invalid chat messages', { chatId: body.data.id, error: messages.error.message })
         return
     }
 
-    const isTooLong = messages.data.some((message) =>
-        message.parts.some((part) => part.type === 'text' && part.text.length > WEBSITE_CHAT_MAX_MESSAGE_LENGTH)
+    const isTooLong = messages.data.some(
+        (message) =>
+            message.role === 'user' &&
+            message.parts.some((part) => part.type === 'text' && part.text.length > WEBSITE_CHAT_MAX_MESSAGE_LENGTH)
     )
     if (isTooLong) {
-        res.status(400).json({ error: 'Message is too long' })
+        reject('Message is too long', { chatId: body.data.id })
         return
     }
 

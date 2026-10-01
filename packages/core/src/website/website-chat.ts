@@ -24,7 +24,9 @@ export const WebsiteChatModelSchema = z.enum(
     WebsiteChatModelOptions.map(({ value }) => value) as [WebsiteChatModel, ...WebsiteChatModel[]]
 )
 
-export const WEBSITE_CHAT_MAX_MESSAGES = 40
+// A ceiling that only stops abuse. Long chats are fine: the model sees just the latest messages (see the server).
+export const WEBSITE_CHAT_MAX_MESSAGES = 300
+/** Applies to what the customer types; Frankie's replies are limited by the model's output cap instead. */
 export const WEBSITE_CHAT_MAX_MESSAGE_LENGTH = 2000
 
 // A conversation with no new message for this long is finished and reported.
