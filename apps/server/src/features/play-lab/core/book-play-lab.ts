@@ -208,7 +208,9 @@ export async function bookPlayLab(input: BookPlayLabProps) {
             // but cbf for now.
             await zohoClient.addPlayLabContact({
                 firstName: input.parentFirstName,
+                lastName: input.parentLastName,
                 email: input.parentEmail,
+                mobile: input.parentPhone,
                 studio: AcuityUtilities.getStudioByCalendarId(input.classes[0].calendarID),
                 childName: child.firstName,
                 childBirthdayISO: child.dob.split('T')[0],

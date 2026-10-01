@@ -21,6 +21,7 @@ import { getEvents } from './reports/get-events'
 import { getHolidayPrograms } from './reports/get-holiday-programs'
 import { getParties } from './reports/get-parties'
 import { getPlayLabPrograms } from './reports/get-play-lab'
+import { restoreHolidayProgramContactPhones } from './zoho/restore-holiday-program-contact-phones'
 
 import type { Square } from 'square'
 
@@ -112,6 +113,12 @@ import { SquareClient } from '@/integrations/square/square.client'
                 description: 'Imports historical Google Business Profile reviews as Mixpanel events',
                 value: 'importGoogleReviewsToMixpanel',
             },
+            {
+                title: 'Restore Holiday Program contact phones in Zoho',
+                description:
+                    'Copies the phone (and last name) from Holiday Program deals onto contacts wiped by check-in',
+                value: 'restoreHolidayProgramContactPhones',
+            },
         ],
     })
     if (script === 'legacyEventsGrouping') {
@@ -160,6 +167,9 @@ import { SquareClient } from '@/integrations/square/square.client'
     }
     if (script === 'importGoogleReviewsToMixpanel') {
         await importGoogleReviewsToMixpanel()
+    }
+    if (script === 'restoreHolidayProgramContactPhones') {
+        await restoreHolidayProgramContactPhones()
     }
     if (script === 'getParties') {
         const { startDate, endDate, location, type } = await prompts([

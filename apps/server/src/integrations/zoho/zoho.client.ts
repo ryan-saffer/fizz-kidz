@@ -374,7 +374,8 @@ export class ZohoClient {
                     ...(ownerId ? { Owner: ownerId } : {}),
                     First_Name: firstName,
                     Last_Name: lastName || 'N/A',
-                    Phone: mobile || '',
+                    // Upserts without a mobile (eg. check-in) must not clear the phone number used by the phone system
+                    ...(mobile ? { Phone: mobile } : {}),
                     Email: email,
                     Service: [service],
                     Customer_Type: customer_type,
@@ -772,6 +773,7 @@ export class ZohoClient {
         if (existingDate === programDate) {
             await this.#upsertContact({
                 firstName: existingContact.First_Name,
+                lastName: existingContact.Last_Name,
                 service: 'Holiday Program',
                 email: email,
                 customer_type: 'B2C',
