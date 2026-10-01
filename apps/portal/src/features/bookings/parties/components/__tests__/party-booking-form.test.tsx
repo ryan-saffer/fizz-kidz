@@ -160,6 +160,45 @@ describe('PartyBookingForm', () => {
         expect(showDate).toHaveBeenCalled()
     })
 
+    it('shows the paid cake and goodies while editing, and keeps them when saving', async () => {
+        server.update.mockResolvedValue(undefined)
+        const cake = {
+            selection: 'Chocolate mud cake',
+            size: 'Large',
+            flavours: ['Chocolate', 'Vanilla'],
+            served: 'Cup',
+            candles: 'Number 7 candle',
+            message: 'Happy birthday Mia!',
+        }
+        usePartyBookingsStore.getState().openEdit({
+            ...booking,
+            cake,
+            takeHomeBags: { lollyBags: 14 },
+            products: { bathBombKit: 2 },
+        } as typeof booking)
+        renderForm()
+
+        expect(screen.getByText('Cake & goodies')).toBeTruthy()
+        expect(screen.getByText('Chocolate mud cake')).toBeTruthy()
+        expect(screen.getByText('Message: Happy birthday Mia!')).toBeTruthy()
+        expect(screen.getByText('Lolly Bags')).toBeTruthy()
+        expect(screen.getByText('Bath Bomb Kit')).toBeTruthy()
+
+        await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+        await waitFor(() => expect(server.update).toHaveBeenCalledTimes(1))
+        expect(server.update.mock.calls[0][0].booking).toMatchObject({
+            cake,
+            takeHomeBags: { lollyBags: 14 },
+            products: { bathBombKit: 2 },
+        })
+    })
+
+    it("doesn't show the section when nothing was ordered", () => {
+        usePartyBookingsStore.getState().openEdit(booking)
+        renderForm()
+        expect(screen.queryByText('Cake & goodies')).toBeNull()
+    })
+
     it('keeps the dialog open when saving fails', async () => {
         server.update.mockRejectedValue(new Error('Calendar unavailable'))
         usePartyBookingsStore.getState().openEdit(booking)
