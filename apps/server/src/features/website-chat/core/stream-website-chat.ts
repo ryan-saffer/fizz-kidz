@@ -26,6 +26,7 @@ export async function streamWebsiteChat({
     greeting?: string
 }) {
     const tools = websiteChatTools
+    const receivedAt = new Date()
     const result = streamText({
         // Plain model IDs are routed through the Vercel AI Gateway using AI_GATEWAY_API_KEY.
         model,
@@ -52,7 +53,7 @@ export async function streamWebsiteChat({
         tools,
         originalMessages: messages,
         onEnd: ({ messages: updatedMessages }) =>
-            saveWebsiteChat({ id: chatId, messages: updatedMessages, model, pagePath }),
+            saveWebsiteChat({ id: chatId, messages: updatedMessages, model, pagePath, receivedAt }),
         onError: (error) => {
             logError('Website chat stream failed', error, { model, pagePath })
             return 'Oops, my fizz has gone a little flat! 🫧 Give me a moment and try again, or call the team on (03) 9059 8144.'

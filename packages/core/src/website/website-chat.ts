@@ -41,6 +41,8 @@ export const WebsiteChatIdSchema = z
 export type WebsiteChatTranscriptMessage = {
     role: 'customer' | 'frankie'
     text: string
+    /** ISO timestamp. Chats saved before timestamps were recorded don't have one. */
+    sentAt?: string
 }
 
 export type WebsiteChat = {
