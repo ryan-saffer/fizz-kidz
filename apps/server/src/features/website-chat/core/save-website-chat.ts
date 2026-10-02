@@ -25,8 +25,9 @@ export async function saveWebsiteChat({
 
         await DatabaseClient.setWebsiteChat({
             id,
-            // A late message on a finished chat is still saved, but the chat isn't reported again.
-            status: existing?.status ?? 'active',
+            // A message on a finished chat (e.g. a tab left open overnight) reopens it, so it's reported again with its
+            // latest outcome when it next goes idle. finishedAt is kept, which marks the report as resumed.
+            status: 'active',
             model,
             entryPage: existing?.entryPage ?? pagePath ?? null,
             startedAt: existing?.startedAt ?? now,

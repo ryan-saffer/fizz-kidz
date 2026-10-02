@@ -148,6 +148,7 @@ export type MixpanelEvent = {
         outcome: 'enquiry' | 'none'
         model: string
         entryPage: string | null
+        resumed: boolean
     }
     'google-business-profile-review': {
         distinct_id: string

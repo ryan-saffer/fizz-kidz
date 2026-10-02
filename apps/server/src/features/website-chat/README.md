@@ -23,7 +23,7 @@ To bring it back in line after the website changes, ask an agent to "update Fran
 
 Every reply saves the whole conversation to Firestore at `websiteChats/{chatId}`: a readable transcript, the model, the entry page, timings, the customer's message count and whether an enquiry was sent. The widget sends the full history each time, so the latest save is always complete.
 
-Conversations never end explicitly. `finishWebsiteChats` runs on the `background` Pub/Sub dispatcher every 15 minutes and finishes chats idle for `WEBSITE_CHAT_IDLE_MINUTES` (30). Each finished chat sends one Mixpanel `Website Chat Finished` event with the `chatId` to look up its transcript, `messageCount`, `durationMinutes`, `outcome` (`enquiry` or `none`), `model` and `entryPage`. The widget starts a fresh conversation after the same idle time.
+Conversations never end explicitly. `finishWebsiteChats` runs on the `background` Pub/Sub dispatcher every 15 minutes and finishes chats idle for `WEBSITE_CHAT_IDLE_MINUTES` (30). Each finished chat sends one Mixpanel `Website Chat Finished` event with the `chatId` to look up its transcript, `messageCount`, `durationMinutes`, `outcome` (`enquiry` or `none`), `model` and `entryPage`. The widget starts a fresh conversation after the same idle time when a page loads. A chat that carries on after finishing (e.g. a tab left open overnight) reopens and is reported again with its latest outcome and `resumed: true`, so count conversations by unique `chatId` and take each chat's latest `outcome`.
 
 Enquiries left by Frankie also add the chat transcript to the Zoho deal description.
 
