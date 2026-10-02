@@ -14,16 +14,16 @@ import {
 import { Streamdown } from 'streamdown'
 
 import {
-    DEFAULT_WEBSITE_CHAT_GREETING,
     DEFAULT_WEBSITE_CHAT_MODEL,
     WEBSITE_CHAT_IDLE_MINUTES,
     WEBSITE_CHAT_MAX_MESSAGE_LENGTH,
     WebsiteChatModelOptions,
-    type WebsiteChatGreeting,
     type WebsiteChatModel,
 } from '@fizz-kidz/core'
 
+import { useEnquiryLeadTracking } from './use-enquiry-lead-tracking'
 import { useWebsiteChatNudge } from './use-website-chat-nudge'
+import { DEFAULT_WEBSITE_CHAT_GREETING, type WebsiteChatGreeting } from './website-chat-greetings'
 import { playReplySound, playSendSound } from './website-chat-sounds'
 
 import { cn } from '@/react-lib/utils'
@@ -65,7 +65,7 @@ const FIZZ_STRIPE = ['#E91271', '#FFDC5D', '#9ECC47', '#4BC5D9']
 const WEBSITE_CHAT_UNAVAILABLE_MESSAGE =
     'Oops, my fizz has gone a little flat! 🫧 Give me a moment and try again, or call the team on (03) 9059 8144.'
 
-// The greeting (DEFAULT_WEBSITE_CHAT_GREETING in core) is shown by the widget before the first message, with quick
+// The greeting (DEFAULT_WEBSITE_CHAT_GREETING in website-chat-greetings.ts) is shown by the widget before the first message, with quick
 // replies that send as the customer's message. Opening from Frankie's speech bubble uses that page's greeting instead.
 
 type StoredChat = {
@@ -229,6 +229,8 @@ export function WebsiteChat() {
         messages: chatId === storedChat?.id ? storedChat.messages : undefined,
         transport,
     })
+
+    useEnquiryLeadTracking(messages)
 
     useEffect(() => {
         if (messages.length > 0 && (status === 'ready' || status === 'error')) {
