@@ -24,7 +24,7 @@ Website forms use the Zod schemas, inferred payload types, and select options ex
 
 `src/layout/google-tag-manager.js` is embedded inline by `Layout.astro`. It creates `window.dataLayer` immediately so form events can queue, then requests GTM after the window's `load` event and an idle callback. The idle callback has a two-second timeout; browsers without that API use a deferred timer after load. A window-level guard prevents duplicate scheduling across Astro navigation, including navigation while the download is pending.
 
-Very short visits and automatic interactions before GTM starts can be missed. Explicit `dataLayer` events stay queued. This changes loading order, not the container's Analytics or Ads configuration. Run the loader tests with `npm run test:gtm --workspace website`.
+Very short visits and automatic interactions before GTM starts can be missed. Explicit `dataLayer` events stay queued. This changes loading order, not the container's Analytics or Ads configuration. Run the loader tests with `vp test --run --project website`.
 
 ## Website Chat
 
@@ -49,7 +49,10 @@ npm --workspace website run check
 npm run build --workspace website
 npm --workspace website run build:dev
 npm --workspace website run preview
+vp test --run --project website
 ```
+
+Unit tests sit beside the code as `*.test.ts(x)` and run with the root Vitest config, which mirrors the website's path aliases. Add `// @vitest-environment jsdom` to tests that render React islands or use `window`; they can use React Testing Library, as the Portal does.
 
 `npm run website` sends API requests to `https://dev.fizzkidz.com.au`; `npm run website:local` sends them to the development Functions emulator on port `5001`; and `npm run website:prod` sends them to `https://bookings.fizzkidz.com.au`. Start `npm run server` or `npm run portal:local` alongside `website:local` so the emulator is available.
 

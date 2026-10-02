@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { WEBSITE_CHAT_NUDGE_DELAY_SECONDS, getWebsiteChatNudge, type WebsiteChatGreeting } from '@fizz-kidz/core'
+import {
+    WEBSITE_CHAT_NUDGE_DELAY_SECONDS,
+    getWebsiteChatNudge,
+    type WebsiteChatGreeting,
+} from './website-chat-greetings'
 
 const VISIT_STORAGE_KEY = 'fizz-website-chat-visit'
 // A short pause after arriving on a page, so the bubble never pops up the instant a page loads.

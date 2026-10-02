@@ -12,6 +12,7 @@ const workspaceDir = process.cwd()
 const portalDir = path.join(workspaceDir, 'apps/portal')
 const serverDir = path.join(workspaceDir, 'apps/server')
 const coreDir = path.join(workspaceDir, 'packages/core')
+const websiteDir = path.join(workspaceDir, 'apps/website')
 const uiDir = path.join(workspaceDir, 'packages/ui')
 const vpBin = path.join(workspaceDir, 'node_modules', 'vite-plus', 'bin', 'vp')
 const npmBin = process.platform === 'win32' ? 'npm.cmd' : 'npm'
@@ -27,6 +28,16 @@ const portalAliases = {
     '@fizz-kidz/core': path.join(coreDir, 'src'),
     '@fizz-kidz/ui': path.join(uiDir, 'src'),
 }
+
+// Mirrors apps/website/tsconfig.json paths, most specific first so they win over the general `@/`.
+const websiteAliases = [
+    { find: '@/react-components', replacement: path.join(websiteDir, 'src/components/react') },
+    { find: '@/react-ui', replacement: path.join(websiteDir, 'src/components/react/ui') },
+    { find: '@/react-lib', replacement: path.join(websiteDir, 'src/components/react/lib') },
+    { find: '@fizz-kidz/core', replacement: path.join(coreDir, 'src') },
+    { find: '@fizz-kidz/ui', replacement: path.join(uiDir, 'src') },
+    { find: /^@\//, replacement: `${path.join(websiteDir, 'src')}/` },
+]
 
 const serverAliases = {
     '@': path.join(serverDir, 'src'),
@@ -329,6 +340,14 @@ export default defineConfig(({ command, mode }) => {
                         name: 'server',
                         root: serverDir,
                         include: ['src/**/*.test.ts'],
+                    },
+                },
+                {
+                    resolve: { alias: websiteAliases },
+                    test: {
+                        name: 'website',
+                        root: websiteDir,
+                        include: ['src/**/*.test.{ts,tsx}'],
                     },
                 },
                 {
