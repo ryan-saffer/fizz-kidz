@@ -28,6 +28,8 @@ export async function finishIdleWebsiteChats(now = new Date()) {
                 outcome: chat.enquirySubmitted ? 'enquiry' : 'none',
                 model: chat.model,
                 entryPage: chat.entryPage,
+                // A resumed chat is reported again with its latest outcome; count conversations by unique chatId.
+                resumed: chat.finishedAt !== undefined,
             })
         } catch (err) {
             logError('Failed to finish website chat', err, { chatId: chat.id })

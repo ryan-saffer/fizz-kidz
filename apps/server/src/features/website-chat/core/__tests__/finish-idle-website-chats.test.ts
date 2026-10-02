@@ -52,7 +52,19 @@ describe('finishIdleWebsiteChats', () => {
             outcome: 'enquiry',
             model: 'openai/gpt-5.4-nano',
             entryPage: '/birthday-parties/',
+            resumed: false,
         })
+    })
+
+    it('marks a chat that finished before and then resumed', async () => {
+        mocks.getActive.mockResolvedValue([chat({ finishedAt: minutesAgo(600) })])
+
+        await finishIdleWebsiteChats(now)
+
+        expect(mocks.track).toHaveBeenCalledWith(
+            'website-chat-finished',
+            expect.objectContaining({ outcome: 'enquiry', resumed: true })
+        )
     })
 
     it('leaves chats that are still going', async () => {

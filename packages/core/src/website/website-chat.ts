@@ -50,6 +50,7 @@ export type WebsiteChat = {
     entryPage: string | null
     startedAt: Date
     lastMessageAt: Date
+    /** When it last finished. Kept when a finished chat resumes, until it finishes again. */
     finishedAt?: Date
     /** Messages sent by the customer. */
     messageCount: number
