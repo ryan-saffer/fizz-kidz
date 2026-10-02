@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { format } from 'date-fns'
+import { format, isSameDay } from 'date-fns'
 import { ArrowLeft } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 
@@ -59,6 +59,7 @@ export function WebsiteChatTranscriptPage() {
                                 >
                                     <span className="px-1 text-xs text-slate-500">
                                         {message.role === 'customer' ? 'Customer' : 'Frankie'}
+                                        {message.sentAt && ` · ${formatSentAt(message.sentAt, chat.startedAt)}`}
                                     </span>
                                     <p
                                         className={cn(
@@ -78,4 +79,10 @@ export function WebsiteChatTranscriptPage() {
             </div>
         </div>
     )
+}
+
+// The time, plus the date when it's a different day from the start, e.g. a chat resumed the next morning.
+function formatSentAt(sentAt: string, startedAt: string) {
+    const sent = new Date(sentAt)
+    return format(sent, isSameDay(sent, new Date(startedAt)) ? 'h:mm a' : 'd MMM, h:mm a')
 }

@@ -1,4 +1,4 @@
-import type { WebsiteChatModel } from '@fizz-kidz/core'
+import type { WebsiteChatModel, WebsiteChatTranscriptMessage } from '@fizz-kidz/core'
 
 import { getTranscriptFromUIMessages } from './website-chat-transcript'
 
@@ -13,11 +13,14 @@ export async function saveWebsiteChat({
     messages,
     model,
     pagePath,
+    receivedAt,
 }: {
     id: string
     messages: UIMessage[]
     model: WebsiteChatModel
     pagePath?: string
+    /** When the server received the customer's latest message. */
+    receivedAt: Date
 }) {
     try {
         const existing = await DatabaseClient.getWebsiteChat(id)
@@ -35,11 +38,30 @@ export async function saveWebsiteChat({
             ...(existing?.finishedAt && { finishedAt: existing.finishedAt }),
             messageCount: messages.filter((message) => message.role === 'user').length,
             enquirySubmitted: existing?.enquirySubmitted === true || hasSubmittedEnquiry(messages),
-            messages: getTranscriptFromUIMessages(messages),
+            messages: withSentTimes(getTranscriptFromUIMessages(messages), existing?.messages ?? [], {
+                receivedAt,
+                now,
+            }),
         })
     } catch (err) {
         logError('Failed to save website chat transcript', err, { chatId: id })
     }
+}
+
+// Messages already saved keep their times. New ones are stamped now: the customer's message when the server received
+// it, Frankie's reply when it finished.
+function withSentTimes(
+    transcript: WebsiteChatTranscriptMessage[],
+    previous: WebsiteChatTranscriptMessage[],
+    { receivedAt, now }: { receivedAt: Date; now: Date }
+): WebsiteChatTranscriptMessage[] {
+    return transcript.map((message, index) => ({
+        ...message,
+        sentAt:
+            index < previous.length
+                ? previous[index].sentAt
+                : (message.role === 'customer' ? receivedAt : now).toISOString(),
+    }))
 }
 
 function hasSubmittedEnquiry(messages: UIMessage[]) {
