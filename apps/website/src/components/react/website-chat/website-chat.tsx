@@ -1,6 +1,11 @@
 import { useChat } from '@ai-sdk/react'
-import { DefaultChatTransport, generateId, type UIMessage } from 'ai'
-import { ArrowUp, CircleCheck, LoaderCircle, MessageCircle, RotateCcw, Square, Volume2, VolumeX, X } from 'lucide-react'
+import {
+    DefaultChatTransport,
+    generateId,
+    lastAssistantMessageIsCompleteWithApprovalResponses,
+    type UIMessage,
+} from 'ai'
+import { ArrowUp, MessageCircle, RotateCcw, Square, Volume2, VolumeX, X } from 'lucide-react'
 import {
     useCallback,
     useEffect,
@@ -21,6 +26,7 @@ import {
     type WebsiteChatModel,
 } from '@fizz-kidz/core'
 
+import { EnquiryConfirmation } from './enquiry-confirmation'
 import { useEnquiryLeadTracking } from './use-enquiry-lead-tracking'
 import { useWebsiteChatNudge } from './use-website-chat-nudge'
 import { DEFAULT_WEBSITE_CHAT_GREETING, type WebsiteChatGreeting } from './website-chat-greetings'
@@ -224,10 +230,12 @@ export function WebsiteChat() {
                 }),
             })
     )
-    const { messages, sendMessage, status, stop, error } = useChat({
+    const { messages, sendMessage, addToolApprovalResponse, status, stop, error } = useChat({
         id: chatId,
         messages: chatId === storedChat?.id ? storedChat.messages : undefined,
         transport,
+        // Tapping Send enquiry or Change something answers Frankie's enquiry, and the chat carries on from there.
+        sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     })
 
     useEnquiryLeadTracking(messages)
@@ -321,6 +329,13 @@ export function WebsiteChat() {
         if (!isMuted) playSendSound()
         sendMessage({ text: trimmed })
         setInput('')
+    }
+
+    function respondToEnquiry(response: { id: string; approved: boolean; reason?: string }) {
+        if (isBusy) return
+        lastActivityAtRef.current = Date.now()
+        if (response.approved && !isMuted) playSendSound()
+        addToolApprovalResponse(response)
     }
 
     function handleSubmit(event: FormEvent) {
@@ -499,6 +514,10 @@ export function WebsiteChat() {
                                                         status === 'streaming' &&
                                                         message.id === messages[messages.length - 1]?.id
                                                     }
+                                                    canRespond={
+                                                        !isBusy && message.id === messages[messages.length - 1]?.id
+                                                    }
+                                                    onRespondToEnquiry={respondToEnquiry}
                                                 />
                                             )}
                                         </MessageScrollerItem>
@@ -625,7 +644,17 @@ export function WebsiteChat() {
     )
 }
 
-function AssistantMessage({ message, isStreaming }: { message: UIMessage; isStreaming: boolean }) {
+function AssistantMessage({
+    message,
+    isStreaming,
+    canRespond,
+    onRespondToEnquiry,
+}: {
+    message: UIMessage
+    isStreaming: boolean
+    canRespond: boolean
+    onRespondToEnquiry: (response: { id: string; approved: boolean; reason?: string }) => void
+}) {
     return (
         <div className="flex flex-col gap-2">
             {message.parts.map((part, index) => {
@@ -643,33 +672,22 @@ function AssistantMessage({ message, isStreaming }: { message: UIMessage; isStre
                     )
                 }
                 if (part.type === 'tool-submit_enquiry') {
-                    return <EnquiryStatus key={index} state={part.state} output={part.output} />
+                    return (
+                        <EnquiryConfirmation
+                            key={index}
+                            state={part.state}
+                            input={part.input}
+                            output={part.output}
+                            approval={part.approval}
+                            canRespond={canRespond}
+                            onRespond={onRespondToEnquiry}
+                        />
+                    )
                 }
                 return null
             })}
         </div>
     )
-}
-
-function EnquiryStatus({ state, output }: { state: string; output: unknown }) {
-    const isSent = state === 'output-available' && (output as { success?: boolean } | undefined)?.success === true
-    if (isSent) {
-        return (
-            <p className="flex items-center gap-1.5 text-xs font-semibold text-[#2F8F46]">
-                <CircleCheck className="h-4 w-4" />
-                Enquiry sent to the Fizz Kidz team
-            </p>
-        )
-    }
-    if (state === 'input-streaming' || state === 'input-available') {
-        return (
-            <p className="flex items-center gap-1.5 text-xs text-[#542785]">
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-                Sending your enquiry…
-            </p>
-        )
-    }
-    return null
 }
 
 function TypingDots() {

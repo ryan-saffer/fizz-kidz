@@ -4,13 +4,14 @@ import type { WebsiteChat } from '@fizz-kidz/core'
 
 import { finishIdleWebsiteChats } from '../finish-idle-website-chats'
 
-const mocks = vi.hoisted(() => ({ getActive: vi.fn(), update: vi.fn(), track: vi.fn() }))
+const mocks = vi.hoisted(() => ({ getActive: vi.fn(), update: vi.fn(), track: vi.fn(), sendUnconfirmed: vi.fn() }))
 vi.mock('@/integrations/firebase/database.client', () => ({
     DatabaseClient: { getActiveWebsiteChats: mocks.getActive, updateWebsiteChat: mocks.update },
 }))
 vi.mock('@/integrations/mixpanel/mixpanel.client', () => ({
     MixpanelClient: { getInstance: async () => ({ track: mocks.track }) },
 }))
+vi.mock('../send-unconfirmed-enquiry', () => ({ sendUnconfirmedEnquiry: mocks.sendUnconfirmed }))
 vi.mock('@/integrations/observability/log-error', () => ({ logError: vi.fn() }))
 
 const now = new Date('2026-09-29T10:00:00+10:00')
@@ -36,6 +37,7 @@ describe('finishIdleWebsiteChats', () => {
         mocks.getActive.mockReset()
         mocks.update.mockReset()
         mocks.track.mockReset()
+        mocks.sendUnconfirmed.mockReset()
     })
 
     it('finishes idle chats and reports each once', async () => {
@@ -74,5 +76,32 @@ describe('finishIdleWebsiteChats', () => {
 
         expect(mocks.update).not.toHaveBeenCalled()
         expect(mocks.track).not.toHaveBeenCalled()
+    })
+
+    it('sends an enquiry for a customer who left their details without sending one', async () => {
+        const idleChat = chat({ enquirySubmitted: false })
+        mocks.getActive.mockResolvedValue([idleChat])
+        mocks.sendUnconfirmed.mockResolvedValue(true)
+
+        await finishIdleWebsiteChats(now)
+
+        expect(mocks.sendUnconfirmed).toHaveBeenCalledWith(idleChat)
+        expect(mocks.update).toHaveBeenCalledWith('chat-idle-1', {
+            status: 'finished',
+            finishedAt: now,
+            enquirySubmitted: true,
+        })
+        expect(mocks.track).toHaveBeenCalledWith(
+            'website-chat-finished',
+            expect.objectContaining({ outcome: 'auto-enquiry' })
+        )
+    })
+
+    it("doesn't send another enquiry when Frankie already sent one", async () => {
+        mocks.getActive.mockResolvedValue([chat({})])
+
+        await finishIdleWebsiteChats(now)
+
+        expect(mocks.sendUnconfirmed).not.toHaveBeenCalled()
     })
 })

@@ -145,7 +145,8 @@ export type MixpanelEvent = {
         chatId: string
         messageCount: number
         durationMinutes: number
-        outcome: 'enquiry' | 'none'
+        // auto-enquiry: sent after the customer left without confirming (see sendUnconfirmedEnquiry).
+        outcome: 'enquiry' | 'auto-enquiry' | 'none'
         model: string
         entryPage: string | null
         resumed: boolean

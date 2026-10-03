@@ -30,6 +30,12 @@ export const WEBSITE_CHAT_MAX_MESSAGE_LENGTH = 2000
 // A conversation with no new message for this long is finished and reported.
 export const WEBSITE_CHAT_IDLE_MINUTES = 30
 
+// What Frankie is told when the customer taps a button on the enquiry details instead of Send enquiry. The server also
+// checks for Don't send, so a customer who taps it is never followed up.
+export const WEBSITE_CHAT_CHANGE_SOMETHING_REASON = 'The customer tapped Change something, so nothing was sent.'
+export const WEBSITE_CHAT_DONT_SEND_REASON =
+    "The customer tapped Don't send. Nothing was sent, and they don't want the team to follow up."
+
 export const WebsiteChatIdSchema = z
     .string()
     .min(8)
