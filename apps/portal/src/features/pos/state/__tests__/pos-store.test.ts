@@ -40,9 +40,9 @@ describe('a product sale', () => {
         expect(getTerminalCheckoutStudios('balwyn', 'dev')).toEqual(['balwyn'])
         expect(getTerminalCheckoutStudios('master', 'dev')).toHaveLength(7)
         expect(getTerminalCheckoutStudios(null, 'dev')).toEqual([])
-        // no studios are trialling it yet
+        // only geelong on the trial
         expect(getTerminalCheckoutStudios('balwyn', 'prod')).toEqual([])
-        expect(getTerminalCheckoutStudios('master', 'prod')).toEqual([])
+        expect(getTerminalCheckoutStudios('master', 'prod')).toEqual(['geelong'])
         // super-admins always can, to try it out
         expect(getTerminalCheckoutStudios('master', 'prod', true)).toHaveLength(7)
         expect(getTerminalCheckoutStudios('balwyn', 'prod', true)).toEqual(['balwyn'])
