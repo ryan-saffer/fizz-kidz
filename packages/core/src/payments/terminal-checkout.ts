@@ -9,7 +9,7 @@ import { STUDIOS, type Studio, type StudioOrMaster } from '../core/studio'
  * The studios trialling terminal checkout; the rest don't see it. Super-admins have it at every studio, and so does
  * every studio in dev, for Square's sandbox.
  */
-export const TERMINAL_CHECKOUT_TRIAL_STUDIOS: Studio[] = []
+export const TERMINAL_CHECKOUT_TRIAL_STUDIOS: Studio[] = ['geelong']
 
 export function isTerminalCheckoutAvailable(studio: Studio, env: 'prod' | 'dev', superAdmin = false) {
     return superAdmin || env === 'dev' || TERMINAL_CHECKOUT_TRIAL_STUDIOS.includes(studio)
