@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import { submitEnquiryTool } from '../submit-enquiry-tool'
+import { submitEnquiryTool, submitWebsiteChatEnquiry } from '../submit-enquiry-tool'
 
 const mocks = vi.hoisted(() => ({ process: vi.fn(), logError: vi.fn() }))
 vi.mock('@/features/website/core/process-website-form-submission', () => ({
@@ -120,5 +120,21 @@ describe('submitEnquiryTool', () => {
 
         await expect(submit(partyEnquiry)).resolves.toMatchObject({ success: false })
         expect(mocks.logError).toHaveBeenCalled()
+    })
+
+    it("asks the team to double-check details the customer didn't confirm", async () => {
+        await expect(
+            submitWebsiteChatEnquiry(partyEnquiry, { chatTranscript: 'Customer: Hi', isUnconfirmed: true })
+        ).resolves.toEqual({ success: true })
+
+        expect(mocks.process).toHaveBeenCalledWith(
+            {
+                formId: 'contact',
+                data: expect.objectContaining({
+                    enquiry: expect.stringContaining('left the chat before confirming these details'),
+                }),
+            },
+            { chatTranscript: 'Customer: Hi' }
+        )
     })
 })

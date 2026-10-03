@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { CONTEXT_NOTE_PREFIX, withContextNote, withRecentHistory } from '../website-chat-context'
+import {
+    CONTEXT_NOTE_PREFIX,
+    REPLIED_INSTEAD_OF_CONFIRMING,
+    withContextNote,
+    withRecentHistory,
+    withUnansweredConfirmationsDeclined,
+} from '../website-chat-context'
 import { getTranscriptFromModelMessages } from '../website-chat-transcript'
 
 import type { ModelMessage, UIMessage } from 'ai'
@@ -49,5 +55,40 @@ describe('withRecentHistory', () => {
 
         expect(recent[0]).toMatchObject({ id: '42', role: 'user' })
         expect(recent.at(-1)).toMatchObject({ id: '100' })
+    })
+})
+
+describe('withUnansweredConfirmationsDeclined', () => {
+    const confirmation = (id: string): UIMessage => ({
+        id,
+        role: 'assistant',
+        parts: [
+            {
+                type: 'tool-submit_enquiry',
+                toolCallId: `call-${id}`,
+                state: 'approval-requested',
+                input: { name: 'Sam Lee' },
+                approval: { id: `approval-${id}` },
+            },
+        ],
+    })
+
+    it('declines details the customer replied to by typing, with their reply to go on', () => {
+        const messages = withUnansweredConfirmationsDeclined([
+            confirmation('1'),
+            { id: '2', role: 'user', parts: [{ type: 'text', text: 'My email is wrong' }] },
+        ])
+
+        expect(messages[0].parts[0]).toMatchObject({
+            state: 'output-denied',
+            approval: { id: 'approval-1', approved: false, reason: REPLIED_INSTEAD_OF_CONFIRMING },
+        })
+        expect(messages[1].parts[0]).toEqual({ type: 'text', text: 'My email is wrong' })
+    })
+
+    it('leaves the latest message alone, so a tap on Send enquiry still goes through', () => {
+        const latest = confirmation('1')
+
+        expect(withUnansweredConfirmationsDeclined([latest])[0]).toBe(latest)
     })
 })

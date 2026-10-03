@@ -1,4 +1,4 @@
-import type { WebsiteChatTranscriptMessage } from '@fizz-kidz/core'
+import { WEBSITE_CHAT_DONT_SEND_REASON, type WebsiteChatTranscriptMessage } from '@fizz-kidz/core'
 
 import { CONTEXT_NOTE_PREFIX } from './website-chat-context'
 
@@ -10,11 +10,7 @@ export function getTranscriptFromUIMessages(messages: UIMessage[]): WebsiteChatT
         const text = message.parts
             .map((part) => {
                 if (part.type === 'text') return part.text
-                if (part.type === 'tool-submit_enquiry' && part.state === 'output-available') {
-                    return (part.output as { success?: boolean } | undefined)?.success
-                        ? '[Enquiry sent to the team]'
-                        : ''
-                }
+                if (part.type === 'tool-submit_enquiry') return getEnquiryNote(part.state, part.output, part.approval)
                 return ''
             })
             .filter(Boolean)
@@ -22,6 +18,23 @@ export function getTranscriptFromUIMessages(messages: UIMessage[]): WebsiteChatT
             .trim()
         return text ? [{ role: message.role === 'user' ? 'customer' : 'frankie', text }] : []
     })
+}
+
+// Notes in the transcript for Frankie's enquiry details, so it shows (and sendUnconfirmedEnquiry can check) what the
+// customer chose.
+export const ENQUIRY_SHOWN_NOTE = '[Showed the enquiry details to confirm]'
+export const ENQUIRY_NOT_WANTED_NOTE = '[Customer chose not to send the enquiry]'
+
+function getEnquiryNote(state: string, output: unknown, approval?: { approved?: boolean; reason?: string }) {
+    if (state === 'output-available') {
+        return (output as { success?: boolean } | undefined)?.success ? '[Enquiry sent to the team]' : ''
+    }
+    if (approval?.approved === false && approval.reason === WEBSITE_CHAT_DONT_SEND_REASON) {
+        return ENQUIRY_NOT_WANTED_NOTE
+    }
+    if (state === 'output-denied' || approval?.approved === false) return '[Customer chose to change the details]'
+    if (state === 'approval-requested') return ENQUIRY_SHOWN_NOTE
+    return ''
 }
 
 export function getTranscriptFromModelMessages(messages: ModelMessage[]): WebsiteChatTranscriptMessage[] {

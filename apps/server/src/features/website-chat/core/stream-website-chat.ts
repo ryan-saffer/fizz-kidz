@@ -5,7 +5,12 @@ import type { WebsiteChatModel } from '@fizz-kidz/core'
 
 import { saveWebsiteChat } from './save-website-chat'
 import { submitEnquiryTool } from './submit-enquiry-tool'
-import { getWebsiteChatPageContext, withContextNote, withRecentHistory } from './website-chat-context'
+import {
+    getWebsiteChatPageContext,
+    withContextNote,
+    withRecentHistory,
+    withUnansweredConfirmationsDeclined,
+} from './website-chat-context'
 import { WEBSITE_CHAT_INSTRUCTIONS } from './website-chat-instructions'
 
 import { logError } from '@/integrations/observability/log-error'
@@ -33,10 +38,12 @@ export async function streamWebsiteChat({
         // Identical for every request, so providers can serve it from their prompt cache.
         instructions: WEBSITE_CHAT_INSTRUCTIONS,
         messages: withContextNote(
-            await convertToModelMessages(withRecentHistory(messages), { tools }),
+            await convertToModelMessages(withRecentHistory(withUnansweredConfirmationsDeclined(messages)), { tools }),
             getWebsiteChatPageContext({ pagePath, greeting })
         ),
         tools,
+        // The customer checks the details and taps Send enquiry before it's sent. Until then, the reply ends there.
+        toolApproval: { submit_enquiry: 'user-approval' },
         // Lets the model reply after a tool call, e.g. to confirm an enquiry was sent.
         stopWhen: isStepCount(4),
         maxOutputTokens: 1000,

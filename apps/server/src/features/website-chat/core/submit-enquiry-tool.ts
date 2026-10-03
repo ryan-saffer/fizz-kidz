@@ -19,7 +19,7 @@ function values<T extends readonly { value: string }[]>(options: T) {
 }
 
 // What the model fills in. Required details per service are checked by the website contact form schema.
-const SubmitEnquiryInputSchema = z.object({
+export const SubmitEnquiryInputSchema = z.object({
     name: z.string().describe("The customer's full name"),
     email: z.string().describe("The customer's email address"),
     contactNumber: z.string().describe("The customer's phone number"),
@@ -53,7 +53,7 @@ const SubmitEnquiryInputSchema = z.object({
         ),
 })
 
-type SubmitEnquiryInput = z.infer<typeof SubmitEnquiryInputSchema>
+export type SubmitEnquiryInput = z.infer<typeof SubmitEnquiryInputSchema>
 
 const NOT_PROVIDED = 'Not provided yet'
 
@@ -95,38 +95,52 @@ function withFormFallbacks(input: SubmitEnquiryInput) {
 
 export const submitEnquiryTool = tool({
     description:
-        "Pass the customer's question or booking request to the Fizz Kidz team, who follow up with them. The customer gets a confirmation email. Only call this after the customer has confirmed the details and said yes to sending it.",
+        "Pass the customer's question or booking request to the Fizz Kidz team, who follow up with them. The customer is shown the details with Send enquiry, Change something and Don't send buttons, and it's only sent once they tap Send enquiry. They then get a confirmation email.",
     inputSchema: SubmitEnquiryInputSchema,
-    execute: async (input, { messages }) => {
-        const { filled, notProvided } = withFormFallbacks(input)
-        const enquiry = ContactWebsiteFormSchema.safeParse({
-            ...filled,
-            enquiry: [
-                input.enquiry,
-                notProvided.length > 0 && `Not provided yet: ${notProvided.join(', ')}.`,
-                '(Left by Frankie, the website chat assistant)',
-            ]
-                .filter(Boolean)
-                .join('\n\n'),
-            reference: 'other',
-            referenceOther: 'Website chat',
-        })
-        if (!enquiry.success) {
-            return {
-                success: false as const,
-                problems: enquiry.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`),
-            }
-        }
-
-        try {
-            await processWebsiteFormSubmission(
-                { formId: 'contact', data: enquiry.data },
-                { chatTranscript: formatTranscript(getTranscriptFromModelMessages(messages)) }
-            )
-            return { success: true as const }
-        } catch (err) {
-            logError('Website chat failed to submit an enquiry', err, { service: input.service })
-            return { success: false as const, problems: ['The enquiry could not be sent. Ask them to try again soon.'] }
-        }
-    },
+    execute: (input, { messages }) =>
+        submitWebsiteChatEnquiry(input, {
+            chatTranscript: formatTranscript(getTranscriptFromModelMessages(messages)),
+        }),
 })
+
+/** Sends an enquiry from the website chat to the team, through the website contact form pipeline. */
+export async function submitWebsiteChatEnquiry(
+    input: SubmitEnquiryInput,
+    {
+        chatTranscript,
+        isUnconfirmed = false,
+    }: {
+        chatTranscript: string
+        /** Sent after the customer left the chat, without them confirming the details. */
+        isUnconfirmed?: boolean
+    }
+) {
+    const { filled, notProvided } = withFormFallbacks(input)
+    const enquiry = ContactWebsiteFormSchema.safeParse({
+        ...filled,
+        enquiry: [
+            input.enquiry,
+            notProvided.length > 0 && `Not provided yet: ${notProvided.join(', ')}.`,
+            isUnconfirmed && 'The customer left the chat before confirming these details, so please double-check them.',
+            '(Left by Frankie, the website chat assistant)',
+        ]
+            .filter(Boolean)
+            .join('\n\n'),
+        reference: 'other',
+        referenceOther: 'Website chat',
+    })
+    if (!enquiry.success) {
+        return {
+            success: false as const,
+            problems: enquiry.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`),
+        }
+    }
+
+    try {
+        await processWebsiteFormSubmission({ formId: 'contact', data: enquiry.data }, { chatTranscript })
+        return { success: true as const }
+    } catch (err) {
+        logError('Website chat failed to submit an enquiry', err, { service: input.service, isUnconfirmed })
+        return { success: false as const, problems: ['The enquiry could not be sent. Ask them to try again soon.'] }
+    }
+}
