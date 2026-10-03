@@ -1,4 +1,9 @@
-import { STUDIOS, getInventoryStockLevelId } from '@fizz-kidz/core'
+import {
+    STOCKED_PARTY_ORDER_STUDIOS,
+    STUDIOS,
+    getInventoryStockLevelId,
+    isOrderableInventoryItem,
+} from '@fizz-kidz/core'
 import type { InventoryItem, InventoryStockLevel } from '@fizz-kidz/core'
 
 import { inventoryItemInputSchema } from './inventory.schemas'
@@ -20,15 +25,19 @@ export async function createInventoryItem(input: CreateInventoryItemInput) {
         createdAt: now,
         updatedAt: now,
     }
+    // orderable items are only stocked where customers order from studio stock, and start empty so the first delivery
+    // can be received straight away
+    const isOrderable = isOrderableInventoryItem(item)
     const stockLevels: InventoryStockLevel[] = STUDIOS.map((location) => ({
         id: getInventoryStockLevelId(location, itemId),
         itemId,
         location,
-        stocked: true,
+        stocked: isOrderable ? STOCKED_PARTY_ORDER_STUDIOS.includes(location) : true,
         measurement:
             item.$trackingMode === 'quantity'
-                ? { $type: 'quantity', quantity: null }
+                ? { $type: 'quantity', quantity: isOrderable ? 0 : null }
                 : { $type: 'qualitative', level: 'unknown' },
+        ...(isOrderable && { reservedQuantity: 0 }),
         updatedAt: now,
     }))
 

@@ -1,96 +1,87 @@
 ---
 title: Inventory
-description: Track consumables and turn upcoming party bookings into a suggested shopping list.
+description: Track studio stock, receive the monthly cake and lolly bag delivery, and see what's reserved for parties.
 ---
 
-import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components'
+import { Aside, CardGrid, Card, Steps } from '@astrojs/starlight/components'
 
-Inventory tracks consumable stock used by studios. It has three connected parts: the catalogue, a generated shopping
-list, and usage rules.
+Inventory shows what each studio has on hand. It holds two kinds of item on one page:
 
 <CardGrid>
-  <Card title="Inventory" icon="document">
-    The shared item catalogue plus the selected studio's current quantity or level.
+  <Card title="Cakes & take-home bags" icon="star">
+    Werribee and Geelong sell these from studio stock. Parents order them on the party form, and each order reserves
+    stock for that party.
   </Card>
-  <Card title="Shopping list" icon="list-format">
-    A calculation based on upcoming in-studio party bookings, active usage rules, current counts, and minimum targets.
-  </Card>
-  <Card title="Usage rules" icon="puzzle">
-    Defines how much of an item a base party, food package, or addition needs per booking, per child, or both.
+  <Card title="Party food" icon="document">
+    Food the studio uses at parties. Staff keep their counts or levels current.
   </Card>
 </CardGrid>
 
-What you can view or edit depends on your Portal responsibilities. The master organisation can choose a studio for stock
-and can generate a shopping list grouped across studios.
+The master organisation can choose any studio. A studio organisation sees its own stock. Managers and admins can receive,
+count and remove stock; the studio iPad can view it.
 
-## Keep stock current
+## On hand, reserved and available
+
+For cakes and take-home bags, each row shows three numbers:
+
+- **Here**: everything physically at the studio, including stock reserved for upcoming parties.
+- **Reserved**: held for parties that have ordered it. Reserved stock stays in the freezer until the party.
+- **Available to order**: here minus reserved. Only this can be ordered on the party form.
+
+The day after a party, its reserved stock comes off automatically. When a booking is deleted, its reservation is given
+back automatically.
+
+<Aside type="tip" title="Counting the freezer is safe">
+  Reserved cakes aren't labelled, and you don't need to know which is which. When you count, count everything in the
+  freezer. The count should match **Here**.
+</Aside>
+
+## Receive the monthly delivery
 
 <Steps>
   <ol>
-    <li>Confirm the studio shown in the catalogue.</li>
-    <li>Find the item using search, category, or stock-status filters.</li>
+    <li>A supervisor, area manager or franchisee checks the delivery against the docket.</li>
     <li>
-      For quantity items, use <strong>Receive</strong> to add stock or <strong>Set stock</strong> after a count.{' '}
-      <strong>Receive</strong> is hidden while the count is unknown, so set the stock first.
+      Select <strong>Receive cake & bag delivery</strong> and enter how many of each item arrived. Leave anything that
+      didn't come at zero.
     </li>
     <li>
-      For level-based items, use <strong>Update level</strong> to choose the current level.
-    </li>
-    <li>
-      Use the <strong>…</strong> menu for <strong>Mark count unknown</strong> when a count can no longer be trusted, or{' '}
-      <strong>Mark unused here</strong> when that studio does not track the item. Don't mark an item unused when it is
-      only temporarily out of stock.
-    </li>
-    <li>
-      To start tracking an unused item again, select <strong>Track here</strong>.
+      Tick that you physically checked the delivery, then select <strong>Receive delivery</strong>.
     </li>
   </ol>
 </Steps>
 
-Quantity items hold a numeric count. Level-based items use values such as high, medium, low, out, or unknown. A
-quantity item shows **Running low** when its count reaches the item's threshold; a level-based item shows it at low or
-out.
-
-<Aside type="caution" title="Stock does not reduce itself">
-  Bookings and attendance do not automatically consume inventory. Staff must keep counts or levels current, because the
-  catalogue is only as current as the latest update.
+<Aside type="caution" title="Receive what arrived, never what's in the freezer">
+  Enter the delivery from the docket, not by counting the freezer afterwards. Some of what is already there is reserved
+  for upcoming parties.
 </Aside>
 
-## Generate a shopping list
+## Count and remove
 
-Choose a date range in **Shopping list** and select **Generate**. For each matching studio party booking, the Portal:
+- **Count cakes & bags**: a stocktake of every cake and bag at once. Count everything, including reserved stock, and leave blank anything you didn't count. **Count** on a single row does the same for one item.
+- **Count**: enter what is physically there. For cakes and bags, a count that doesn't match needs a reason, and the
+  studio's owners are emailed. If the count leaves fewer than are reserved, some parties will be short, and the owners
+  are told so they can sort it out.
+- **Remove (thrown out)**: in the **…** menu. Use it when something spoils or is damaged, with a reason.
+- **Stock history**: in the **…** menu. Every receive, count, removal, reservation and party, with who did it and why.
 
-1. Applies active base-party, food-package, and addition rules.
-2. Uses the party's child count for per-child quantities.
-3. Totals the required quantity by item.
-4. Adds the item's **Keep at least** target.
-5. Subtracts the current quantity on hand, never suggesting less than zero.
+For party food, use **Receive** when stock arrives and **Count** after a stocktake. Level-based items use **Update
+level**. **Mark count unknown** is for when a supply's count can no longer be trusted, and **Mark unused here** is for
+when a studio doesn't use an item. Don't mark an item unused when it is only out of stock.
 
-The result explains the amount needed, stock on hand, minimum target, suggested amount to buy, and which rules produced
-the requirement.
+## Running low
 
-<Aside type="note" title="The list is advice, not an order">
-  Generating a shopping list does not purchase stock or change inventory. Review its warnings and the physical stock
-  before ordering.
-</Aside>
+Each item can have a running-low number. When stock drops to it, the row shows **Running low** and the studio's owners
+are emailed once so they can reorder. For cakes and bags, running low is measured against what's still available to
+order.
 
-## Understand warnings
+| Studio   | Owners emailed                             |
+| -------- | ------------------------------------------ |
+| Werribee | Paris                                      |
+| Geelong  | The studio, area manager and Customer team |
 
-- **Count first:** the current quantity is unknown, so the system cannot calculate a purchase amount.
-- **Party form not completed / invalid child count:** per-child quantities may be missing.
-- **No matching or duplicate item:** a usage rule does not map cleanly to one active catalogue item.
-- **Qualitative item required:** check its physical level; no numeric purchase amount can be calculated.
-- **Unused here or no studio record:** the booking needs an item that is not currently tracked at that studio.
-- **No active rules:** the system has no instructions for turning bookings into stock requirements.
+## Setting up items
 
-## Catalogue and rules
-
-Create catalogue items for consumables only, not reusable equipment. A new item is created for every studio and can then
-be marked unused where appropriate. Archived and unused items appear under **Hidden items**; hidden does not mean out of
-stock.
-
-Each usage rule must point to the intended catalogue item. Leave rule maintenance to people with the relevant editing
-access because changes affect future shopping lists.
-
-If a booking is missing from the list, check its studio, date, party type, food and additions, and child count on
-[Bookings](/portal/bookings/) before changing inventory.
+Only super admins create and edit items. Every cake and take-home bag must be linked to its Square cake design or bag
+in **Ordered by customers as**: that's how the party form shows what's available and reserves it. Linked items start at zero at Werribee and Geelong, ready for the first
+delivery, and are marked unused at other studios.

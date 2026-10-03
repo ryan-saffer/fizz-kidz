@@ -6,10 +6,13 @@ import { authenticatedProcedure } from '@/app/trpc/trpc'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 
 export const inventoryReadProcedure = createGlobalInventoryProcedure('inventory:read')
-export const inventoryWriteProcedure = createGlobalInventoryProcedure('inventory:write')
+export const inventoryManageItemsProcedure = createGlobalInventoryProcedure('inventory:manage-items')
 export const inventoryShoppingListProcedure = createShoppingListInventoryProcedure()
 export const inventoryLocationReadProcedure = createLocationInventoryProcedure('inventory:read', 'location')
-export const inventoryLocationWriteProcedure = createLocationInventoryProcedure('inventory:write', 'location')
+export const inventoryLocationUpdateStockProcedure = createLocationInventoryProcedure(
+    'inventory:update-stock',
+    'location'
+)
 
 function createGlobalInventoryProcedure(permission: Permission) {
     return authenticatedProcedure.use(async ({ ctx, next }) => {

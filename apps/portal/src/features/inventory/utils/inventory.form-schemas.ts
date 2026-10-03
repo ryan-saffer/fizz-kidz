@@ -3,8 +3,9 @@ import { z } from 'zod'
 import {
     INVENTORY_CATEGORIES,
     INVENTORY_QUALITATIVE_STOCK_LEVELS,
-    INVENTORY_UNITS,
     INVENTORY_USAGE_RULE_TYPES,
+    isOrderableInventoryCategory,
+    isOrderableInventoryItem,
 } from '@fizz-kidz/core'
 import type {
     Addition,
@@ -12,16 +13,19 @@ import type {
     InventoryQualitativeStockLevel,
     InventoryUnit,
     InventoryUsageRule,
-    InventoryUsageRuleType,
 } from '@fizz-kidz/core'
 
-import { buildInventoryKeyFromParts, parseInventoryKeyParts } from './inventory.usage-rules'
+import { parseInventoryKeyParts } from './inventory.usage-rules'
 import { getCurrentQualitativeLevel, getCurrentQuantity } from './inventory.utils'
 
 import type { ClientInventoryItem, StockAction } from './inventory.types'
 
 const requiredNameSchema = z.string().trim().min(1, { message: 'Item name is required.' })
-const optionalInventoryKeyNameSchema = z.string().trim()
+const unitSchema = z
+    .string()
+    .trim()
+    .min(1, { message: 'Unit is required.' })
+    .max(30, { message: 'Keep the unit short, eg. bag.' })
 const optionalNonNegativeQuantitySchema = (label: string) =>
     z
         .string()
@@ -35,113 +39,110 @@ const optionalNonNegativeQuantitySchema = (label: string) =>
             }
         })
 
-export const inventoryItemFormSchema = z.discriminatedUnion('$trackingMode', [
+const inventoryItemFormBaseSchema = z.discriminatedUnion('$trackingMode', [
     z.object({
         $trackingMode: z.literal('quantity'),
         name: requiredNameSchema,
-        inventoryKeyType: z.enum(INVENTORY_USAGE_RULE_TYPES),
-        inventoryKeyName: optionalInventoryKeyNameSchema,
         category: z.enum(INVENTORY_CATEGORIES),
-        baseUnit: z.enum(INVENTORY_UNITS),
+        baseUnit: unitSchema,
         runningLowThreshold: optionalNonNegativeQuantitySchema('Running low threshold'),
-        minimumTargetQuantity: optionalNonNegativeQuantitySchema('Keep at least'),
+        squareCatalogObjectId: z.string(),
         status: z.enum(['active', 'archived']),
         notes: z.string().trim(),
     }),
     z.object({
         $trackingMode: z.literal('qualitative'),
         name: requiredNameSchema,
-        inventoryKeyType: z.enum(INVENTORY_USAGE_RULE_TYPES),
-        inventoryKeyName: optionalInventoryKeyNameSchema,
         category: z.enum(INVENTORY_CATEGORIES),
-        baseUnit: z.enum(INVENTORY_UNITS),
+        baseUnit: unitSchema,
         runningLowThreshold: z.string(),
-        minimumTargetQuantity: z.string(),
+        squareCatalogObjectId: z.string(),
         status: z.enum(['active', 'archived']),
         notes: z.string().trim(),
     }),
 ])
+
+/** Cakes and take-home bags are counted exactly and must be linked to what customers order in Square. */
+export const inventoryItemFormSchema = inventoryItemFormBaseSchema.superRefine((values, ctx) => {
+    if (!isOrderableInventoryCategory(values.category)) return
+    if (values.$trackingMode !== 'quantity') {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['$trackingMode'],
+            message: 'Cakes and take-home bags are counted exactly.',
+        })
+    } else if (!values.squareCatalogObjectId) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['squareCatalogObjectId'],
+            message: 'Choose what customers order this as, so the party form can reserve it.',
+        })
+    }
+})
 
 export type InventoryItemFormInput = z.infer<typeof inventoryItemFormSchema>
 export type InventoryItemFormValues =
     | {
           $trackingMode: 'quantity'
           name: string
-          inventoryKeyType: InventoryUsageRuleType
-          inventoryKeyName: string
-          inventoryKey: string | null
           category: InventoryCategory
           baseUnit: InventoryUnit
           runningLowThreshold: number | null
-          minimumTargetQuantity: number | null
+          squareCatalogObjectId: string | null
           status: 'active' | 'archived'
           notes: string
       }
     | {
           $trackingMode: 'qualitative'
           name: string
-          inventoryKeyType: InventoryUsageRuleType
-          inventoryKeyName: string
-          inventoryKey: string | null
           category: InventoryCategory
           baseUnit: InventoryUnit
           runningLowThreshold: null
-          minimumTargetQuantity: null
+          squareCatalogObjectId: null
           status: 'active' | 'archived'
           notes: string
       }
 
 export const defaultInventoryItemFormValues: InventoryItemFormInput = {
     name: '',
-    inventoryKeyType: 'party-addition',
-    inventoryKeyName: '',
     category: 'party-food',
     $trackingMode: 'quantity',
-    baseUnit: 'each',
+    baseUnit: '',
     runningLowThreshold: '',
-    minimumTargetQuantity: '',
+    squareCatalogObjectId: '',
     status: 'active',
     notes: '',
 }
 
 export function inventoryItemToFormValues(item: ClientInventoryItem): InventoryItemFormInput {
-    const inventoryKeyParts = parseInventoryKeyParts(item.inventoryKey)
-
     return {
         name: item.name,
-        inventoryKeyType: inventoryKeyParts?.$type ?? 'party-addition',
-        inventoryKeyName: inventoryKeyParts?.name ?? item.inventoryKey ?? '',
         category: item.category,
         $trackingMode: item.$trackingMode,
-        baseUnit: item.baseUnit ?? 'each',
+        baseUnit: item.baseUnit ?? '',
         runningLowThreshold:
             item.$trackingMode === 'quantity' && item.runningLowThreshold !== null
                 ? String(item.runningLowThreshold)
                 : '',
-        minimumTargetQuantity:
-            item.$trackingMode === 'quantity' && item.minimumTargetQuantity != null
-                ? String(item.minimumTargetQuantity)
-                : '',
+        squareCatalogObjectId: (item.$trackingMode === 'quantity' && item.squareCatalogObjectId) || '',
         status: item.status,
         notes: item.notes ?? '',
     }
 }
 
 export function normalizeInventoryItemFormValues(values: InventoryItemFormInput): InventoryItemFormValues {
-    const inventoryKeyName = values.inventoryKeyName.trim()
-    const inventoryKey = inventoryKeyName ? buildInventoryKeyFromParts(values.inventoryKeyType, inventoryKeyName) : null
-
     if (values.$trackingMode === 'quantity') {
         return {
             ...values,
-            inventoryKeyName,
-            inventoryKey,
             runningLowThreshold: values.runningLowThreshold ? Number(values.runningLowThreshold) : null,
-            minimumTargetQuantity: values.minimumTargetQuantity ? Number(values.minimumTargetQuantity) : null,
+            // only cakes and take-home bags are ordered by customers
+            squareCatalogObjectId: isOrderableInventoryCategory(values.category)
+                ? values.squareCatalogObjectId || null
+                : null,
         }
     }
 
-    return { ...values, inventoryKeyName, inventoryKey, runningLowThreshold: null, minimumTargetQuantity: null }
+    return { ...values, runningLowThreshold: null, squareCatalogObjectId: null }
 }
 
 export const usageRuleQuantityFormSchema = z.discriminatedUnion('$operation', [
@@ -366,51 +367,49 @@ export type StockActionFormValues = {
 
 export function getStockActionFormSchema(action: StockAction) {
     const currentQuantity = getCurrentQuantity(action.stock)
+    const isOrderable = isOrderableInventoryItem(action.item)
 
     return stockActionFormSchema.superRefine((values, ctx) => {
         if (action.$type === 'level') return
 
         const quantity = Number(values.quantity)
-        if (!Number.isFinite(quantity)) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quantity'], message: 'Stock amount must be a number.' })
+        if (!values.quantity || !Number.isInteger(quantity) || quantity < 0) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quantity'], message: 'Enter a whole number.' })
             return
         }
 
-        if (action.$type === 'receive' && quantity <= 0) {
+        if ((action.$type === 'receive' || action.$type === 'remove') && quantity === 0) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quantity'], message: 'Must be more than zero.' })
+            return
+        }
+
+        if (action.$type === 'remove') {
+            if (currentQuantity !== null && quantity > currentQuantity) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['quantity'],
+                    message: `Only ${currentQuantity} on hand.`,
+                })
+            }
+            if (!values.reason) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['reason'], message: 'Say why it was removed.' })
+            }
+        }
+
+        if (action.$type === 'count' && isOrderable && quantity !== currentQuantity && !values.reason) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                path: ['quantity'],
-                message: 'Received stock must be greater than zero.',
+                path: ['reason'],
+                message: `This doesn't match the ${currentQuantity ?? 'unknown count'} on record. Say why, so the owners know what happened.`,
             })
-            return
-        }
-
-        if (action.$type === 'set') {
-            if (quantity < 0) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    path: ['quantity'],
-                    message: 'Stock count cannot be negative.',
-                })
-                return
-            }
-
-            if (currentQuantity === quantity) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    path: ['quantity'],
-                    message: 'Stock already matches this amount.',
-                })
-            }
         }
     })
 }
 
 export function getStockActionFormDefaultValues(action: StockAction): StockActionFormInput {
-    const currentQuantity = getCurrentQuantity(action.stock)
-
     return {
-        quantity: action.$type === 'set' && currentQuantity !== null ? String(currentQuantity) : '',
+        // counts start empty so nobody saves the recorded number without actually counting
+        quantity: '',
         level: getCurrentQualitativeLevel(action.stock),
         reason: '',
     }
@@ -422,4 +421,78 @@ export function normalizeStockActionFormValues(values: StockActionFormInput): St
         level: values.level,
         reason: values.reason,
     }
+}
+
+export const receiveDeliveryFormSchema = z
+    .object({
+        quantities: z.record(z.string(), z.string().trim()),
+        note: z.string().trim(),
+        checked: z.boolean(),
+    })
+    .superRefine((values, ctx) => {
+        const entries = Object.entries(values.quantities).filter(([, quantity]) => quantity !== '')
+        entries.forEach(([itemId, quantity]) => {
+            const value = Number(quantity)
+            if (!Number.isInteger(value) || value < 0) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quantities', itemId], message: 'Whole number' })
+            }
+        })
+        if (!entries.some(([, quantity]) => Number(quantity) > 0)) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['note'], message: 'Enter at least one quantity.' })
+        }
+        if (!values.checked) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['checked'],
+                message: 'Physically check the delivery before receiving it.',
+            })
+        }
+    })
+
+export type ReceiveDeliveryFormInput = z.infer<typeof receiveDeliveryFormSchema>
+
+export function getReceiveDeliveryLines(values: ReceiveDeliveryFormInput) {
+    return Object.entries(values.quantities)
+        .map(([itemId, quantity]) => ({ itemId, quantity: Number(quantity) }))
+        .filter((line) => line.quantity > 0)
+}
+
+export type CountAllFormInput = { quantities: Record<string, string>; reason: string }
+
+/**
+ * Counting every cake and bag at once. Blank rows weren't counted and are left alone. If any count differs from the
+ * record, one reason covers the whole count.
+ */
+export function getCountAllFormSchema(recordedQuantities: Map<string, number | null>) {
+    return z
+        .object({ quantities: z.record(z.string(), z.string().trim()), reason: z.string().trim() })
+        .superRefine((values, ctx) => {
+            const counted = Object.entries(values.quantities).filter(([, quantity]) => quantity !== '')
+            counted.forEach(([itemId, quantity]) => {
+                const value = Number(quantity)
+                if (!Number.isInteger(value) || value < 0) {
+                    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quantities', itemId], message: 'Whole number' })
+                }
+            })
+            if (counted.length === 0) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['reason'], message: 'Enter at least one count.' })
+                return
+            }
+            const hasMismatch = counted.some(
+                ([itemId, quantity]) => Number(quantity) !== recordedQuantities.get(itemId)
+            )
+            if (hasMismatch && !values.reason) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['reason'],
+                    message: "Some counts don't match the record. Say why, so the owners know what happened.",
+                })
+            }
+        })
+}
+
+export function getCountAllLines(values: CountAllFormInput) {
+    return Object.entries(values.quantities)
+        .filter(([, quantity]) => quantity !== '')
+        .map(([itemId, quantity]) => ({ itemId, quantity: Number(quantity) }))
 }

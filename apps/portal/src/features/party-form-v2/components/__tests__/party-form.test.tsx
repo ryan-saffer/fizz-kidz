@@ -49,6 +49,7 @@ vi.mock('react-square-web-payments-sdk', () => ({
 const config: PartyFormV2Config = {
     bookingId: 'test-party',
     type: 'studio',
+    cakeSource: 'supplier',
     cakeOptions: {
         sizes: [
             { id: 'small', name: 'Small (12-15 serves)', priceCents: 8900, imageUrl: null },
@@ -78,6 +79,7 @@ const config: PartyFormV2Config = {
         ],
         minFlavours: 1,
         maxFlavours: 2,
+        fixedFlavours: null,
     },
     creationsRequired: 2,
     prefill: {
@@ -97,6 +99,7 @@ const config: PartyFormV2Config = {
                 imageUrl: 'https://example.com/lolly-bags.jpg',
                 priceCents: 640,
                 regularPriceCents: 640,
+                available: null,
             },
             {
                 key: 'lollyToyMixBags',
@@ -105,6 +108,7 @@ const config: PartyFormV2Config = {
                 imageUrl: null,
                 priceCents: 640,
                 regularPriceCents: 640,
+                available: null,
             },
         ],
         products: [
@@ -115,6 +119,7 @@ const config: PartyFormV2Config = {
                 imageUrl: null,
                 priceCents: 1295,
                 regularPriceCents: 1995,
+                available: null,
             },
         ],
         minimumQuantity: 12,
@@ -427,6 +432,72 @@ describe('Party form guided journey', () => {
         const progress = screen.getByRole('navigation')
         expect(within(progress).queryByText('Cake')).toBeNull()
         expect(within(progress).getByText('Step 1 of 2')).toBeTruthy()
+    })
+
+    it('sells studio-stock cakes on the party form in one size and fixed flavours, without asking for them', async () => {
+        const user = setup({
+            cakeSource: 'studio-stock',
+            cakeOptions: {
+                ...config.cakeOptions!,
+                sizes: [{ id: 'medium', name: 'Medium (20-25 serves)', priceCents: 11900, imageUrl: null }],
+                flavours: [
+                    { id: 'chocolate', name: 'Chocolate', priceCents: 0, imageUrl: null },
+                    { id: 'vanilla', name: 'Vanilla', priceCents: 0, imageUrl: null },
+                ],
+                minFlavours: 2,
+                maxFlavours: 2,
+                fixedFlavours: ['Chocolate', 'Vanilla'],
+            },
+        })
+        await reachCreations(user)
+        await chooseCreations(user)
+        await user.click(screen.getByRole('button', { name: 'Next' }))
+        await user.click(screen.getByRole('radio', { name: 'Unicorn Ice-Cream Cake' }))
+        expect(screen.queryByText('Which size would you like?')).toBeNull()
+        expect(screen.queryByText('What flavours would you like?')).toBeNull()
+        expect(screen.getByText(/come in chocolate and vanilla/)).toBeTruthy()
+        await user.click(screen.getByRole('radio', { name: /Ice-cream cup with spoon/ }))
+        await user.click(screen.getByRole('radio', { name: /Include candles/ }))
+        for (let step = 0; step < 3; step++) await user.click(screen.getByRole('button', { name: 'Next' }))
+        await waitFor(() => expect(prepare).toHaveBeenCalled())
+        expect(prepare.mock.calls[0][0].payload.cake).toMatchObject({
+            size: 'Medium (20-25 serves)',
+            flavours: ['Chocolate', 'Vanilla'],
+        })
+    })
+
+    it('leaves studio-stock cakes off the cake form, which is sent weeks before the party', async () => {
+        const user = setup({ cakeSource: 'studio-stock' }, 'cake')
+        expect(screen.getByRole('heading', { name: 'Take-Home Goodies' })).toBeTruthy()
+        await user.click(screen.getByRole('button', { name: 'Next' }))
+        expect(within(screen.getByRole('navigation')).queryByText('Cake')).toBeNull()
+    })
+
+    it('limits take-home goodies to what the studio has in stock', async () => {
+        const user = setup(
+            {
+                cakeOptions: null,
+                takeHomeOptions: {
+                    ...config.takeHomeOptions!,
+                    takeHomeBags: [
+                        { ...config.takeHomeOptions!.takeHomeBags[0], available: 13 },
+                        { ...config.takeHomeOptions!.takeHomeBags[1], available: 5 },
+                    ],
+                },
+            },
+            'cake'
+        )
+        await user.click(screen.getByRole('button', { name: 'Next' }))
+        expect(await screen.findByText('Only 13 left')).toBeTruthy()
+        expect(screen.getByText('Sold out')).toBeTruthy()
+        const addLolly = screen.getByRole('button', { name: 'Add one Lolly Bags' })
+        await user.click(addLolly)
+        await user.click(addLolly)
+        expect(within(screen.getByRole('group', { name: 'Lolly Bags quantity' })).getByText('13')).toBeTruthy()
+        expect((addLolly as HTMLButtonElement).disabled).toBe(true)
+        expect((screen.getByRole('button', { name: 'Add one Lolly/Toy Mix Bags' }) as HTMLButtonElement).disabled).toBe(
+            true
+        )
     })
 
     it('submits without a payment section when nothing is paid now', async () => {

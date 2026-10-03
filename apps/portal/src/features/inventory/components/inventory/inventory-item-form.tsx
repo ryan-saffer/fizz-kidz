@@ -1,11 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQuery } from '@tanstack/react-query'
 import { Loader2, Trash2 } from 'lucide-react'
 import { useEffect } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm, useFormContext, useWatch } from 'react-hook-form'
 
-import { INVENTORY_CATEGORIES, INVENTORY_UNITS } from '@fizz-kidz/core'
-import type { InventoryCategory, InventoryItem, InventoryUnit, InventoryUsageRuleType } from '@fizz-kidz/core'
+import { INVENTORY_CATEGORIES, isOrderableInventoryCategory } from '@fizz-kidz/core'
+import type { InventoryCategory, InventoryItem } from '@fizz-kidz/core'
 
+import { useTRPC } from '@integrations/trpc'
 import { Button } from '@shared/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@shared/components/ui/form'
 import { Input } from '@shared/components/ui/input'
@@ -18,8 +20,7 @@ import {
     inventoryItemFormSchema,
     normalizeInventoryItemFormValues,
 } from '../../utils/inventory.form-schemas'
-import { inventoryUsageRuleTypeOptions } from '../../utils/inventory.usage-rules'
-import { formatCategory, formatUnit } from '../../utils/inventory.utils'
+import { formatCategory } from '../../utils/inventory.utils'
 
 import type { InventoryItemFormInput, InventoryItemFormValues } from '../../utils/inventory.form-schemas'
 import type { ClientInventoryItem, TrackingMode } from '../../utils/inventory.types'
@@ -44,6 +45,7 @@ export function InventoryItemForm({
         defaultValues: defaultValues ?? defaultInventoryItemFormValues,
     })
     const trackingMode = useWatch({ control: form.control, name: '$trackingMode' })
+    const category = useWatch({ control: form.control, name: 'category' })
 
     useEffect(() => {
         form.reset(defaultValues ?? defaultInventoryItemFormValues)
@@ -68,54 +70,6 @@ export function InventoryItemForm({
                         </FormItem>
                     )}
                 />
-
-                <div className="grid gap-4 sm:grid-cols-[220px,1fr]">
-                    <FormField
-                        control={form.control}
-                        name="inventoryKeyType"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Shopping-list type</FormLabel>
-                                <Select
-                                    value={field.value}
-                                    disabled={isPending}
-                                    onValueChange={(type) => field.onChange(type as InventoryUsageRuleType)}
-                                >
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Type" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {inventoryUsageRuleTypeOptions.map((option) => (
-                                            <SelectItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="inventoryKeyName"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Shopping-list name</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="chickenNuggets" disabled={isPending} {...field} />
-                                </FormControl>
-                                <p className="m-0 text-xs leading-relaxed text-slate-500">
-                                    Optional. Use the same type and name on a usage rule to include this item in
-                                    generated shopping lists.
-                                </p>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <FormField
@@ -179,27 +133,13 @@ export function InventoryItemForm({
                         name="baseUnit"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Base unit</FormLabel>
-                                <Select
-                                    value={field.value}
-                                    disabled={isPending}
-                                    onValueChange={(baseUnit) => field.onChange(baseUnit as InventoryUnit)}
-                                >
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Unit" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {INVENTORY_UNITS.map((unit) => (
-                                            <SelectItem key={unit} value={unit}>
-                                                {formatUnit(unit)}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <FormLabel>Counted in</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="bag" disabled={isPending} {...field} />
+                                </FormControl>
                                 <p className="m-0 text-xs leading-relaxed text-slate-500">
-                                    Exact items count this unit. Qualitative items use it as a helpful reference only.
+                                    What one of these is, in the singular. For example: cake, bag, pack, box, tray or
+                                    kg.
                                 </p>
                                 <FormMessage />
                             </FormItem>
@@ -222,30 +162,9 @@ export function InventoryItemForm({
                                             />
                                         </FormControl>
                                         <p className="m-0 text-xs leading-relaxed text-slate-500">
-                                            Show a red running-low badge when stock is at or below this count. Leave
-                                            blank to disable.
-                                        </p>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="minimumTargetQuantity"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Keep at least</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                inputMode="decimal"
-                                                placeholder="20"
-                                                disabled={isPending}
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <p className="m-0 text-xs leading-relaxed text-slate-500">
-                                            Shopping lists buy enough to keep at least this amount after the selected
-                                            bookings. Leave blank for no buffer.
+                                            Time to reorder at or below this count. The studio owners are emailed when
+                                            it gets here. Customer-ordered items use what&apos;s still available to
+                                            order. Leave blank to disable.
                                         </p>
                                         <FormMessage />
                                     </FormItem>
@@ -254,6 +173,10 @@ export function InventoryItemForm({
                         </>
                     ) : null}
                 </div>
+
+                {trackingMode === 'quantity' && isOrderableInventoryCategory(category) ? (
+                    <SquareLinkField isPending={isPending} category={category} />
+                ) : null}
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <FormField
@@ -325,5 +248,55 @@ export function InventoryItemForm({
                 </div>
             </form>
         </Form>
+    )
+}
+
+/** Linking an item to what customers order in Square makes it orderable: party form orders reserve it. */
+function SquareLinkField({ isPending, category }: { isPending: boolean; category: InventoryCategory }) {
+    const trpc = useTRPC()
+    const form = useFormContext<InventoryItemFormInput>()
+    const optionsQuery = useQuery(trpc.inventory.listSquareOptions.queryOptions())
+    const group = category === 'cakes' ? 'Cake designs' : 'Take-home bags'
+    const options = (optionsQuery.data ?? []).filter((option) => option.group === group)
+
+    return (
+        <FormField
+            control={form.control}
+            name="squareCatalogObjectId"
+            render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Ordered by customers as</FormLabel>
+                    <Select
+                        value={field.value || undefined}
+                        disabled={isPending || optionsQuery.isPending}
+                        onValueChange={field.onChange}
+                    >
+                        <FormControl>
+                            <SelectTrigger>
+                                <SelectValue
+                                    placeholder={
+                                        optionsQuery.isPending
+                                            ? 'Loading Square…'
+                                            : `Choose from ${group.toLowerCase()}`
+                                    }
+                                />
+                            </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                            {options.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                    {option.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <p className="m-0 text-xs leading-relaxed text-slate-500">
+                        The {group === 'Cake designs' ? 'cake design' : 'take-home bag'} in Square that parents order.
+                        This is how the party form shows what&apos;s available and reserves it.
+                    </p>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
     )
 }

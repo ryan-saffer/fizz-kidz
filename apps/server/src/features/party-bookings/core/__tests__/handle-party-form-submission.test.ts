@@ -73,4 +73,35 @@ describe('handling a party form submission', () => {
             expect.arrayContaining(['cakeNotification', 'partyFormConfirmation'])
         )
     })
+
+    it('sends studio-stock cake orders to the studio rather than the supplier, and no bag order to the supplier', async () => {
+        mocks.getBooking.mockResolvedValue({
+            type: 'studio',
+            location: 'werribee',
+            partyLength: '1.5',
+            parentFirstName: 'Alex',
+            parentLastName: 'Smith',
+            parentEmail: 'alex@example.com',
+            parentMobile: '0400000000',
+            childName: 'Charlie',
+            dateTime: new Date('2026-10-01'),
+            includesFood: true,
+        })
+        mocks.mapped.mockReturnValue({ numberOfChildren: 12, takeHomeBags: { lollyBags: 12 } })
+
+        await handlePartyFormSubmission(responses, {
+            selection: 'Unicorn Ice-Cream Cake',
+            size: 'Medium',
+            flavours: ['Chocolate', 'Vanilla'],
+            served: 'Bring own bowls',
+            candles: 'Bring own candles',
+        })
+
+        const templates = mocks.send.mock.calls.map(([template]) => template)
+        const cakeEmail = mocks.send.mock.calls.find(([template]) => template === 'cakeNotification')
+        expect(cakeEmail?.[1]).toBe('ryan@fizzkidz.com.au') // the dev studio contact
+        expect(cakeEmail?.[3]).toMatchObject({ subject: 'Cake reserved from studio stock' })
+        expect(templates).toContain('takeHomeNotification')
+        expect(templates).not.toContain('takeHomeBagNotification')
+    })
 })

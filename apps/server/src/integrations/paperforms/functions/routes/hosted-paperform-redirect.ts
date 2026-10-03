@@ -14,8 +14,11 @@ import {
 const NOT_FOUND_REDIRECT = 'https://www.fizzkidz.com.au/404'
 const ERROR_REDIRECT = 'https://fizzkidz.com.au/form-result?result=error'
 
-/** Studios whose party and cake form links open the custom party form rather than the Paperform. */
-const CUSTOM_PARTY_FORM_PILOT_STUDIOS: Studio[] = ['malvern']
+/**
+ * Studios whose party and cake form links open the custom party form rather than the Paperform. Geelong and Werribee
+ * sell cakes from studio stock, which only the custom form can check and reserve.
+ */
+const CUSTOM_PARTY_FORM_PILOT_STUDIOS: Studio[] = ['malvern', 'geelong', 'werribee']
 
 export const hostedPaperformRedirect = express.Router()
 

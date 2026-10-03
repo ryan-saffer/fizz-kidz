@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 
 import type { PartyFormV2Mode } from '@fizz-kidz/core'
 
@@ -7,6 +7,7 @@ import { useTRPC } from '@integrations/trpc'
 
 import { useCreatePartyForm } from '../state/form'
 import { usePartyFormApi, usePartyFormStore, type PartyFormV2Config } from '../state/party-form-store'
+import { getConfigForMode } from '../state/steps'
 import { PartyNavigation } from './layout/navigation'
 import { PartyComplete } from './layout/party-complete'
 import { PartyProgress } from './layout/progress'
@@ -23,7 +24,8 @@ import { GoodiesStep } from './steps/goodies-step'
 import { PartyReview } from './steps/review-step'
 
 /** The guided party form: welcome, one step at a time, then review and payment. How it works is in the store. */
-export function PartyForm({ config, mode }: { config: PartyFormV2Config; mode: PartyFormV2Mode }) {
+export function PartyForm({ config: loadedConfig, mode }: { config: PartyFormV2Config; mode: PartyFormV2Mode }) {
+    const config = useMemo(() => getConfigForMode(loadedConfig, mode), [loadedConfig, mode])
     const trpc = useTRPC()
     const form = useCreatePartyForm(config)
     const { mutateAsync: prepare } = useMutation(trpc.parties.preparePartyFormV2.mutationOptions())

@@ -1,5 +1,5 @@
 import {
-    canOrderCake,
+    getPartyCakeSource,
     getPartyCreationCount,
     getTakeHomeMinimum,
     mapProductToSquareVariation,
@@ -16,9 +16,10 @@ import {
 
 import { PartyFormMapper } from '../../party-form-mapper'
 import { buildPartyFormV2Submission } from '../build-party-form-v2-submission'
-import { getPartyFormV2CakeOptions } from '../options/get-party-form-v2-cake-options'
+import { getPartyFormV2CakeOptions, getStockedPartyFormV2CakeOptions } from '../options/get-party-form-v2-cake-options'
 import { getPartyFormV2TakeHomeOptions } from '../options/get-party-form-v2-take-home-options'
 
+import type { PartyFormV2TakeHomeOptions } from '../options/get-party-form-v2-take-home-options'
 import type { Square } from 'square'
 
 import { env } from '@/app/init/firebase'
@@ -37,7 +38,8 @@ export async function validatePartyFormV2(payload: PartyFormV2) {
     const booking = await DatabaseClient.getPartyBooking(payload.bookingId)
     if (payload.mode === 'party') validatePartyAnswers(payload, booking)
 
-    if (payload.cake && !canOrderCake(booking.type, booking.location))
+    const cakeSource = getPartyCakeSource(booking.type, booking.location)
+    if (payload.cake && (!cakeSource || (cakeSource === 'studio-stock' && payload.mode !== 'party')))
         throwTrpcError('BAD_REQUEST', 'Cakes are not available for this party.')
     if (payload.cake && booking.cake) throwTrpcError('BAD_REQUEST', 'A cake has already been ordered for this party.')
     const takeHomeBags = orderedQuantities(payload.takeHomeBags)
@@ -47,6 +49,8 @@ export async function validatePartyFormV2(payload: PartyFormV2) {
         products.some(([key, quantity]) => quantity < getTakeHomeMinimum(booking.products?.[key]))
     )
         throwTrpcError('BAD_REQUEST', `Take-home items have a minimum of ${MIN_TAKE_HOME_QUANTITY}.`)
+    if (cakeSource === 'studio-stock' && (takeHomeBags.length > 0 || products.length > 0))
+        assertTakeHomeInStock(await getPartyFormV2TakeHomeOptions(booking.location), takeHomeBags, products)
 
     // the Paperform pipeline must accept the answers (e.g. creations Sanity no longer offers for this party)
     const catalogue = await (await SanityClient.getInstance()).getBirthdayPartyBookingCatalogue()
@@ -61,7 +65,7 @@ export async function validatePartyFormV2(payload: PartyFormV2) {
 
     const discounts = await getKitTopUpDiscounts(products, booking)
     const lineItems: Square.OrderLineItem[] = [
-        ...(payload.cake ? [await buildCakeLine(payload.cake, booking)] : []),
+        ...(payload.cake ? [await buildCakeLine(payload.cake, booking, cakeSource === 'studio-stock')] : []),
         ...takeHomeBags.map(([key, quantity]) => ({
             quantity: String(quantity),
             catalogObjectId: mapTakeHomeBagToSquareVariation(env, key),
@@ -96,10 +100,21 @@ function validatePartyAnswers(payload: PartyFormV2PartyAnswers, booking: Booking
     }
 }
 
-/** The cake as one line: its size variation plus serving, candle, design and flavour modifiers from Square. */
-async function buildCakeLine(cake: NonNullable<PartyFormV2['cake']>, booking: Booking): Promise<Square.OrderLineItem> {
+/**
+ * The cake as one line: its size variation plus serving, candle, design and flavour modifiers from Square. Studio-stock
+ * cakes must be a design the studio still has available, in the stocked size and flavours.
+ */
+async function buildCakeLine(
+    cake: NonNullable<PartyFormV2['cake']>,
+    booking: Booking,
+    isStocked: boolean
+): Promise<Square.OrderLineItem> {
     const { selection, size, flavours, served, candles } = cake
-    const options = await getPartyFormV2CakeOptions(booking.location)
+    const options = isStocked
+        ? await getStockedPartyFormV2CakeOptions(booking.location)
+        : await getPartyFormV2CakeOptions(booking.location)
+    if (isStocked && !options.designs.some((design) => design.name === selection))
+        throwTrpcError('BAD_REQUEST', `Sorry, the ${selection} cake has just sold out. Please choose another.`)
     const find = (list: { id: string; name: string }[], name: string) => list.find((option) => option.name === name)
     const chosen = {
         size: find(options.sizes, size),
@@ -130,6 +145,27 @@ async function buildCakeLine(cake: NonNullable<PartyFormV2['cake']>, booking: Bo
             item ? [{ catalogObjectId: item.id, quantity: '1' }] : []
         ),
     }
+}
+
+/** Studio stock can't be oversold: each linked bag or kit must have enough available. */
+function assertTakeHomeInStock(
+    options: PartyFormV2TakeHomeOptions,
+    takeHomeBags: [string, number][],
+    products: [string, number][]
+) {
+    const check = (
+        offered: { key: string; name: string; available: number | null }[],
+        [key, quantity]: [string, number]
+    ) => {
+        const option = offered.find((item) => item.key === key)
+        if (option?.available != null && quantity > option.available)
+            throwTrpcError(
+                'BAD_REQUEST',
+                `Sorry, only ${option.available} ${option.name} are left. Please choose a smaller quantity.`
+            )
+    }
+    takeHomeBags.forEach((line) => check(options.takeHomeBags, line))
+    products.forEach((line) => check(options.products, line))
 }
 
 /**

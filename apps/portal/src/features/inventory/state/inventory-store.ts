@@ -25,6 +25,9 @@ type State = {
     editingItem: ClientInventoryItem | null
     editingUsageRule: ClientInventoryUsageRule | null
     stockAction: StockAction | null
+    isReceiveDeliveryOpen: boolean
+    isCountAllOpen: boolean
+    historyItem: ClientInventoryItem | null
     showHiddenItems: boolean
 }
 
@@ -46,6 +49,10 @@ type Actions = {
         stock?: ClientInventoryStockLevel
     ) => void
     closeStockActionDialog: () => void
+    setReceiveDeliveryOpen: (open: boolean) => void
+    setCountAllOpen: (open: boolean) => void
+    openHistoryDialog: (item: ClientInventoryItem) => void
+    closeHistoryDialog: () => void
     setShowHiddenItems: (value: boolean | ((current: boolean) => boolean)) => void
 }
 
@@ -63,6 +70,9 @@ export const useInventoryStore = create<InventoryStore>((set) => ({
     editingItem: null,
     editingUsageRule: null,
     stockAction: null,
+    isReceiveDeliveryOpen: false,
+    isCountAllOpen: false,
+    historyItem: null,
     showHiddenItems: false,
     setSelectedLocation: (selectedLocation) => set({ selectedLocation }),
     setShoppingListDateRange: ({ startDate, endDate }) =>
@@ -78,6 +88,10 @@ export const useInventoryStore = create<InventoryStore>((set) => ({
     closeEditUsageRuleDialog: () => set({ editingUsageRule: null }),
     openStockActionDialog: ($type, item, stock) => set({ stockAction: { $type, item, stock } }),
     closeStockActionDialog: () => set({ stockAction: null }),
+    setReceiveDeliveryOpen: (isReceiveDeliveryOpen) => set({ isReceiveDeliveryOpen }),
+    setCountAllOpen: (isCountAllOpen) => set({ isCountAllOpen }),
+    openHistoryDialog: (historyItem) => set({ historyItem }),
+    closeHistoryDialog: () => set({ historyItem: null }),
     setShowHiddenItems: (value) =>
         set((state) => ({
             showHiddenItems: typeof value === 'function' ? value(state.showHiddenItems) : value,

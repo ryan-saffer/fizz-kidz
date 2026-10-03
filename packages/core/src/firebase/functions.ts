@@ -20,4 +20,5 @@ export interface PubSubFunctions {
           }
         | { name: 'cleanUpStaleInvitations' }
         | { name: 'finishWebsiteChats' }
+        | { name: 'useInventoryForPastParties' }
 }

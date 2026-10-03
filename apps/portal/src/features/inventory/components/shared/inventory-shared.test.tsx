@@ -26,7 +26,7 @@ describe('inventory shared components', () => {
         rerender(<InventoryPageHeader itemCount={12} trackedCount={8} />)
         rerender(<InventoryPageHeader itemCount={13} trackedCount={9} />)
 
-        expect(screen.getByText('Consumables stock')).toBeTruthy()
+        expect(screen.getByText('Studio stock')).toBeTruthy()
         expect(screen.getByText('Items')).toBeTruthy()
         expect(screen.getByText('Tracked here')).toBeTruthy()
         expect(screen.getByText('13')).toBeTruthy()

@@ -1,7 +1,7 @@
-import { canOrderCake, getActiveBirthdayPartyBookingPackages, getPartyCreationCount } from '@fizz-kidz/core'
+import { getActiveBirthdayPartyBookingPackages, getPartyCakeSource, getPartyCreationCount } from '@fizz-kidz/core'
 
 import { getPartyFormV2Additions } from '../options/get-party-form-v2-additions'
-import { getPartyFormV2CakeOptions } from '../options/get-party-form-v2-cake-options'
+import { getPartyFormV2CakeOptions, getStockedPartyFormV2CakeOptions } from '../options/get-party-form-v2-cake-options'
 import { getPartyFormV2TakeHomeOptions } from '../options/get-party-form-v2-take-home-options'
 
 import { throwTrpcError } from '@/app/trpc/transport-errors'
@@ -13,7 +13,8 @@ import { SanityClient } from '@/integrations/sanity/sanity.client'
 /**
  * Everything the custom party form needs to render: booking prefill (mirroring the Paperform prefill params), what was
  * already ordered, the creation packages for the booking's channel and the Square options. `cakeOptions` is null
- * where cakes can't be ordered (see `canOrderCake`) or Square is unavailable.
+ * where cakes can't be ordered (see `getPartyCakeSource`) or Square is unavailable. Studio-stock cakes are only offered
+ * on the party form, so the portal hides them in cake mode.
  */
 export async function getPartyFormV2Config(bookingId: string) {
     const booking = await DatabaseClient.getPartyBooking(bookingId).catch((error: unknown) => {
@@ -21,6 +22,7 @@ export async function getPartyFormV2Config(bookingId: string) {
         if (error instanceof DocumentNotFoundError) throwTrpcError('NOT_FOUND', 'The booking could not be found')
         throw error
     })
+    const cakeSource = getPartyCakeSource(booking.type, booking.location)
     const sanity = await SanityClient.getInstance()
     const [catalogue, images, additions, cakeOptions, takeHomeOptions] = await Promise.all([
         sanity.getBirthdayPartyBookingCatalogue(),
@@ -32,8 +34,14 @@ export async function getPartyFormV2Config(bookingId: string) {
                   return []
               })
             : [],
-        canOrderCake(booking.type, booking.location)
-            ? getPartyFormV2CakeOptions(booking.location).catch((error: unknown) => {
+        cakeSource
+            ? (cakeSource === 'studio-stock'
+                  ? // nothing in stock means no cake step, rather than one with no cakes in it
+                    getStockedPartyFormV2CakeOptions(booking.location).then((options) =>
+                        options.designs.length > 0 ? options : null
+                    )
+                  : getPartyFormV2CakeOptions(booking.location)
+              ).catch((error: unknown) => {
                   // without designs and flavours a cake can't be ordered, but the rest of the form still works
                   logError('Unable to load party form cake options from Square', error, { bookingId })
                   return null
@@ -63,6 +71,7 @@ export async function getPartyFormV2Config(bookingId: string) {
     return {
         bookingId,
         type: booking.type,
+        cakeSource,
         cakeOptions,
         creationsRequired: getPartyCreationCount(booking),
         prefill: {

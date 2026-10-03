@@ -22,7 +22,6 @@ import { updateInventoryItem } from '../inventory.items.update'
 import { additionSchema, inventoryShoppingListInputSchema, studioSchema } from '../inventory.schemas'
 import { generateInventoryShoppingList } from '../inventory.shopping-list.generate'
 import { listInventoryStockMovements } from '../inventory.stock-movements.list'
-import { adjustInventoryStock } from '../inventory.stock.adjust'
 import { listInventoryStock } from '../inventory.stock.list'
 import { setInventoryStocked } from '../inventory.stock.set-stocked'
 import { createInventoryUsageRule } from '../inventory.usage-rules.create'
@@ -31,7 +30,7 @@ import { listInventoryUsageRules } from '../inventory.usage-rules.list'
 import { updateInventoryUsageRule } from '../inventory.usage-rules.update'
 import { buildInventoryUsageRule, formatInventoryUsageRuleQuantity } from '../inventory.usage-rules.utils'
 
-const actor = { uid: 'uid-1', email: 'test@example.com' }
+const actor = { $type: 'staff', uid: 'uid-1', email: 'test@example.com' } as const
 const now = new Date('2026-05-01T00:00:00.000Z')
 
 function createQuantityItem(overrides: Partial<InventoryItem> = {}): InventoryItem {
@@ -55,7 +54,7 @@ function createQualitativeItem(overrides: Partial<InventoryItem> = {}): Inventor
         id: 'item-qualitative',
         name: 'Glitter',
         inventoryKey: 'party-base:glitter',
-        category: 'glitter',
+        category: 'party-food',
         status: 'active',
         $trackingMode: 'qualitative',
         baseUnit: 'tub',
@@ -85,12 +84,13 @@ function createMovement(overrides: Partial<InventoryStockMovement> = {}): Invent
         id: 'movement-1',
         itemId: 'item-1',
         location: 'balwyn',
-        source: 'manual-adjustment',
-        adjustment: { $type: 'quantity', $operation: 'set', quantityBefore: null, quantityAfter: 12 },
+        $type: 'counted',
+        quantityBefore: null,
+        quantityAfter: 12,
         createdAt: now,
         createdBy: actor,
         ...overrides,
-    }
+    } as InventoryStockMovement
 }
 
 function createUsageRule(overrides: Partial<InventoryUsageRule> = {}): InventoryUsageRule {
@@ -230,7 +230,7 @@ describe('inventory core', () => {
             await createInventoryItem({
                 $trackingMode: 'qualitative',
                 name: 'Glitter',
-                category: 'glitter',
+                category: 'party-food',
                 status: 'active',
                 baseUnit: 'tub',
             })
@@ -360,318 +360,6 @@ describe('inventory core', () => {
 
             await rejects(setInventoryStocked({ itemId: 'item-1', location: 'balwyn', stocked: false }))
         })
-
-        it('builds quantity set, adjust, and receive stock writes', async () => {
-            const writes: { stockLevel: InventoryStockLevel; movement: InventoryStockMovement }[] = []
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) => {
-                const write = input.buildWrite({
-                    item: createQuantityItem({ id: input.itemId }),
-                    stockLevel: createStockLevel({ itemId: input.itemId, location: input.location }),
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: `movement-${writes.length + 1}`,
-                    now,
-                })
-                writes.push(write)
-                return write
-            }
-
-            await adjustInventoryStock(
-                {
-                    itemId: 'item-1',
-                    location: 'balwyn',
-                    adjustment: { $type: 'quantity', $operation: 'set', quantity: 20 },
-                    source: 'stocktake',
-                    reason: 'counted',
-                },
-                actor
-            )
-            await adjustInventoryStock(
-                {
-                    itemId: 'item-1',
-                    location: 'balwyn',
-                    stocked: false,
-                    adjustment: { $type: 'quantity', $operation: 'adjust', delta: -2 },
-                    source: 'manual-adjustment',
-                },
-                actor
-            )
-
-            deepStrictEqual(writes[0].movement.adjustment, {
-                $type: 'quantity',
-                $operation: 'set',
-                quantityBefore: 12,
-                quantityAfter: 20,
-            })
-            deepStrictEqual(writes[1].movement.adjustment, {
-                $type: 'quantity',
-                $operation: 'adjust',
-                delta: -2,
-                quantityBefore: 12,
-                quantityAfter: 10,
-            })
-            strictEqual(writes[1].stockLevel.stocked, false)
-        })
-
-        it('preserves and defaults stocked values for quantity adjustments', async () => {
-            const stockLevels = [
-                createStockLevel({ stocked: false }),
-                { ...createStockLevel(), stocked: undefined } as unknown as InventoryStockLevel,
-            ]
-            let index = 0
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) =>
-                input.buildWrite({
-                    item: createQuantityItem({ id: input.itemId }),
-                    stockLevel: stockLevels[index++],
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: `movement-${index}`,
-                    now,
-                })
-
-            const preserved = await adjustInventoryStock(
-                {
-                    itemId: 'item-1',
-                    location: 'balwyn',
-                    adjustment: { $type: 'quantity', $operation: 'adjust', delta: 1 },
-                    source: 'manual-adjustment',
-                },
-                actor
-            )
-            const defaulted = await adjustInventoryStock(
-                {
-                    itemId: 'item-1',
-                    location: 'balwyn',
-                    adjustment: { $type: 'quantity', $operation: 'adjust', delta: 1 },
-                    source: 'manual-adjustment',
-                },
-                actor
-            )
-
-            strictEqual(preserved.stockLevel.stocked, false)
-            strictEqual(defaulted.stockLevel.stocked, true)
-        })
-
-        it('builds stock writes when no current stock level exists', async () => {
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) =>
-                input.buildWrite({
-                    item: createQuantityItem({ id: input.itemId }),
-                    stockLevel: undefined,
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: 'movement-1',
-                    now,
-                })
-
-            const result = await adjustInventoryStock(
-                {
-                    itemId: 'item-1',
-                    location: 'balwyn',
-                    adjustment: { $type: 'quantity', $operation: 'set', quantity: null },
-                    source: 'system',
-                },
-                actor
-            )
-
-            deepStrictEqual(result.stockLevel.measurement, { $type: 'quantity', quantity: null })
-        })
-
-        it('rejects invalid quantity adjustments', async () => {
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) =>
-                input.buildWrite({
-                    item: createQuantityItem({ id: input.itemId }),
-                    stockLevel: createStockLevel({
-                        itemId: input.itemId,
-                        location: input.location,
-                        measurement: { $type: 'quantity', quantity: null },
-                    }),
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: 'movement-1',
-                    now,
-                })
-
-            await rejects(
-                adjustInventoryStock(
-                    {
-                        itemId: 'item-1',
-                        location: 'balwyn',
-                        adjustment: { $type: 'quantity', $operation: 'adjust', delta: 1 },
-                        source: 'manual-adjustment',
-                    },
-                    actor
-                )
-            )
-
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) =>
-                input.buildWrite({
-                    item: createQuantityItem({ id: input.itemId }),
-                    stockLevel: createStockLevel({ itemId: input.itemId, location: input.location }),
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: 'movement-1',
-                    now,
-                })
-
-            await rejects(
-                adjustInventoryStock(
-                    {
-                        itemId: 'item-1',
-                        location: 'balwyn',
-                        adjustment: { $type: 'quantity', $operation: 'adjust', delta: -99 },
-                        source: 'manual-adjustment',
-                    },
-                    actor
-                )
-            )
-        })
-
-        it('rejects tracking mode mismatches and stock measurement mismatches', async () => {
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) =>
-                input.buildWrite({
-                    item: createQualitativeItem({ id: input.itemId }),
-                    stockLevel: createStockLevel({ itemId: input.itemId, location: input.location }),
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: 'movement-1',
-                    now,
-                })
-
-            await rejects(
-                adjustInventoryStock(
-                    {
-                        itemId: 'item-1',
-                        location: 'balwyn',
-                        adjustment: { $type: 'quantity', $operation: 'set', quantity: 1 },
-                        source: 'manual-adjustment',
-                    },
-                    actor
-                )
-            )
-
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) =>
-                input.buildWrite({
-                    item: createQuantityItem({ id: input.itemId }),
-                    stockLevel: createStockLevel({
-                        itemId: input.itemId,
-                        location: input.location,
-                        measurement: { $type: 'qualitative', level: 'low' },
-                    }),
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: 'movement-1',
-                    now,
-                })
-
-            await rejects(
-                adjustInventoryStock(
-                    {
-                        itemId: 'item-1',
-                        location: 'balwyn',
-                        adjustment: { $type: 'quantity', $operation: 'set', quantity: 1 },
-                        source: 'manual-adjustment',
-                    },
-                    actor
-                )
-            )
-        })
-
-        it('builds qualitative stock writes and rejects qualitative measurement mismatches', async () => {
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) =>
-                input.buildWrite({
-                    item: createQualitativeItem({ id: input.itemId }),
-                    stockLevel: createStockLevel({
-                        itemId: input.itemId,
-                        location: input.location,
-                        measurement: { $type: 'qualitative', level: 'low' },
-                    }),
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: 'movement-1',
-                    now,
-                })
-
-            const result = await adjustInventoryStock(
-                {
-                    itemId: 'item-qualitative',
-                    location: 'balwyn',
-                    adjustment: { $type: 'qualitative', level: 'high' },
-                    source: 'stocktake',
-                },
-                actor
-            )
-
-            deepStrictEqual(result.movement.adjustment, {
-                $type: 'qualitative',
-                levelBefore: 'low',
-                levelAfter: 'high',
-            })
-
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) =>
-                input.buildWrite({
-                    item: createQualitativeItem({ id: input.itemId }),
-                    stockLevel: createStockLevel({ itemId: input.itemId, location: input.location }),
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: 'movement-1',
-                    now,
-                })
-
-            await rejects(
-                adjustInventoryStock(
-                    {
-                        itemId: 'item-qualitative',
-                        location: 'balwyn',
-                        adjustment: { $type: 'qualitative', level: 'low' },
-                        source: 'stocktake',
-                    },
-                    actor
-                )
-            )
-        })
-
-        it('builds qualitative stock writes when no current stock level exists', async () => {
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) =>
-                input.buildWrite({
-                    item: createQualitativeItem({ id: input.itemId }),
-                    stockLevel: undefined,
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: 'movement-1',
-                    now,
-                })
-
-            const result = await adjustInventoryStock(
-                {
-                    itemId: 'item-qualitative',
-                    location: 'balwyn',
-                    stocked: false,
-                    adjustment: { $type: 'qualitative', level: 'low' },
-                    source: 'stocktake',
-                },
-                actor
-            )
-
-            strictEqual(result.stockLevel.stocked, false)
-            deepStrictEqual(result.movement.adjustment, {
-                $type: 'qualitative',
-                levelBefore: 'unknown',
-                levelAfter: 'low',
-            })
-        })
-
-        it('defaults stocked value for new qualitative stock writes', async () => {
-            mockDatabaseClient.runInventoryStockMovementTransaction = async (input) =>
-                input.buildWrite({
-                    item: createQualitativeItem({ id: input.itemId }),
-                    stockLevel: undefined,
-                    stockLevelId: getInventoryStockLevelId(input.location, input.itemId),
-                    movementId: 'movement-1',
-                    now,
-                })
-
-            const result = await adjustInventoryStock(
-                {
-                    itemId: 'item-qualitative',
-                    location: 'balwyn',
-                    adjustment: { $type: 'qualitative', level: 'medium' },
-                    source: 'stocktake',
-                },
-                actor
-            )
-
-            strictEqual(result.stockLevel.stocked, true)
-        })
     })
 
     describe('usage rules', () => {
@@ -784,27 +472,6 @@ describe('inventory core', () => {
             strictEqual(balwynLine?.suggestedPurchaseQuantity, 5)
             strictEqual(kingsvilleLine?.requiredQuantity, 26)
             strictEqual(kingsvilleLine?.suggestedPurchaseQuantity, 0)
-        })
-
-        it('includes the per-item keep-at-least stock in suggested purchase quantities', async () => {
-            configureInventoryListMocks({
-                bookings: [{ id: 'booking-1', booking: createBooking({ numberOfChildren: '40' }) }],
-                rules: [createUsageRule({ quantity: { $operation: 'per-child', quantityPerChild: 1 } })],
-                items: [createQuantityItem({ minimumTargetQuantity: 20 })],
-                stockLevels: [createStockLevel({ measurement: { $type: 'quantity', quantity: 50 } })],
-            })
-
-            const result = await generateInventoryShoppingList({
-                location: 'balwyn',
-                startDate: now,
-                endDate: new Date('2026-05-02T00:00:00.000Z'),
-            })
-
-            const line = result.studioReports[0].lines[0]
-            strictEqual(line.requiredQuantity, 40)
-            strictEqual(line.quantityOnHand, 50)
-            strictEqual(line.minimumTargetQuantity, 20)
-            strictEqual(line.suggestedPurchaseQuantity, 10)
         })
 
         it('applies fixed, per-child, fixed-plus-per-child, food, and addition rules', async () => {

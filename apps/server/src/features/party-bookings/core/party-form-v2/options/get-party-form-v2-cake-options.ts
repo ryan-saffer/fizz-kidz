@@ -1,6 +1,12 @@
-import { getSquareLocationId, PARTY_CAKE_SQUARE_CATALOG, type Studio } from '@fizz-kidz/core'
+import {
+    getSquareLocationId,
+    mapCakeSizeToSquareVariation,
+    PARTY_CAKE_SQUARE_CATALOG,
+    type Studio,
+} from '@fizz-kidz/core'
 
 import { env } from '@/app/init/firebase'
+import { getOrderableInventory } from '@/features/inventory/core/inventory.reservations'
 import {
     type CatalogOption,
     getCatalogItemOptions,
@@ -17,6 +23,8 @@ export type PartyFormV2CakeOptions = {
     candleOptions: PartyFormV2CakeOption[]
     minFlavours: number
     maxFlavours: number
+    /** Studio-stock cakes come already made in these flavours, so parents aren't asked. `null` means parents choose. */
+    fixedFlavours: string[] | null
 }
 
 /**
@@ -53,5 +61,34 @@ export async function getPartyFormV2CakeOptions(studio: Studio): Promise<PartyFo
         candleOptions: atStudio(list(candleListId).modifiers),
         minFlavours,
         maxFlavours: Math.max(flavourList.maxSelected ?? flavours.length, minFlavours),
+        fixedFlavours: null,
+    }
+}
+
+/** The flavours every studio-stock cake comes in, matched to Square flavour names. */
+const STOCKED_CAKE_FLAVOURS = ['chocolate', 'vanilla']
+
+/**
+ * Studio-stock cakes (see `getPartyCakeSource`) come from the monthly delivery: medium only, already chocolate and
+ * vanilla, and only designs the studio has available in inventory. Square still provides names, photos and prices.
+ */
+export async function getStockedPartyFormV2CakeOptions(studio: Studio): Promise<PartyFormV2CakeOptions> {
+    const [options, orderable] = await Promise.all([getPartyFormV2CakeOptions(studio), getOrderableInventory(studio)])
+    const mediumId = mapCakeSizeToSquareVariation(env, 'medium_cake')
+    const fixedFlavours = options.flavours.filter((flavour) =>
+        STOCKED_CAKE_FLAVOURS.some((name) => flavour.name.toLowerCase().includes(name))
+    )
+    if (fixedFlavours.length !== STOCKED_CAKE_FLAVOURS.length) {
+        throw new Error(`Square cake flavours must include ${STOCKED_CAKE_FLAVOURS.join(' and ')} at '${studio}'`)
+    }
+
+    return {
+        ...options,
+        sizes: options.sizes.filter((size) => size.id === mediumId),
+        designs: options.designs.filter((design) => (orderable.get(design.id)?.available ?? 0) > 0),
+        flavours: fixedFlavours,
+        minFlavours: fixedFlavours.length,
+        maxFlavours: fixedFlavours.length,
+        fixedFlavours: fixedFlavours.map((flavour) => flavour.name),
     }
 }

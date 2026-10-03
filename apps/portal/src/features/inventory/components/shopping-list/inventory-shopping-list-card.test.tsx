@@ -211,7 +211,6 @@ describe('InventoryShoppingListCard', () => {
                             location: 'balwyn',
                             requiredQuantity: 15,
                             quantityOnHand: 4,
-                            minimumTargetQuantity: 3,
                             suggestedPurchaseQuantity: 14,
                             stocked: false,
                             sourceBreakdown: [
@@ -240,7 +239,7 @@ describe('InventoryShoppingListCard', () => {
         expect(screen.getByText('Party pies')).toBeTruthy()
         expect(screen.getByText('15 units')).toBeTruthy()
         expect(screen.getByText('4 units')).toBeTruthy()
-        expect(screen.getByText('3 units')).toBeTruthy()
+        expect(screen.queryByText('Keep at least')).toBeNull()
         expect(screen.getByText('14 units')).toBeTruthy()
         expect(screen.getByText('Unused here')).toBeTruthy()
         expect(screen.getByText('Party pies: 15 across 1 booking')).toBeTruthy()

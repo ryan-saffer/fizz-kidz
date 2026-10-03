@@ -1,5 +1,6 @@
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 
+import { getInventoryStockLevelId } from '@fizz-kidz/core'
 import type {
     AfterSchoolEnrolment,
     AuthUser,
@@ -56,19 +57,21 @@ type DeleteInventoryDocuments = {
     stockMovementIds?: string[]
 }
 
-type RunInventoryStockMovementTransaction = {
-    itemId: string
+type RunInventoryStockTransaction<T> = {
     location: Studio
-    buildWrite(input: {
-        item: InventoryItem
-        stockLevel?: InventoryStockLevel
-        stockLevelId: string
-        movementId: string
+    itemIds: string[]
+    /**
+     * Makes the change safe to repeat: movements get the ids `${idempotencyKey}_${itemId}`, and if any already exist
+     * nothing is written and an empty list is returned.
+     */
+    idempotencyKey?: string
+    /** Runs inside the transaction. Every returned write sets its stock level and creates its movement. */
+    buildWrites(input: {
+        items: Map<string, InventoryItem>
+        stockLevels: Map<string, InventoryStockLevel>
+        createMovementId: (itemId: string) => string
         now: Date
-    }): {
-        stockLevel: InventoryStockLevel
-        movement: InventoryStockMovement
-    }
+    }): (T & { stockLevel: InventoryStockLevel; movement: InventoryStockMovement })[]
 }
 
 export type UpdateDoc<T> = {
@@ -669,12 +672,6 @@ class Client {
         return (await FirestoreRefs.inventoryItems()).doc().id
     }
 
-    async createInventoryItem(item: WithoutId<InventoryItem>) {
-        const itemRef = (await FirestoreRefs.inventoryItems()).doc()
-        await itemRef.set({ ...item, id: itemRef.id } as InventoryItem)
-        return itemRef.id
-    }
-
     async setInventoryDocuments(input: SetInventoryDocuments) {
         const firestore = await FirestoreClient.getInstance()
         const itemsRef = await FirestoreRefs.inventoryItems()
@@ -723,19 +720,8 @@ class Client {
         return this.#getDocuments(query)
     }
 
-    async listInventoryItemsByInventoryKey(inventoryKey: string) {
-        const itemsRef = await FirestoreRefs.inventoryItems()
-        const query = itemsRef.where('inventoryKey', '==', inventoryKey)
-
-        return this.#getDocuments(query)
-    }
-
     updateInventoryItem(itemId: string, item: UpdateDoc<InventoryItem>) {
         return this.#updateDocument(FirestoreRefs.inventoryItem(itemId), item as UpdateDoc<InventoryItem>)
-    }
-
-    async deleteInventoryItem(itemId: string) {
-        return (await FirestoreRefs.inventoryItem(itemId)).delete()
     }
 
     async deleteInventoryDocuments(input: DeleteInventoryDocuments) {
@@ -788,35 +774,56 @@ class Client {
         return this.#getDocuments(query)
     }
 
-    async runInventoryStockMovementTransaction(input: RunInventoryStockMovementTransaction) {
+    async runInventoryStockTransaction<T>(input: RunInventoryStockTransaction<T>) {
         const firestore = await FirestoreClient.getInstance()
-        const itemRef = await FirestoreRefs.inventoryItem(input.itemId)
-        const stockLevelRef = await FirestoreRefs.inventoryStockLevel(input.location, input.itemId)
-        const movementRef = (await FirestoreRefs.inventoryStockMovements()).doc()
+        const itemsRef = await FirestoreRefs.inventoryItems()
+        const stockLevelsRef = await FirestoreRefs.inventoryStockLevels()
+        const movementsRef = await FirestoreRefs.inventoryStockMovements()
+        const itemIds = [...new Set(input.itemIds)]
+
+        const createMovementId = (itemId: string) =>
+            input.idempotencyKey ? `${input.idempotencyKey}_${itemId}` : movementsRef.doc().id
 
         return firestore.runTransaction(async (tx) => {
-            const itemSnap = await tx.get(itemRef)
-            if (!itemSnap.exists) {
-                throw new Error(`Cannot adjust stock for unknown inventory item: '${input.itemId}'`)
+            if (input.idempotencyKey) {
+                const existing = await tx.getAll(...itemIds.map((itemId) => movementsRef.doc(createMovementId(itemId))))
+                if (existing.some((snap) => snap.exists)) return []
             }
-
-            const item = itemSnap.data()!
-            const stockLevelSnap = await tx.get(stockLevelRef)
-            const currentStockLevel = stockLevelSnap.data()
-            const now = new Date()
-            const write = input.buildWrite({
-                item,
-                stockLevel: currentStockLevel,
-                stockLevelId: stockLevelRef.id,
-                movementId: movementRef.id,
-                now,
+            const itemSnaps = await tx.getAll(...itemIds.map((itemId) => itemsRef.doc(itemId)))
+            const stockLevelSnaps = await tx.getAll(
+                ...itemIds.map((itemId) => stockLevelsRef.doc(getInventoryStockLevelId(input.location, itemId)))
+            )
+            const items = new Map<string, InventoryItem>()
+            const stockLevels = new Map<string, InventoryStockLevel>()
+            itemSnaps.forEach((snap, idx) => {
+                if (!snap.exists) {
+                    throw new Error(`Cannot change stock for unknown inventory item: '${itemIds[idx]}'`)
+                }
+                items.set(itemIds[idx], snap.data()!)
+            })
+            stockLevelSnaps.forEach((snap, idx) => {
+                const stockLevel = snap.data()
+                if (stockLevel) stockLevels.set(itemIds[idx], stockLevel)
             })
 
-            tx.set(stockLevelRef, write.stockLevel)
-            tx.set(movementRef, write.movement)
+            const writes = input.buildWrites({
+                items,
+                stockLevels,
+                createMovementId,
+                now: new Date(),
+            })
+            writes.forEach((write) => {
+                tx.set(stockLevelsRef.doc(write.stockLevel.id), write.stockLevel)
+                tx.set(movementsRef.doc(write.movement.id), write.movement)
+            })
 
-            return write
+            return writes
         })
+    }
+
+    async listInventoryStockMovementsForBooking(bookingId: string) {
+        const movementsRef = await FirestoreRefs.inventoryStockMovements()
+        return this.#getDocuments(movementsRef.where('bookingId', '==', bookingId))
     }
 
     async listInventoryStockMovements(input: { location?: Studio; itemId?: string; limit?: number } = {}) {

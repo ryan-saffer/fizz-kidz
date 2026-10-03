@@ -14,6 +14,7 @@ export function QuantityCard({
     imageUrl,
     price,
     minimum,
+    maximum = MAX_QUANTITY,
     alreadyOrdered = 0,
     value,
     onChange,
@@ -23,6 +24,8 @@ export function QuantityCard({
     imageUrl: string | null
     price: string
     minimum: number
+    /** Most that can be ordered, eg. what's left in studio stock. Below `minimum`, it can't be ordered at all. */
+    maximum?: number
     /** Ordered earlier (e.g. with the cake form). New quantities are added on top. */
     alreadyOrdered?: number
     value: number
@@ -51,6 +54,11 @@ export function QuantityCard({
                     <p className="pt-1 text-[13px] text-party-muted">{price}</p>
                 </div>
                 <div className="mt-auto grid gap-2">
+                    {maximum < MAX_QUANTITY && (
+                        <p className="text-xs font-semibold text-party-pink">
+                            {maximum < minimum ? 'Sold out' : `Only ${maximum} left`}
+                        </p>
+                    )}
                     {alreadyOrdered > 0 && (
                         <p className="flex items-center gap-1.5 rounded-lg bg-party-lilac px-2.5 py-1.5 text-xs font-semibold text-party-pink">
                             <Check size={14} aria-hidden="true" /> {alreadyOrdered} already ordered
@@ -81,7 +89,7 @@ export function QuantityCard({
                             type="button"
                             className={stepButton}
                             aria-label={`Add one ${name}`}
-                            disabled={value >= MAX_QUANTITY}
+                            disabled={value >= Math.min(maximum, MAX_QUANTITY) || (value === 0 && maximum < minimum)}
                             onClick={() => onChange(value === 0 ? minimum : value + 1)}
                         >
                             <Plus size={16} aria-hidden="true" />

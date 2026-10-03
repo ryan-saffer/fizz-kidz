@@ -53,8 +53,9 @@ function getDefaultValues(config: PartyFormV2Config): FormValues {
         foodPackage: config.type === 'studio' ? (config.prefill.includesFood ? 'include' : 'self-cater') : '',
         additions: [],
         cakeSelection: BRING_OWN_CAKE,
-        cakeSize: '',
-        cakeFlavours: [],
+        // studio-stock cakes come in one size and fixed flavours, so those aren't asked
+        cakeSize: config.cakeOptions?.sizes.length === 1 ? config.cakeOptions.sizes[0].name : '',
+        cakeFlavours: config.cakeOptions?.fixedFlavours ?? [],
         cakeServed: '',
         cakeCandles: '',
         cakeMessage: '',

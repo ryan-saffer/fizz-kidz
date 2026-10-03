@@ -1,12 +1,7 @@
 import { FieldValue } from 'firebase-admin/firestore'
 import { z } from 'zod'
 
-import {
-    inventoryCategorySchema,
-    inventoryKeySchema,
-    inventoryPurchaseOptionSchema,
-    inventoryUnitSchema,
-} from './inventory.schemas'
+import { inventoryCategorySchema, inventoryKeySchema, inventoryUnitSchema } from './inventory.schemas'
 
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 
@@ -21,8 +16,7 @@ export const updateInventoryItemInputSchema = z.object({
             status: z.enum(['active', 'archived']).optional(),
             baseUnit: inventoryUnitSchema,
             runningLowThreshold: z.number().nonnegative().nullable(),
-            minimumTargetQuantity: z.number().nonnegative().nullable().optional(),
-            purchaseOptions: z.array(inventoryPurchaseOptionSchema).optional(),
+            squareCatalogObjectId: z.string().trim().min(1).nullable().optional(),
             notes: z.string().optional(),
         }),
         z.object({
@@ -32,7 +26,6 @@ export const updateInventoryItemInputSchema = z.object({
             category: inventoryCategorySchema.optional(),
             status: z.enum(['active', 'archived']).optional(),
             baseUnit: inventoryUnitSchema.optional(),
-            purchaseOptions: z.array(inventoryPurchaseOptionSchema).optional(),
             notes: z.string().optional(),
         }),
         z.object({
@@ -40,7 +33,6 @@ export const updateInventoryItemInputSchema = z.object({
             inventoryKey: inventoryKeySchema.nullable().optional(),
             category: inventoryCategorySchema.optional(),
             status: z.enum(['active', 'archived']).optional(),
-            purchaseOptions: z.array(inventoryPurchaseOptionSchema).optional(),
             notes: z.string().optional(),
         }),
     ]),
@@ -49,14 +41,18 @@ export const updateInventoryItemInputSchema = z.object({
 export type UpdateInventoryItemInput = z.infer<typeof updateInventoryItemInputSchema>
 
 export async function updateInventoryItem(input: UpdateInventoryItemInput) {
-    const itemUpdate = {
+    const { inventoryKey, squareCatalogObjectId, ...item } = {
+        squareCatalogObjectId: undefined as string | null | undefined,
         ...input.item,
-        inventoryKey: input.item.inventoryKey === null ? FieldValue.delete() : input.item.inventoryKey,
-        updatedAt: new Date(),
     }
 
     await DatabaseClient.updateInventoryItem(input.itemId, {
-        ...itemUpdate,
+        ...item,
+        inventoryKey: inventoryKey === null ? FieldValue.delete() : inventoryKey,
+        ...(squareCatalogObjectId !== undefined && {
+            squareCatalogObjectId: squareCatalogObjectId === null ? FieldValue.delete() : squareCatalogObjectId,
+        }),
+        updatedAt: new Date(),
     })
 
     return DatabaseClient.getInventoryItem(input.itemId)

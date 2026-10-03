@@ -66,17 +66,21 @@ function query(name: string) {
 vi.mock('@integrations/trpc', () => ({
     useTRPC: () => ({
         inventory: {
-            adjustStock: mutation('adjustStock'),
+            countStock: mutation('countStock'),
             createItem: mutation('createItem'),
             createUsageRule: mutation('createUsageRule'),
             deleteItem: mutation('deleteItem'),
             deleteUsageRule: mutation('deleteUsageRule'),
             generateShoppingList: query('generateShoppingList'),
             listItems: query('listItems'),
+            listMovements: query('listMovements'),
             listStock: query('listStock'),
             listUsageRules: query('listUsageRules'),
+            receiveStock: mutation('receiveStock'),
+            removeStock: mutation('removeStock'),
             setStocked: mutation('setStocked'),
             updateItem: mutation('updateItem'),
+            updateStockLevel: mutation('updateStockLevel'),
             updateUsageRule: mutation('updateUsageRule'),
         },
     }),
@@ -87,14 +91,11 @@ const now = new Date('2026-05-01T00:00:00.000Z')
 const item: ClientInventoryItem = {
     id: 'item-1',
     name: 'Party pies',
-    inventoryKey: 'party-base:partyPies',
     category: 'party-food',
     status: 'active',
     $trackingMode: 'quantity',
     baseUnit: 'each',
     runningLowThreshold: 10,
-    minimumTargetQuantity: 20,
-    purchaseOptions: [{ label: 'Box', unit: 'box', quantityInBaseUnits: 24 }],
     createdAt: now,
     updatedAt: now,
 }
@@ -110,8 +111,8 @@ const stock: ClientInventoryStockLevel = {
 
 const usageRule: ClientInventoryUsageRule = {
     id: 'rule-1',
-    $type: 'party-base',
     inventoryKey: 'party-base:partyPies',
+    $type: 'party-base',
     label: 'Party pies',
     status: 'active',
     quantity: { $operation: 'fixed', quantity: 2 },
@@ -122,13 +123,10 @@ const usageRule: ClientInventoryUsageRule = {
 const quantityValues: InventoryItemFormValues = {
     $trackingMode: 'quantity',
     name: 'Party pies',
-    inventoryKeyType: 'party-base',
-    inventoryKeyName: 'partyPies',
-    inventoryKey: 'party-base:partyPies',
     category: 'party-food',
     baseUnit: 'each',
     runningLowThreshold: 10,
-    minimumTargetQuantity: 20,
+    squareCatalogObjectId: 'square-cake',
     status: 'active',
     notes: '',
 }
@@ -136,13 +134,10 @@ const quantityValues: InventoryItemFormValues = {
 const qualitativeValues: InventoryItemFormValues = {
     $trackingMode: 'qualitative',
     name: 'Glitter',
-    inventoryKeyType: 'party-base',
-    inventoryKeyName: '',
-    inventoryKey: null,
-    category: 'glitter',
+    category: 'party-food',
     baseUnit: 'tub',
     runningLowThreshold: null,
-    minimumTargetQuantity: null,
+    squareCatalogObjectId: null,
     status: 'active',
     notes: 'Sparkle',
 }
@@ -170,7 +165,12 @@ describe('useInventoryActions', () => {
         mocks.mutationOptionsByName.clear()
         mocks.toastError.mockClear()
         mocks.toastSuccess.mockClear()
-        useInventoryStore.setState({ editingItem: null, editingUsageRule: null, stockAction: null })
+        useInventoryStore.setState({
+            editingItem: null,
+            editingUsageRule: null,
+            stockAction: null,
+            isReceiveDeliveryOpen: false,
+        })
     })
 
     it('creates and updates quantity and qualitative items', async () => {
@@ -191,11 +191,10 @@ describe('useInventoryActions', () => {
                     $trackingMode: 'quantity',
                     baseUnit: 'each',
                     category: 'party-food',
-                    inventoryKey: 'party-base:partyPies',
                     name: 'Party pies',
                     notes: undefined,
                     runningLowThreshold: 10,
-                    minimumTargetQuantity: 20,
+                    squareCatalogObjectId: 'square-cake',
                     status: 'active',
                 },
             },
@@ -204,8 +203,7 @@ describe('useInventoryActions', () => {
                 input: {
                     $trackingMode: 'qualitative',
                     baseUnit: 'tub',
-                    category: 'glitter',
-                    inventoryKey: undefined,
+                    category: 'party-food',
                     name: 'Glitter',
                     notes: 'Sparkle',
                     status: 'active',
@@ -218,12 +216,10 @@ describe('useInventoryActions', () => {
                         $trackingMode: 'quantity',
                         baseUnit: 'each',
                         category: 'party-food',
-                        inventoryKey: 'party-base:partyPies',
                         name: 'Party pies',
                         notes: undefined,
-                        purchaseOptions: item.purchaseOptions,
                         runningLowThreshold: 10,
-                        minimumTargetQuantity: 20,
+                        squareCatalogObjectId: 'square-cake',
                         status: 'active',
                     },
                     itemId: 'item-1',
@@ -235,11 +231,9 @@ describe('useInventoryActions', () => {
                     item: {
                         $trackingMode: 'qualitative',
                         baseUnit: 'tub',
-                        category: 'glitter',
-                        inventoryKey: null,
+                        category: 'party-food',
                         name: 'Glitter',
                         notes: 'Sparkle',
-                        purchaseOptions: item.purchaseOptions,
                         status: 'active',
                     },
                     itemId: 'item-1',
@@ -257,7 +251,7 @@ describe('useInventoryActions', () => {
         await callAction(() => result.current.updateUsageRule(usageRuleValues))
         await callAction(() => result.current.deleteItem())
         await callAction(() => result.current.deleteUsageRule())
-        await callAction(() => result.current.adjustStock({ quantity: 1, level: 'high', reason: '' }))
+        await callAction(() => result.current.submitStockAction({ quantity: 1, level: 'high', reason: '' }))
 
         expect(mocks.mutationCalls).toEqual([])
     })
@@ -308,73 +302,88 @@ describe('useInventoryActions', () => {
         ])
     })
 
-    it('adjusts quantity, qualitative, stocked, and unknown stock states', async () => {
+    it('submits each stock action type to its own mutation', async () => {
         const { result, rerender } = renderHook(() => useInventoryActions())
 
         useInventoryStore.setState({ stockAction: { $type: 'level', item, stock } })
         rerender()
-        await callAction(() => result.current.adjustStock({ quantity: 0, level: 'low', reason: '' }))
+        await callAction(() => result.current.submitStockAction({ quantity: 0, level: 'low', reason: '' }))
 
         useInventoryStore.setState({ stockAction: { $type: 'receive', item, stock } })
         rerender()
-        await callAction(() => result.current.adjustStock({ quantity: 3, level: 'unknown', reason: 'Delivery' }))
+        await callAction(() => result.current.submitStockAction({ quantity: 3, level: 'unknown', reason: 'Delivery' }))
 
-        useInventoryStore.setState({ stockAction: { $type: 'set', item, stock } })
+        useInventoryStore.setState({ stockAction: { $type: 'count', item, stock } })
         rerender()
-        const setValues: StockActionFormValues = { quantity: 7, level: 'unknown', reason: 'Counted' }
-        await callAction(() => result.current.adjustStock(setValues))
+        const countValues: StockActionFormValues = { quantity: 7, level: 'unknown', reason: '' }
+        await callAction(() => result.current.submitStockAction(countValues))
+
+        useInventoryStore.setState({ stockAction: { $type: 'remove', item, stock } })
+        rerender()
+        await callAction(() => result.current.submitStockAction({ quantity: 2, level: 'unknown', reason: 'Dropped' }))
+
+        expect(mocks.mutationCalls).toEqual([
+            { name: 'updateStockLevel', input: { itemId: 'item-1', level: 'low', location: 'balwyn' } },
+            {
+                name: 'receiveStock',
+                input: { lines: [{ itemId: 'item-1', quantity: 3 }], location: 'balwyn', note: 'Delivery' },
+            },
+            {
+                name: 'countStock',
+                input: { lines: [{ itemId: 'item-1', quantity: 7 }], location: 'balwyn', reason: undefined },
+            },
+            { name: 'removeStock', input: { itemId: 'item-1', location: 'balwyn', quantity: 2, reason: 'Dropped' } },
+        ])
+        expect(mocks.toastSuccess).toHaveBeenCalledWith('Stock level updated.')
+        expect(mocks.toastSuccess).toHaveBeenCalledWith('Stock received.')
+        expect(mocks.toastSuccess).toHaveBeenCalledWith('Count saved.')
+        expect(mocks.toastSuccess).toHaveBeenCalledWith('Stock removed.')
+        expect(useInventoryStore.getState().stockAction).toBeNull()
+        expect(mocks.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['listStock', { location: 'balwyn' }] })
+        expect(mocks.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['listMovements', undefined] })
+    })
+
+    it('receives deliveries, marks counts unknown, and toggles studio tracking', async () => {
+        useInventoryStore.setState({ isReceiveDeliveryOpen: true })
+        const { result } = renderHook(() => useInventoryActions())
+
+        await callAction(() =>
+            result.current.receiveDelivery({
+                lines: [
+                    { itemId: 'item-1', quantity: 4 },
+                    { itemId: 'item-2', quantity: 10 },
+                ],
+                note: '',
+            })
+        )
+        await callAction(() => result.current.markQuantityUnknown(item))
         await callAction(() => result.current.setItemStocked(item, false))
         await callAction(() => result.current.setItemStocked(item, true))
-        await callAction(() => result.current.markQuantityUnknown(item))
 
         expect(mocks.mutationCalls).toEqual([
             {
-                name: 'adjustStock',
+                name: 'receiveStock',
                 input: {
-                    adjustment: { $type: 'qualitative', level: 'low' },
-                    itemId: 'item-1',
+                    lines: [
+                        { itemId: 'item-1', quantity: 4 },
+                        { itemId: 'item-2', quantity: 10 },
+                    ],
                     location: 'balwyn',
-                    reason: undefined,
-                    source: 'stocktake',
-                    stocked: true,
+                    note: undefined,
                 },
             },
             {
-                name: 'adjustStock',
+                name: 'countStock',
                 input: {
-                    adjustment: { $operation: 'adjust', $type: 'quantity', delta: 3 },
-                    itemId: 'item-1',
+                    lines: [{ itemId: 'item-1', quantity: null }],
                     location: 'balwyn',
-                    reason: 'Delivery',
-                    source: 'purchase',
-                    stocked: true,
-                },
-            },
-            {
-                name: 'adjustStock',
-                input: {
-                    adjustment: { $operation: 'set', $type: 'quantity', quantity: 7 },
-                    itemId: 'item-1',
-                    location: 'balwyn',
-                    reason: 'Counted',
-                    source: 'stocktake',
-                    stocked: true,
+                    reason: 'Marked count unknown.',
                 },
             },
             { name: 'setStocked', input: { itemId: 'item-1', location: 'balwyn', stocked: false } },
             { name: 'setStocked', input: { itemId: 'item-1', location: 'balwyn', stocked: true } },
-            {
-                name: 'adjustStock',
-                input: {
-                    adjustment: { $operation: 'set', $type: 'quantity', quantity: null },
-                    itemId: 'item-1',
-                    location: 'balwyn',
-                    reason: 'Marked count unknown.',
-                    source: 'stocktake',
-                    stocked: true,
-                },
-            },
         ])
+        expect(useInventoryStore.getState().isReceiveDeliveryOpen).toBe(false)
     })
 
     it('shows mutation error toasts', () => {
@@ -382,8 +391,8 @@ describe('useInventoryActions', () => {
 
         mocks.mutationOptionsByName.get('createItem').onError()
         mocks.mutationOptionsByName.get('updateItem').onError()
-        mocks.mutationOptionsByName.get('adjustStock').onError(new Error('Stock failed'))
-        mocks.mutationOptionsByName.get('adjustStock').onError({ message: '' })
+        mocks.mutationOptionsByName.get('countStock').onError(new Error('Stock failed'))
+        mocks.mutationOptionsByName.get('removeStock').onError({ message: '' })
         mocks.mutationOptionsByName.get('deleteItem').onError()
         mocks.mutationOptionsByName.get('setStocked').onError()
         mocks.mutationOptionsByName.get('createUsageRule').onError(new Error('Create failed'))
@@ -395,7 +404,7 @@ describe('useInventoryActions', () => {
         expect(mocks.toastError).toHaveBeenCalledWith('Unable to create inventory item.')
         expect(mocks.toastError).toHaveBeenCalledWith('Unable to update inventory item.')
         expect(mocks.toastError).toHaveBeenCalledWith('Stock failed')
-        expect(mocks.toastError).toHaveBeenCalledWith('Unable to update stock level.')
+        expect(mocks.toastError).toHaveBeenCalledWith('Unable to update stock.')
         expect(mocks.toastError).toHaveBeenCalledWith('Unable to delete inventory item.')
         expect(mocks.toastError).toHaveBeenCalledWith('Unable to update studio tracking.')
         expect(mocks.toastError).toHaveBeenCalledWith('Create failed')
@@ -411,7 +420,8 @@ describe('useInventoryActions', () => {
         await act(async () => {
             await mocks.mutationOptionsByName.get('createItem').onSuccess()
             await mocks.mutationOptionsByName.get('updateItem').onSuccess()
-            await mocks.mutationOptionsByName.get('adjustStock').onSuccess()
+            await mocks.mutationOptionsByName.get('receiveStock').onSuccess()
+            await mocks.mutationOptionsByName.get('updateStockLevel').onSuccess()
             await mocks.mutationOptionsByName.get('deleteItem').onSuccess()
             await mocks.mutationOptionsByName.get('setStocked').onSuccess(undefined, { stocked: true })
             await mocks.mutationOptionsByName.get('setStocked').onSuccess(undefined, { stocked: false })

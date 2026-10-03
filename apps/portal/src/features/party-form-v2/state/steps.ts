@@ -8,6 +8,14 @@ export type PartyStepKey = 'details' | 'creations' | 'food' | 'cake' | 'goodies'
 export type PartyStep = { key: PartyStepKey; label: string; title: string; fields: (keyof FormValues)[] }
 
 /**
+ * Studio-stock cakes (Geelong, Werribee) are only sold on the party form sent close to the party, so their cake form
+ * has no cake step. Everything else reads `cakeOptions` from the config this returns.
+ */
+export function getConfigForMode(config: PartyFormV2Config, mode: PartyFormV2Mode): PartyFormV2Config {
+    return mode === 'cake' && config.cakeSource === 'studio-stock' ? { ...config, cakeOptions: null } : config
+}
+
+/**
  * The steps shown for this booking. The cake form (`mode: 'cake'`) only orders a cake and take-home goodies ahead of
  * the party. Food is studio-only, and the cake step needs Square cake options (see `canOrderCake`).
  */

@@ -2,6 +2,7 @@ import { logger } from 'firebase-functions/v2'
 
 import {
     getSquareLocationId,
+    isStockedPartyOrder,
     mapSquareVariationToProduct,
     mapSquareVariationToTakeHomeBag,
     MIN_TAKE_HOME_QUANTITY,
@@ -12,6 +13,7 @@ import {
 } from '@fizz-kidz/core'
 
 import { env } from '@/app/init/firebase'
+import { getOrderableInventory } from '@/features/inventory/core/inventory.reservations'
 import { calculateCatalogUnitPrices } from '@/integrations/square/core/calculate-catalog-unit-prices'
 import { getCatalogItemOptions, isSoldAtLocation } from '@/integrations/square/core/get-catalog-item-options'
 import { listCatalogCategoryItems } from '@/integrations/square/core/list-catalog-category-items'
@@ -25,6 +27,8 @@ export type PartyFormV2TakeHomeOption<K extends string> = {
     priceCents: number
     /** The catalogue price before those discounts. */
     regularPriceCents: number
+    /** How many can still be ordered from studio stock (see `isStockedPartyOrder`). `null` means no limit. */
+    available: number | null
 }
 
 export type PartyFormV2TakeHomeOptions = {
@@ -36,15 +40,17 @@ export type PartyFormV2TakeHomeOptions = {
 /**
  * Take-home bags are the variations of Square's take-home bag item; kits are the items in its Products category.
  * Only items on the 'Fizz Kidz Store' online channel are offered (the Dashboard's online store toggle), and only at
- * studios they're sold at. Stock levels are ignored. Anything without a booking key is left out.
+ * studios they're sold at. Square stock levels are ignored. Anything without a booking key is left out. At studios that
+ * sell from studio stock, items linked to inventory are limited to what's available.
  */
 export async function getPartyFormV2TakeHomeOptions(studio: Studio): Promise<PartyFormV2TakeHomeOptions> {
     const { takeHomeBagItemId, productCategoryId, onlineStoreChannelId } = PARTY_TAKE_HOME_SQUARE_CATALOG[env]
     const onForm = (channels: string[]) => !onlineStoreChannelId || channels.includes(onlineStoreChannelId)
     const locationId = getSquareLocationId(env === 'prod' ? studio : 'test')
-    const [bagItem, kits] = await Promise.all([
+    const [bagItem, kits, orderable] = await Promise.all([
         getCatalogItemOptions(takeHomeBagItemId),
         listCatalogCategoryItems(productCategoryId),
+        isStockedPartyOrder('studio', studio) ? getOrderableInventory(studio) : null,
     ])
 
     const bags = (onForm(bagItem.channels) ? bagItem.variations : [])
@@ -88,22 +94,27 @@ export async function getPartyFormV2TakeHomeOptions(studio: Studio): Promise<Par
         [...bags, ...products].map((option) => option.variationId),
         MIN_TAKE_HOME_QUANTITY
     )
+    const available = (variationId: string) => orderable?.get(variationId)?.available ?? null
     return {
-        takeHomeBags: withUnitPrices(bags, unitPrices),
-        products: withUnitPrices(products, unitPrices),
+        takeHomeBags: withUnitPrices(bags, unitPrices, available),
+        products: withUnitPrices(products, unitPrices, available),
         minimumQuantity: MIN_TAKE_HOME_QUANTITY,
     }
 }
 
-type UnpricedOption<K extends string> = Omit<PartyFormV2TakeHomeOption<K>, 'priceCents'> & { variationId: string }
+type UnpricedOption<K extends string> = Omit<PartyFormV2TakeHomeOption<K>, 'priceCents' | 'available'> & {
+    variationId: string
+}
 
 function withUnitPrices<K extends string>(
     options: UnpricedOption<K>[],
-    unitPrices: Map<string, number>
+    unitPrices: Map<string, number>,
+    available: (variationId: string) => number | null
 ): PartyFormV2TakeHomeOption<K>[] {
     return options.map(({ variationId, ...option }) => ({
         ...option,
         priceCents: unitPrices.get(variationId) ?? option.regularPriceCents,
+        available: available(variationId),
     }))
 }
 

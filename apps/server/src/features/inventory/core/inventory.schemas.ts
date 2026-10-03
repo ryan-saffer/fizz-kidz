@@ -4,9 +4,8 @@ import {
     ADDITIONS,
     INVENTORY_CATEGORIES,
     INVENTORY_QUALITATIVE_STOCK_LEVELS,
-    INVENTORY_STOCK_MOVEMENT_SOURCES,
     INVENTORY_USAGE_RULE_TYPES,
-    INVENTORY_UNITS,
+    isOrderableInventoryCategory,
     STUDIOS,
 } from '@fizz-kidz/core'
 import type { Addition, Studio } from '@fizz-kidz/core'
@@ -15,9 +14,8 @@ export const studioSchema = z.custom<Studio>((value) => typeof value === 'string
 export const additionSchema = z.custom<Addition>((value) => typeof value === 'string' && value in ADDITIONS)
 
 export const inventoryCategorySchema = z.enum(INVENTORY_CATEGORIES)
-export const inventoryUnitSchema = z.enum(INVENTORY_UNITS)
+export const inventoryUnitSchema = z.string().trim().min(1).max(30)
 export const qualitativeStockLevelSchema = z.enum(INVENTORY_QUALITATIVE_STOCK_LEVELS)
-export const inventoryStockMovementSourceSchema = z.enum(INVENTORY_STOCK_MOVEMENT_SOURCES)
 export const inventoryUsageRuleTypeSchema = z.enum(INVENTORY_USAGE_RULE_TYPES)
 export const inventoryKeySchema = z.string().trim().min(1)
 export const inventoryUsageRuleNameSchema = z
@@ -26,14 +24,7 @@ export const inventoryUsageRuleNameSchema = z
     .min(1)
     .regex(/^[A-Za-z0-9][A-Za-z0-9-]*$/, 'Use letters, numbers, and hyphens only.')
 
-export const inventoryPurchaseOptionSchema = z.object({
-    label: z.string().min(1),
-    unit: inventoryUnitSchema,
-    quantityInBaseUnits: z.number().positive(),
-    supplier: z.string().optional(),
-})
-
-export const inventoryItemInputSchema = z.discriminatedUnion('$trackingMode', [
+const inventoryItemBaseInputSchema = z.discriminatedUnion('$trackingMode', [
     z.object({
         $trackingMode: z.literal('quantity'),
         name: z.string().min(1),
@@ -42,8 +33,7 @@ export const inventoryItemInputSchema = z.discriminatedUnion('$trackingMode', [
         status: z.enum(['active', 'archived']).default('active'),
         baseUnit: inventoryUnitSchema,
         runningLowThreshold: z.number().nonnegative().nullable(),
-        minimumTargetQuantity: z.number().nonnegative().nullable().optional(),
-        purchaseOptions: z.array(inventoryPurchaseOptionSchema).optional(),
+        squareCatalogObjectId: z.string().trim().min(1).optional(),
         notes: z.string().optional(),
     }),
     z.object({
@@ -53,10 +43,17 @@ export const inventoryItemInputSchema = z.discriminatedUnion('$trackingMode', [
         category: inventoryCategorySchema,
         status: z.enum(['active', 'archived']).default('active'),
         baseUnit: inventoryUnitSchema.optional(),
-        purchaseOptions: z.array(inventoryPurchaseOptionSchema).optional(),
         notes: z.string().optional(),
     }),
 ])
+
+/** Cakes and take-home bags are counted exactly and linked to what customers order in Square. */
+export const inventoryItemInputSchema = inventoryItemBaseInputSchema.refine(
+    (item) =>
+        !isOrderableInventoryCategory(item.category) ||
+        (item.$trackingMode === 'quantity' && !!item.squareCatalogObjectId),
+    { message: 'Cakes and take-home bags must be counted and linked to Square', path: ['squareCatalogObjectId'] }
+)
 
 export const inventoryUsageRuleQuantitySchema = z.discriminatedUnion('$operation', [
     z.object({
@@ -140,20 +137,3 @@ export const inventoryShoppingListInputSchema = z
             })
         }
     })
-
-export const inventoryStockAdjustmentInputSchema = z.union([
-    z.object({
-        $type: z.literal('quantity'),
-        $operation: z.literal('adjust'),
-        delta: z.number(),
-    }),
-    z.object({
-        $type: z.literal('quantity'),
-        $operation: z.literal('set'),
-        quantity: z.number().nonnegative().nullable(),
-    }),
-    z.object({
-        $type: z.literal('qualitative'),
-        level: qualitativeStockLevelSchema,
-    }),
-])

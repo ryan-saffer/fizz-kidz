@@ -5,6 +5,8 @@ import { describe, it } from 'vite-plus/test'
 import { STUDIOS, type Studio } from '../core/studio'
 import {
     canOrderCake,
+    getPartyCakeSource,
+    isStockedPartyOrder,
     getBookingAdditionDisplayValues,
     getBookingCreationDisplayValues,
     getPartyChildCapacityMessages,
@@ -230,6 +232,24 @@ describe('party utilities', () => {
 
         it('returns false for a mobile party at an otherwise eligible studio', () => {
             strictEqual(canOrderCake('mobile', 'balwyn'), false)
+        })
+    })
+
+    describe('getPartyCakeSource', () => {
+        it('sells cakes from studio stock at Geelong and Werribee', () => {
+            strictEqual(getPartyCakeSource('studio', 'geelong'), 'studio-stock')
+            strictEqual(getPartyCakeSource('studio', 'werribee'), 'studio-stock')
+            strictEqual(isStockedPartyOrder('studio', 'werribee'), true)
+        })
+
+        it('orders cakes from the supplier everywhere else', () => {
+            strictEqual(getPartyCakeSource('studio', 'malvern'), 'supplier')
+            strictEqual(isStockedPartyOrder('studio', 'malvern'), false)
+        })
+
+        it('has no cakes for mobile parties', () => {
+            strictEqual(getPartyCakeSource('mobile', 'werribee'), null)
+            strictEqual(isStockedPartyOrder('mobile', 'werribee'), false)
         })
     })
 })

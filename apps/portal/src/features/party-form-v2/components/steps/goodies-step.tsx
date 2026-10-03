@@ -65,6 +65,7 @@ export function GoodiesStep() {
                                                 imageUrl={bag.imageUrl}
                                                 price={`${formatPrice(bag.priceCents / 100)} each`}
                                                 minimum={getTakeHomeMinimum(purchasedBags[bag.key])}
+                                                maximum={bag.available ?? undefined}
                                                 value={field.state.value}
                                                 onChange={(quantity) => field.handleChange(quantity)}
                                             />
@@ -106,6 +107,7 @@ export function GoodiesStep() {
                                                 imageUrl={product.imageUrl}
                                                 price={`${formatPrice(product.priceCents / 100)} each`}
                                                 minimum={getTakeHomeMinimum(purchasedProducts[product.key])}
+                                                maximum={product.available ?? undefined}
                                                 value={field.state.value}
                                                 onChange={(quantity) => field.handleChange(quantity)}
                                             />

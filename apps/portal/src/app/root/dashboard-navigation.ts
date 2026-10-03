@@ -232,11 +232,12 @@ const dashboardNavigationSections: DashboardNavigationSection[] = [
             },
             {
                 label: 'Inventory',
-                description: 'Create consumable stock items and view studio stock levels.',
+                description: 'Track studio stock, receive deliveries and see what is reserved for parties.',
                 to: 'inventory',
                 icon: Archive,
                 accent: '#9ecc48',
                 accentSoft: 'rgba(158, 204, 72, 0.16)',
+                visible: ({ hasPermission }) => hasPermission('inventory:read'),
             },
             {
                 label: 'Chat Transcripts',
@@ -260,11 +261,14 @@ const dashboardNavigationSections: DashboardNavigationSection[] = [
     {
         title: 'Operations',
         subtitle: 'Tools for daily studio operations.',
-        visible: ({ hasPermission }) => hasPermission('inventory:read') && !hasPermission('admin'),
+        // the 'Ops & admin' section already links inventory
+        visible: ({ currentOrg, hasPermission }) =>
+            hasPermission('inventory:read') &&
+            !(hasPermission('admin') && Boolean(currentOrg && isFranchiseOrMaster(currentOrg))),
         items: [
             {
                 label: 'Inventory',
-                description: 'Create consumable stock items and view studio stock levels.',
+                description: 'Track studio stock, receive deliveries and see what is reserved for parties.',
                 to: 'inventory',
                 icon: Archive,
                 accent: '#9ecc48',

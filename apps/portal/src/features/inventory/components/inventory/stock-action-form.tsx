@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
+import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
-import { INVENTORY_QUALITATIVE_STOCK_LEVELS } from '@fizz-kidz/core'
+import { INVENTORY_QUALITATIVE_STOCK_LEVELS, isOrderableInventoryItem } from '@fizz-kidz/core'
 import type { InventoryQualitativeStockLevel } from '@fizz-kidz/core'
 
 import { Button } from '@shared/components/ui/button'
@@ -19,6 +19,7 @@ import {
     normalizeStockActionFormValues,
 } from '../../utils/inventory.form-schemas'
 import { formatQualitativeLevel, getCurrentQuantity, getStockActionSubmitLabel } from '../../utils/inventory.utils'
+import { InventoryNotice } from '../shared/inventory-notice'
 
 import type { StockActionFormInput, StockActionFormValues } from '../../utils/inventory.form-schemas'
 import type { StockAction } from '../../utils/inventory.types'
@@ -36,13 +37,26 @@ export function StockActionForm({
         resolver: zodResolver(getStockActionFormSchema(action)),
         defaultValues: getStockActionFormDefaultValues(action),
     })
+    const enteredQuantity = useWatch({ control: form.control, name: 'quantity' })
     const currentQuantity = getCurrentQuantity(action.stock)
-    const hasUnknownQuantity =
-        action.stock?.measurement.$type === 'quantity' && action.stock.measurement.quantity === null
+    const reserved = action.stock?.reservedQuantity ?? 0
+    const isOrderable = isOrderableInventoryItem(action.item)
 
     useEffect(() => {
         form.reset(getStockActionFormDefaultValues(action))
     }, [action, form])
+
+    const entered = enteredQuantity === '' ? null : Number(enteredQuantity)
+    const quantityAfter =
+        entered === null || !Number.isInteger(entered)
+            ? null
+            : action.$type === 'count'
+              ? entered
+              : action.$type === 'remove' && currentQuantity !== null
+                ? currentQuantity - entered
+                : null
+    const isMismatch = action.$type === 'count' && entered !== null && entered !== currentQuantity
+    const willBeShort = isOrderable && quantityAfter !== null && quantityAfter < reserved
 
     return (
         <Form {...form}>
@@ -50,6 +64,15 @@ export function StockActionForm({
                 className="flex flex-col gap-4"
                 onSubmit={form.handleSubmit((values) => onSubmit(normalizeStockActionFormValues(values)))}
             >
+                {isOrderable && action.$type === 'count' ? (
+                    <InventoryNotice tone="info">
+                        Count <strong>everything</strong> physically here, including stock reserved for upcoming
+                        parties. Reserved stock isn&apos;t labelled, so don&apos;t try to work out which is which. The
+                        system has {currentQuantity} on hand ({reserved} reserved). If your count is different, say why.
+                        The studio owners will be emailed.
+                    </InventoryNotice>
+                ) : null}
+
                 {action.$type === 'level' ? (
                     <FormField
                         control={form.control}
@@ -85,28 +108,15 @@ export function StockActionForm({
                         name="quantity"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>
-                                    {action.$type === 'receive' ? 'Quantity received' : 'Actual stock count'}
-                                </FormLabel>
+                                <FormLabel>{getQuantityLabel(action)}</FormLabel>
                                 <FormControl>
-                                    <Input
-                                        inputMode="decimal"
-                                        disabled={isPending}
-                                        placeholder={
-                                            action.$type === 'receive'
-                                                ? '12'
-                                                : currentQuantity === null
-                                                  ? 'Count needed'
-                                                  : String(currentQuantity)
-                                        }
-                                        {...field}
-                                    />
+                                    <Input inputMode="numeric" disabled={isPending} placeholder="0" {...field} />
                                 </FormControl>
-                                {action.$type === 'set' ? (
+                                {action.$type !== 'receive' && !isOrderable ? (
                                     <p className="m-0 text-xs leading-relaxed text-slate-500">
-                                        {hasUnknownQuantity
-                                            ? 'Current recorded stock is unknown. Saving will set the counted amount.'
-                                            : `Current recorded stock is ${currentQuantity}. Saving will set the counted amount.`}
+                                        {currentQuantity === null
+                                            ? 'The recorded count is unknown.'
+                                            : `The recorded count is ${currentQuantity}.`}
                                     </p>
                                 ) : null}
                                 <FormMessage />
@@ -115,33 +125,66 @@ export function StockActionForm({
                     />
                 )}
 
-                <FormField
-                    control={form.control}
-                    name="reason"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Notes</FormLabel>
-                            <FormControl>
-                                <Textarea
-                                    disabled={isPending}
-                                    placeholder={
-                                        action.$type === 'receive'
-                                            ? 'Optional supplier, order, or delivery notes.'
-                                            : 'Optional stocktake or correction notes.'
-                                    }
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                {willBeShort ? (
+                    <InventoryNotice tone="danger">
+                        That leaves {quantityAfter} on hand but {reserved} are reserved for upcoming parties, so some
+                        parties will be short. The studio owners will be emailed to sort it out.
+                    </InventoryNotice>
+                ) : null}
+
+                {action.$type !== 'level' ? (
+                    <FormField
+                        control={form.control}
+                        name="reason"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{getReasonLabel(action, isOrderable && isMismatch)}</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        disabled={isPending}
+                                        placeholder={getReasonPlaceholder(action)}
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                ) : null}
 
                 <Button type="submit" className={primaryButtonClass} disabled={isPending}>
                     {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    {isOrderable && isMismatch ? <AlertTriangle className="mr-2 h-4 w-4" /> : null}
                     {getStockActionSubmitLabel(action)}
                 </Button>
             </form>
         </Form>
     )
+}
+
+function getQuantityLabel(action: StockAction) {
+    switch (action.$type) {
+        case 'receive':
+            return 'Quantity received'
+        case 'remove':
+            return 'Quantity to remove'
+        default:
+            return 'Counted quantity'
+    }
+}
+
+function getReasonLabel(action: StockAction, needsReason: boolean) {
+    if (action.$type === 'remove' || needsReason) return 'Reason'
+    return 'Notes (optional)'
+}
+
+function getReasonPlaceholder(action: StockAction) {
+    switch (action.$type) {
+        case 'receive':
+            return 'Supplier, order or delivery notes.'
+        case 'remove':
+            return 'eg. Thrown out, past its best.'
+        default:
+            return 'Anything worth noting about this count.'
+    }
 }

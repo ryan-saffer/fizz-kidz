@@ -1,5 +1,6 @@
 import {
     getSquareLocationId,
+    isStockedPartyOrder,
     mapProductToSquareVariation,
     mapTakeHomeBagToSquareVariation,
     orderedQuantities,
@@ -8,10 +9,12 @@ import {
 } from '@fizz-kidz/core'
 
 import { buildPartyFormV2Submission, partyFormV2BookingCake } from '../build-party-form-v2-submission'
+import { getPartyFormV2CakeOptions } from '../options/get-party-form-v2-cake-options'
 
 import type { Square } from 'square'
 
 import { env } from '@/app/init/firebase'
+import { getOrderableInventory, reserveInventoryForBooking } from '@/features/inventory/core/inventory.reservations'
 import { handlePartyFormSubmission } from '@/features/party-bookings/core/handle-party-form-submission'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { logError } from '@/integrations/observability/log-error'
@@ -49,8 +52,54 @@ export async function processPartyFormV2Submission(
             newCake: cake.selection,
         })
     await restoreTakeHomeInventory(submissionId, payload, booking)
+    await reserveStudioStock(submissionId, payload, booking)
     await handlePartyFormSubmission(buildPartyFormV2Submission(payload, booking, submissionId), cake)
     await DatabaseClient.markPartyFormSubmissionApplied(submissionId)
+}
+
+/**
+ * At studios that sell from studio stock, the paid cake and any linked bags or kits are reserved for the party so
+ * nobody else can order them. Not best effort: a failure leaves the submission unapplied, and a replay retries it
+ * (reserving is safe to repeat).
+ */
+async function reserveStudioStock(submissionId: string, payload: PartyFormV2, booking: Booking) {
+    if (!isStockedPartyOrder(booking.type, booking.location)) return
+
+    const orderable = await getOrderableInventory(booking.location)
+    const lines: { itemId: string; quantity: number }[] = []
+    if (payload.cake) {
+        const { designs } = await getPartyFormV2CakeOptions(booking.location)
+        const designId = designs.find((design) => design.name === payload.cake?.selection)?.id
+        const stock = designId ? orderable.get(designId) : undefined
+        if (stock) lines.push({ itemId: stock.item.id, quantity: 1 })
+        else
+            logError('Paid studio-stock cake has no linked inventory item, so it was not reserved', undefined, {
+                submissionId,
+                selection: payload.cake.selection,
+            })
+    }
+    const takeHome = [
+        ...orderedQuantities(payload.takeHomeBags).map(([key, quantity]) => ({
+            id: mapTakeHomeBagToSquareVariation(env, key),
+            quantity,
+        })),
+        ...orderedQuantities(payload.products).map(([key, quantity]) => ({
+            id: mapProductToSquareVariation(env, key),
+            quantity,
+        })),
+    ]
+    takeHome.forEach(({ id, quantity }) => {
+        const stock = orderable.get(id)
+        if (stock) lines.push({ itemId: stock.item.id, quantity })
+    })
+    if (lines.length === 0) return
+
+    await reserveInventoryForBooking({
+        location: booking.location,
+        bookingId: payload.bookingId,
+        reservationId: submissionId,
+        lines,
+    })
 }
 
 /**

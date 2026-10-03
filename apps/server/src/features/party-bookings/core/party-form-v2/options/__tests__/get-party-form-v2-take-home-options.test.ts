@@ -4,11 +4,13 @@ import { getSquareLocationId, PARTY_TAKE_HOME_SQUARE_CATALOG } from '@fizz-kidz/
 
 import { getPartyFormV2TakeHomeOptions } from '../get-party-form-v2-take-home-options'
 
-const { getItemOptions, listItems, unitPrices } = vi.hoisted(() => ({
+const { getItemOptions, listItems, unitPrices, orderableInventory } = vi.hoisted(() => ({
     getItemOptions: vi.fn(),
     listItems: vi.fn(),
     unitPrices: vi.fn(),
+    orderableInventory: vi.fn(),
 }))
+vi.mock('@/features/inventory/core/inventory.reservations', () => ({ getOrderableInventory: orderableInventory }))
 vi.mock('@/app/init/firebase', () => ({ env: 'prod' }))
 vi.mock('firebase-functions/v2', () => ({ logger: { warn: vi.fn() } }))
 vi.mock('@/integrations/square/core/get-catalog-item-options', async (importOriginal) => ({
@@ -87,6 +89,7 @@ describe('party form take-home options from Square', () => {
                     imageUrl: 'https://images.example.com/lolly.jpg',
                     priceCents: 640,
                     regularPriceCents: 640,
+                    available: null,
                 },
                 {
                     key: 'lollyToyMixBags',
@@ -95,6 +98,7 @@ describe('party form take-home options from Square', () => {
                     imageUrl: null,
                     priceCents: 640,
                     regularPriceCents: 640,
+                    available: null,
                 },
             ],
             products: [
@@ -105,6 +109,7 @@ describe('party form take-home options from Square', () => {
                     imageUrl: 'https://images.example.com/Bath Bomb Kit.jpg',
                     priceCents: 1295,
                     regularPriceCents: 1995,
+                    available: null,
                 },
             ],
             minimumQuantity: 12,
@@ -164,5 +169,45 @@ describe('party form take-home options from Square', () => {
         unitPrices.mockResolvedValue(new Map())
 
         expect((await getPartyFormV2TakeHomeOptions('malvern')).takeHomeBags).toEqual([])
+    })
+
+    it('limits bags linked to studio stock to what is available at Werribee and Geelong', async () => {
+        getItemOptions.mockResolvedValue({
+            name: 'Take Home Bags',
+            description: null,
+            channels: [catalog.onlineStoreChannelId],
+            modifierLists: new Map(),
+            variations: [
+                {
+                    id: catalog.takeHomeBags.lollyBags,
+                    name: 'Lolly Bags',
+                    priceCents: 640,
+                    imageUrl: null,
+                    locationOverrides: [],
+                    locationIds: null,
+                    absentAtLocationIds: [],
+                },
+                {
+                    id: catalog.takeHomeBags.lollyToyMixBags,
+                    name: 'Lolly/Toy Mix Bags',
+                    priceCents: 640,
+                    imageUrl: null,
+                    locationOverrides: [],
+                    locationIds: null,
+                    absentAtLocationIds: [],
+                },
+            ],
+        })
+        listItems.mockResolvedValue([])
+        unitPrices.mockResolvedValue(new Map())
+        orderableInventory.mockResolvedValue(new Map([[catalog.takeHomeBags.lollyBags, { available: 20 }]]))
+
+        const result = await getPartyFormV2TakeHomeOptions('werribee')
+
+        expect(orderableInventory).toHaveBeenCalledWith('werribee')
+        expect(result.takeHomeBags.map((bag) => [bag.key, bag.available])).toEqual([
+            ['lollyBags', 20],
+            ['lollyToyMixBags', null],
+        ])
     })
 })

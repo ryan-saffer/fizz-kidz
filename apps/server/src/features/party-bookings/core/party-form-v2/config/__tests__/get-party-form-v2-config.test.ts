@@ -6,18 +6,28 @@ import { getPartyFormV2Config } from '../get-party-form-v2-config'
 
 import { DocumentNotFoundError } from '@/integrations/firebase/document-not-found-error'
 
-const { getPartyBooking, getCatalogue, getImages, getAdditions, getCakeOptions, getTakeHomeOptions } = vi.hoisted(
-    () => ({
-        getPartyBooking: vi.fn(),
-        getCatalogue: vi.fn(),
-        getImages: vi.fn(),
-        getAdditions: vi.fn(),
-        getCakeOptions: vi.fn(),
-        getTakeHomeOptions: vi.fn(),
-    })
-)
+const {
+    getPartyBooking,
+    getCatalogue,
+    getImages,
+    getAdditions,
+    getCakeOptions,
+    getStockedCakeOptions,
+    getTakeHomeOptions,
+} = vi.hoisted(() => ({
+    getPartyBooking: vi.fn(),
+    getCatalogue: vi.fn(),
+    getImages: vi.fn(),
+    getAdditions: vi.fn(),
+    getCakeOptions: vi.fn(),
+    getStockedCakeOptions: vi.fn(),
+    getTakeHomeOptions: vi.fn(),
+}))
 vi.mock('../../options/get-party-form-v2-additions', () => ({ getPartyFormV2Additions: getAdditions }))
-vi.mock('../../options/get-party-form-v2-cake-options', () => ({ getPartyFormV2CakeOptions: getCakeOptions }))
+vi.mock('../../options/get-party-form-v2-cake-options', () => ({
+    getPartyFormV2CakeOptions: getCakeOptions,
+    getStockedPartyFormV2CakeOptions: getStockedCakeOptions,
+}))
 vi.mock('../../options/get-party-form-v2-take-home-options', () => ({
     getPartyFormV2TakeHomeOptions: getTakeHomeOptions,
 }))
@@ -144,6 +154,20 @@ describe('party form configuration with creation-owned availability', () => {
         expect(getCakeOptions).toHaveBeenCalledWith('malvern')
 
         getCakeOptions.mockRejectedValue(new Error('Square is down'))
+        expect(await getPartyFormV2Config('booking-id')).toMatchObject({ cakeOptions: null })
+    })
+
+    it('offers studio-stock cakes at Werribee and Geelong, and no cake step when none are in stock', async () => {
+        getCatalogue.mockResolvedValue(catalogue)
+        getImages.mockResolvedValue([])
+        getPartyBooking.mockResolvedValue({ type: 'studio', location: 'werribee', partyLength: '1.5', childAge: 7 })
+        getStockedCakeOptions.mockResolvedValue(cakeOptions)
+
+        expect(await getPartyFormV2Config('booking-id')).toMatchObject({ cakeSource: 'studio-stock', cakeOptions })
+        expect(getStockedCakeOptions).toHaveBeenCalledWith('werribee')
+        expect(getCakeOptions).not.toHaveBeenCalled()
+
+        getStockedCakeOptions.mockResolvedValue({ ...cakeOptions, designs: [] })
         expect(await getPartyFormV2Config('booking-id')).toMatchObject({ cakeOptions: null })
     })
 

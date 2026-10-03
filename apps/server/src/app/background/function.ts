@@ -7,6 +7,7 @@ import {
     isGoogleBusinessProfileReviewNotification,
     type GoogleBusinessProfileReviewNotification,
 } from '@/features/google-business-profile/core/google-business-profile-review-notification'
+import { useInventoryForPastParties } from '@/features/inventory/core/inventory.reservations'
 import { cleanUpStaleInvitations } from '@/features/party-bookings/core/rsvp/clean-up-stale-invitations'
 import { sendCakeForms } from '@/features/party-bookings/core/send-cake-form'
 import { sendGuestsEmail } from '@/features/party-bookings/core/send-guests-email'
@@ -83,6 +84,10 @@ export const pubsub = onMessagePublished(
                 case 'finishWebsiteChats':
                     // every 15 minutes
                     await finishIdleWebsiteChats()
+                    break
+                case 'useInventoryForPastParties':
+                    // daily at 3:00am
+                    await useInventoryForPastParties()
                     break
                 default:
                     assertNever(name)

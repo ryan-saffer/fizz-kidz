@@ -27,6 +27,8 @@ export function useInventoryActions() {
     const closeEditDialog = useInventoryStore((state) => state.closeEditDialog)
     const closeEditUsageRuleDialog = useInventoryStore((state) => state.closeEditUsageRuleDialog)
     const closeStockActionDialog = useInventoryStore((state) => state.closeStockActionDialog)
+    const setReceiveDeliveryOpen = useInventoryStore((state) => state.setReceiveDeliveryOpen)
+    const setCountAllOpen = useInventoryStore((state) => state.setCountAllOpen)
     const openEditDialog = useInventoryStore((state) => state.openEditDialog)
     const openEditUsageRuleDialog = useInventoryStore((state) => state.openEditUsageRuleDialog)
 
@@ -59,18 +61,30 @@ export function useInventoryActions() {
         })
     )
 
-    const adjustStockMutation = useMutation(
-        trpc.inventory.adjustStock.mutationOptions({
-            onSuccess: async () => {
-                toast.success('Stock level updated.')
-                closeStockActionDialog()
-                await Promise.all([
-                    queryClient.invalidateQueries({ queryKey: trpc.inventory.listStock.queryKey({ location }) }),
-                    queryClient.invalidateQueries({ queryKey: trpc.inventory.generateShoppingList.queryKey() }),
-                ])
-            },
-            onError: (error) => toast.error(error.message || 'Unable to update stock level.'),
-        })
+    const onStockChanged = async () => {
+        closeStockActionDialog()
+        await queryClient.invalidateQueries({ queryKey: trpc.inventory.listStock.queryKey({ location }) })
+        await queryClient.invalidateQueries({ queryKey: trpc.inventory.listMovements.queryKey() })
+    }
+    const stockMutationOptions = (successMessage: string) => ({
+        onSuccess: async () => {
+            toast.success(successMessage)
+            await onStockChanged()
+        },
+        onError: (error: { message: string }) => toast.error(error.message || 'Unable to update stock.'),
+    })
+
+    const receiveStockMutation = useMutation(
+        trpc.inventory.receiveStock.mutationOptions(stockMutationOptions('Stock received.'))
+    )
+    const countStockMutation = useMutation(
+        trpc.inventory.countStock.mutationOptions(stockMutationOptions('Count saved.'))
+    )
+    const removeStockMutation = useMutation(
+        trpc.inventory.removeStock.mutationOptions(stockMutationOptions('Stock removed.'))
+    )
+    const updateStockLevelMutation = useMutation(
+        trpc.inventory.updateStockLevel.mutationOptions(stockMutationOptions('Stock level updated.'))
     )
 
     const deleteItemMutation = useMutation(
@@ -146,7 +160,6 @@ export function useInventoryActions() {
     const createItem = async (values: InventoryItemFormValues) => {
         const common = {
             name: values.name,
-            inventoryKey: values.inventoryKey || undefined,
             category: values.category,
             status: values.status,
             notes: values.notes || undefined,
@@ -158,7 +171,7 @@ export function useInventoryActions() {
                 $trackingMode: 'quantity',
                 baseUnit: values.baseUnit,
                 runningLowThreshold: values.runningLowThreshold,
-                minimumTargetQuantity: values.minimumTargetQuantity,
+                squareCatalogObjectId: values.squareCatalogObjectId ?? undefined,
             })
             return
         }
@@ -175,10 +188,8 @@ export function useInventoryActions() {
 
         const common = {
             name: values.name,
-            inventoryKey: values.inventoryKey || null,
             category: values.category,
             status: values.status,
-            purchaseOptions: editingItem.purchaseOptions,
             notes: values.notes || undefined,
         }
 
@@ -190,7 +201,7 @@ export function useInventoryActions() {
                     $trackingMode: 'quantity',
                     baseUnit: values.baseUnit,
                     runningLowThreshold: values.runningLowThreshold,
-                    minimumTargetQuantity: values.minimumTargetQuantity,
+                    squareCatalogObjectId: values.squareCatalogObjectId,
                 },
             })
             return
@@ -257,73 +268,64 @@ export function useInventoryActions() {
         await setStockedMutation.mutateAsync({ itemId: item.id, location, stocked })
     }
 
-    const adjustStock = async (values: StockActionFormValues) => {
+    const submitStockAction = async (values: StockActionFormValues) => {
         if (!stockAction) return
 
+        const itemId = stockAction.item.id
         const reason = values.reason || undefined
-
-        if (stockAction.$type === 'level') {
-            await adjustStockMutation.mutateAsync({
-                itemId: stockAction.item.id,
-                location,
-                stocked: true,
-                adjustment: {
-                    $type: 'qualitative',
-                    level: values.level,
-                },
-                source: 'stocktake',
-                reason,
-            })
-            return
+        switch (stockAction.$type) {
+            case 'receive':
+                await receiveStockMutation.mutateAsync({
+                    location,
+                    lines: [{ itemId, quantity: values.quantity }],
+                    note: reason,
+                })
+                return
+            case 'count':
+                await countStockMutation.mutateAsync({
+                    location,
+                    lines: [{ itemId, quantity: values.quantity }],
+                    reason,
+                })
+                return
+            case 'remove':
+                await removeStockMutation.mutateAsync({
+                    location,
+                    itemId,
+                    quantity: values.quantity,
+                    reason: values.reason,
+                })
+                return
+            case 'level':
+                await updateStockLevelMutation.mutateAsync({ location, itemId, level: values.level })
+                return
         }
+    }
 
-        if (stockAction.$type === 'receive') {
-            await adjustStockMutation.mutateAsync({
-                itemId: stockAction.item.id,
-                location,
-                stocked: true,
-                adjustment: {
-                    $type: 'quantity',
-                    $operation: 'adjust',
-                    delta: values.quantity,
-                },
-                source: 'purchase',
-                reason,
-            })
-            return
-        }
+    const receiveDelivery = async (input: { lines: { itemId: string; quantity: number }[]; note: string }) => {
+        await receiveStockMutation.mutateAsync({ location, lines: input.lines, note: input.note || undefined })
+        setReceiveDeliveryOpen(false)
+    }
 
-        await adjustStockMutation.mutateAsync({
-            itemId: stockAction.item.id,
-            location,
-            stocked: true,
-            adjustment: {
-                $type: 'quantity',
-                $operation: 'set',
-                quantity: values.quantity,
-            },
-            source: 'stocktake',
-            reason,
-        })
+    const countAll = async (input: { lines: { itemId: string; quantity: number }[]; reason: string }) => {
+        await countStockMutation.mutateAsync({ location, lines: input.lines, reason: input.reason || undefined })
+        setCountAllOpen(false)
     }
 
     const markQuantityUnknown = async (item: ClientInventoryItem) => {
-        await adjustStockMutation.mutateAsync({
-            itemId: item.id,
+        await countStockMutation.mutateAsync({
             location,
-            stocked: true,
-            adjustment: {
-                $type: 'quantity',
-                $operation: 'set',
-                quantity: null,
-            },
-            source: 'stocktake',
+            lines: [{ itemId: item.id, quantity: null }],
             reason: 'Marked count unknown.',
         })
     }
 
     return {
-        isAdjustStockPending: adjustStockMutation.isPending,
+        isStockChangePending:
+            receiveStockMutation.isPending ||
+            countStockMutation.isPending ||
+            removeStockMutation.isPending ||
+            updateStockLevelMutation.isPending,
         isCreatingItem: createItemMutation.isPending,
         isCreatingUsageRule: createUsageRuleMutation.isPending,
         isDeletingItem: deleteItemMutation.isPending,
@@ -331,13 +333,15 @@ export function useInventoryActions() {
         isSetStockedPending: setStockedMutation.isPending,
         isUpdatingItem: updateItemMutation.isPending,
         isUpdatingUsageRule: updateUsageRuleMutation.isPending,
-        adjustStock,
+        countAll,
         createItem,
         createUsageRule,
         deleteItem,
         deleteUsageRule,
         markQuantityUnknown,
+        receiveDelivery,
         setItemStocked,
+        submitStockAction,
         updateItem,
         updateUsageRule,
     }

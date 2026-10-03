@@ -29,7 +29,7 @@ export type SearchableInventoryItem = {
     status: string
 }
 
-export type StockActionType = 'receive' | 'set' | 'level'
+export type StockActionType = 'receive' | 'count' | 'remove' | 'level'
 
 export type StockAction = {
     $type: StockActionType

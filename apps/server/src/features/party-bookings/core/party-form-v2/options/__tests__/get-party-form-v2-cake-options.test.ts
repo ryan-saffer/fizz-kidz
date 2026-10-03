@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from 'vite-plus/test'
 
-import { getSquareLocationId, PARTY_CAKE_SQUARE_CATALOG } from '@fizz-kidz/core'
+import { getSquareLocationId, mapCakeSizeToSquareVariation, PARTY_CAKE_SQUARE_CATALOG } from '@fizz-kidz/core'
 
-import { getPartyFormV2CakeOptions } from '../get-party-form-v2-cake-options'
+import { getPartyFormV2CakeOptions, getStockedPartyFormV2CakeOptions } from '../get-party-form-v2-cake-options'
 
-const { getOptions } = vi.hoisted(() => ({ getOptions: vi.fn() }))
+const { getOptions, orderable } = vi.hoisted(() => ({ getOptions: vi.fn(), orderable: vi.fn() }))
+vi.mock('@/features/inventory/core/inventory.reservations', () => ({ getOrderableInventory: orderable }))
 vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
 vi.mock('@/integrations/square/core/get-catalog-item-options', async (importOriginal) => ({
     ...(await importOriginal<object>()),
@@ -76,5 +77,35 @@ describe('party form cake options from Square', () => {
     it('fails when a cake modifier list is missing from the cake item', async () => {
         getOptions.mockResolvedValue({ variations: [], modifierLists: new Map() })
         await expect(getPartyFormV2CakeOptions('malvern')).rejects.toThrow('not enabled on the cake item')
+    })
+
+    it('offers studio-stock cakes in medium only, chocolate and vanilla, and only designs in stock', async () => {
+        const medium = mapCakeSizeToSquareVariation('dev', 'medium_cake')
+        getOptions.mockResolvedValue({
+            variations: [option('small'), { ...option(medium), name: 'Medium' }],
+            modifierLists: new Map([
+                list(designListId, [option('rainbow'), option('unicorn'), option('dino')]),
+                list(flavourListId, [
+                    { ...option('choc'), name: 'Chocolate' },
+                    { ...option('van'), name: 'Vanilla' },
+                    option('mango'),
+                ]),
+                list(servingListId, [option('cup', 1900)]),
+                list(candleListId, [option('candles', 1200)]),
+            ]),
+        })
+        orderable.mockResolvedValue(
+            new Map([
+                ['unicorn', { available: 2 }],
+                ['dino', { available: 0 }],
+            ])
+        )
+
+        const result = await getStockedPartyFormV2CakeOptions('werribee')
+
+        expect(orderable).toHaveBeenCalledWith('werribee')
+        expect(result.sizes.map(({ id }) => id)).toEqual([medium])
+        expect(result.designs.map(({ id }) => id)).toEqual(['unicorn'])
+        expect(result).toMatchObject({ minFlavours: 2, maxFlavours: 2, fixedFlavours: ['Chocolate', 'Vanilla'] })
     })
 })

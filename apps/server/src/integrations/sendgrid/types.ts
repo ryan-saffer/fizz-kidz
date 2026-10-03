@@ -348,6 +348,11 @@ export type Emails = {
         cakeMessage?: string
     }
 
+    inventoryAlert: {
+        studio: string
+        alerts: { title: string; detail: string }[]
+    }
+
     takeHomeBagNotification: {
         parentName: string
         dateTime: string

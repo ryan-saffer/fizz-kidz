@@ -1,4 +1,4 @@
-import { PackagePlus, Search, X } from 'lucide-react'
+import { ClipboardList, PackageCheck, PackagePlus, Search, X } from 'lucide-react'
 import { startTransition } from 'react'
 
 import { INVENTORY_CATEGORIES } from '@fizz-kidz/core'
@@ -24,7 +24,7 @@ import { cn } from '@shared/lib/tailwind'
 import { useInventoryActions } from '../../hooks/use-inventory-actions'
 import { useInventoryData } from '../../hooks/use-inventory-data'
 import { useInventoryStore } from '../../state/inventory-store'
-import { ALL_CATEGORIES, primaryButtonClass } from '../../utils/inventory.constants'
+import { ALL_CATEGORIES, primaryButtonClass, secondaryButtonClass } from '../../utils/inventory.constants'
 import { formatCategory, pluraliseItem } from '../../utils/inventory.utils'
 import { InventoryItemForm } from './inventory-item-form'
 import { InventoryItemsTable } from './inventory-items-table'
@@ -36,7 +36,8 @@ export function InventoryCatalogueCard() {
     const data = useInventoryData()
     const actions = useInventoryActions()
     const { hasPermission } = useOrg()
-    const canEdit = hasPermission('inventory:write')
+    const canManageItems = hasPermission('inventory:manage-items')
+    const canUpdateStock = hasPermission('inventory:update-stock')
     const categoryFilter = useInventoryStore((state) => state.categoryFilter)
     const stockStatusFilter = useInventoryStore((state) => state.stockStatusFilter)
     const search = useInventoryStore((state) => state.search)
@@ -49,6 +50,9 @@ export function InventoryCatalogueCard() {
     const setCreateDialogOpen = useInventoryStore((state) => state.setCreateDialogOpen)
     const openEditDialog = useInventoryStore((state) => state.openEditDialog)
     const openStockActionDialog = useInventoryStore((state) => state.openStockActionDialog)
+    const openHistoryDialog = useInventoryStore((state) => state.openHistoryDialog)
+    const setReceiveDeliveryOpen = useInventoryStore((state) => state.setReceiveDeliveryOpen)
+    const setCountAllOpen = useInventoryStore((state) => state.setCountAllOpen)
     const setShowHiddenItems = useInventoryStore((state) => state.setShowHiddenItems)
 
     return (
@@ -57,7 +61,7 @@ export function InventoryCatalogueCard() {
                 <CatalogueHeading
                     location={data.location}
                     shownItemCount={data.shownItemCount}
-                    canEdit={canEdit}
+                    canEdit={canManageItems}
                     createItemButton={
                         <Dialog open={isCreateDialogOpen} onOpenChange={setCreateDialogOpen}>
                             <DialogTrigger asChild>
@@ -69,8 +73,9 @@ export function InventoryCatalogueCard() {
                                 <DialogHeader>
                                     <DialogTitle>Create inventory item</DialogTitle>
                                     <DialogDescription>
-                                        Add consumable items only. Reusable equipment should stay out of inventory. New
-                                        items are created for every studio and can be marked unused where needed.
+                                        Inventory only tracks food: party food, plus cakes and take-home bags customers
+                                        order from studio stock. New items are created for every studio and can be
+                                        marked unused where needed.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <InventoryItemForm
@@ -103,20 +108,59 @@ export function InventoryCatalogueCard() {
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col gap-8">
+                    {data.orderableItems.length > 0 ? (
+                        <div className="flex flex-col gap-3">
+                            {canUpdateStock ? (
+                                <div className="flex flex-wrap gap-2">
+                                    <Button className={primaryButtonClass} onClick={() => setReceiveDeliveryOpen(true)}>
+                                        <PackageCheck className="mr-2 h-4 w-4" /> Receive cake & bag delivery
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className={secondaryButtonClass}
+                                        onClick={() => setCountAllOpen(true)}
+                                    >
+                                        <ClipboardList className="mr-2 h-4 w-4" /> Count cakes & bags
+                                    </Button>
+                                </div>
+                            ) : null}
+                            <InventoryItemsTable
+                                title="Cakes & take-home bags"
+                                description="Customers order these on the party form. Each order reserves stock until the party, so 'here' includes reserved stock and only what's available can be ordered."
+                                emptyTitle="No cakes or take-home bags found."
+                                emptyDescription="Nothing matches the current filters."
+                                items={data.orderableItems}
+                                isLoading={data.isLoading}
+                                location={data.location}
+                                canManageItems={canManageItems}
+                                canUpdateStock={canUpdateStock}
+                                isStockChangePending={actions.isStockChangePending}
+                                isSetStockedPending={actions.isSetStockedPending}
+                                onEditItem={openEditDialog}
+                                onMarkQuantityUnknown={actions.markQuantityUnknown}
+                                onOpenStockAction={openStockActionDialog}
+                                onOpenHistory={openHistoryDialog}
+                                onSetStocked={actions.setItemStocked}
+                                stockByItemId={data.stockByItemId}
+                            />
+                        </div>
+                    ) : null}
                     <InventoryItemsTable
-                        title="Tracked here"
-                        description="Items this studio currently uses and actively tracks."
+                        title="Party food"
+                        description="Party food this studio currently uses and tracks."
                         emptyTitle="No tracked inventory items found."
                         emptyDescription="Create an item or mark an unused item as tracked here."
+                        items={data.supplyItems}
                         isLoading={data.isLoading}
-                        items={data.trackedItems}
                         location={data.location}
-                        canEdit={canEdit}
-                        isAdjustStockPending={actions.isAdjustStockPending}
+                        canManageItems={canManageItems}
+                        canUpdateStock={canUpdateStock}
+                        isStockChangePending={actions.isStockChangePending}
                         isSetStockedPending={actions.isSetStockedPending}
                         onEditItem={openEditDialog}
                         onMarkQuantityUnknown={actions.markQuantityUnknown}
                         onOpenStockAction={openStockActionDialog}
+                        onOpenHistory={openHistoryDialog}
                         onSetStocked={actions.setItemStocked}
                         stockByItemId={data.stockByItemId}
                     />
@@ -138,15 +182,17 @@ export function InventoryCatalogueCard() {
                             description="Archived catalogue items and global items this studio does not currently use. This is not the same as being out of stock."
                             emptyTitle="No hidden items."
                             emptyDescription="Every matching item is active and currently tracked at this studio."
-                            isLoading={data.isLoading}
                             items={data.hiddenItems}
+                            isLoading={data.isLoading}
                             location={data.location}
-                            canEdit={canEdit}
-                            isAdjustStockPending={actions.isAdjustStockPending}
+                            canManageItems={canManageItems}
+                            canUpdateStock={canUpdateStock}
+                            isStockChangePending={actions.isStockChangePending}
                             isSetStockedPending={actions.isSetStockedPending}
                             onEditItem={openEditDialog}
                             onMarkQuantityUnknown={actions.markQuantityUnknown}
                             onOpenStockAction={openStockActionDialog}
+                            onOpenHistory={openHistoryDialog}
                             onSetStocked={actions.setItemStocked}
                             stockByItemId={data.stockByItemId}
                         />

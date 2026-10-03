@@ -1,27 +1,14 @@
 import type { Studio } from './core/studio'
-import type {
-    INVENTORY_CATEGORIES,
-    INVENTORY_QUALITATIVE_STOCK_LEVELS,
-    INVENTORY_STOCK_MOVEMENT_SOURCES,
-    INVENTORY_UNITS,
-    INVENTORY_USAGE_RULE_TYPES,
-} from './inventory'
+import type { INVENTORY_CATEGORIES, INVENTORY_QUALITATIVE_STOCK_LEVELS, INVENTORY_USAGE_RULE_TYPES } from './inventory'
 import type { Addition } from './parties/additions'
 
 export type InventoryCategory = (typeof INVENTORY_CATEGORIES)[number]
-export type InventoryUnit = (typeof INVENTORY_UNITS)[number]
+/** What an item is counted in, typed by staff in the singular, eg. 'cake', 'bag', 'pack' or 'kg'. */
+export type InventoryUnit = string
 export type InventoryQualitativeStockLevel = (typeof INVENTORY_QUALITATIVE_STOCK_LEVELS)[number]
-export type InventoryStockMovementSource = (typeof INVENTORY_STOCK_MOVEMENT_SOURCES)[number]
 export type InventoryUsageRuleType = (typeof INVENTORY_USAGE_RULE_TYPES)[number]
 
 export type InventoryLocation = Studio
-
-export type InventoryPurchaseOption = {
-    label: string
-    unit: InventoryUnit
-    quantityInBaseUnits: number
-    supplier?: string
-}
 
 export type BaseInventoryItem = {
     id: string
@@ -29,7 +16,6 @@ export type BaseInventoryItem = {
     inventoryKey?: string
     category: InventoryCategory
     status: 'active' | 'archived'
-    purchaseOptions?: InventoryPurchaseOption[]
     notes?: string
     createdAt: Date
     updatedAt: Date
@@ -38,10 +24,16 @@ export type BaseInventoryItem = {
 export type QuantityTrackedInventoryItem = BaseInventoryItem & {
     $trackingMode: 'quantity'
     baseUnit: InventoryUnit
-    /** Count at or below this value should be shown as running low. `null` disables the badge. */
+    /**
+     * At or below this value the item is running low and needs reordering. Orderable items compare their
+     * available (unreserved) quantity. `null` disables it.
+     */
     runningLowThreshold: number | null
-    /** Shopping lists buy enough to cover selected bookings and still leave at least this quantity on hand. `null` disables the buffer. */
-    minimumTargetQuantity?: number | null
+    /**
+     * The Square catalog object customers order this item as (a cake design modifier or a take-home bag
+     * variation). Linked items are orderable: party form orders reserve them for the booking.
+     */
+    squareCatalogObjectId?: string
 }
 
 export type QualitativeInventoryItem = BaseInventoryItem & {
@@ -75,48 +67,85 @@ export type InventoryStockLevel = {
      * unknown quantity items use quantity `null`, and qualitative items use measurement level `out`.
      */
     stocked: boolean
+    /** Physical stock. For quantity items this includes stock reserved for bookings. */
     measurement: InventoryStockMeasurement
-    reorderPoint?: number
-    parLevel?: number
-    reorderLevel?: InventoryQualitativeStockLevel
-    targetLevel?: InventoryQualitativeStockLevel
+    /** Orderable items only: how much of the quantity on hand is reserved for upcoming bookings. */
+    reservedQuantity?: number
     lastMovementAt?: Date
     updatedAt: Date
 }
 
-export type InventoryStockMovementAdjustment =
-    | {
-          $type: 'quantity'
-          $operation: 'adjust'
-          delta: number
-          quantityBefore: number
-          quantityAfter: number
-      }
-    | {
-          $type: 'quantity'
-          $operation: 'set'
-          quantityBefore: number | null
-          quantityAfter: number | null
-      }
-    | {
-          $type: 'qualitative'
-          levelBefore: InventoryQualitativeStockLevel
-          levelAfter: InventoryQualitativeStockLevel
-      }
+export type InventoryActor = { $type: 'staff'; uid: string; email: string } | { $type: 'system' }
 
-export type InventoryStockMovement = {
+type BaseInventoryStockMovement = {
     id: string
     itemId: string
     location: InventoryLocation
-    source: InventoryStockMovementSource
-    adjustment: InventoryStockMovementAdjustment
     reason?: string
     createdAt: Date
-    createdBy: {
-        uid: string
-        email: string
-    }
+    createdBy: InventoryActor
 }
+
+/**
+ * The stock history. Every change to a stock level writes exactly one movement in the same transaction.
+ * Reservation movements carry the booking they were made for.
+ */
+export type InventoryStockMovement = BaseInventoryStockMovement &
+    (
+        | {
+              /** A delivery was physically checked and added. */
+              $type: 'received'
+              quantity: number
+              quantityBefore: number
+              quantityAfter: number
+          }
+        | {
+              /** Someone counted the stock. `null` marks the count unknown. */
+              $type: 'counted'
+              quantityBefore: number | null
+              quantityAfter: number | null
+          }
+        | {
+              /** Stock thrown out, damaged or otherwise taken out by staff. */
+              $type: 'removed'
+              quantity: number
+              quantityBefore: number
+              quantityAfter: number
+          }
+        | {
+              $type: 'level-updated'
+              levelBefore: InventoryQualitativeStockLevel
+              levelAfter: InventoryQualitativeStockLevel
+          }
+        | {
+              /** A customer ordered it for a booking. It stays on hand until the party. */
+              $type: 'reserved'
+              bookingId: string
+              quantity: number
+              reservedBefore: number
+              reservedAfter: number
+          }
+        | {
+              /** A reservation was given back, eg. the booking was cancelled or payment failed. */
+              $type: 'released'
+              bookingId: string
+              quantity: number
+              reservedBefore: number
+              reservedAfter: number
+          }
+        | {
+              /** The party happened, so the reserved stock left the studio. */
+              $type: 'used'
+              bookingId: string
+              quantity: number
+              quantityBefore: number
+              quantityAfter: number
+              reservedBefore: number
+              reservedAfter: number
+          }
+    )
+
+export type InventoryStockMovementType = InventoryStockMovement['$type']
 
 export type InventoryUsageRuleQuantity =
     | {
@@ -172,7 +201,6 @@ export type InventoryShoppingListLine = {
     location: InventoryLocation
     requiredQuantity: number
     quantityOnHand: number | null
-    minimumTargetQuantity: number
     suggestedPurchaseQuantity: number | null
     stocked: boolean
     sourceBreakdown: InventoryShoppingListSourceBreakdown[]

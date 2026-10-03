@@ -22,11 +22,11 @@ export function InventoryPageHeader({ itemCount, trackedCount }: { itemCount: nu
                         Inventory
                     </span>
                     <h1 className="lilita m-0 bg-gradient-to-r from-[#007f93] via-[#00c2e3] to-[#4BC5D9] bg-clip-text text-3xl leading-tight text-transparent sm:text-5xl">
-                        Consumables stock
+                        Studio stock
                     </h1>
                     <p className="m-0 max-w-2xl text-sm leading-relaxed text-slate-700 sm:text-base">
-                        Create consumable stock items, track what each studio uses, and quickly update exact counts or
-                        high/medium/low levels.
+                        What each studio has on hand. Receive deliveries, count stock and see what is reserved for
+                        upcoming parties.
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">

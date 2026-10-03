@@ -1,8 +1,11 @@
+import { STOCKED_PARTY_ORDER_STUDIOS } from '@fizz-kidz/core'
+
 import { deleteInvitationV2 } from './rsvp/delete-invitation-v2'
 
 import type { DeletePartyBooking } from '../functions/trpc/parties.trpc'
 
 import { throwTrpcError } from '@/app/trpc/transport-errors'
+import { releaseInventoryForBooking } from '@/features/inventory/core/inventory.reservations'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { CalendarClient } from '@/integrations/google/calendar.client'
 import { logError } from '@/integrations/observability/log-error'
@@ -35,6 +38,15 @@ export async function deletePartyBooking(props: DeletePartyBooking) {
     // if this party has an invitation, delete it
     if (existingBooking.invitationId) {
         await deleteInvitationV2(existingBooking.invitationId)
+    }
+
+    // give back any cake or take-home bags reserved from studio stock
+    if (existingBooking.type === 'studio' && STOCKED_PARTY_ORDER_STUDIOS.includes(existingBooking.location)) {
+        try {
+            await releaseInventoryForBooking({ location: existingBooking.location, bookingId })
+        } catch (err) {
+            logError('Error releasing inventory reserved for a deleted party booking', err, props)
+        }
     }
 
     await DatabaseClient.deletePartyBooking(bookingId)

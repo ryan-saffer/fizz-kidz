@@ -12,7 +12,15 @@ const mocks = vi.hoisted(() => ({
     handle: vi.fn(),
     inventory: vi.fn(),
     logError: vi.fn(),
+    orderable: vi.fn(),
+    reserve: vi.fn(),
+    cakeOptions: vi.fn(),
 }))
+vi.mock('@/features/inventory/core/inventory.reservations', () => ({
+    getOrderableInventory: mocks.orderable,
+    reserveInventoryForBooking: mocks.reserve,
+}))
+vi.mock('../../options/get-party-form-v2-cake-options', () => ({ getPartyFormV2CakeOptions: mocks.cakeOptions }))
 vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
 vi.mock('@/integrations/firebase/database.client', () => ({
     DatabaseClient: {
@@ -100,5 +108,39 @@ describe('processing a party form submission', () => {
         mocks.inventory.mockRejectedValue(new Error('Square unavailable'))
         await processPartyFormV2Submission('square-order', payload, 'square-order')
         expect(mocks.markApplied).toHaveBeenCalled()
+    })
+
+    it('reserves the paid cake and linked bags from studio stock at Werribee and Geelong', async () => {
+        mocks.getBooking.mockResolvedValue({ type: 'studio', location: 'werribee' })
+        mocks.cakeOptions.mockResolvedValue({ designs: [{ id: 'design-unicorn', name: 'Unicorn' }] })
+        mocks.orderable.mockResolvedValue(
+            new Map([
+                ['design-unicorn', { item: { id: 'unicorn-item' }, available: 2 }],
+                ['HT4WSYFMNZEDDCTPU735633C', { item: { id: 'lolly-item' }, available: 20 }],
+            ])
+        )
+        const cakePayload: PartyFormV2 = {
+            ...payload,
+            mode: 'cake',
+            cake: { selection: 'Unicorn', size: 'Medium', flavours: ['Chocolate'], served: 'Cup', candles: 'Yes' },
+        }
+
+        await processPartyFormV2Submission('square-order', cakePayload, 'square-order')
+
+        expect(mocks.reserve).toHaveBeenCalledWith({
+            location: 'werribee',
+            bookingId: 'booking',
+            reservationId: 'square-order',
+            lines: [
+                { itemId: 'unicorn-item', quantity: 1 },
+                { itemId: 'lolly-item', quantity: 12 },
+            ],
+        })
+        expect(mocks.reserve.mock.invocationCallOrder[0]).toBeLessThan(mocks.handle.mock.invocationCallOrder[0])
+    })
+    it('reserves nothing at studios supplied per party', async () => {
+        await processPartyFormV2Submission('square-order', payload, 'square-order')
+        expect(mocks.orderable).not.toHaveBeenCalled()
+        expect(mocks.reserve).not.toHaveBeenCalled()
     })
 })

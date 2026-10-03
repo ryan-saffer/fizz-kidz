@@ -1,6 +1,6 @@
 import Fuse from 'fuse.js'
 
-import { STUDIOS, capitalise } from '@fizz-kidz/core'
+import { STUDIOS, capitalise, getIsInventoryRunningLow } from '@fizz-kidz/core'
 import type {
     InventoryCategory,
     InventoryQualitativeStockLevel,
@@ -28,19 +28,7 @@ export function getAvailableInventoryLocations(currentOrg: StudioOrMaster | null
 }
 
 export function getIsRunningLow(item: ClientInventoryItem, stock?: ClientInventoryStockLevel) {
-    if (item.$trackingMode === 'qualitative') {
-        return stock?.measurement.$type === 'qualitative' && ['low', 'out'].includes(stock.measurement.level)
-    }
-
-    if (
-        item.runningLowThreshold === null ||
-        stock?.measurement.$type !== 'quantity' ||
-        stock.measurement.quantity === null
-    ) {
-        return false
-    }
-
-    return stock.measurement.quantity <= item.runningLowThreshold
+    return getIsInventoryRunningLow(item, stock)
 }
 
 export function getNeedsCount(item: ClientInventoryItem, stock?: ClientInventoryStockLevel) {
@@ -118,8 +106,10 @@ export function getStockActionTitle(action: StockAction) {
     switch (action.$type) {
         case 'receive':
             return `Receive ${action.item.name}`
-        case 'set':
-            return `Set stock for ${action.item.name}`
+        case 'count':
+            return `Count ${action.item.name}`
+        case 'remove':
+            return `Remove ${action.item.name}`
         case 'level':
             return `Update level for ${action.item.name}`
     }
@@ -128,9 +118,11 @@ export function getStockActionTitle(action: StockAction) {
 export function getStockActionDescription(action: StockAction, location: Studio) {
     switch (action.$type) {
         case 'receive':
-            return `Add newly received stock to ${getOrgName(location)}.`
-        case 'set':
-            return `Enter the actual count at ${getOrgName(location)}. This is the fastest stocktake correction.`
+            return `Add stock that has arrived at ${getOrgName(location)}.`
+        case 'count':
+            return `Enter what is physically at ${getOrgName(location)} right now.`
+        case 'remove':
+            return `Take out stock that was thrown out, damaged or otherwise left ${getOrgName(location)}.`
         case 'level':
             return `Set the current high, medium, low, or out level at ${getOrgName(location)}.`
     }
@@ -140,8 +132,10 @@ export function getStockActionSubmitLabel(action: StockAction) {
     switch (action.$type) {
         case 'receive':
             return 'Receive stock'
-        case 'set':
-            return 'Set stock count'
+        case 'count':
+            return 'Save count'
+        case 'remove':
+            return 'Remove stock'
         case 'level':
             return 'Update level'
     }
@@ -154,28 +148,18 @@ export function formatCategory(category: InventoryCategory) {
         .join(' ')
 }
 
+const MEASURES = ['kg', 'g', 'l', 'ml']
+
 export function formatUnit(unit: InventoryUnit) {
-    return unit === 'kg' || unit === 'g' || unit === 'l' || unit === 'ml' ? unit : capitalise(unit)
+    return MEASURES.includes(unit) ? unit : capitalise(unit)
 }
 
+/** Units are typed by staff in the singular, so plurals are a best guess (bag → bags, box → boxes, kg → kg). */
 export function formatQuantityUnit(unit: InventoryUnit | undefined, quantity: number) {
-    if (!unit || unit === 'each') {
-        return quantity === 1 ? 'unit' : 'units'
-    }
-
-    if (unit === 'kg' || unit === 'g' || unit === 'l' || unit === 'ml') {
-        return unit
-    }
-
-    if (quantity === 1) {
-        return unit
-    }
-
-    if (unit === 'box') {
-        return 'boxes'
-    }
-
-    return `${unit}s`
+    const name = unit?.trim().toLowerCase()
+    if (!name || name === 'each') return quantity === 1 ? 'unit' : 'units'
+    if (quantity === 1 || MEASURES.includes(name) || name.endsWith('s')) return name
+    return /(x|ch|sh)$/.test(name) ? `${name}es` : `${name}s`
 }
 
 export function formatQualitativeLevel(level: InventoryQualitativeStockLevel) {

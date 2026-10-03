@@ -11,7 +11,7 @@ import { useInventoryUsageRules } from './use-inventory-usage-rules'
 const queryOptions = vi.fn((input: unknown, options?: unknown) => ({ input, options }))
 const useQuery = vi.fn()
 let currentOrg: 'master' | 'balwyn' | null = 'balwyn'
-let canWrite = true
+let canManageItems = true
 let canShoppingList = true
 
 vi.mock('@tanstack/react-query', () => ({
@@ -22,7 +22,7 @@ vi.mock('@session/use-org', () => ({
     useOrg: () => ({
         currentOrg,
         hasPermission: (permission: string) => {
-            if (permission === 'inventory:write') return canWrite
+            if (permission === 'inventory:manage-items') return canManageItems
             if (permission === 'inventory:shopping-list') return canShoppingList
             return false
         },
@@ -41,7 +41,7 @@ vi.mock('@integrations/trpc', () => ({
 describe('inventory hooks', () => {
     beforeEach(() => {
         currentOrg = 'balwyn'
-        canWrite = true
+        canManageItems = true
         canShoppingList = true
         queryOptions.mockClear()
         useQuery.mockReset()
@@ -72,7 +72,7 @@ describe('inventory hooks', () => {
         expect(result.current.availableLocations.length).toBeGreaterThan(1)
     })
 
-    it('sorts usage rules and disables query without write permission', () => {
+    it('sorts usage rules and disables query without manage-items permission', () => {
         useQuery.mockReturnValue({
             data: [{ inventoryKey: 'z-key' }, { inventoryKey: 'a-key' }],
             isPending: false,
@@ -84,11 +84,11 @@ describe('inventory hooks', () => {
         expect(result.current.usageRules.map((rule) => rule.inventoryKey)).toEqual(['a-key', 'z-key'])
         expect(queryOptions).toHaveBeenCalledWith({ includeArchived: true }, { enabled: true })
 
-        canWrite = false
+        canManageItems = false
         renderHook(() => useInventoryUsageRules())
         expect(queryOptions).toHaveBeenLastCalledWith({ includeArchived: true }, { enabled: false })
 
-        canWrite = true
+        canManageItems = true
         useQuery.mockReturnValue({ data: undefined, isPending: true })
         const pendingResult = renderHook(() => useInventoryUsageRules()).result
         expect(pendingResult.current.isLoading).toBe(true)
