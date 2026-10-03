@@ -26,12 +26,12 @@ npm run website:local   # Public Astro site against local server
 npm run website:prod    # Public Astro site against production
 npm run docs            # Starlight knowledge base
 npm run check           # Read-only checks
-npm run test            # Core + Portal + server tests
+npm run test            # Core, UI, Portal, server and website tests
 npm run verify          # Fix checks + tests
 npm run verify:full     # Include Astro checks
 ```
 
-Scope tests with `vp test --run --project portal` or `vp test --run --project server`. Build Astro apps with `npm run build --workspace docs` or `npm run build --workspace website`.
+Scope tests with `vp test --run --project <name>` (`portal`, `server`, `website`, `core` or `ui`). Build Astro apps with `npm run build --workspace docs` or `npm run build --workspace website`.
 
 ## Boundaries
 

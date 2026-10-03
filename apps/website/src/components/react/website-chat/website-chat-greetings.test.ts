@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { getWebsiteChatNudge } from './website-chat'
+import { getWebsiteChatNudge } from './website-chat-greetings'
 
 describe('getWebsiteChatNudge', () => {
     it('names the party package from the page', () => {

@@ -57,7 +57,7 @@ npm run docs            # Knowledge base on :4321
 npm run sanity          # Sanity Studio
 
 npm run check           # Read-only format, lint, and type checks
-npm run test            # Core, Portal, and server tests
+npm run test            # Core, UI, Portal, server, and website tests
 npm run verify          # Fix checks, then test
 npm run verify:full     # Include Astro and Sanity checks
 npm run build           # Core + server + Portal
