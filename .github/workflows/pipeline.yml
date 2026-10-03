@@ -37,6 +37,7 @@ jobs:
         environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
         permissions:
             contents: read
+            actions: read
 
         env:
             # Only deploy to prod on pushes to main. All other contexts (PRs, manual PR runs,
@@ -52,13 +53,32 @@ jobs:
                   # historical file contents that this deployment never reads.
                   filter: blob:none
 
+            # Diff against the last successful deploy of this branch rather than the previous
+            # push, so targets from a failed run are redeployed by the next push.
+            - name: Find last successful deploy
+              id: last-deploy
+              if: github.event_name == 'push'
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  sha=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow pipeline.yml --branch "$GITHUB_REF_NAME" \
+                    --status success --limit 1 --json headSha --jq '.[0].headSha // empty')
+
+                  if [ -z "$sha" ] || ! git cat-file -e "$sha^{commit}" 2>/dev/null; then
+                    echo "No usable successful deploy found; falling back to the previous push"
+                    sha="${{ github.event.before }}"
+                  fi
+
+                  echo "Detecting changes since $sha"
+                  echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
             # Pushes deploy only affected targets. Manual runs intentionally deploy every
             # target available for the selected branch as a full recovery deployment.
             - name: Detect deployment targets
               id: changes
               uses: dorny/paths-filter@v3
               with:
-                  base: ${{ github.ref }}
+                  base: ${{ steps.last-deploy.outputs.sha || github.ref }}
                   filters: |
                       portal:
                         - 'apps/portal/**'
