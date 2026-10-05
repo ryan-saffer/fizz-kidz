@@ -213,6 +213,10 @@ export default defineConfig({
                             link: 'tools/zoho',
                         },
                         {
+                            label: 'Website Chat',
+                            link: 'tools/website-chat',
+                        },
+                        {
                             label: 'Google Calendars',
                             link: 'tools/calendars',
                         },
