@@ -23,7 +23,11 @@ export const SubmitEnquiryInputSchema = z.object({
     name: z.string().describe("The customer's full name"),
     email: z.string().describe("The customer's email address"),
     contactNumber: z.string().describe("The customer's phone number"),
-    service: z.enum(values(ContactFormServiceOptions)).describe('What the enquiry is about'),
+    service: z
+        .enum(values(ContactFormServiceOptions))
+        .describe(
+            'What the enquiry is about. "activation" is only for an organisation (a business, council, shopping centre or community group) wanting us to run an activation or event. Use "other" for a question from a parent or family that doesn\'t fit another service'
+        ),
     location: z
         .enum(values(ContactFormLocationOptions))
         .optional()

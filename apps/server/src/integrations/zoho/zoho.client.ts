@@ -66,6 +66,18 @@ function isDuplicateChildLinkingError(err: unknown) {
     )
 }
 
+const ZOHO_ORG_ID = 'org7004062519'
+
+/** A link to open a record in Zoho CRM. The Deals module's page is still called Potentials. */
+export function getZohoRecordUrl(module: 'Deals' | 'Contacts', recordId: string) {
+    return `https://crm.zoho.com.au/crm/${ZOHO_ORG_ID}/tab/${module === 'Deals' ? 'Potentials' : 'Contacts'}/${recordId}`
+}
+
+function getCreatedRecordId(result: any, record: string) {
+    if (result?.data?.[0]?.code === 'SUCCESS') return result.data[0].details.id as string
+    throw new Error(`Unable to create ${record} in Zoho: ${JSON.stringify(result?.data?.[0] ?? result)}`)
+}
+
 export class ZohoClient {
     // Current valid access token
     #accessToken: string | null = null
@@ -848,7 +860,8 @@ export class ZohoClient {
         ])
     }
 
-    createB2BDeal(
+    /** Returns the new deal's ID. */
+    async createB2BDeal(
         props: WithBaseProps<{
             contactId: string
             organisationName: string
@@ -863,7 +876,7 @@ export class ZohoClient {
             reference?: ReferenceOption
         }>
     ) {
-        return this.#request({
+        const result = await this.#request({
             endpoint: 'Deals',
             method: 'POST',
             data: [
@@ -893,6 +906,7 @@ export class ZohoClient {
                 },
             ],
         })
+        return getCreatedRecordId(result, 'deal')
     }
 
     async confirmB2BDeal({
@@ -1169,7 +1183,8 @@ export class ZohoClient {
         })
     }
 
-    createBirthdayPartyDeal(
+    /** Returns the new deal's ID. */
+    async createBirthdayPartyDeal(
         props: WithBaseProps<{
             contactId: string
             preferredDateAndTime: string
@@ -1181,7 +1196,7 @@ export class ZohoClient {
             enquiry: string
         }>
     ) {
-        return this.#request({
+        const result = await this.#request({
             endpoint: 'Deals',
             method: 'POST',
             data: [
@@ -1210,6 +1225,7 @@ export class ZohoClient {
                 },
             ],
         })
+        return getCreatedRecordId(result, 'deal')
     }
 
     async confirmBirthdayPartyDealAndLinkChild({
@@ -1328,10 +1344,24 @@ export class ZohoClient {
             method: 'PUT',
             data: [{ id: dealId, Amount: amountCents / 100 }],
         })
-        await this.#request({
-            endpoint: `Deals/${dealId}/Notes`,
+        await this.addNote({ module: 'Deals', recordId: dealId, title: 'Party payment', content: note })
+    }
+
+    addNote({
+        module,
+        recordId,
+        title,
+        content,
+    }: {
+        module: 'Deals' | 'Contacts'
+        recordId: string
+        title: string
+        content: string
+    }) {
+        return this.#request({
+            endpoint: `${module}/${recordId}/Notes`,
             method: 'POST',
-            data: [{ Note_Title: 'Party payment', Note_Content: note }],
+            data: [{ Note_Title: title, Note_Content: content }],
         })
     }
 

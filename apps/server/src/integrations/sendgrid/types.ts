@@ -520,6 +520,8 @@ export type Emails = {
     }
 
     websiteContactFormToFizz: {
+        /** The enquiry's deal, or contact when there's no deal. Missing if the Zoho sync failed. */
+        zohoUrl?: string
         name: string
         email: string
         contactNumber: string
@@ -551,6 +553,8 @@ export type Emails = {
     }
 
     websiteEventFormToFizz: {
+        /** The enquiry's deal, or contact when there's no deal. Missing if the Zoho sync failed. */
+        zohoUrl?: string
         name: string
         email: string
         contactNumber: string
@@ -576,6 +580,8 @@ export type Emails = {
     }
 
     websiteIncurionFormToFizz: {
+        /** The enquiry's deal, or contact when there's no deal. Missing if the Zoho sync failed. */
+        zohoUrl?: string
         name: string
         school: string
         email: string
@@ -629,6 +635,8 @@ export type Emails = {
     }
 
     websitePartyFormToFizz: {
+        /** The enquiry's deal, or contact when there's no deal. Missing if the Zoho sync failed. */
+        zohoUrl?: string
         name: string
         email: string
         contactNumber: string

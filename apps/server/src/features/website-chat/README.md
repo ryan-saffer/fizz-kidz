@@ -31,7 +31,7 @@ Frankie sends enquiries with the `submit_enquiry` tool, which needs the customer
 
 A customer who gave their name, email and phone number but left without sending an enquiry is still worth following up. When the chat goes idle, `finishWebsiteChats` asks the model to fill in the enquiry from the transcript, and sends it unless the customer tapped Don't send or asked not to be contacted. The enquiry details tell customers this while they decide. Its note tells the team the details weren't confirmed, and it's reported with the outcome `auto-enquiry`.
 
-Enquiries left by Frankie also add the chat transcript to the Zoho deal description.
+Enquiries left by Frankie also add the chat transcript to Zoho as a "Website chat transcript" note: on the deal, or on the contact for enquiries without one (holiday programs, after school programs and `other`).
 
 Super-admins can read every transcript in the Portal under **Chat Transcripts** (`/dashboard/website-chats`). They can also delete transcripts from the table. The `websiteChats` tRPC router checks the `website-chats:read` and `website-chats:delete` permissions, which only super-admins have, because transcripts include customers' contact details.
 
