@@ -11,7 +11,12 @@ const portalDir = path.dirname(fileURLToPath(import.meta.url))
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: ['class'],
-    content: [path.join(portalDir, '*.html'), path.join(portalDir, 'src/**/*.{ts,tsx,js,jsx}')],
+    content: [
+        path.join(portalDir, '*.html'),
+        path.join(portalDir, 'src/**/*.{ts,tsx,js,jsx}'),
+        // Website chat transcripts render Frankie's replies with Streamdown, like the website does.
+        path.join(portalDir, '../../node_modules/streamdown/dist/*.js'),
+    ],
     prefix: '',
     theme: {
         container: {

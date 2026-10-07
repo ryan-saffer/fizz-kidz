@@ -10,6 +10,7 @@ import type {
 } from '@fizz-kidz/core'
 import { type ScienceModule, type Studio, type StudioOrTest } from '@fizz-kidz/core'
 
+import type { TimeOfWeekProperties } from './time-of-week-properties'
 import type { ClientStatus } from '@/shared/lazy-client/client-status'
 import type { Mixpanel } from 'mixpanel'
 
@@ -131,7 +132,7 @@ export type MixpanelEvent = {
         distinct_id: string
         name: string
     }
-    'website-enquiry': {
+    'website-enquiry': TimeOfWeekProperties & {
         distinct_id: string
         form: WebsiteFormId
         service?: ContactFormServiceOption
@@ -140,7 +141,8 @@ export type MixpanelEvent = {
         referenceOther?: string
         partyTheme?: string
     }
-    'website-chat-finished': {
+    // The time of week is when the chat started.
+    'website-chat-finished': TimeOfWeekProperties & {
         distinct_id: string
         chatId: string
         messageCount: number

@@ -14,6 +14,7 @@ import {
 
 import { generateDiscountCode } from '@/features/discount-codes/core/generate-discount-code'
 import { MixpanelClient } from '@/integrations/mixpanel/mixpanel.client'
+import { getTimeOfWeekProperties } from '@/integrations/mixpanel/time-of-week-properties'
 import { logError } from '@/integrations/observability/log-error'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 import { getZohoRecordUrl, ZohoClient } from '@/integrations/zoho/zoho.client'
@@ -163,6 +164,7 @@ export async function processWebsiteFormSubmission(
                 )
 
                 await mixpanelClient.track('website-enquiry', {
+                    ...getTimeOfWeekProperties(new Date()),
                     distinct_id: formData.email,
                     form: 'party',
                     service: 'party',
@@ -383,6 +385,7 @@ export async function processWebsiteFormSubmission(
                 )
 
                 await mixpanelClient.track('website-enquiry', {
+                    ...getTimeOfWeekProperties(new Date()),
                     distinct_id: formData.email,
                     form: 'contact',
                     service,
@@ -471,6 +474,7 @@ export async function processWebsiteFormSubmission(
                 )
 
                 await mixpanelClient.track('website-enquiry', {
+                    ...getTimeOfWeekProperties(new Date()),
                     distinct_id: formData.email,
                     form: 'event',
                     service: 'activation',
@@ -558,6 +562,7 @@ export async function processWebsiteFormSubmission(
                 )
 
                 await mixpanelClient.track('website-enquiry', {
+                    ...getTimeOfWeekProperties(new Date()),
                     distinct_id: formData.email,
                     form: 'incursion',
                     service: 'incursion',
@@ -634,6 +639,7 @@ export async function processWebsiteFormSubmission(
                 })
 
                 await mixpanelClient.track('website-enquiry', {
+                    ...getTimeOfWeekProperties(new Date()),
                     distinct_id: formData.email,
                     form: 'mailingList',
                 })

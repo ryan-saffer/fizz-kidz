@@ -55,6 +55,10 @@ describe('finishIdleWebsiteChats', () => {
             model: 'openai/gpt-5.4-nano',
             entryPage: '/birthday-parties/',
             resumed: false,
+            // Started at 9:10am on a Tuesday, Melbourne time.
+            hourOfDay: 9,
+            dayOfWeek: 'Tuesday',
+            timeOfWeek: 'business hours',
         })
     })
 
