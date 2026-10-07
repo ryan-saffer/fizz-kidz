@@ -63,3 +63,25 @@ export type WebsiteChat = {
     enquirySubmitted: boolean
     messages: WebsiteChatTranscriptMessage[]
 }
+
+const LIST_ITEM = /^\s*([-*+]|\d+[.)])\s/
+
+/**
+ * Frankie writes like she's texting, with a blank line between messages, so each paragraph of a reply is its own chat
+ * bubble. A list stays in the bubble that introduces it. Shared by the website chat and the Portal's transcripts, so
+ * the team reads a chat the way the customer did.
+ */
+export function splitWebsiteChatBubbles(text: string) {
+    return text
+        .split(/\n\s*\n/)
+        .map((chunk) => chunk.trim())
+        .filter(Boolean)
+        .reduce<string[]>((bubbles, chunk) => {
+            if (LIST_ITEM.test(chunk) && bubbles.length > 0) {
+                bubbles[bubbles.length - 1] += `\n\n${chunk}`
+            } else {
+                bubbles.push(chunk)
+            }
+            return bubbles
+        }, [])
+}

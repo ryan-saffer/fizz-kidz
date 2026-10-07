@@ -28,8 +28,10 @@ import {
 
 import { EnquiryConfirmation } from './enquiry-confirmation'
 import { useEnquiryLeadTracking } from './use-enquiry-lead-tracking'
+import { usePacedReply } from './use-paced-reply'
 import { useWebsiteChatNudge } from './use-website-chat-nudge'
 import { DEFAULT_WEBSITE_CHAT_GREETING, type WebsiteChatGreeting } from './website-chat-greetings'
+import { getReplyItems } from './website-chat-reply'
 import { playReplySound, playSendSound } from './website-chat-sounds'
 
 import { cn } from '@/react-lib/utils'
@@ -272,6 +274,11 @@ export function WebsiteChat() {
         }
         wasTypingRef.current = isTyping
     }, [isTyping, status, isOpen, isMuted])
+
+    // Each bubble after the first in a new reply follows a typing pause, with its own sound.
+    const { pacedMessageId, visibleCount, isPacing } = usePacedReply(messages, () => {
+        if (isOpen && !isMuted) playReplySound()
+    })
 
     function finishGreetingMessage() {
         const nextStep = greetingStep + 1
@@ -517,13 +524,16 @@ export function WebsiteChat() {
                                                     canRespond={
                                                         !isBusy && message.id === messages[messages.length - 1]?.id
                                                     }
+                                                    visibleCount={
+                                                        message.id === pacedMessageId ? visibleCount : undefined
+                                                    }
                                                     onRespondToEnquiry={respondToEnquiry}
                                                 />
                                             )}
                                         </MessageScrollerItem>
                                     ))}
 
-                                    {isTyping && (
+                                    {(isTyping || isPacing) && (
                                         <MessageScrollerItem messageId="typing">
                                             <AssistantBubble>
                                                 <TypingDots />
@@ -648,33 +658,46 @@ function AssistantMessage({
     message,
     isStreaming,
     canRespond,
+    visibleCount,
     onRespondToEnquiry,
 }: {
     message: UIMessage
     isStreaming: boolean
     canRespond: boolean
+    /** How many bubbles of a new reply to show so far (see usePacedReply). All of them when left out. */
+    visibleCount?: number
     onRespondToEnquiry: (response: { id: string; approved: boolean; reason?: string }) => void
 }) {
+    const items = getReplyItems(message)
+    const visibleItems = visibleCount === undefined ? items : items.slice(0, visibleCount)
     return (
         <div className="flex flex-col gap-2">
-            {message.parts.map((part, index) => {
-                if (part.type === 'text' && part.text.trim()) {
+            {visibleItems.map((item, index) => {
+                // Bubbles revealed after a typing pause enter like the greeting's quick replies.
+                const enter =
+                    visibleCount !== undefined &&
+                    index > 0 &&
+                    'duration-300 animate-in fade-in slide-in-from-bottom-1 motion-reduce:animate-none'
+                if (item.kind === 'text') {
                     return (
-                        <AssistantBubble key={index}>
-                            <Streamdown
-                                className="website-chat-markdown"
-                                linkSafety={{ enabled: true, onLinkCheck: isFizzKidzUrl }}
-                                isAnimating={isStreaming && index === message.parts.length - 1}
-                            >
-                                {linkifyBareUrls(part.text)}
-                            </Streamdown>
-                        </AssistantBubble>
+                        <div key={item.key} className={cn(enter)}>
+                            <AssistantBubble>
+                                <Streamdown
+                                    className="website-chat-markdown"
+                                    linkSafety={{ enabled: true, onLinkCheck: isFizzKidzUrl }}
+                                    isAnimating={isStreaming && index === items.length - 1}
+                                >
+                                    {linkifyBareUrls(item.text)}
+                                </Streamdown>
+                            </AssistantBubble>
+                        </div>
                     )
                 }
-                if (part.type === 'tool-submit_enquiry') {
-                    return (
+                const part = message.parts[item.partIndex]
+                if (part.type !== 'tool-submit_enquiry') return null
+                return (
+                    <div key={item.key} className={cn(enter)}>
                         <EnquiryConfirmation
-                            key={index}
                             state={part.state}
                             input={part.input}
                             output={part.output}
@@ -682,9 +705,8 @@ function AssistantMessage({
                             canRespond={canRespond}
                             onRespond={onRespondToEnquiry}
                         />
-                    )
-                }
-                return null
+                    </div>
+                )
             })}
         </div>
     )

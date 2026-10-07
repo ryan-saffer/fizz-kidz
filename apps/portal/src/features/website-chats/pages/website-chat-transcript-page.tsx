@@ -2,6 +2,9 @@ import { useQuery } from '@tanstack/react-query'
 import { format, isSameDay } from 'date-fns'
 import { ArrowLeft } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
+import { Streamdown } from 'streamdown'
+
+import { splitWebsiteChatBubbles, type WebsiteChatTranscriptMessage } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
 import { Badge } from '@shared/components/ui/badge'
@@ -61,16 +64,7 @@ export function WebsiteChatTranscriptPage() {
                                         {message.role === 'customer' ? 'Customer' : 'Frankie'}
                                         {message.sentAt && ` · ${formatSentAt(message.sentAt, chat.startedAt)}`}
                                     </span>
-                                    <p
-                                        className={cn(
-                                            'max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2 text-sm',
-                                            message.role === 'customer'
-                                                ? 'rounded-br-md bg-violet-600 text-white'
-                                                : 'rounded-bl-md bg-violet-50 text-slate-900'
-                                        )}
-                                    >
-                                        {message.text}
-                                    </p>
+                                    <TranscriptBubbles message={message} />
                                 </div>
                             ))}
                         </section>
@@ -78,6 +72,34 @@ export function WebsiteChatTranscriptPage() {
                 )}
             </div>
         </div>
+    )
+}
+
+// Notes added to the transcript, like "[Enquiry sent to the team]", rather than words the customer read.
+const TRANSCRIPT_NOTE = /^\[.+\]$/
+
+/** A message as the customer saw it: each of Frankie's paragraphs is its own bubble, with links rendered. */
+function TranscriptBubbles({ message }: { message: WebsiteChatTranscriptMessage }) {
+    if (message.role === 'customer') {
+        return (
+            <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-violet-600 px-4 py-2 text-sm text-white">
+                {message.text}
+            </p>
+        )
+    }
+    return splitWebsiteChatBubbles(message.text).map((bubble, index) =>
+        TRANSCRIPT_NOTE.test(bubble) ? (
+            <p key={index} className="px-1 text-xs italic text-slate-500">
+                {bubble.slice(1, -1)}
+            </p>
+        ) : (
+            <div
+                key={index}
+                className="max-w-[85%] rounded-2xl rounded-bl-md bg-violet-50 px-4 py-2 text-sm text-slate-900 [&_a]:font-semibold [&_a]:text-violet-700 [&_a]:underline"
+            >
+                <Streamdown linkSafety={{ enabled: false }}>{bubble}</Streamdown>
+            </div>
+        )
     )
 }
 
