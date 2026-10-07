@@ -4,6 +4,7 @@ import { sendUnconfirmedEnquiry } from './send-unconfirmed-enquiry'
 
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { MixpanelClient } from '@/integrations/mixpanel/mixpanel.client'
+import { getTimeOfWeekProperties } from '@/integrations/mixpanel/time-of-week-properties'
 import { logError } from '@/integrations/observability/log-error'
 
 /**
@@ -38,6 +39,7 @@ export async function finishIdleWebsiteChats(now = new Date()) {
                 entryPage: chat.entryPage,
                 // A resumed chat is reported again with its latest outcome; count conversations by unique chatId.
                 resumed: chat.finishedAt !== undefined,
+                ...getTimeOfWeekProperties(chat.startedAt),
             })
         } catch (err) {
             logError('Failed to finish website chat', err, { chatId: chat.id })
