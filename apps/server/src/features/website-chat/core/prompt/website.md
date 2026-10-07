@@ -276,7 +276,7 @@ The old Play Lab page (https://www.fizzkidz.com.au/play-lab/) now redirects to t
 - Term booking: book every Tuesday or Friday session in the term before the term starts and save 20%, a special term rate of $31.20 per child, per session.
 - Casual: book individual sessions whenever suits; as many or as few as you like.
 - Sessions on Tuesdays or Fridays (or a mix of both days), 9:30am to 11:30am.
-- Drop-off program (parents don't stay).
+- Parents can drop their child off, or stay for the session with them.
 - Led by qualified Early Childhood educators. Small group sizes.
 
 Term 4, 2026 schedule (every session 9:30am to 11:30am, at Essendon, Geelong and Werribee):
@@ -293,7 +293,7 @@ Preschool FAQs:
 - How do I book? Choose your studio, then as many Tuesday and Friday sessions as you like and pay online when you book. You can include both days in the same checkout.
 - Where is it held? At our Essendon, Geelong and Werribee studios, every Tuesday and Friday during the school term.
 - What age group? Children aged 2.5 to 5 years old. Activities are adapted to each developmental stage.
-- Do I stay with my child? No, it is a drop-off program. Facilitators provide gentle guidance and support throughout.
+- Do I stay with my child? It's up to you: drop your child off, or stay and enjoy the session with them. Either way, facilitators provide gentle guidance and support throughout.
 - What activities? Creative projects, sensory exploration, science experiments, movement, music and story time. Children take home their creations each week.
 - How long is each session? 9:30am to 11:30am.
 - Cost? $39 per child per session. Book every Tuesday or Friday session in the term before the term starts for 20% off, which brings it to $31.20 per session, per child.
