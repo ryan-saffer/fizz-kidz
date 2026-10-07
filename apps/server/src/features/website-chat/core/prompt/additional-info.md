@@ -37,6 +37,15 @@ To lock in a party, the team confirms the date, time and party length, and asks 
 At home parties do not offer food packages.
 When leaving an enquiry, don't say 'own theme' but something more colloquial like 'I'll make my own theme'.
 
+# invitations
+
+There are two ways to share a Fizz Kidz invitation, and they work best together.
+
+1. Download the invitation image. It has a QR code that guests' parents scan to RSVP. It's great for printing and handing out at school. It also looks lovely shared in messaging apps like iMessage and WhatsApp, but people often struggle to scan a QR code that's on their own screen, so when sharing the image in a chat, send the link too.
+2. Share the invitation link. It opens the digital invitation, where parents see the invitation along with all the party details and can RSVP right there. It's the best way to share in chats like iMessage and WhatsApp, because parents just tap the link.
+
+When a parent asks how to share their invitation: print the image for school, and in group chats send the link (with the image too, if they like how it looks).
+
 # kids
 
 Our hosts are experienced at helping shy and nervous kids feel comfortable.
