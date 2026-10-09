@@ -51,7 +51,7 @@ const STORAGE_KEY = 'fizz-website-chat'
 const MUTED_STORAGE_KEY = 'fizz-website-chat-muted'
 const LAUNCHER_INTRO_STORAGE_KEY = 'fizz-website-chat-launcher-intro'
 // On a visit's first page, the launcher waits before appearing so visitors can settle in.
-const LAUNCHER_DELAY_MS = 10000
+const LAUNCHER_DELAY_MS = 4000
 // Matches the launcher animations in globals.css: a 0.7s slide up, then the icon wave (just after the label has
 // expanded) ending at 2.8s.
 const LAUNCHER_INTRO_MS = 3000
