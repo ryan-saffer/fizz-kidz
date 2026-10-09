@@ -3,7 +3,6 @@ import { logger } from 'firebase-functions/v2'
 import type {
     ContactFormLocationOption,
     ContactFormServiceOption,
-    InvitationOption,
     InvitationsV2,
     ReferenceOption,
     WebsiteFormId,
@@ -58,11 +57,6 @@ export class MixpanelClient {
 }
 
 export type MixpanelEvent = {
-    'invitation-generated': {
-        invitationId: string
-        partyDate: Date
-        invitation: InvitationOption
-    }
     'invitation-preview-generated-v2': {
         distinct_id: string
         bookingId: string
@@ -117,16 +111,6 @@ export type MixpanelEvent = {
         hostEmail: string
         parentName: string
         numberOfChildren: number
-    }
-    'invitation-coupon-signup': {
-        distinct_id: string
-        invitationId: string
-        view: // used the sidebar on desktop
-            | 'sidebar'
-            // used the mobile drawer
-            | 'drawer'
-            // used the section just sitting under the invite on mobile (no drawer)
-            | 'scroll'
     }
     'holiday-program-website-discount': {
         distinct_id: string
@@ -210,7 +194,6 @@ export type MixpanelEvent = {
         type: 'studio' | 'mobile'
         childAge: string
         date: string // ISO
-        useRsvpSystem: boolean
     }
     'birthday-party-form-completed': {
         distinct_id: string
@@ -300,14 +283,12 @@ export type MixpanelEvent = {
 }
 
 const EventNameMap: Record<keyof MixpanelEvent, string> = {
-    'invitation-generated': 'Invitation Generated',
     'invitation-preview-generated-v2': 'Invitation Preview Generated [New]',
     'invitation-download-requested-v2': 'Invitation Download Requested [New]',
     'invitation-edited-v2': 'Invitation Edited [New]',
     'invitation-generated-v2': 'Invitation Generated [New]',
     'invitation-rsvp': 'Invitation RSVP',
     'Host Invitation RSVP': 'Host Invitation RSVP',
-    'invitation-coupon-signup': 'Invitation Coupon Code Signup',
     'holiday-program-website-discount': 'Website Holiday Program Discount Generated',
     'website-enquiry': 'Website Enquiry',
     'website-chat-finished': 'Website Chat Finished',

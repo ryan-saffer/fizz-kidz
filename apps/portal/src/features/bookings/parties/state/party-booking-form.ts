@@ -168,7 +168,6 @@ export function toNewBooking(values: PartyBookingFormValues): Booking {
         partyFormFilledIn: false,
         sendConfirmationEmail: values.sendConfirmationEmail,
         oldPrices: false,
-        useRsvpSystem: true,
         invitationId: undefined,
         invitationOwnerUid: undefined,
     }

@@ -7,15 +7,7 @@ import {
     startPartyCheckoutSchema,
     submitPartyFormV2Schema,
 } from '@fizz-kidz/core'
-import type {
-    Booking,
-    GenerateInvitation,
-    InvitationsV2,
-    PartyLostReason,
-    Studio,
-    WithoutId,
-    WithoutUid,
-} from '@fizz-kidz/core'
+import type { Booking, InvitationsV2, PartyLostReason, Studio, WithoutId, WithoutUid } from '@fizz-kidz/core'
 
 import type { HostRsvpProps, RsvpProps } from '@/features/party-bookings/core/rsvp/rsvp-to-party-v2'
 
@@ -23,7 +15,6 @@ import { throwTrpcError } from '@/app/trpc/transport-errors'
 import { authenticatedProcedure, publicProcedure, router } from '@/app/trpc/trpc'
 import { createPartyBooking } from '@/features/party-bookings/core/create-party-booking'
 import { deletePartyBooking } from '@/features/party-bookings/core/delete-party-booking'
-import { generateInvitation } from '@/features/party-bookings/core/generate-invitation'
 import {
     cancelPartyCheckout,
     getPartyCheckoutStatus,
@@ -126,9 +117,6 @@ export const partiesRouter = router({
     cancelPartyCheckout: authenticatedProcedure
         .input(partyTerminalCheckoutSchema)
         .mutation(({ input }) => cancelPartyCheckout(input)),
-    generateInvitation: publicProcedure
-        .input((input: unknown) => input as GenerateInvitation)
-        .mutation(({ input }) => generateInvitation(input)),
     generateInvitationUrl: authenticatedProcedure
         .input(z.object({ bookingId: z.string() }))
         .mutation(({ input }) => generateInvitationUrl(input.bookingId)),

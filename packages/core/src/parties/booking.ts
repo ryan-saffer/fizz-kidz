@@ -54,7 +54,6 @@ export type BaseBooking = AdditionKeyValues & {
     }
     takeHomeBags?: Partial<Record<TakeHomeBagType, number>>
     products?: Partial<Record<ProductType, number>>
-    useRsvpSystem: boolean | undefined
     // collected at the studio once the party is over
     payment?: PartyPayment
 } & (
@@ -137,7 +136,6 @@ export const FormBookingFields: FormBookingKeys = {
     unicornFizzPartyPack: 'unicornFizzPartyPack',
     takeHomeBags: 'takeHomeBags',
     products: 'products',
-    useRsvpSystem: 'useRsvpSystem',
     invitationId: 'invitationId',
     invitationOwnerUid: 'invitationOwnerUid',
 }
@@ -194,7 +192,6 @@ export const BookingFields: BookingKeys = {
     unicornFizzPartyPack: 'unicornFizzPartyPack',
     takeHomeBags: 'takeHomeBags',
     products: 'products',
-    useRsvpSystem: 'useRsvpSystem',
     invitationId: 'invitationId',
     invitationOwnerUid: 'invitationOwnerUid',
 }

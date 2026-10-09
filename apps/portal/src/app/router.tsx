@@ -132,21 +132,6 @@ const HolidayCreationsPage = lazy(() =>
         default: module.HolidayCreationsPage,
     }))
 )
-const ChooseInvitationPage = lazy(() =>
-    import('../features/invitations/choose-invitation-page.js').then((module) => ({
-        default: module.ChooseInvitationPage,
-    }))
-)
-const CreateInvitationPage = lazy(() =>
-    import('../features/invitations/create-invitation-page.js').then((module) => ({
-        default: module.CreateInvitationPage,
-    }))
-)
-const ViewInvitationPage = lazy(() =>
-    import('../features/invitations/view-invitation-page.js').then((module) => ({
-        default: module.ViewInvitationPage,
-    }))
-)
 const DiscountCodesPage = lazy(() =>
     import('../features/discount-codes/discount-codes-page.js').then((module) => ({
         default: module.DiscountCodesPage,
@@ -709,27 +694,6 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: 'invitations',
-                children: [
-                    {
-                        path: '',
-                        Component: () => (
-                            <Suspense fallback={<Loader fullScreen />}>
-                                <ChooseInvitationPage />
-                            </Suspense>
-                        ),
-                    },
-                    {
-                        path: 'create',
-                        Component: () => (
-                            <Suspense fallback={<Loader fullScreen />}>
-                                <CreateInvitationPage />
-                            </Suspense>
-                        ),
-                    },
-                ],
-            },
-            {
                 path: 'invite',
                 children: [
                     {
@@ -761,19 +725,6 @@ const router = createBrowserRouter([
                         Component: () => (
                             <Suspense fallback={<Loader fullScreen />}>
                                 <RsvpPage />
-                            </Suspense>
-                        ),
-                    },
-                ],
-            },
-            {
-                path: 'invitation',
-                children: [
-                    {
-                        path: ':id',
-                        Component: () => (
-                            <Suspense fallback={<Loader fullScreen />}>
-                                <ViewInvitationPage />
                             </Suspense>
                         ),
                     },

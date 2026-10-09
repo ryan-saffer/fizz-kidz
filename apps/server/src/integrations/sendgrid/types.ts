@@ -29,12 +29,6 @@ export type Emails = {
         bookings: { datetime: string; confirmationPage: string }[]
     }
 
-    createDiscountCode: {
-        name: string
-        code: string
-        expiryDate: string
-    }
-
     // PLAY LAB
     playLabBookingConfirmation: {
         parentName: string
@@ -157,7 +151,6 @@ export type Emails = {
         contactName?: string
         numberOfKidsAllowed: string[]
         studioPhotoUrl: string
-        useRsvpSystem: boolean
         invitationsUrl: string
         includesFood: boolean
         canOrderCake: boolean
@@ -328,10 +321,6 @@ export type Emails = {
         parentName: string
         childName: string
         reviewUrl: string
-    }
-
-    invitationGuests: {
-        name: string
     }
 
     cakeNotification: {

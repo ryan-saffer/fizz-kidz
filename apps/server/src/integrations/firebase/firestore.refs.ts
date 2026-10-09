@@ -8,7 +8,6 @@ import type {
     Employee,
     Event,
     FirestoreBooking,
-    Invitation,
     InvitationsV2,
     Rsvp,
     PreschoolProgramEnrolment,
@@ -99,18 +98,10 @@ export class FirestoreRefs {
         return (await this.employees()).doc(employeeId)
     }
 
-    static async invitations() {
-        return (await FirestoreClient.getInstance()).collection('invitations') as Collection<Invitation>
-    }
-
     static async invitationsV2() {
         return (await FirestoreClient.getInstance()).collection(
             'invitations-v2'
         ) as Collection<InvitationsV2.Invitation>
-    }
-
-    static async invitation(id: string) {
-        return (await this.invitations()).doc(id)
     }
 
     static async invitationV2(id: string) {
