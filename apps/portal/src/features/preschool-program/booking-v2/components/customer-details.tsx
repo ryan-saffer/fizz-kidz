@@ -395,7 +395,7 @@ export function CustomerDetails() {
                                         className="text-primary hover:underline"
                                         onClick={() => setShowCancellationPolicy(true)}
                                     >
-                                        Cancellation Policy
+                                        Cancellation and rescheduling policy
                                     </button>{' '}
                                     and the{' '}
                                     <button
