@@ -12,7 +12,7 @@ export async function resetInvitation(invitationId: string) {
     const storage = await StorageClient.getInstance()
     await storage.bucket(`${projectId}.appspot.com`).file(`invitations-v2/${invitationId}/invitation.png`).delete()
 
-    await DatabaseClient.deleteInvitationV2(invitationId)
+    await DatabaseClient.deleteInvitation(invitationId)
 
     // remove the fields from the booking in firestore
     const { id } = await DatabaseClient.getPartyBookingByInvitationId(invitationId)

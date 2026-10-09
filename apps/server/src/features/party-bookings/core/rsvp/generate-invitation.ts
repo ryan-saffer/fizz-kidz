@@ -2,7 +2,7 @@ import fsPromise from 'fs/promises'
 import os from 'os'
 import path from 'path'
 
-import type { InvitationsV2, WithoutId, WithoutUid } from '@fizz-kidz/core'
+import type { Invitations, WithoutId, WithoutUid } from '@fizz-kidz/core'
 import { generateRandomString } from '@fizz-kidz/core'
 
 import { InvitationImageGenerator } from './invitation-image-generator'
@@ -21,7 +21,7 @@ import { MixpanelClient } from '@/integrations/mixpanel/mixpanel.client'
  * @param input
  * @returns
  */
-export async function generateInvitationV2(input: WithoutId<WithoutUid<InvitationsV2.Invitation>>) {
+export async function generateInvitation(input: WithoutId<WithoutUid<Invitations.Invitation>>) {
     // serialise back into a date
     input.date = new Date(input.date)
     input.rsvpDate = new Date(input.rsvpDate)
@@ -52,7 +52,7 @@ export async function generateInvitationV2(input: WithoutId<WithoutUid<Invitatio
 
         if (!booking.invitationId) {
             const mixpanel = await MixpanelClient.getInstance()
-            await mixpanel.track('invitation-preview-generated-v2', {
+            await mixpanel.track('invitation-preview-generated', {
                 distinct_id: booking.parentEmail,
                 bookingId: input.bookingId,
                 invitationId: id,

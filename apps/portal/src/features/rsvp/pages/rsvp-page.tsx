@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 
 import { capitalise, getStudioAddress } from '@fizz-kidz/core'
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import type { Invitations } from '@fizz-kidz/core'
 
 import { Button } from '@shared/components/ui/button'
 import { Card, CardContent } from '@shared/components/ui/card'
@@ -18,7 +18,7 @@ import { RsvpForm } from '../rsvp-form'
 
 export function RsvpPage() {
     const { id } = useParams()
-    const state = useRouterState<{ invitation: InvitationsV2.Invitation }>()
+    const state = useRouterState<{ invitation: Invitations.Invitation }>()
 
     const [rsvpStatus, setRsvpStatus] = useState<'attending' | 'not-attending' | null>(null)
 

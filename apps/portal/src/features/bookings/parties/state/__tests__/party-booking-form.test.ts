@@ -43,7 +43,6 @@ const existingBooking = {
     chickenNuggets: true,
     potatoGems: true, // retired addition
     cake: { selection: 'Rainbow', size: 'Small', flavours: ['Vanilla'], served: 'Cups', candles: 'Yes' },
-    useRsvpSystem: true,
     invitationId: 'invite-1',
     invitationOwnerUid: 'uid-1',
     // 10am Saturday in Melbourne (AEST, UTC+10) in July
@@ -114,7 +113,6 @@ describe('party booking form values', () => {
         expect(booking.dateTime.toISOString()).toBe('2026-10-09T23:00:00.000Z')
         expect(booking.address).toBe('')
         expect(booking.includesFood).toBe(false)
-        expect(booking.useRsvpSystem).toBe(true)
     })
 
     it('works out the age a child is turning', () => {

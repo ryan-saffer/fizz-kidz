@@ -1,4 +1,4 @@
-import { deleteInvitationV2 } from './rsvp/delete-invitation-v2'
+import { deleteInvitation } from './rsvp/delete-invitation'
 
 import type { DeletePartyBooking } from '../functions/trpc/parties.trpc'
 
@@ -34,7 +34,7 @@ export async function deletePartyBooking(props: DeletePartyBooking) {
 
     // if this party has an invitation, delete it
     if (existingBooking.invitationId) {
-        await deleteInvitationV2(existingBooking.invitationId)
+        await deleteInvitation(existingBooking.invitationId)
     }
 
     await DatabaseClient.deletePartyBooking(bookingId)

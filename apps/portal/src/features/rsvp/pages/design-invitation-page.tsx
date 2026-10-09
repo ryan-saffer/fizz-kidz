@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
-import type { InvitationsV2, WithoutId, WithoutUid } from '@fizz-kidz/core'
+import type { Invitations, WithoutId, WithoutUid } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
 import { useAuth } from '@session/use-auth'
@@ -29,7 +29,7 @@ export function DesignInvitationPage() {
     const childName = state?.childName
 
     const [step, setStep] = useState(1)
-    const [invitation, setInvitation] = useState<WithoutUid<InvitationsV2.Invitation> | null>(null)
+    const [invitation, setInvitation] = useState<WithoutUid<Invitations.Invitation> | null>(null)
 
     const navigate = useNavigate()
 
@@ -290,20 +290,20 @@ function Step2({
     onInvitationGenerated,
 }: {
     selectedInvitation: number
-    onInvitationGenerated: (invitation: WithoutUid<InvitationsV2.Invitation>) => void
+    onInvitationGenerated: (invitation: WithoutUid<Invitations.Invitation>) => void
 }) {
     const trpc = useTRPC()
     const state = useInvitationRouterState()
 
     const { isPending, mutateAsync: generateInvitation } = useMutation(
-        trpc.parties.generateInvitationV2.mutationOptions()
+        trpc.parties.generateInvitation.mutationOptions()
     )
 
     if (!state) return null
 
     const { bookingId, ...defaultValues } = state
 
-    const onSubmit = async (values: InvitationsV2.Invitation) => {
+    const onSubmit = async (values: Invitations.Invitation) => {
         try {
             const invitation = {
                 childName: values.childName,
@@ -325,7 +325,7 @@ function Step2({
                           $type: 'mobile',
                           address: values.address,
                       }),
-            } satisfies WithoutUid<WithoutId<InvitationsV2.Invitation>>
+            } satisfies WithoutUid<WithoutId<Invitations.Invitation>>
 
             const { invitationId } = await generateInvitation(invitation)
             onInvitationGenerated({ ...invitation, id: invitationId })

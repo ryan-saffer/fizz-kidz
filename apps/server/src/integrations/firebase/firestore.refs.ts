@@ -8,8 +8,7 @@ import type {
     Employee,
     Event,
     FirestoreBooking,
-    Invitation,
-    InvitationsV2,
+    Invitations,
     Rsvp,
     PreschoolProgramEnrolment,
     ZohoAccessToken,
@@ -100,21 +99,11 @@ export class FirestoreRefs {
     }
 
     static async invitations() {
-        return (await FirestoreClient.getInstance()).collection('invitations') as Collection<Invitation>
-    }
-
-    static async invitationsV2() {
-        return (await FirestoreClient.getInstance()).collection(
-            'invitations-v2'
-        ) as Collection<InvitationsV2.Invitation>
+        return (await FirestoreClient.getInstance()).collection('invitations-v2') as Collection<Invitations.Invitation>
     }
 
     static async invitation(id: string) {
         return (await this.invitations()).doc(id)
-    }
-
-    static async invitationV2(id: string) {
-        return (await this.invitationsV2()).doc(id)
     }
 
     static async rsvps(bookingId: string) {

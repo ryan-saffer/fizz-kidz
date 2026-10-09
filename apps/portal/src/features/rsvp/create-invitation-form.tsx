@@ -3,7 +3,7 @@ import { CalendarIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
-import { capitalise, type InvitationsV2 } from '@fizz-kidz/core'
+import { capitalise, type Invitations } from '@fizz-kidz/core'
 
 import { Button } from '@shared/components/ui/button'
 import { Calendar } from '@shared/components/ui/calendar'
@@ -23,14 +23,14 @@ export function CreateInvitationForm({
     className,
     canEditSchedule = false,
 }: {
-    defaultValues: Partial<InvitationsV2.Invitation>
-    onSubmit: (values: InvitationsV2.Invitation) => void
+    defaultValues: Partial<Invitations.Invitation>
+    onSubmit: (values: Invitations.Invitation) => void
     isLoading: boolean
     submitButton: ReactNode
     className?: string
     canEditSchedule?: boolean
 }) {
-    const form = useForm<InvitationsV2.Invitation>({
+    const form = useForm<Invitations.Invitation>({
         defaultValues,
     })
 

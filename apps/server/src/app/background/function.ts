@@ -9,7 +9,6 @@ import {
 } from '@/features/google-business-profile/core/google-business-profile-review-notification'
 import { cleanUpStaleInvitations } from '@/features/party-bookings/core/rsvp/clean-up-stale-invitations'
 import { sendCakeForms } from '@/features/party-bookings/core/send-cake-form'
-import { sendGuestsEmail } from '@/features/party-bookings/core/send-guests-email'
 import { sendPartyFeedbackEmails } from '@/features/party-bookings/core/send-party-feedback-emails'
 import { sendPartyFormReminderEmails } from '@/features/party-bookings/core/send-party-form-reminder-emails'
 import { sendPartyForms } from '@/features/party-bookings/core/send-party-forms'
@@ -35,10 +34,6 @@ export const pubsub = onMessagePublished(
                 case 'sendIncursionForms':
                     // daily at 8:30am
                     await sendIncursionForms()
-                    break
-                case 'sendGuestsEmail':
-                    // daily at 12pm
-                    await sendGuestsEmail()
                     break
                 case 'sendPartyFormReminderEmails':
                     // 8:30am every Monday

@@ -116,12 +116,10 @@ export function PartyBookingActions({ booking }: { booking: WithId<FirestoreBook
                                 </DropdownMenuSubContent>
                             </DropdownMenuPortal>
                         </DropdownMenuSub>
-                        {booking.useRsvpSystem && (
-                            <DropdownMenuItem onClick={() => store().copyInvitationLink(booking)}>
-                                <Link2 className="mr-2 h-4 w-4" />
-                                Copy invitation link
-                            </DropdownMenuItem>
-                        )}
+                        <DropdownMenuItem onClick={() => store().copyInvitationLink(booking)}>
+                            <Link2 className="mr-2 h-4 w-4" />
+                            Copy invitation link
+                        </DropdownMenuItem>
                         <DropdownMenuItem disabled={busy} onClick={handleResendConfirmation}>
                             <Mail className="mr-2 h-4 w-4" />
                             Resend confirmation email

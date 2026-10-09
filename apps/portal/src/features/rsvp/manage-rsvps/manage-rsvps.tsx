@@ -3,7 +3,7 @@ import { doc, updateDoc } from 'firebase/firestore'
 import { CheckCircle2, Eye, Frown, Share2, Sparkles, UserPlus, Users } from 'lucide-react'
 import { Fragment, useState } from 'react'
 
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import type { Invitations } from '@fizz-kidz/core'
 
 import useFirebase from '@integrations/firebase/use-firebase'
 import { useAuth } from '@session/use-auth'
@@ -72,7 +72,7 @@ export function ManageRsvps() {
     function updateRsvpNotifications(rsvpNotificationsEnabled: boolean) {
         updateDoc(doc(firebase.db, 'invitations-v2', invitation.id), {
             rsvpNotificationsEnabled,
-        } satisfies Partial<InvitationsV2.Invitation>)
+        } satisfies Partial<Invitations.Invitation>)
     }
 
     return (
