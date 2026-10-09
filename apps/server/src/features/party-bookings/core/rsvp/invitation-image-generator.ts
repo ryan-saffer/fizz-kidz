@@ -8,7 +8,9 @@ import QRCode from 'qrcode'
 import type { Invitations, WithoutUid } from '@fizz-kidz/core'
 import { ObjectKeys, getInvitationShareUrl, getStudioAddress } from '@fizz-kidz/core'
 
-import type { PNGStream } from 'canvas'
+import { formatInvitationBirthday } from './format-invitation-birthday'
+
+import type { CanvasRenderingContext2D, PNGStream } from 'canvas'
 
 import { env } from '@/app/init/firebase'
 import { isUsingEmulator } from '@/shared/runtime/is-using-emulator'
@@ -46,16 +48,18 @@ export class InvitationImageGenerator {
         ObjectKeys(InvitationInfo[this.#invitation.invitation].textInfo).map((key) => {
             const {
                 font,
+                maxWidth,
                 textAlign,
                 fillStyle,
                 coords: { x, y },
             } = InvitationInfo[this.#invitation.invitation].textInfo[key]
+            const content = this.#getContent(key)
 
-            ctx.font = font
+            ctx.font = maxWidth ? fitFont(ctx, content, font, maxWidth) : font
             ctx.fillStyle = fillStyle
             ctx.textAlign = textAlign
             ctx.textBaseline = 'middle'
-            ctx.fillText(this.#getContent(key), x, y)
+            ctx.fillText(content, x, y)
         })
 
         const qrCodeBuffer = await QRCode.toBuffer(getInvitationShareUrl(env, isUsingEmulator(), this.#invitation.id), {
@@ -89,7 +93,7 @@ export class InvitationImageGenerator {
     #getContent(field: keyof InvitationCoordinates) {
         switch (field) {
             case 'childName': {
-                return this.#formatChildsName(this.#invitation.childName, this.#invitation.childAge)
+                return formatInvitationBirthday(this.#invitation.childName, this.#invitation.childAge)
             }
             case 'date': {
                 return DateTime.fromJSDate(this.#invitation.date, { zone: 'Australia/Melbourne' }).toFormat(
@@ -118,19 +122,26 @@ export class InvitationImageGenerator {
             }
         }
     }
+}
 
-    #formatChildsName(name: string, age: string) {
-        if (name.endsWith('s')) {
-            return `${name}' ${age}th`
-        }
-        return `${name}'s ${age}th`
-    }
+/**
+ * Shrinks the font's pixel size so the text fits on one line within maxWidth.
+ * Text width scales with font size, so one measurement is enough.
+ */
+export function fitFont(ctx: CanvasRenderingContext2D, text: string, font: string, maxWidth: number) {
+    ctx.font = font
+    const width = ctx.measureText(text).width
+    if (width <= maxWidth) return font
+
+    return font.replace(/(\d+)px/, (_, size: string) => `${Math.floor((Number(size) * maxWidth) / width)}px`)
 }
 
 type Coords = { x: number; y: number }
 
 type TextInfo = {
     font: string
+    /** The widest the text can be before its font shrinks to fit, so it stays inside the design. */
+    maxWidth?: number
     textAlign: 'left' | 'center'
     fillStyle: string
     coords: Coords
@@ -163,6 +174,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '160px petit-cochon',
+                maxWidth: 1030,
                 textAlign: 'center',
                 fillStyle: '#B14594',
                 coords: { x: 705, y: 925 },
@@ -207,6 +219,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '160px petit-cochon',
+                maxWidth: 990,
                 textAlign: 'center',
                 fillStyle: '#4BC5D9',
                 coords: { x: 700, y: 940 },
@@ -251,6 +264,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '160px petit-cochon',
+                maxWidth: 1040,
                 textAlign: 'center',
                 fillStyle: '#4BC5D9',
                 coords: { x: 705, y: 868 },
@@ -295,6 +309,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '150px petit-cochon',
+                maxWidth: 1150,
                 textAlign: 'center',
                 fillStyle: '#ABC954',
                 coords: { x: 705, y: 890 },
@@ -339,6 +354,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '160px petit-cochon',
+                maxWidth: 1080,
                 textAlign: 'center',
                 fillStyle: '#E71971',
                 coords: { x: 705, y: 975 },
@@ -383,6 +399,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '160px petit-cochon',
+                maxWidth: 940,
                 textAlign: 'center',
                 fillStyle: '#4BC5D9',
                 coords: { x: 705, y: 900 },
@@ -427,6 +444,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '160px petit-cochon',
+                maxWidth: 910,
                 textAlign: 'center',
                 fillStyle: '#3AB9CE',
                 coords: { x: 705, y: 1021 },
@@ -471,6 +489,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '160px petit-cochon',
+                maxWidth: 990,
                 textAlign: 'center',
                 fillStyle: '#3AB9CE',
                 coords: { x: 668, y: 1089 },
@@ -515,6 +534,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '160px petit-cochon',
+                maxWidth: 1090,
                 textAlign: 'center',
                 fillStyle: '#E71971',
                 coords: { x: 708, y: 1080 },
@@ -559,6 +579,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '160px petit-cochon',
+                maxWidth: 940,
                 textAlign: 'center',
                 fillStyle: '#3AB9CE',
                 coords: { x: 710, y: 1040 },
@@ -603,6 +624,7 @@ const InvitationInfo: Record<
         textInfo: {
             childName: {
                 font: '160px petit-cochon',
+                maxWidth: 960,
                 textAlign: 'center',
                 fillStyle: '#E71971',
                 coords: { x: 725, y: 1065 },

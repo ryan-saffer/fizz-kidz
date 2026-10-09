@@ -10,8 +10,8 @@ export function addOrdinalSuffix(input: string) {
     const split = input.split(' ')
     const lastPart = split[split.length - 1]
     if (!/^\d+$/.test(lastPart)) {
-        // if unsure, just return 'th' at the end
-        return `${input}th`
+        // not a number (e.g. "two"), so leave it as is rather than guess ("twoth")
+        return input
     }
 
     const number = parseInt(lastPart)
@@ -20,7 +20,7 @@ export function addOrdinalSuffix(input: string) {
     const v = number % 100
 
     if (v >= 11 && v <= 13) {
-        return `${number}th`
+        return `${input}th`
     }
 
     const lastDigit = number % 10
