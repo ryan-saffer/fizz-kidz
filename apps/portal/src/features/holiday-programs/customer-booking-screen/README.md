@@ -1,6 +1,6 @@
 # Holiday Program Booking
 
-The customer picks sessions, adds children, applies a discount or gift card, pays, and lands in Acuity.
+The customer picks sessions, adds children, applies a discount or gift card, pays, and receives a confirmation with Portal management links.
 
 ## Who Owns What
 
@@ -33,7 +33,9 @@ Both plans use the existing `anaphylaxisPlans/` Storage namespace. Asthma files 
 
 Attendance shows separate anaphylaxis and asthma indicators and plan buttons. Sign-in requires staff to open and verify each required plan. Authenticated plan endpoints use the shared signer in `apps/server/src/features/medical-plans` to refresh read URLs.
 
-## Cancellations
+## Cancellations and rescheduling
+
+Confirmation emails link each appointment to the shared management page; see [`features/program-bookings`](../../program-bookings/README.md).
 
 The Acuity webhook finds the exact Square line item using the stored order ID and line-item identifier.
 

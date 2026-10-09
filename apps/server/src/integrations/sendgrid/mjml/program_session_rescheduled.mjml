@@ -5,16 +5,11 @@
             <mj-text
                 font-weight="400"
                 font-size="16px"
-                color="#000000"
+                color="#637381"
                 line-height="24px"
                 font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
             ></mj-text>
         </mj-attributes>
-        <mj-style inline="inline">
-            .text-link {
-                color: #5e6ebf;
-            }
-        </mj-style>
         <mj-style inline="inline">
             .footer-link {
                 color: #888888;
@@ -26,7 +21,7 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    Holiday program booking cancelled
+                    Session rescheduled
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -37,12 +32,34 @@
         </mj-section>
         <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px" padding-top="0">
             <mj-column width="100%">
-                <mj-text color="#637381" font-size="16px"> Hi {{ parentName }}, </mj-text>
-                <mj-text color="#637381" font-size="16px">
-                    Your holiday program booking has been successfully cancelled.
-                </mj-text>
+                <mj-text> Hi {{ parentName }}, </mj-text>
+                <mj-text> {{ childName }}'s {{ programName }} session has been moved. </mj-text>
             </mj-column>
             <mj-column width="100%">
+                <mj-text
+                    color="#212b35"
+                    font-size="12px"
+                    text-transform="uppercase"
+                    font-weight="bold"
+                    padding-bottom="0"
+                >
+                    Previous session
+                </mj-text>
+                <mj-text font-size="14px" padding-top="0">
+                    <s>{{ previousSession }}</s>
+                </mj-text>
+                <mj-text
+                    color="#212b35"
+                    font-size="12px"
+                    text-transform="uppercase"
+                    font-weight="bold"
+                    padding-bottom="0"
+                >
+                    New session
+                </mj-text>
+                <mj-text color="#212b35" font-size="16px" font-weight="bold" padding-top="0">
+                    {{ newSession }}
+                </mj-text>
                 <mj-text
                     color="#212b35"
                     font-size="12px"
@@ -52,53 +69,22 @@
                 >
                     Where
                 </mj-text>
-                <mj-text text-transform="capitalize" color="#637381" font-size="14px" padding-top="0">
+                <mj-text font-size="14px" padding-top="0">
                     {{ location }}
+                    <br />
+                    {{ address }}
                 </mj-text>
             </mj-column>
             <mj-column width="100%">
-                <mj-text
-                    color="#212b35"
-                    font-size="12px"
-                    text-transform="uppercase"
-                    font-weight="bold"
-                    padding-bottom="0"
-                >
-                    Who / When
+                <mj-text>
+                    Your payment carries over to the new session. Need another change?
+                    <a href="{{managementUrl}}">Change / Cancel</a>
                 </mj-text>
-                <mj-text color="#637381" font-size="14px" padding-top="0">
-                    <p>{{ booking }}</p>
+                <mj-text>
+                    If you have any questions, just reply to this email or call us on
+                    <a href="tel:+61390598144">(03) 9059 8144</a>.
                 </mj-text>
-            </mj-column>
-            <mj-column width="100%">
-                <mj-text
-                    color="#212b35"
-                    font-size="12px"
-                    text-transform="uppercase"
-                    font-weight="bold"
-                    padding-bottom="0"
-                >
-                    {{ policy.title }}
-                </mj-text>
-                <mj-text color="#637381" font-size="16px">
-                    {{#policy.paragraphs}}
-                    <p>{{.}}</p>
-                    {{/policy.paragraphs}}</mj-text
-                ></mj-column
-            >
-            {{#receiptUrl}}
-            <mj-column width="100%"
-                ><mj-text align="center"
-                    ><a href="{{receiptUrl}}">Click here for a copy of your refund receipt</a></mj-text
-                ></mj-column
-            >
-            {{/receiptUrl}}
-            <mj-column width="100%">
-                <mj-text color="#637381" font-size="16px">
-                    If you have any questions, please feel free to contact us on
-                    <a href="tel:0390598144">(03) 9059 8144</a>.
-                </mj-text>
-                <mj-text color="#637381" font-size="16px"> The Fizz Kidz team </mj-text>
+                <mj-text> The Fizz Kidz Team </mj-text>
             </mj-column>
         </mj-section>
         <mj-wrapper full-width="full-width">

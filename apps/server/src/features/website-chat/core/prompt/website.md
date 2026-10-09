@@ -1,4 +1,4 @@
-Last updated: 30 September 2026. Built only from the public website, so it can be regenerated from scratch at any time.
+Last updated: 9 October 2026. Built only from the public website, so it can be regenerated from scratch at any time.
 
 All URLs below are on the live site https://www.fizzkidz.com.au (booking links are on https://bookings.fizzkidz.com.au). Prices are quoted exactly as the website shows them. If a price or detail isn't here, follow "When you don't know" in the instructions.
 
@@ -233,24 +233,11 @@ Book now: https://bookings.fizzkidz.com.au/programs?id=11036399 (online booking 
 - Stay for the day by booking the morning and afternoon programs; Fizz Kidz supervises the break. If staying for the day, pack lunch. Otherwise you don't need to bring anything.
 - Max 25 children per program.
 
-## Current schedule (September/October 2026 school holidays)
+## Schedule
 
-Week 1: 21 to 24 September (these sessions have already happened as of this knowledge pack)
+The September/October 2026 school holiday program has finished (it ran 21 September to 2 October), and the next holiday program schedule isn't published yet.
 
-- Mon 21 Sept. Morning: Explosive Energy (Bubbling Volcanoes, Energy Explosion Potions, Glow In the Dark Slime). Afternoon: Creature Craze (Sloths Plush, Snake Washables, Tie Dye Snakes).
-- Tue 22 Sept. Morning: Science Explosion (Blast Off Rocket Launcher, Bubbling Volcanoes, Galaxy Slime). Afternoon: Super Squish (Squishy Dumplings, Squishy Slime, Squishy Pets).
-- Wed 23 Sept. Morning: Pop-Star Power (Flower Sparkle Crowns, Stage Spark Wands, Glitter Hair Shimmer). Afternoon: Kawaii Cuties (Kitty Drip Key Rings, Meow Mochi Slime, Charm Pencil Cases).
-- Thu 24 Sept. Morning: Fluffy Frenzy (Capybara Plush, Dinosaur Eggs, Fluffy Cloud Slime). Afternoon: The Snuggle Edit (Axolotl Bath Fizzers, Dreamy Tie Dye Pillows, Butter Slime).
-
-Week 2: 28 September to 2 October
-
-- Mon 28 Sept. Morning: Potion Commotion (Bubbling Witch Brews, Dragons Fire Potions, Fizzy Spell Bombs). Afternoon: Custom Craze (Lego Glasses, Croc Shoe Charms, Style-It Caps).
-- Tue 29 Sept. Morning: Our K-Pop Koncert (Stage Spark Wands, Gemstone Slime, Moonbeam Bracelets/Keyrings). Afternoon: Kawaii Cuties (Slime Fillables Keychains, Kawaii Plushie, Charm Keyrings).
-- Wed 30 Sept. Morning: Lab Gone Wild (Bubbling Volcanoes, Squish Jelly Cups, Fire Potions). Afternoon: Crazy Concoctions (Outta This World Bath Bombs, Chemical Rocket Explosions, Thermochromic Putty).
-- Thu 1 Oct. Morning: Crazy for Dumplings (Squishy Dumplings, Plush Dumplings, Dumpling Go Case). Afternoon: Gummy Galore (Gummy Slime, Gummy Pop Keyrings, Gummy Washables).
-- Fri 2 Oct. Morning: Deco Dreamland (Mirror Flowers, Flower Sparkle Crowns, Blooming Bedazzled Sunnies). Afternoon: Ultimate Fizz Kidz (Glow in the Dark Slime, Bubbling Volcanoes, Galaxy Bath Bombs).
-
-The website lists one schedule for all studios. Availability per studio and session is only shown in the booking system. Dates for future holiday periods are not listed yet; suggest checking the holiday programs page or joining the mailing list.
+The website lists one schedule for all studios. Availability per studio and session is only shown in the booking system. For the next holiday period, suggest checking the holiday programs page or joining the mailing list.
 
 ## Holiday program FAQs
 
@@ -297,7 +284,7 @@ Preschool FAQs:
 - What activities? Creative projects, sensory exploration, science experiments, movement, music and story time. Children take home their creations each week.
 - How long is each session? 9:30am to 11:30am.
 - Cost? $39 per child per session. Book every Tuesday or Friday session in the term before the term starts for 20% off, which brings it to $31.20 per session, per child.
-- Can I cancel? Cancellations made more than 48 hours before a session are automatically refunded. If a full-term booking no longer includes every session in its discounted group, the refund is recalculated at the standard session price.
+- Can I cancel or reschedule a session? Yes, using the Change / Cancel link in your confirmation email. At least 48 hours before a session, you can move it to another session in the same term at the same studio, or cancel it for an automatic refund. Full-term bookings keep their 20% discount when rescheduled, but cancelling a session removes the discount from the remaining sessions, so the refund can be small or nothing. Within 48 hours you can still cancel, but without a refund. See the policies page for the full policy.
 - My child has special needs. Is it appropriate? Absolutely. We welcome all children. Please call us so we can chat about how best to support your child.
 
 # After school programs
@@ -394,8 +381,18 @@ Page: https://www.fizzkidz.com.au/policies/ (privacy section: https://www.fizzki
 - Party payment: paid at the end of the party after hosts count the guests. Every child who makes creations is counted; children in the room who don't make creations (e.g. little siblings) are not. Card payments are taken by the hosts. Cash is not accepted. If card isn't possible, an EFT can be made on the day before leaving the venue. No deposit is taken.
 - Party cancellation or reschedule fees: $150.00 within 3 weeks of the event; $300.00 within 2 weeks; $450.00 within 1 week.
 - Holiday program payment: pay before drop-off via the Fizz Kidz website (booking link above). An EFT can also be arranged.
-- Holiday program cancellation: if you paid online and can no longer attend, let Fizz Kidz know 48 hours before and you will be refunded.
-- Preschool program cancellation: see the preschool FAQs (more than 48 hours before a session is refunded automatically).
+- Holiday program cancellation and rescheduling policy (https://www.fizzkidz.com.au/policies/#holiday-programs):
+  - Plans changed? If your session is at least 48 hours away, you can move to another available holiday-program session at the same studio, or cancel for an automatic full refund of the amount paid.
+  - Less than 48 hours to go? You can still cancel before the session starts, but refunds and rescheduling aren't available.
+  - Use Change / Cancel in your confirmation email. Each link manages one child's session, so morning and afternoon bookings need to be changed separately.
+  - This policy may change at Fizz Kidz's discretion.
+- Preschool Program payment: sessions are paid for online when you book. Book every session in a term before it starts to receive 20% off.
+- Preschool Program cancellation and rescheduling policy (https://www.fizzkidz.com.au/policies/#preschool-program):
+  - Plans changed? If your session is at least 48 hours away, you can move to another available Preschool Program session in the same term at the same studio, on any day, or cancel for an automatic refund.
+  - Full-term bookings receive 20% off because every session in the term is booked. Rescheduling keeps the discount. Cancelling a session means the booking no longer covers the full term, so the discount is removed from the remaining sessions and taken out of your refund. This can make the refund small, or nothing at all.
+  - Less than 48 hours to go? You can still cancel before the session starts, but refunds and rescheduling aren't available.
+  - Use Change / Cancel in your confirmation email. Each link manages one child's session.
+  - This policy may change at Fizz Kidz's discretion.
 - Privacy: Fizz Kidz Australia Pty Ltd follows the Australian Privacy Principles (Privacy Act 1988). Personal information is collected to provide services, share information and for marketing; you can unsubscribe at any time in writing. You can ask to access or correct your information in writing (no fee for the request; there may be an admin fee for a copy). Records are kept for at least 7 years. Privacy contact: Fizz Kidz Australia Pty Ltd, 20 Glenferrie Road, Malvern 3144, bookings@fizzkidz.com.au, 03 9059 8144.
 
 # Contact

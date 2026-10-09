@@ -65,6 +65,33 @@ describe('booking confirmation message formatting', () => {
     })
 })
 
+describe('session rescheduled email', () => {
+    beforeEach(() => vi.clearAllMocks())
+
+    it('shows the previous and new session with a management link', async () => {
+        const client = await MailClient.getInstance()
+        const managementUrl = 'https://bookings.fizzkidz.com.au/programs/manage/123#token=abc'
+        await client.sendEmail('programSessionRescheduled', 'parent@example.com', {
+            parentName: 'Parent',
+            programName: 'Preschool Program',
+            childName: 'Alex',
+            previousSession: 'Tuesday 13 October, 9:30 AM to 11:30 AM',
+            newSession: 'Friday 16 October, 9:30 AM to 11:30 AM',
+            location: 'Fizz Kidz Essendon',
+            address: 'Studio address',
+            managementUrl,
+        })
+        const { default: mail } = await import('@sendgrid/mail')
+        const payload = vi.mocked(mail.send).mock.calls[0][0]
+        if (Array.isArray(payload) || !payload.html) throw new Error('Expected a single HTML email')
+        const document = new DOMParser().parseFromString(payload.html, 'text/html')
+        expect(document.querySelector('s')?.textContent?.trim()).toBe('Tuesday 13 October, 9:30 AM to 11:30 AM')
+        expect(document.body.textContent).toContain('Friday 16 October, 9:30 AM to 11:30 AM')
+        expect(document.body.textContent).toContain("Alex's Preschool Program session has been moved.")
+        expect(document.querySelector('a[href*="/programs/manage/"]')?.getAttribute('href')).toBe(managementUrl)
+    })
+})
+
 describe('website enquiry emails to the team', () => {
     beforeEach(() => vi.clearAllMocks())
 

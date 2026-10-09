@@ -2,7 +2,7 @@ import { strictEqual } from 'assert'
 
 import { describe, it } from 'vite-plus/test'
 
-import { calculateRefundCents, repriceRemainingOrder } from './preschool-program-v2-pricing'
+import { calculateRefundCents, isFullTermDiscountRemoved, repriceRemainingOrder } from './preschool-program-v2-pricing'
 
 import type { Square } from 'square'
 
@@ -99,5 +99,18 @@ describe('processPreschoolProgramV2Refund pricing helpers', () => {
 
         strictEqual(repriceRemainingOrder(order, remainingLineItemIdentifiers), BigInt(19440))
         strictEqual(calculateRefundCents(BigInt(21384), BigInt(19440)), BigInt(1944))
+    })
+
+    it('reports when a cancellation removes the full-term discount', () => {
+        const order = makeOrder([
+            makeLineItem({ id: 'term-1', amount: 3900, isFullTermDiscount: true }),
+            makeLineItem({ id: 'term-2', amount: 3900, isFullTermDiscount: true }),
+            makeLineItem({ id: 'ad-hoc-1', amount: 3900, isFullTermDiscount: false }),
+        ])
+
+        strictEqual(isFullTermDiscountRemoved(order, new Set(['term-2', 'ad-hoc-1']), 'term-1'), true)
+        // already removed by an earlier cancellation
+        strictEqual(isFullTermDiscountRemoved(order, new Set(['ad-hoc-1']), 'term-1'), false)
+        strictEqual(isFullTermDiscountRemoved(order, new Set(['term-1', 'term-2']), 'ad-hoc-1'), false)
     })
 })

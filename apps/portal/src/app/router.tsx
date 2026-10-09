@@ -121,6 +121,11 @@ const CustomerBookingScreen = lazy(() =>
         default: module.CustomerBookingPage,
     }))
 )
+const ManageProgramBooking = lazy(() =>
+    import('../features/program-bookings/manage-booking-page.js').then((module) => ({
+        default: module.ManageBookingPage,
+    }))
+)
 const Onboarding = lazy(() =>
     import('../features/onboarding/employee-onboarding.js').then((module) => ({ default: module.EmployeeOnboarding }))
 )
@@ -624,6 +629,14 @@ const router = createBrowserRouter([
             {
                 path: 'programs',
                 children: [
+                    {
+                        path: 'manage/:appointmentId',
+                        Component: () => (
+                            <Suspense fallback={<Loader fullScreen />}>
+                                <ManageProgramBooking />
+                            </Suspense>
+                        ),
+                    },
                     {
                         index: true,
                         Component: () => (

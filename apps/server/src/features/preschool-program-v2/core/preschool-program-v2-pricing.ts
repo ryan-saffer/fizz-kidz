@@ -65,6 +65,24 @@ export function repriceRemainingOrder(order: Square.Order, remainingLineItemIden
     return BigInt(Math.max(0, discountedSubtotalCents - discountCodeAmountCents))
 }
 
+/** Reports whether cancelling this line item is what breaks the order's full-term discount. */
+export function isFullTermDiscountRemoved(
+    order: Square.Order,
+    remainingLineItemIdentifiers: Set<string>,
+    cancelledLineItemIdentifier: string
+) {
+    const fullTermIdentifiers = (order.lineItems || [])
+        .filter(hasFullTermDiscountApplied)
+        .map((lineItem) => lineItem.metadata?.['lineItemIdentifier'] || '')
+
+    return (
+        fullTermIdentifiers.includes(cancelledLineItemIdentifier) &&
+        fullTermIdentifiers.every(
+            (identifier) => identifier === cancelledLineItemIdentifier || remainingLineItemIdentifiers.has(identifier)
+        )
+    )
+}
+
 /** Recalculates the original discount code against a new post-term-discount subtotal. */
 function getRepricedDiscountCodeAmountCents(order: Square.Order, discountedSubtotalCents: number) {
     const discountCodeType = order.metadata?.['discountCodeType']

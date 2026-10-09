@@ -3,16 +3,19 @@ title: Changes and refunds
 description: How Preschool Program session changes, cancellations and automatic repricing work.
 ---
 
-import { Badge, Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
+import { Aside, Badge, Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
 
-The booking confirmation gives the family a separate <strong>Change / Cancel</strong> link for every child/session.
-Acuity manages the appointment; Square continues to hold the original order and payment.
+The booking confirmation has a <strong>Change / Cancel</strong> link beside every child/session. It opens that
+appointment in the Portal, with the session details and options to cancel or reschedule. No login is needed. Acuity
+manages the appointment; Square continues to hold the original order and payment.
 
 ## Change or cancel?
 
 <CardGrid>
-  <Card title="Change a session" icon="information">
-    Rescheduling changes the Acuity appointment. It does not automatically create a new Square charge or refund.
+  <Card title="Reschedule at least 48 hours before" icon="information">
+    Moves one child's appointment to another session in the same term at the same studio, on any day. There is no new
+    charge or refund, and a whole-term booking keeps its 20% discount. The family gets a short email showing the
+    previous and new session.
   </Card>
   <Card title="Cancel at least 48 hours before" icon="approve-check-circle">
     <Badge text="Automatic" variant="tip" size="small" />
@@ -22,9 +25,17 @@ Acuity manages the appointment; Square continues to hold the original order and 
   <Card title="Cancel inside 48 hours" icon="warning">
     <Badge text="No automatic refund" variant="caution" size="small" />
     <br />
-    The appointment is cancelled and the family is emailed, but no refund is processed.
+    Rescheduling is disabled. The family can still cancel before the session starts and is emailed, but no refund is
+    processed.
   </Card>
 </CardGrid>
+
+<Aside type="tip" title="The refund is shown before cancelling">
+  The cancel confirmation shows the exact refund. When cancelling removes the whole-term discount, it explains why the
+  refund is small or $0.
+</Aside>
+
+Links in confirmations sent before the Portal page launched still open Acuity.
 
 ## How the refund is calculated
 
