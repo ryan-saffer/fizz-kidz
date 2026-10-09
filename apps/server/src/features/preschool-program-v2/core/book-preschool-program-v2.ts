@@ -225,21 +225,16 @@ export async function bookPreschoolProgramV2(input: BookPreschoolProgramV2Props)
     // MARK: CRM
     // Always add the parent, so the team can see every customer. Unticking the mailing list checkbox
     // sets their marketing opt-out, which stops Zoho Campaigns from emailing them.
-    const zohoClient = new ZohoClient()
     try {
-        // Add children one at a time; concurrent upserts write into the same free child slot.
-        for (const child of input.children) {
-            await zohoClient.addPreschoolProgramContact({
-                firstName: input.parentFirstName,
-                lastName: input.parentLastName,
-                email: input.parentEmail,
-                mobile: input.parentPhone,
-                studio: AcuityUtilities.getStudioByCalendarId(sanitizedLineItems[0].calendarID),
-                childName: child.firstName,
-                childBirthdayISO: child.dob,
-                optOutOfMarketing: !input.joinMailingList,
-            })
-        }
+        await new ZohoClient().addPreschoolProgramContact({
+            firstName: input.parentFirstName,
+            lastName: input.parentLastName,
+            email: input.parentEmail,
+            mobile: input.parentPhone,
+            studio: AcuityUtilities.getStudioByCalendarId(sanitizedLineItems[0].calendarID),
+            children: input.children.map((child) => ({ childName: child.firstName, childBirthdayISO: child.dob })),
+            optOutOfMarketing: !input.joinMailingList,
+        })
     } catch (err) {
         logError(`unable to add preschool program booking to zoho with parent email '${input.parentEmail}'`, err, {
             orderId: order.id,

@@ -24,6 +24,7 @@ import type {
     HolidayProgramDealRow,
     Service,
     WithBaseProps,
+    ZohoChild,
     ZohoHolidayProgramStatus,
     ZohoRequestError,
 } from './zoho.types'
@@ -348,16 +349,6 @@ export class ZohoClient {
             Party_Type?: 'Studio' | 'Mobile' | ''
             Party_Date?: string
             Company?: string
-            Child_Name_1?: string
-            Child_Birthday_1?: string // !! ISO date string
-            Child_Name_2?: string
-            Child_Birthday_2?: string // !! ISO date string
-            Child_Name_3?: string
-            Child_Birthday_3?: string // !! ISO date string
-            Child_Name_4?: string
-            Child_Birthday_4?: string // !! ISO date string
-            Child_Name_5?: string
-            Child_Birthday_5?: string // !! ISO date string
             Recently_Booked_Party?: boolean
             Holiday_Program_Date?: string // !! ISO date string
             Holiday_Program_Checked_In?: boolean
@@ -448,34 +439,65 @@ export class ZohoClient {
     }
 
     /**
-     * This method will specifically first GET the customer, and then check their childrens birthdays,
-     * to see if they already exist, and insert the child wherever there is a free slot.
+     * Upserts the parent once, then all of their children.
+     * The parent is only upserted once because concurrent upserts for the same email can race Zoho's duplicate check.
      */
-    async #addParentWithChild(
+    async #addParentWithChildren(
         values: WithBaseProps<{
             service: Service
             customer_type: 'B2C' | 'B2B'
-            childName: string
-            childBirthdayISO: string // !! ISO date string
             branch?: string
             Party_Type?: 'Studio' | 'Mobile' | ''
             Party_Date?: string
             Company?: string
             Holiday_Program_Date?: string
             optOutOfMarketing: boolean
-        }>
+        }>,
+        children: ZohoChild[]
     ) {
         const parentContactId = await this.#upsertContact(values)
-
-        const childId = await this.#upsertChild({
-            childName: values.childName,
-            childBirthdayISO: values.childBirthdayISO,
+        const childIdsByKey = await this.#upsertChildren({
             parentContactId,
+            children,
             optOutOfMarketing: values.optOutOfMarketing,
             partyDate: values.Party_Date,
         })
 
-        return { parentContactId, childId }
+        return { parentContactId, childIds: [...childIdsByKey.values()] }
+    }
+
+    /**
+     * Upserts each distinct child in parallel, returning their ids keyed by `Unique_Child_Key`.
+     * Children sharing a key (same parent and birthday) are upserted once, so concurrent upserts
+     * don't race Zoho's duplicate check on that key.
+     */
+    async #upsertChildren(props: {
+        parentContactId: string
+        children: ZohoChild[]
+        optOutOfMarketing: boolean
+        partyDate?: string
+    }) {
+        const { parentContactId, children, optOutOfMarketing, partyDate } = props
+        const childrenByKey = new Map<string, ZohoChild>()
+        for (const child of children) {
+            const key = this.#getUniqueChildKey(parentContactId, child.childBirthdayISO)
+            if (!childrenByKey.has(key)) childrenByKey.set(key, child)
+        }
+
+        const entries = await Promise.all(
+            [...childrenByKey.entries()].map(async ([key, child]): Promise<[string, string]> => {
+                const childId = await this.#upsertChild({
+                    childName: child.childName,
+                    childBirthdayISO: child.childBirthdayISO,
+                    parentContactId,
+                    optOutOfMarketing,
+                    partyDate,
+                })
+                return [key, childId]
+            })
+        )
+
+        return new Map(entries)
     }
 
     addBirthdayPartyContact(
@@ -503,67 +525,24 @@ export class ZohoClient {
         })
     }
 
-    addBirthdayPartyGuestContactWithChild(
+    addBirthdayPartyGuestContactWithChildren(
         props: WithBaseProps<{
             studio: Studio
-            childName: string
-            childBirthdayISO: string
+            children: ZohoChild[]
             optOutOfMarketing: boolean
         }>
     ) {
-        const { studio, childName, childBirthdayISO, ...baseProps } = props
+        const { studio, children, ...baseProps } = props
 
-        return this.#addParentWithChild({
-            service: 'Birthday Party Guest',
-            customer_type: 'B2C',
-            branch: capitalise(studio),
-            childName,
-            childBirthdayISO,
-            ...baseProps,
-        })
-    }
-
-    async addHolidayProgramContact(
-        props: WithBaseProps<{
-            studio: StudioOrTest
-            childName: string
-            childBirthdayISO: string // ISO string,
-            holidayProgramDateISO: string // ISO string
-            optOutOfMarketing: boolean
-        }>
-    ) {
-        const { studio, childName, childBirthdayISO, holidayProgramDateISO, optOutOfMarketing, ...baseProps } = props
-
-        // need to check if this parent already has a holiday program date.
-        // if not, add the date in, otherwise don't include it.
-        const existingContact = await this.#searchContactByEmail(baseProps.email)
-
-        if (!existingContact) {
-            // customer does not exist in zoho, so add them as new with the child
-            return this.#addParentWithChild({
-                service: 'Holiday Program',
-                branch: capitalise(studio),
+        return this.#addParentWithChildren(
+            {
+                service: 'Birthday Party Guest',
                 customer_type: 'B2C',
-                childName,
-                childBirthdayISO,
-                Holiday_Program_Date: holidayProgramDateISO,
-                optOutOfMarketing,
+                branch: capitalise(studio),
                 ...baseProps,
-            })
-        }
-
-        const existingDate = existingContact['Holiday_Program_Date']
-
-        return this.#addParentWithChild({
-            service: 'Holiday Program',
-            branch: capitalise(studio),
-            customer_type: 'B2C',
-            childName,
-            childBirthdayISO,
-            optOutOfMarketing,
-            ...(existingDate ? {} : { Holiday_Program_Date: holidayProgramDateISO }), // if they already have a date, no need to overwrite it
-            ...baseProps,
-        })
+            },
+            children
+        )
     }
 
     async addHolidayProgramBookingToDeal(
@@ -592,26 +571,12 @@ export class ZohoClient {
             ...baseProps,
         })
 
-        // Multiple booked programs can reference the same child. Upsert each child once so Zoho's
-        // duplicate check is not raced by concurrent upserts for the same Unique_Child_Key.
-        const rowsByChildKey = rows.reduce((acc, row) => {
-            const childKey = this.#getUniqueChildKey(parentContactId, row.childBirthdayISO)
-            return acc.has(childKey) ? acc : acc.set(childKey, row)
-        }, new Map<string, HolidayProgramDealRow>())
-
-        const childIdEntries = await Promise.all(
-            [...rowsByChildKey.entries()].map(async ([childKey, row]): Promise<[string, string]> => {
-                const childId = await this.#upsertChild({
-                    childName: row.childName,
-                    childBirthdayISO: row.childBirthdayISO,
-                    parentContactId,
-                    optOutOfMarketing,
-                })
-
-                return [childKey, childId]
-            })
-        )
-        const childIdsByKey = new Map(childIdEntries)
+        // Multiple booked programs can reference the same child; each is upserted once.
+        const childIdsByKey = await this.#upsertChildren({
+            parentContactId,
+            children: rows,
+            optOutOfMarketing,
+        })
 
         const zohoRows = rows.map((row) => {
             const childId = childIdsByKey.get(this.#getUniqueChildKey(parentContactId, row.childBirthdayISO))
@@ -758,14 +723,15 @@ export class ZohoClient {
     ) {
         const { studio, childName, childBirthdayISO, ...baseProps } = props
 
-        return this.#addParentWithChild({
-            service: 'Play Lab',
-            branch: capitalise(studio),
-            customer_type: 'B2C',
-            childName,
-            childBirthdayISO,
-            ...baseProps,
-        })
+        return this.#addParentWithChildren(
+            {
+                service: 'Play Lab',
+                branch: capitalise(studio),
+                customer_type: 'B2C',
+                ...baseProps,
+            },
+            [{ childName, childBirthdayISO }]
+        )
     }
 
     /**
@@ -797,29 +763,36 @@ export class ZohoClient {
     addAfterSchoolProgramContact(
         props: WithBaseProps<{ childName: string; childBirthdayISO: string; optOutOfMarketing: boolean }>
     ) {
-        return this.#addParentWithChild({
-            service: 'After School Program',
-            customer_type: 'B2C',
-            ...props,
-        })
+        const { childName, childBirthdayISO, ...baseProps } = props
+
+        return this.#addParentWithChildren(
+            {
+                service: 'After School Program',
+                customer_type: 'B2C',
+                ...baseProps,
+            },
+            [{ childName, childBirthdayISO }]
+        )
     }
 
     addPreschoolProgramContact(
         props: WithBaseProps<{
             studio: StudioOrTest
-            childName: string
-            childBirthdayISO: string
+            children: ZohoChild[]
             optOutOfMarketing: boolean
         }>
     ) {
-        const { studio, ...baseProps } = props
+        const { studio, children, ...baseProps } = props
 
-        return this.#addParentWithChild({
-            service: 'Preschool Program',
-            branch: capitalise(studio),
-            customer_type: 'B2C',
-            ...baseProps,
-        })
+        return this.#addParentWithChildren(
+            {
+                service: 'Preschool Program',
+                branch: capitalise(studio),
+                customer_type: 'B2C',
+                ...baseProps,
+            },
+            children
+        )
     }
 
     addBasicB2CContact(props: WithBaseProps<{ studio?: Studio | undefined; optOutOfMarketing: boolean }>) {

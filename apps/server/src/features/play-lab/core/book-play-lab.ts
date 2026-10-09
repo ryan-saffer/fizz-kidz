@@ -202,10 +202,6 @@ export async function bookPlayLab(input: BookPlayLabProps) {
     const zohoClient = new ZohoClient()
     try {
         for (const child of input.children) {
-            // cannot use `Promise.all()` here, since each child is added individually.
-            // doing them concurrently writes each child into the same free slot, and overwrite each other.
-            // the most ideal fix is to pass all children into the zoho client, and the client can handle multiple children at once..
-            // but cbf for now.
             await zohoClient.addPlayLabContact({
                 firstName: input.parentFirstName,
                 lastName: input.parentLastName,

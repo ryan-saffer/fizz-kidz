@@ -20,6 +20,11 @@ export type Service =
     | 'Play Lab'
     | ''
 
+export type ZohoChild = {
+    childName: string
+    childBirthdayISO: string // !! ISO date string
+}
+
 export type HolidayProgramDealRow = {
     appointmentId: number | string
     dateTimeISO: string
