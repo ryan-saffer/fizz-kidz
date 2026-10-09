@@ -63,18 +63,18 @@ export async function guestRsvpToParty(input: RsvpProps) {
         const [firstName, ...lastNameParts] = input.parentName.trim().split(/\s+/)
         const lastName = lastNameParts.join(' ')
 
-        for (const child of input.children) {
-            await zoho.addBirthdayPartyGuestContactWithChild({
-                firstName,
-                lastName,
-                email: parentEmail,
-                mobile: parentMobile,
-                studio: invitation.studio,
+        await zoho.addBirthdayPartyGuestContactWithChildren({
+            firstName,
+            lastName,
+            email: parentEmail,
+            mobile: parentMobile,
+            studio: invitation.studio,
+            children: input.children.map((child) => ({
                 childName: child.name,
                 childBirthdayISO: getChildDobISO(child.dob),
-                optOutOfMarketing: !joinMailingList,
-            })
-        }
+            })),
+            optOutOfMarketing: !joinMailingList,
+        })
     } catch (err) {
         logError(`error adding RSVP contact to zoho: ${parentEmail}`, err, { input })
     }

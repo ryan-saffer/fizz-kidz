@@ -17,8 +17,12 @@ export type Service =
     | 'After School Program'
     | 'Activation / Event'
     | 'Incursion'
-    | 'Play Lab'
     | ''
+
+export type ZohoChild = {
+    childName: string
+    childBirthdayISO: string // !! ISO date string
+}
 
 export type HolidayProgramDealRow = {
     appointmentId: number | string

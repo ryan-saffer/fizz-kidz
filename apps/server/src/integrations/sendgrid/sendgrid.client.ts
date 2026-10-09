@@ -838,34 +838,6 @@ export class MailClient {
                     template: 'take_home_bag_notification.html',
                     useMjml: false,
                 }
-            case 'playLabBookingConfirmation':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'bookings@fizzkidz.com.au',
-                        },
-                        subject: subject || 'Play Lab Booking Confirmation',
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'play_lab_confirmation.mjml',
-                    useMjml: true,
-                }
-            case 'playLabCancellation':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'bookings@fizzkidz.com.au',
-                        },
-                        subject: subject || 'Play Lab Session Cancelled',
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'play_lab_cancellation.mjml',
-                    useMjml: true,
-                }
             case 'preschoolProgramBookingConfirmation':
                 return {
                     emailInfo: {

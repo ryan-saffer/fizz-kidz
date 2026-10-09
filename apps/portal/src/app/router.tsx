@@ -144,27 +144,10 @@ const Account = lazy(() => import('../features/settings/account.js').then((modul
 const ManageUsersTable = lazy(() =>
     import('../features/settings/manage-users-table.js').then((module) => ({ default: module.ManageUsersTable }))
 )
-const PlayLabBookingPage = lazy(() =>
-    import('../features/play-lab/booking-form/pages/play-lab-booking-page.js').then((module) => ({
-        default: module.PlayLabBookingPage,
-    }))
-)
 const PreschoolProgramV2BookingPage = lazy(() =>
     import('../features/preschool-program/booking-v2/pages/preschool-program-v2-booking-page.js').then((module) => ({
         default: module.PreschoolProgramV2BookingPage,
     }))
-)
-const PlayLabSessionSelectorPage = lazy(() =>
-    import('../features/play-lab/attendance/session-selector/play-lab-session-selector-page.js').then((module) => ({
-        default: module.PlayLabSessionSelectorPage,
-    }))
-)
-const PlayLabSessionAttendancePage = lazy(() =>
-    import('../features/play-lab/attendance/session-attendance/pages/play-lab-session-attendance-page.js').then(
-        (module) => ({
-            default: module.PlayLabSessionAttendancePage,
-        })
-    )
 )
 const TerritoryMappingPage = lazy(() =>
     import('../features/territory-mapping/territory-mapping-page.js').then((module) => ({
@@ -466,31 +449,6 @@ const router = createBrowserRouter([
                         ],
                     },
                     {
-                        path: 'play-lab',
-                        children: [
-                            {
-                                path: '',
-                                Component: () => (
-                                    <Suspense fallback={<Loader fullScreen />}>
-                                        <ProtectedRoute permission="bookings:read">
-                                            <PlayLabSessionSelectorPage />
-                                        </ProtectedRoute>
-                                    </Suspense>
-                                ),
-                            },
-                            {
-                                path: ':appointmentTypeId',
-                                Component: () => (
-                                    <Suspense fallback={<Loader fullScreen />}>
-                                        <ProtectedRoute permission="bookings:read">
-                                            <PlayLabSessionAttendancePage />
-                                        </ProtectedRoute>
-                                    </Suspense>
-                                ),
-                            },
-                        ],
-                    },
-                    {
                         path: 'preschool-program',
                         children: [
                             {
@@ -676,14 +634,6 @@ const router = createBrowserRouter([
                         ),
                     },
                 ],
-            },
-            {
-                path: 'play-lab-booking',
-                Component: () => (
-                    <Suspense fallback={<Loader fullScreen />}>
-                        <PlayLabBookingPage />
-                    </Suspense>
-                ),
             },
             {
                 path: 'preschool-program-v2-booking',
