@@ -39,7 +39,7 @@ describe('formatInvitationBirthday', () => {
         })
     })
 
-    describe('suffixes each age when every age is a number but the counts differ', () => {
+    describe("keeps names together and suffixes each age when ages don't line up with names (e.g. twins plus a sibling)", () => {
         it.each([
             ['Mia, John & Sam', '4 & 3', "Mia, John & Sam's 4th & 3rd"],
             ['The twins', '4 & 3', "The twins' 4th & 3rd"],

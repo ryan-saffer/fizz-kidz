@@ -12,7 +12,9 @@ const SEPARATOR = /\s*(?:,|&|\band\b)\s*/i
  *
  * 1. Every age is a number and there is one per name: pair them -> "Mia's 4th & John's 3rd".
  * 2. A single numeric age is shared -> "Lachie & Matthew's 6th".
- * 3. Every age is a number but the counts differ: suffix each age -> "Mia, John & Sam's 4th & 3rd".
+ * 3. Every age is a number but they don't line up with the names (e.g. twins plus a sibling),
+ *    so we can't tell whose age is whose: keep the names together and suffix each age
+ *    -> "Mia, John & Sam" / "4 & 3" -> "Mia, John & Sam's 4th & 3rd".
  * 4. Any age isn't a number: keep the age as typed -> "john and mia's five and six".
  */
 export function formatInvitationBirthday(childName: string, childAge: string) {
