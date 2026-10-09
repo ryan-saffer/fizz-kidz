@@ -26,7 +26,6 @@ export const FormFields = {
     EMERGENCY_CONTACT_RELATION_HP: 16585474,
     ORDER_ID: 11929615, // square order id
     AMOUNT_CHARGED: 11929616,
-    IS_TERM_ENROLMENT: 16577293, // play lab
     LINE_ITEM_IDENTIFIER: 16585337, // to link to square order line item in metadata
     FIRESTORE_ID: 12065644,
 }

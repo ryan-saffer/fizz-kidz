@@ -29,22 +29,6 @@ export type Emails = {
         bookings: { datetime: string; confirmationPage: string }[]
     }
 
-    // PLAY LAB
-    playLabBookingConfirmation: {
-        parentName: string
-        location: string
-        bookings: { time: string; details: string; confirmationPage: string }[]
-        isTermEnrolment: boolean
-        receiptUrl: string | undefined
-    }
-
-    playLabCancellation: {
-        parentName: string
-        location: string
-        booking: string
-        receiptUrl: string | undefined
-    }
-
     preschoolProgramBookingConfirmation: {
         parentName: string
         childName: string

@@ -7,7 +7,6 @@ import { AcuityClient } from '../acuity.client'
 
 import { checkInToCrm } from '@/features/holiday-programs/core/check-in-to-crm'
 import { processHolidayProgramRefund } from '@/features/holiday-programs/core/process-holiday-program-refund'
-import { processPlayLabRefund } from '@/features/play-lab/core/process-play-lab-refund'
 import { processPreschoolProgramV2Refund } from '@/features/preschool-program-v2/core/process-preschool-program-v2-refund'
 import { logError } from '@/integrations/observability/log-error'
 import { ZohoClient } from '@/integrations/zoho/zoho.client'
@@ -35,10 +34,6 @@ acuityWebhook.post('/acuity', async (req, resp) => {
                     await updateHolidayProgramZohoRow(data, { status: 'Cancelled' }).catch((error) => {
                         logError('error updating cancelled holiday program Zoho row', error, { data })
                     })
-                    resp.status(200).send()
-                    return
-                } else if (await isPlayLab(data.appointmentTypeID)) {
-                    await processPlayLabRefund(data)
                     resp.status(200).send()
                     return
                 } else if (isPreschoolProgramV2(data.appointmentTypeID)) {
@@ -100,12 +95,6 @@ function isPreschoolProgramV2(appointmentTypeId: string) {
         appointmentTypeId === AcuityConstants.AppointmentTypes.PRESCHOOL_PROGRAM.toString() ||
         appointmentTypeId === AcuityConstants.AppointmentTypes.TEST_PRESCHOOL_PROGRAM.toString()
     )
-}
-
-async function isPlayLab(appointmentTypeId: string) {
-    const acuity = await AcuityClient.getInstance()
-    const appointmentTypes = await acuity.getAppointmentTypes({ category: ['play-lab', 'play-lab-test'] })
-    return appointmentTypes.some((appointmentType) => appointmentType.id.toString() === appointmentTypeId)
 }
 
 async function updateHolidayProgramZohoRow(data: AcuityWebhookData, options: { status?: 'Booked' | 'Cancelled' } = {}) {

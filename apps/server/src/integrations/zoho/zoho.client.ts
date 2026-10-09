@@ -713,27 +713,6 @@ export class ZohoClient {
         return true
     }
 
-    async addPlayLabContact(
-        props: WithBaseProps<{
-            studio: StudioOrTest
-            childName: string
-            childBirthdayISO: string // ISO string,
-            optOutOfMarketing: boolean
-        }>
-    ) {
-        const { studio, childName, childBirthdayISO, ...baseProps } = props
-
-        return this.#addParentWithChildren(
-            {
-                service: 'Play Lab',
-                branch: capitalise(studio),
-                customer_type: 'B2C',
-                ...baseProps,
-            },
-            [{ childName, childBirthdayISO }]
-        )
-    }
-
     /**
      * Check if the provided program date matches the holiday program date in zoho.
      * If so, mark the customer as checked in.

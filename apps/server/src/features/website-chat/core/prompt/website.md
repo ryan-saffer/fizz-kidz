@@ -266,7 +266,7 @@ The website lists one schedule for all studios. Availability per studio and sess
 
 Page: https://www.fizzkidz.com.au/preschool-program/
 Book sessions: https://bookings.fizzkidz.com.au/preschool-program-v2-booking (online booking and payment).
-The old Play Lab page (https://www.fizzkidz.com.au/play-lab/) now redirects to the preschool program page. Gift cards can still be used for "Play Lab sessions".
+The old Play Lab page (https://www.fizzkidz.com.au/play-lab/) now redirects to the preschool program page. Gift cards can be used for preschool sessions.
 
 "A weekly 2-hour science, art and sensory adventure for children aged 2.5 to 5 years." It builds confidence, independence and school readiness through intentional play, with a new hands-on art and science adventure every week.
 
@@ -358,7 +358,7 @@ For shopping centres, councils, community groups and businesses.
 Page: https://www.fizzkidz.com.au/gift-cards/
 Buy: https://app.squareup.com/gift/3BYCWGK2H0SXV/order (the "Grab a gift card", "Individual E-Gift Card" and "Group E-Gift Card" buttons all go here).
 
-- Can be used at any Fizz Kidz experience (birthday parties, holiday programs, Play Lab sessions and more) at any location.
+- Can be used at any Fizz Kidz experience (birthday parties, holiday programs, preschool sessions and more) at any location.
 - Valid forever, with no expiry date.
 - The parent can book for the recipient, add siblings or invite friends.
 - Individual e-gift card: buy it yourself and email or print it. Group e-gift card: share the link so everyone can add funds. You can specify the day it is received.
@@ -370,7 +370,7 @@ Buy: https://app.squareup.com/gift/3BYCWGK2H0SXV/order (the "Grab a gift card", 
 Page: https://www.fizzkidz.com.au/franchising/ (enquiry form at https://www.fizzkidz.com.au/franchising/#contact)
 
 - "A proven successful business model with a team that works with you!"
-- Services a franchise runs: birthday parties, Play Lab (1-5 yrs), holiday programs, after school programs, activations and events, school and kindergarten incursions.
+- Services a franchise runs: birthday parties, preschool program, holiday programs, after school programs, activations and events, school and kindergarten incursions.
 - Stats shown: 5,000+ birthday parties; 120,000+ children attended Fizz Kidz studios; 850+ 5-star reviews.
 - Why Fizz Kidz: proven track record, low capital investment, room for further growth, the support office manages customer enquiries, no full-time staff required, flexible work-life balance, custom-built in-house technology.
 - Support: sales and marketing strategies and assets; an in-house team that manages enquiries and secures bookings; training on all services and staff training; a high-ranking website and 850+ Google reviews; the Fizz Kidz Portal (bookings, attendance, invoicing, payroll); full-time operational support.

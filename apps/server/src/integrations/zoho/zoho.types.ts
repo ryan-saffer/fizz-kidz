@@ -17,7 +17,6 @@ export type Service =
     | 'After School Program'
     | 'Activation / Event'
     | 'Incursion'
-    | 'Play Lab'
     | ''
 
 export type ZohoChild = {
