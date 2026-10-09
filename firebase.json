@@ -28,6 +28,13 @@
         "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
         "predeploy": ["sh ./apps/portal/predeploy.sh"]
     },
+    "firestore": {
+        "rules": "firestore.rules",
+        "indexes": "firestore.indexes.json"
+    },
+    "storage": {
+        "rules": "storage.rules"
+    },
     "emulators": {
         "functions": {
             "port": 5001
