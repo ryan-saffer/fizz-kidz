@@ -198,7 +198,8 @@ export const BookingFields: BookingKeys = {
 
 type PartyChildrenDisplayInput = Pick<BaseBooking, 'childName' | 'childAge' | 'children'>
 
-function possessiveName(name: string) {
+/** "Mia" -> "Mia's", "James" -> "James'" */
+export function possessiveName(name: string) {
     const trimmedName = name.trim()
     if (trimmedName.endsWith('s')) {
         return `${trimmedName}'`

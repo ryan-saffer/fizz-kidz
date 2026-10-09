@@ -6,7 +6,9 @@ import { DateTime } from 'luxon'
 import QRCode from 'qrcode'
 
 import type { Invitations, WithoutUid } from '@fizz-kidz/core'
-import { ObjectKeys, addOrdinalSuffix, getInvitationShareUrl, getStudioAddress } from '@fizz-kidz/core'
+import { ObjectKeys, getInvitationShareUrl, getStudioAddress } from '@fizz-kidz/core'
+
+import { formatInvitationBirthday } from './format-invitation-birthday'
 
 import type { CanvasRenderingContext2D, PNGStream } from 'canvas'
 
@@ -91,7 +93,7 @@ export class InvitationImageGenerator {
     #getContent(field: keyof InvitationCoordinates) {
         switch (field) {
             case 'childName': {
-                return this.#formatChildsName(this.#invitation.childName, this.#invitation.childAge)
+                return formatInvitationBirthday(this.#invitation.childName, this.#invitation.childAge)
             }
             case 'date': {
                 return DateTime.fromJSDate(this.#invitation.date, { zone: 'Australia/Melbourne' }).toFormat(
@@ -119,13 +121,6 @@ export class InvitationImageGenerator {
                 throw new Error(`Unhandled field when getting invitation content for field: '${exhaustiveCheck}'`)
             }
         }
-    }
-
-    #formatChildsName(name: string, age: string) {
-        if (name.endsWith('s')) {
-            return `${name}' ${addOrdinalSuffix(age)}`
-        }
-        return `${name}'s ${addOrdinalSuffix(age)}`
     }
 }
 
