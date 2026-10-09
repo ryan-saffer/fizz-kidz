@@ -11,6 +11,5 @@ export const WEBSITE_IMAGE_CATEGORIES = [
     'Locations',
     'Our team',
     'Parties',
-    'Play Lab',
     'Preschool Program',
 ] as const
