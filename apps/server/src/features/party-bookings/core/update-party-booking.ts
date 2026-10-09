@@ -3,7 +3,6 @@ import { DateTime } from 'luxon'
 import type { Booking } from '@fizz-kidz/core'
 import {
     capitalise,
-    getApplicationDomain,
     getInvitationEntryUrl,
     getStudioAddress,
     getPartyChildCapacityMessages,
@@ -73,32 +72,11 @@ export async function updatePartyBooking(input: { bookingId: string; booking: Bo
             zone: 'Australia/Melbourne',
         })
 
-        const startTime = `${bookingDateTime.toFormat('h:mm a')} - ${DateTime.fromJSDate(
-            getPartyEndDate(booking.dateTime, booking.partyLength),
-            {
-                zone: 'Australia/Melbourne',
-            }
-        ).toFormat('h:mm a')}`
         const updatedBookingSubject = `Party booking updated for ${booking.childName} - ${bookingDateTime.toFormat(
             "ccc d LLL 'at' h:mm a"
         )}`
 
-        const params = [
-            `childName=${encodeURIComponent(booking.childName)}`,
-            `childAge=${encodeURIComponent(booking.childAge)}`,
-            `date=${encodeURIComponent(booking.dateTime.toISOString())}`,
-            `time=${encodeURIComponent(startTime)}`,
-            `type=${encodeURIComponent(booking.type)}`,
-            `studio=${encodeURIComponent(booking.location)}`,
-            `address=${encodeURIComponent(booking.address)}`,
-            `rsvpName=${encodeURIComponent(booking.parentFirstName)}`,
-            `rsvpDate=${encodeURIComponent(bookingDateTime.minus({ days: 14 }).toISO())}`,
-            `rsvpNumber=${encodeURIComponent(booking.parentMobile)}`,
-        ]
-
-        const invitationsUrl = booking.useRsvpSystem
-            ? getInvitationEntryUrl(env, isUsingEmulator(), bookingId)
-            : `${getApplicationDomain(env, isUsingEmulator())}/invitations?${params.join('&')}`
+        const invitationsUrl = getInvitationEntryUrl(env, isUsingEmulator(), bookingId)
 
         await mailClient
             .sendEmail(
@@ -127,7 +105,6 @@ export async function updatePartyBooking(input: { bookingId: string; booking: Bo
                     includesFood: booking.includesFood,
                     canOrderCake: canOrderCake(booking.type, booking.location),
                     cakeFormUrl: getCakeFormUrl(bookingId),
-                    useRsvpSystem: booking.useRsvpSystem || false,
                 },
                 {
                     subject: updatedBookingSubject,

@@ -21,10 +21,6 @@
                 "destination": "/invitation.html"
             },
             {
-                "source": "/invitation/**",
-                "destination": "/invitation.html"
-            },
-            {
                 "source": "**",
                 "destination": "/index.html"
             }

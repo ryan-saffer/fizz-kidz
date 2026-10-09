@@ -72,7 +72,6 @@ const booking = {
     partyFormFilledIn: false,
     sendConfirmationEmail: true,
     oldPrices: false,
-    useRsvpSystem: true,
     dateTime: { toDate: () => new Date('2026-07-11T00:00:00.000Z') },
 } as unknown as WithId<FirestoreBooking>
 

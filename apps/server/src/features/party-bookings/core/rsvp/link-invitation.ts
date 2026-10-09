@@ -1,7 +1,7 @@
-import { getInvitationShareUrl, type InvitationsV2 } from '@fizz-kidz/core'
+import { getInvitationShareUrl, type Invitations } from '@fizz-kidz/core'
 
-import { deleteInvitationV2 } from './delete-invitation-v2'
-import { moveInvitation } from './move-invitation-v2'
+import { deleteInvitation } from './delete-invitation'
+import { moveInvitation } from './move-invitation'
 
 import { env } from '@/app/init/firebase'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
@@ -9,7 +9,7 @@ import { MixpanelClient } from '@/integrations/mixpanel/mixpanel.client'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 import { isUsingEmulator } from '@/shared/runtime/is-using-emulator'
 
-export async function linkInvitation(invitation: InvitationsV2.Invitation, distinctId: string) {
+export async function linkInvitation(invitation: Invitations.Invitation, distinctId: string) {
     invitation.date = new Date(invitation.date)
     invitation.rsvpDate = new Date(invitation.rsvpDate)
 
@@ -18,7 +18,7 @@ export async function linkInvitation(invitation: InvitationsV2.Invitation, disti
 
     // if booking already has an invitation, check who the owner is
     if (booking.invitationId) {
-        const existingInvitation = await DatabaseClient.getInvitationV2(booking.invitationId)
+        const existingInvitation = await DatabaseClient.getInvitation(booking.invitationId)
 
         // check if the user owns the existing invitation
         if (invitation.uid === existingInvitation.uid) {
@@ -27,13 +27,13 @@ export async function linkInvitation(invitation: InvitationsV2.Invitation, disti
             // because the invitation may have already been shared and therefore the new invitation must have the same id as the old invitation.
 
             // first delete the existing invitation
-            await deleteInvitationV2(booking.invitationId)
+            await deleteInvitation(booking.invitationId)
 
             // then move the new invitation to the old ones location
             await moveInvitation(booking.invitationId, invitation)
 
             const mixpanel = await MixpanelClient.getInstance()
-            await mixpanel.track('invitation-edited-v2', {
+            await mixpanel.track('invitation-edited', {
                 distinct_id: distinctId,
                 bookingId: invitation.bookingId,
                 invitationId: booking.invitationId,
@@ -73,7 +73,7 @@ export async function linkInvitation(invitation: InvitationsV2.Invitation, disti
 
         // tracking - only track in the case its the first time its being linked to a booking
         const mixpanel = await MixpanelClient.getInstance()
-        await mixpanel.track('invitation-generated-v2', {
+        await mixpanel.track('invitation-generated', {
             distinct_id: distinctId,
             invitationId: invitation.id,
             partyDate: invitation.date,

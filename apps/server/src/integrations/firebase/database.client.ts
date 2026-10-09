@@ -10,8 +10,7 @@ import type {
     FirestoreBooking,
     GoogleBusinessProfileReview,
     IncursionEvent,
-    Invitation,
-    InvitationsV2,
+    Invitations,
     InventoryCategory,
     InventoryItem,
     InventoryStockLevel,
@@ -36,8 +35,6 @@ import { FirestoreRefs, type Document } from './firestore.refs'
 import type { CreateEvent } from '@/features/events/core/create-event'
 import type { DocumentReference, Query } from 'firebase-admin/firestore'
 import type { DateTime } from 'luxon'
-
-import { midnight } from '@/shared/time/midnight'
 
 type CreateDocOptions<T> = {
     ref?: Document<T>
@@ -372,46 +369,21 @@ class Client {
         })
     }
 
-    createInvitation(ref: DocumentReference<Invitation>, date: Date) {
-        return this.#createDocument(
-            {
-                date,
-                claimedDiscountCode: [],
-            },
-            ref
-        )
+    async createInvitation(invitation: Invitations.Invitation) {
+        return this.#createDocument(invitation, (await FirestoreRefs.invitations()).doc(invitation.id))
     }
 
-    async createInvitationV2(invitation: InvitationsV2.Invitation) {
-        return this.#createDocument(invitation, (await FirestoreRefs.invitationsV2()).doc(invitation.id))
+    getInvitation(invitationId: string) {
+        return this.#getDocument(FirestoreRefs.invitation(invitationId))
     }
 
-    getInvitationV2(invitationId: string) {
-        return this.#getDocument(FirestoreRefs.invitationV2(invitationId))
-    }
-
-    async deleteInvitationV2(invitationId: string) {
-        return (await FirestoreRefs.invitationV2(invitationId)).delete()
+    async deleteInvitation(invitationId: string) {
+        return (await FirestoreRefs.invitation(invitationId)).delete()
     }
 
     async addRsvpToParty(bookingId: string, rsvp: WithoutId<Rsvp>) {
         const rsvpRef = (await FirestoreRefs.rsvps(bookingId)).doc()
         return this.#createDocument(rsvp, rsvpRef)
-    }
-
-    async addGuestToInvitation(person: Invitation['claimedDiscountCode'][number], invitationId: string) {
-        const ref = await FirestoreRefs.invitation(invitationId)
-        await ref.update({ claimedDiscountCode: FieldValue.arrayUnion({ name: person.name, email: person.email }) })
-    }
-
-    async getInvitationGuestsOnDay(date: DateTime) {
-        const start = midnight(date)
-        const end = start.plus({ days: 1 })
-
-        const ref = await FirestoreRefs.invitations()
-        const query = ref.where('date', '>=', start.toJSDate()).where('date', '<=', end.toJSDate())
-
-        return this.#getDocuments(query)
     }
 
     async createDiscountCode(discountCode: WithoutId<DiscountCode>) {

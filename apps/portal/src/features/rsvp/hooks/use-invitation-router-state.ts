@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import type { Invitations } from '@fizz-kidz/core'
 
 import { useRouterState } from '@shared/hooks/use-router-state'
 
@@ -13,8 +13,8 @@ import { hasRequiredState } from '../utils/has-required-state'
  *
  * @returns the invitation state
  */
-export function useInvitationRouterState(): Omit<InvitationsV2.Invitation, 'id' | 'uid' | 'invitation'> | null {
-    const state = useRouterState<Partial<InvitationsV2.Invitation>>()
+export function useInvitationRouterState(): Omit<Invitations.Invitation, 'id' | 'uid' | 'invitation'> | null {
+    const state = useRouterState<Partial<Invitations.Invitation>>()
 
     const navigate = useNavigate()
 

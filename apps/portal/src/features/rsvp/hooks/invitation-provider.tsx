@@ -1,4 +1,4 @@
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import type { Invitations } from '@fizz-kidz/core'
 
 import { InvitationContext } from './invitation.context'
 
@@ -8,7 +8,7 @@ export function InvitationProvider({
     invitation,
     children,
 }: {
-    invitation: InvitationsV2.Invitation
+    invitation: Invitations.Invitation
     children: ReactNode
 }) {
     return <InvitationContext.Provider value={invitation}>{children}</InvitationContext.Provider>

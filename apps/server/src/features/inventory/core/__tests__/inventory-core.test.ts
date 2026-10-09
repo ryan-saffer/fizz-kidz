@@ -157,7 +157,6 @@ function createBooking(overrides: Partial<Booking> = {}): Booking {
         sendConfirmationEmail: true,
         oldPrices: false,
         includesFood: true,
-        useRsvpSystem: undefined,
         invitationId: undefined,
         invitationOwnerUid: undefined,
         dateTime: now,

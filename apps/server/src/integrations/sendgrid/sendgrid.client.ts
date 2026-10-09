@@ -572,34 +572,6 @@ export class MailClient {
                     template: 'minimum_shift_length_report.html',
                     useMjml: false,
                 }
-            case 'createDiscountCode':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'bookings@fizzkidz.com.au',
-                        },
-                        subject: subject || 'Here is your unique discount code!',
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'discount_code.mjml',
-                    useMjml: true,
-                }
-            case 'invitationGuests':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'bookings@fizzkidz.com.au',
-                        },
-                        subject: subject || 'We hope you had fun at Fizz Kidz!',
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'guest_of_party.mjml',
-                    useMjml: true,
-                }
             case 'notContinuingNotification':
                 return {
                     emailInfo: {

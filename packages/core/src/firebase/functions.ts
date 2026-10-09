@@ -3,7 +3,6 @@ import type { IncursionForm, OnboardingForm, PaperFormResponse } from '../paperf
 export interface PubSubFunctions {
     background:
         | { name: 'sendIncursionForms' }
-        | { name: 'sendGuestsEmail' }
         | { name: 'sendCakeForms' }
         | { name: 'sendPartyFormReminderEmails' }
         | { name: 'sendPartyForms' }

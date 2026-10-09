@@ -109,6 +109,5 @@ export async function createPartyBooking(_booking: CreatePartyBooking) {
         type: booking.type,
         childAge: booking.childAge,
         date: booking.dateTime.toDate().toISOString(),
-        useRsvpSystem: booking.useRsvpSystem || false,
     })
 }

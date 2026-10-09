@@ -1,10 +1,6 @@
 import { publicProcedure, authenticatedProcedure, router } from '@/app/trpc/trpc'
 import { checkDiscountCode } from '@/features/discount-codes/core/check-discount-code'
 import { type CreateDiscountCode, createDiscountCode } from '@/features/discount-codes/core/create-discount-code'
-import {
-    type CreateDiscountCodeFromInvitation,
-    createDiscountCodeFromInvitation,
-} from '@/features/discount-codes/core/create-discount-code-from-invitation'
 import { checkGiftCardBalance } from '@/features/gift-cards/check-gift-card-balance'
 import {
     type HolidayProgramBookingProps,
@@ -20,9 +16,6 @@ export const holidayProgramsRouter = router({
     createDiscountCode: authenticatedProcedure
         .input((input: unknown) => input as CreateDiscountCode)
         .mutation(({ input }) => createDiscountCode(input)),
-    createDiscountCodeFromInvitation: publicProcedure
-        .input((input: unknown) => input as CreateDiscountCodeFromInvitation)
-        .mutation(({ input }) => createDiscountCodeFromInvitation(input)),
     checkDiscountCode: publicProcedure
         .input((input: unknown) => input as { code: string; customerEmail?: string })
         .mutation(({ input }) => checkDiscountCode(input.code, input.customerEmail)),

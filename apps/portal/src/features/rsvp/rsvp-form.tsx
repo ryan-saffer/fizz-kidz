@@ -8,7 +8,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import type { Invitations } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
 import { Button } from '@shared/components/ui/button'
@@ -103,7 +103,7 @@ export function RsvpForm({
     onComplete,
     mode = 'guest',
 }: {
-    invitation: InvitationsV2.Invitation
+    invitation: Invitations.Invitation
     onComplete: (status: 'attending' | 'not-attending') => void
     mode?: 'guest' | 'host'
 }) {

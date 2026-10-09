@@ -1,7 +1,7 @@
 import '/fonts/LilitaOne-Regular.ttf'
 import '/fonts/Gotham-Light.otf'
 import { Suspense, lazy } from 'react'
-import { Navigate, RouterProvider, createBrowserRouter, useParams, useSearchParams } from 'react-router-dom'
+import { Navigate, RouterProvider, createBrowserRouter, useSearchParams } from 'react-router-dom'
 
 import { NotFound404 } from '@app/root/404.js'
 import { Root } from '@app/root/root.js'
@@ -132,21 +132,6 @@ const HolidayCreationsPage = lazy(() =>
         default: module.HolidayCreationsPage,
     }))
 )
-const ChooseInvitationPage = lazy(() =>
-    import('../features/invitations/choose-invitation-page.js').then((module) => ({
-        default: module.ChooseInvitationPage,
-    }))
-)
-const CreateInvitationPage = lazy(() =>
-    import('../features/invitations/create-invitation-page.js').then((module) => ({
-        default: module.CreateInvitationPage,
-    }))
-)
-const ViewInvitationPage = lazy(() =>
-    import('../features/invitations/view-invitation-page.js').then((module) => ({
-        default: module.ViewInvitationPage,
-    }))
-)
 const DiscountCodesPage = lazy(() =>
     import('../features/discount-codes/discount-codes-page.js').then((module) => ({
         default: module.DiscountCodesPage,
@@ -207,17 +192,17 @@ const PosPage = lazy(() =>
         default: module.PosPage,
     }))
 )
-const CreateInvitationPageV2 = lazy(() =>
+const CreateInvitationPage = lazy(() =>
     import('../features/rsvp/pages/create-invitation-page.js').then((module) => ({
         default: module.CreateInvitationPage,
     }))
 )
-const DesignInvitationPageV2 = lazy(() =>
+const DesignInvitationPage = lazy(() =>
     import('../features/rsvp/pages/design-invitation-page.js').then((module) => ({
         default: module.DesignInvitationPage,
     }))
 )
-const ViewInvitationPageV2 = lazy(() =>
+const ViewInvitationPage = lazy(() =>
     import('../features/rsvp/pages/view-invitation-page.js').then((module) => ({ default: module.ViewInvitationPage }))
 )
 const RsvpPage = lazy(() =>
@@ -709,34 +694,13 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: 'invitations',
-                children: [
-                    {
-                        path: '',
-                        Component: () => (
-                            <Suspense fallback={<Loader fullScreen />}>
-                                <ChooseInvitationPage />
-                            </Suspense>
-                        ),
-                    },
-                    {
-                        path: 'create',
-                        Component: () => (
-                            <Suspense fallback={<Loader fullScreen />}>
-                                <CreateInvitationPage />
-                            </Suspense>
-                        ),
-                    },
-                ],
-            },
-            {
                 path: 'invite',
                 children: [
                     {
                         path: '',
                         Component: () => (
                             <Suspense fallback={<Loader fullScreen />}>
-                                <CreateInvitationPageV2 />
+                                <CreateInvitationPage />
                             </Suspense>
                         ),
                     },
@@ -744,7 +708,7 @@ const router = createBrowserRouter([
                         path: 'design',
                         Component: () => (
                             <Suspense fallback={<Loader fullScreen />}>
-                                <DesignInvitationPageV2 />
+                                <DesignInvitationPage />
                             </Suspense>
                         ),
                     },
@@ -752,7 +716,7 @@ const router = createBrowserRouter([
                         path: ':id',
                         Component: () => (
                             <Suspense fallback={<Loader fullScreen />}>
-                                <ViewInvitationPageV2 />
+                                <ViewInvitationPage />
                             </Suspense>
                         ),
                     },
@@ -763,57 +727,6 @@ const router = createBrowserRouter([
                                 <RsvpPage />
                             </Suspense>
                         ),
-                    },
-                ],
-            },
-            {
-                path: 'invitation',
-                children: [
-                    {
-                        path: ':id',
-                        Component: () => (
-                            <Suspense fallback={<Loader fullScreen />}>
-                                <ViewInvitationPage />
-                            </Suspense>
-                        ),
-                    },
-                ],
-            },
-            // FIXME: Delete after 2026-06-06 once all legacy /invitation/v2 links have expired.
-            {
-                path: 'invitation/v2',
-                children: [
-                    {
-                        path: '',
-                        Component: () => (
-                            <Navigate to={{ pathname: '/invite', search: window.location.search }} replace />
-                        ),
-                    },
-                    {
-                        path: 'design',
-                        Component: () => <Navigate to="/invite/design" replace />,
-                    },
-                    {
-                        path: ':id',
-                        Component: function LegacyInvitationRedirect() {
-                            const { id } = useParams()
-                            const [searchParams] = useSearchParams()
-                            const redirectTo = searchParams.size
-                                ? `/invite/${id}?${searchParams.toString()}`
-                                : `/invite/${id}`
-                            return <Navigate to={redirectTo} replace />
-                        },
-                    },
-                    {
-                        path: ':id/rsvp',
-                        Component: function LegacyInvitationRsvpRedirect() {
-                            const { id } = useParams()
-                            const [searchParams] = useSearchParams()
-                            const redirectTo = searchParams.size
-                                ? `/invite/${id}/rsvp?${searchParams.toString()}`
-                                : `/invite/${id}/rsvp`
-                            return <Navigate to={redirectTo} replace />
-                        },
                     },
                 ],
             },

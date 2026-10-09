@@ -13,7 +13,7 @@ export async function getInvitationDownloadUrl({
     invitationId: string
     distinctId: string
 }) {
-    const invitation = await DatabaseClient.getInvitationV2(invitationId)
+    const invitation = await DatabaseClient.getInvitation(invitationId)
 
     const booking = await DatabaseClient.getPartyBooking(invitation.bookingId)
     const storage = await StorageClient.getInstance()
@@ -41,7 +41,7 @@ export async function getInvitationDownloadUrl({
     }
 
     const mixpanel = await MixpanelClient.getInstance()
-    await mixpanel.track('invitation-download-requested-v2', {
+    await mixpanel.track('invitation-download-requested', {
         distinct_id: distinctId,
         bookingId: invitation.bookingId,
         invitationId: invitation.id,

@@ -153,32 +153,6 @@
                 </mj-text>
             </mj-column>
             {{/isMobile}}
-            {{^useRsvpSystem}}
-            <mj-column width="100%">
-                <mj-text font-weight="bold" padding-bottom="0"> Invitations </mj-text>
-
-                <mj-text
-                    >Kidz parties are special, and your guests should know that too! Use our invitation generator to
-                    create a personalised invitation to share with {{ childName }}'s friends.</mj-text
-                >
-
-                <mj-button
-                    css-class="btn-block"
-                    background-color="#4BC5D9"
-                    padding="20px"
-                    align="center"
-                    color="#ffffff"
-                    font-size="17px"
-                    font-weight="bold"
-                    href="{{ invitationsUrl }}"
-                    css-class="btn-block"
-                    border="1px #4BC5D9 solid"
-                >
-                    Create my personalised invitation ↗️
-                </mj-button>
-            </mj-column>
-            {{/useRsvpSystem}}
-            {{#useRsvpSystem}}
             <mj-column width="100%">
                 <mj-text font-weight="bold" padding-bottom="0"> Invitation & RSVP Tracking </mj-text>
 
@@ -202,7 +176,6 @@
                     Create my personalised invitation ↗️
                 </mj-button>
             </mj-column>
-            {{/useRsvpSystem}}
             {{^isMobile}}
             <mj-column width="100%">
                 <mj-text font-weight="bold" padding-bottom="0">Payment</mj-text>

@@ -1,4 +1,4 @@
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import type { Invitations } from '@fizz-kidz/core'
 
 import { projectId } from '@/app/init/firebase'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
@@ -9,7 +9,7 @@ import { StorageClient } from '@/integrations/firebase/storage.client'
  *
  * This function assumes that the destination is empty (ie the existing invitation has already been deleted)
  */
-export async function moveInvitation(newId: string, _invitation: InvitationsV2.Invitation) {
+export async function moveInvitation(newId: string, _invitation: Invitations.Invitation) {
     const { id: existingId, ...invitation } = _invitation
 
     // move it in storage
@@ -20,5 +20,5 @@ export async function moveInvitation(newId: string, _invitation: InvitationsV2.I
         .move(`invitations-v2/${newId}/invitation.png`)
 
     // move it in firestore (to move a firestore document you must create a new one..)
-    await DatabaseClient.createInvitationV2({ ...invitation, id: newId })
+    await DatabaseClient.createInvitation({ ...invitation, id: newId })
 }

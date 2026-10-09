@@ -2,7 +2,7 @@ import { doc, onSnapshot } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import type { InvitationsV2, Service } from '@fizz-kidz/core'
+import type { Invitations, Service } from '@fizz-kidz/core'
 
 import { timestampConverter } from '@integrations/firebase/converters'
 import useFirebase from '@integrations/firebase/use-firebase'
@@ -24,19 +24,19 @@ export function ViewInvitationPage() {
 
     const { id } = useParams()
 
-    const [invitation, setInvitation] = useState<Service<InvitationsV2.Invitation>>({ status: 'loading' })
+    const [invitation, setInvitation] = useState<Service<Invitations.Invitation>>({ status: 'loading' })
 
     const { role } = useOrg()
 
     useEffect(() => {
         const invitationRef = doc(firebase.db, 'invitations-v2', id as string).withConverter(
-            timestampConverter<InvitationsV2.Invitation>()
+            timestampConverter<Invitations.Invitation>()
         )
         const unsub = onSnapshot(
             invitationRef,
             (snap) => {
                 if (snap.exists()) {
-                    const invitation = snap.data() as InvitationsV2.Invitation
+                    const invitation = snap.data() as Invitations.Invitation
                     setInvitation({ status: 'loaded', result: invitation })
                 } else {
                     setInvitation({ status: 'error', error: 'not-found' })
@@ -51,7 +51,7 @@ export function ViewInvitationPage() {
         // oxlint-disable-next-line react/exhaustive-deps
     }, [id])
 
-    function canManageRsvps(invitation: InvitationsV2.Invitation) {
+    function canManageRsvps(invitation: Invitations.Invitation) {
         if (auth && auth.uid === invitation.uid) return true
         if (role !== null) return true
         return false
