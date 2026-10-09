@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+  	// CUSTOM FUNCTIONS
+    function isStaff() {
+    	return request.auth.uid != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountType == 'staff'
+    }
+
+    // ALLOW READ AND WRITE TO EVERYTHING IF USER IS A STAFF MEMBER
+    match /{document=**} {
+      allow read, write: if isStaff();
+    }
+
+    // USERS CAN READ THEIR OWN DOCUMENTS
+    match /users/{userId} {
+    	allow read: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ANYONE CAN READ HOLIDAY PROGRAMS TO ALLOW PARENTS TO CHECK IF THEIR ENROLMENT WORKED
+    match /holidayProgramBookings/{document=**} {
+    	allow read, write: if true
+    }
+
+    // INVITATIONS
+    match /invitations-v2/{invitationId} {
+    	// Allow read access if the request is for a specific document
+      allow get: if true;
+      // Invitation owners can edit their own invitations
+      allow write: if get(/databases/$(database)/documents/bookings/$(resource.data.bookingId)).data.invitationOwnerUid == request.auth.uid;
+    }
+    // But deny listing all documents in the collection
+    match /invitations-v2 {
+      allow list: if false;
+    }
+
+    // RSVPS
+    match /bookings/{bookingId}/rsvps/{document=**} {
+      // Allow read and write access if the authenticated user's UID matches the invitationOwnerUid field
+      allow read, write: if get(/databases/$(database)/documents/bookings/$(bookingId)).data.invitationOwnerUid == request.auth.uid;
+    }
+
+    // ALLOWS PUBLIC ACCESS TO CHECK OUR SCHEDULE
+    match /acuityCalendars/{document=**} {
+    	allow read, write: if true
+    }
+    match /scienceAppointments/{document=**} {
+    	allow read: if true;
+    }
+    match /afterSchoolEnrolments/{document=**} {
+    	allow read: if true;
+    }
+
+    // ACCESS TOKENS - blocked for everyone
+    match /accessTokens/{document=**} {
+    	allow read, write: if false
+    }
+  }
+}
