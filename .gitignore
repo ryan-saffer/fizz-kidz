@@ -23,3 +23,9 @@
 # mempalace
 entities.json
 mempalace.yaml
+
+# agent worktrees
+.claude/worktrees/
+
+# Claude Code personal settings (shared skills in .claude/skills are committed)
+.claude/settings.local.json

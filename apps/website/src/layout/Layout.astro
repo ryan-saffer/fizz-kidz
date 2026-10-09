@@ -8,15 +8,24 @@ import LoadingIndicator from "astro-loading-indicator/component";
 import { absoluteUrl, createSchemaGraph, type JsonLd } from "@/utils/seo";
 import lilitaFontUrl from "@fizz-kidz/ui/assets/fonts/LilitaOne.woff2?url";
 import googleTagManagerScript from "./google-tag-manager.js?raw";
+import { WebsiteChat } from "@/react-components/website-chat/website-chat";
 
 type Props = {
   title: string;
   description: string;
   noIndex?: boolean;
+  /** Lets the website chat mention the party package the visitor is looking at. */
+  chatPartyPackage?: string;
   schema?: JsonLd | JsonLd[];
 };
 
-const { title, description, noIndex = false, schema = [] } = Astro.props;
+const {
+  title,
+  description,
+  noIndex = false,
+  schema = [],
+  chatPartyPackage,
+} = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 const socialImage = absoluteUrl("/open-graph/home.jpg");
@@ -53,6 +62,11 @@ const schemaGraph = createSchemaGraph({
     <title>{title}</title>
     <meta name="description" content={description} />
     {noIndex && <meta name="robots" content="noindex, nofollow" />}
+    {
+      chatPartyPackage && (
+        <meta name="fizz-chat-party-package" content={chatPartyPackage} />
+      )
+    }
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
@@ -94,24 +108,23 @@ const schemaGraph = createSchemaGraph({
     <!-- End Google Tag Manager (noscript) -->
     <RecallBanner />
     <Header />
-    <aside aria-label="Malvern's 10th Birthday Party" class="bg-[#FFDC5D] print:hidden">
+    <aside aria-label="Holiday programs" class="bg-[#FFDC5D] print:hidden">
       <a
-        href="/locations/malvern/#open-day"
+        href="/holiday-programs/"
         class="group mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#542785] lg:justify-center lg:gap-6 lg:px-5 lg:py-4"
       >
         <div class="min-w-0 lg:flex lg:items-center lg:gap-6">
           <p class="font-lilita text-lg leading-tight text-[#542785] lg:text-2xl">
-            Malvern is turning 10!
+            Holiday programs are on!
           </p>
           <p class="mt-1 font-gotham text-xs leading-snug lg:mt-0 lg:text-base">
-            <span class="lg:hidden">Birthday Party &middot; Sat 26 Sept</span>
-            <span class="hidden lg:inline">Celebrate with us on <span class="whitespace-nowrap font-semibold">Saturday 26th September</span></span>
+            Come and join the fun
             <span class="mx-1" aria-hidden="true">&middot;</span>
-            <span class="whitespace-nowrap font-semibold">$15 per child</span>
+            <span class="whitespace-nowrap font-semibold">$54 per child</span>
           </p>
         </div>
         <span class="shrink-0 text-xl text-[#542785] lg:rounded-full lg:bg-[#9044E2] lg:px-5 lg:py-2 lg:font-lilita lg:text-base lg:text-white lg:transition-colors lg:group-hover:bg-[#7732BE]">
-          <span class="sr-only lg:not-sr-only">Explore sessions &amp; book</span>
+          <span class="sr-only lg:not-sr-only">Explore holiday programs</span>
           <span class="lg:ml-1" aria-hidden="true">&rarr;</span>
         </span>
       </a>
@@ -120,6 +133,7 @@ const schemaGraph = createSchemaGraph({
       <slot class="flex-1" />
     </div>
     <Footer />
+    <WebsiteChat client:only="react" transition:persist="website-chat" />
     <script>
       document.addEventListener("astro:page-load", () => {
         if (window.location.hash) {

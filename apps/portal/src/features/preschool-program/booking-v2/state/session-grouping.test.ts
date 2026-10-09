@@ -35,18 +35,46 @@ describe('preschool-v2 session grouping', () => {
         expect(groups[0].classes.map((klass) => klass.id)).toEqual([1, 2, 3])
     })
 
-    it('splits terms on a two-week-or-longer gap', () => {
+    it('keeps a single skipped week in the same term', () => {
+        // 27 Oct -> 10 Nov 2026 skips Melbourne Cup Day
+        const groups = groupClasses(
+            [
+                makeClass({ id: 1, time: '2026-10-26T22:30:00.000Z' }),
+                makeClass({ id: 2, time: '2026-11-09T22:30:00.000Z' }),
+                makeClass({ id: 3, time: '2026-11-16T22:30:00.000Z' }),
+            ],
+            new Date('2026-10-01T00:00:00.000Z')
+        )
+
+        expect(groups).toHaveLength(1)
+        expect(groups[0].classes.map((klass) => klass.id)).toEqual([1, 2, 3])
+    })
+
+    it('splits terms when two or more weeks are skipped', () => {
         const groups = groupClasses(
             [
                 makeClass({ id: 1, time: '2026-06-15T00:00:00.000Z' }),
-                makeClass({ id: 2, time: '2026-06-29T00:00:00.000Z' }),
+                makeClass({ id: 2, time: '2026-07-06T00:00:00.000Z' }),
             ],
             new Date('2026-06-01T00:00:00.000Z')
         )
 
-        expect(TERM_BOUNDARY_GAP_DAYS).toBe(14)
+        expect(TERM_BOUNDARY_GAP_DAYS).toBe(21)
         expect(groups).toHaveLength(2)
         expect(groups.map((group) => group.classes.map((klass) => klass.id))).toEqual([[1], [2]])
+    })
+
+    it('splits terms on a three-week gap across the daylight saving change', () => {
+        // 9:30am 15 Sep (AEST) -> 9:30am 6 Oct (AEDT) is 21 days less one hour
+        const groups = groupClasses(
+            [
+                makeClass({ id: 1, time: '2026-09-14T23:30:00.000Z' }),
+                makeClass({ id: 2, time: '2026-10-05T22:30:00.000Z' }),
+            ],
+            new Date('2026-09-01T00:00:00.000Z')
+        )
+
+        expect(groups).toHaveLength(2)
     })
 
     it('marks a term as not full-term bookable after the first session has passed', () => {

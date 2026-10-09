@@ -10,7 +10,7 @@ import { processPreschoolProgramV2Payment } from './process-preschool-program-v2
 
 import { throwCustomTrpcError, throwTrpcError } from '@/app/trpc/transport-errors'
 import { ClassFullError, CustomTrpcError, PaymentMethodInvalidError } from '@/app/trpc/trpc.errors'
-import { getDiscountCodeRedemptionKey } from '@/features/holiday-programs/core/discount-codes/check-discount-code'
+import { getDiscountCodeRedemptionKey } from '@/features/discount-codes/core/check-discount-code'
 import { AcuityClient } from '@/integrations/acuity/acuity.client'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 import { MixpanelClient } from '@/integrations/mixpanel/mixpanel.client'
@@ -18,9 +18,11 @@ import { logError } from '@/integrations/observability/log-error'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 import { getOrCreateCustomer } from '@/integrations/square/core/get-or-create-customer'
 import { getSquareError } from '@/integrations/square/square.client'
+import { ZohoClient } from '@/integrations/zoho/zoho.client'
 
 const TERM_LOOKBACK_MONTHS = 6
-const TERM_BOUNDARY_GAP_DAYS = 14
+/** Three weeks between classes, so one skipped week (e.g. a public holiday) stays in the same term. */
+const TERM_BOUNDARY_GAP_DAYS = 21
 
 export type BookPreschoolProgramV2Props = {
     idempotencyKey: string
@@ -220,6 +222,25 @@ export async function bookPreschoolProgramV2(input: BookPreschoolProgramV2Props)
         })
     }
 
+    // MARK: CRM
+    // Always add the parent, so the team can see every customer. Unticking the mailing list checkbox
+    // sets their marketing opt-out, which stops Zoho Campaigns from emailing them.
+    try {
+        await new ZohoClient().addPreschoolProgramContact({
+            firstName: input.parentFirstName,
+            lastName: input.parentLastName,
+            email: input.parentEmail,
+            mobile: input.parentPhone,
+            studio: AcuityUtilities.getStudioByCalendarId(sanitizedLineItems[0].calendarID),
+            children: input.children.map((child) => ({ childName: child.firstName, childBirthdayISO: child.dob })),
+            optOutOfMarketing: !input.joinMailingList,
+        })
+    } catch (err) {
+        logError(`unable to add preschool program booking to zoho with parent email '${input.parentEmail}'`, err, {
+            orderId: order.id,
+        })
+    }
+
     const discount = input.payment.discount
     if (discount) {
         try {
@@ -295,7 +316,7 @@ function isClassFullTermDiscounted(
     )
 }
 
-/** Finds the inferred term block containing a class using weekday/time grouping and two-week boundaries. */
+/** Finds the inferred term block containing a class using weekday/time grouping and three-week boundaries. */
 function getTermClassesForClass(klass: AcuityTypes.Api.Class, allClasses: AcuityTypes.Api.Class[]) {
     const groupKey = getClassGroupKey(klass)
     const groupClasses = allClasses
@@ -311,11 +332,14 @@ function getTermClassesForClass(klass: AcuityTypes.Api.Class, allClasses: Acuity
 
     groupClasses.forEach((candidate) => {
         const previousClass = currentTerm.at(-1)
+        // Rounded so a daylight saving change (a 23 or 25 hour day) doesn't move a class across the boundary.
         const gapDays = previousClass
-            ? DateTime.fromISO(candidate.time, { setZone: true }).diff(
-                  DateTime.fromISO(previousClass.time, { setZone: true }),
-                  'days'
-              ).days
+            ? Math.round(
+                  DateTime.fromISO(candidate.time, { setZone: true }).diff(
+                      DateTime.fromISO(previousClass.time, { setZone: true }),
+                      'days'
+                  ).days
+              )
             : 0
 
         if (previousClass && gapDays >= TERM_BOUNDARY_GAP_DAYS) {

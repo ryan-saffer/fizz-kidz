@@ -1,0 +1,111 @@
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+
+import type { WebsiteChat } from '@fizz-kidz/core'
+
+import { finishIdleWebsiteChats } from '../finish-idle-website-chats'
+
+const mocks = vi.hoisted(() => ({ getActive: vi.fn(), update: vi.fn(), track: vi.fn(), sendUnconfirmed: vi.fn() }))
+vi.mock('@/integrations/firebase/database.client', () => ({
+    DatabaseClient: { getActiveWebsiteChats: mocks.getActive, updateWebsiteChat: mocks.update },
+}))
+vi.mock('@/integrations/mixpanel/mixpanel.client', () => ({
+    MixpanelClient: { getInstance: async () => ({ track: mocks.track }) },
+}))
+vi.mock('../send-unconfirmed-enquiry', () => ({ sendUnconfirmedEnquiry: mocks.sendUnconfirmed }))
+vi.mock('@/integrations/observability/log-error', () => ({ logError: vi.fn() }))
+
+const now = new Date('2026-09-29T10:00:00+10:00')
+const minutesAgo = (minutes: number) => new Date(now.getTime() - minutes * 60 * 1000)
+
+function chat(overrides: Partial<WebsiteChat>): WebsiteChat {
+    return {
+        id: 'chat-idle-1',
+        status: 'active',
+        model: 'openai/gpt-5.4-nano',
+        entryPage: '/birthday-parties/',
+        startedAt: minutesAgo(50),
+        lastMessageAt: minutesAgo(40),
+        messageCount: 4,
+        enquirySubmitted: true,
+        messages: [],
+        ...overrides,
+    }
+}
+
+describe('finishIdleWebsiteChats', () => {
+    beforeEach(() => {
+        mocks.getActive.mockReset()
+        mocks.update.mockReset()
+        mocks.track.mockReset()
+        mocks.sendUnconfirmed.mockReset()
+    })
+
+    it('finishes idle chats and reports each once', async () => {
+        mocks.getActive.mockResolvedValue([chat({})])
+
+        await finishIdleWebsiteChats(now)
+
+        expect(mocks.update).toHaveBeenCalledWith('chat-idle-1', { status: 'finished', finishedAt: now })
+        expect(mocks.track).toHaveBeenCalledWith('website-chat-finished', {
+            distinct_id: 'chat-idle-1',
+            chatId: 'chat-idle-1',
+            messageCount: 4,
+            durationMinutes: 10,
+            outcome: 'enquiry',
+            model: 'openai/gpt-5.4-nano',
+            entryPage: '/birthday-parties/',
+            resumed: false,
+            // Started at 9:10am on a Tuesday, Melbourne time.
+            hourOfDay: 9,
+            dayOfWeek: 'Tuesday',
+            timeOfWeek: 'business hours',
+        })
+    })
+
+    it('marks a chat that finished before and then resumed', async () => {
+        mocks.getActive.mockResolvedValue([chat({ finishedAt: minutesAgo(600) })])
+
+        await finishIdleWebsiteChats(now)
+
+        expect(mocks.track).toHaveBeenCalledWith(
+            'website-chat-finished',
+            expect.objectContaining({ outcome: 'enquiry', resumed: true })
+        )
+    })
+
+    it('leaves chats that are still going', async () => {
+        mocks.getActive.mockResolvedValue([chat({ id: 'chat-recent', lastMessageAt: minutesAgo(5) })])
+
+        await finishIdleWebsiteChats(now)
+
+        expect(mocks.update).not.toHaveBeenCalled()
+        expect(mocks.track).not.toHaveBeenCalled()
+    })
+
+    it('sends an enquiry for a customer who left their details without sending one', async () => {
+        const idleChat = chat({ enquirySubmitted: false })
+        mocks.getActive.mockResolvedValue([idleChat])
+        mocks.sendUnconfirmed.mockResolvedValue(true)
+
+        await finishIdleWebsiteChats(now)
+
+        expect(mocks.sendUnconfirmed).toHaveBeenCalledWith(idleChat)
+        expect(mocks.update).toHaveBeenCalledWith('chat-idle-1', {
+            status: 'finished',
+            finishedAt: now,
+            enquirySubmitted: true,
+        })
+        expect(mocks.track).toHaveBeenCalledWith(
+            'website-chat-finished',
+            expect.objectContaining({ outcome: 'auto-enquiry' })
+        )
+    })
+
+    it("doesn't send another enquiry when Frankie already sent one", async () => {
+        mocks.getActive.mockResolvedValue([chat({})])
+
+        await finishIdleWebsiteChats(now)
+
+        expect(mocks.sendUnconfirmed).not.toHaveBeenCalled()
+    })
+})

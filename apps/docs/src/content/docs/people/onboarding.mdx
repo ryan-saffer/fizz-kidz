@@ -5,7 +5,7 @@ description: Understand what the Portal automates and which employee setup steps
 
 import { Aside } from '@astrojs/starlight/components'
 
-The Portal starts employee onboarding, tracks progress, and files submitted documents. It does **not** create the employee in Xero or Sling.
+The Portal starts employee onboarding, tracks progress, and files submitted documents. It does **not** create the employee in Xero or Sling. The **Onboarding** page is for admins only.
 
 ## What happens automatically
 
@@ -15,7 +15,7 @@ When **New Employee** is submitted in the Portal:
 2. The employee receives a welcome email with their onboarding form.
 3. The employee appears in the onboarding table as **Form Sent**.
 
-When the employee submits the form, their details and documents are filed in their staff folder in Google Drive. This includes the form summary, TFN and super declaration, WWCC evidence, and certificates. The signed contract also belongs in this folder.
+When the employee submits the form, their details and documents are filed in their staff folder in Google Drive. This includes the form summary, TFN and super declaration, WWCC evidence, and certificates. A contract signed before the form is submitted is filed here automatically.
 
 People is notified when filing is complete and the employee moves to **Requires Verification**.
 
@@ -29,8 +29,8 @@ People is notified when filing is complete and the employee moves to **Requires 
 | **Onboarding Complete**   | The manual setup checklist has been confirmed.                                                            | No further onboarding action is required.      |
 
 <Aside type="note" title="Contract and onboarding statuses are separate">
-  An employee can submit the onboarding form before signing the contract. Add the signed PDF to their staff folder when
-  it becomes available.
+  An employee can submit the onboarding form before signing the contract. In that case, add the signed PDF to their
+  staff folder when it becomes available.
 </Aside>
 
 ## Complete manual setup
@@ -47,4 +47,4 @@ See [Sling overview](/tools/sling/sling-overview) for account guardrails and [Pa
 
 ## WWCC applications
 
-If the employee supplied an application number rather than a card, their WWCC status remains **Applied**. Once the photo has been received and uploaded to their Drive folder, use **WWCC Provided** in the Portal. This updates the status and stops the recurring reminder for that employee.
+If the employee supplied an application number rather than a card, their WWCC status remains **Applied**. Once the photo has been received and uploaded to their Drive folder, use **WWCC Provided** in the Portal. This updates the status and stops the recurring reminder for that employee. People receives the WWCC reminder on the 1st and 15th of each month.

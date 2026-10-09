@@ -90,3 +90,35 @@ describe('holiday program confirmation email', () => {
         expect(document.body.textContent).toContain('Your holiday-program session has been rescheduled.')
     })
 })
+
+describe('website enquiry emails to the team', () => {
+    beforeEach(() => vi.clearAllMocks())
+
+    async function renderContactEnquiry(zohoUrl?: string) {
+        const client = await MailClient.getInstance()
+        await client.sendEmail('websiteContactFormToFizz', 'bookings@fizzkidz.com.au', {
+            zohoUrl,
+            name: 'Gia',
+            email: 'gia@example.com',
+            contactNumber: '0400111222',
+            service: 'Other',
+            enquiry: 'What activities are on this Friday?',
+        })
+        const { default: mail } = await import('@sendgrid/mail')
+        const payload = vi.mocked(mail.send).mock.calls[0][0]
+        if (Array.isArray(payload) || !payload.html) throw new Error('Expected a single HTML email')
+        return new DOMParser().parseFromString(payload.html, 'text/html')
+    }
+
+    it('links to the enquiry in Zoho', async () => {
+        const url = 'https://crm.zoho.com.au/crm/org7004062519/tab/Contacts/123'
+        const link = (await renderContactEnquiry(url)).querySelector('a')
+
+        expect(link?.textContent).toBe('Open this enquiry in Zoho')
+        expect(link?.getAttribute('href')).toBe(url)
+    })
+
+    it('leaves the link out when the Zoho sync failed', async () => {
+        expect((await renderContactEnquiry()).querySelector('a')).toBeNull()
+    })
+})

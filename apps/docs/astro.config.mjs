@@ -56,6 +56,10 @@ export default defineConfig({
                                     link: 'services/birthday-parties/rsvp',
                                 },
                                 {
+                                    label: 'Collect Payment',
+                                    link: 'services/birthday-parties/collect-payment',
+                                },
+                                {
                                     label: 'Changes and Problems',
                                     link: 'services/birthday-parties/changes-and-problems',
                                 },
@@ -155,6 +159,14 @@ export default defineConfig({
                             link: 'portal/bookings',
                         },
                         {
+                            label: 'Sell Products',
+                            link: 'portal/pos',
+                        },
+                        {
+                            label: 'Studio Square Terminal',
+                            link: 'portal/studio-terminal',
+                        },
+                        {
                             label: 'Attendance',
                             link: 'portal/attendance',
                         },
@@ -199,6 +211,10 @@ export default defineConfig({
                         {
                             label: 'Zoho CRM',
                             link: 'tools/zoho',
+                        },
+                        {
+                            label: 'Website Chat',
+                            link: 'tools/website-chat',
                         },
                         {
                             label: 'Google Calendars',

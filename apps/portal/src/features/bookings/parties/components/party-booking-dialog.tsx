@@ -1,0 +1,92 @@
+import { useMutation } from '@tanstack/react-query'
+import { DateTime } from 'luxon'
+import { useEffect } from 'react'
+
+import { getPartyBirthdayChildDisplay } from '@fizz-kidz/core'
+
+import { useDateNavigation } from '@features/bookings/date-navigation/date-navigation.hooks'
+import { useTRPC } from '@integrations/trpc'
+import { FullScreenHeader } from '@shared/components/full-screen-header'
+import { Sheet, SheetContent } from '@shared/components/ui/sheet'
+import { useWhileClosing } from '@shared/hooks/use-while-closing'
+
+import { usePartyBookingsStore } from '../state/party-bookings-store'
+import { DeletePartyBookingDialog } from './delete-party-booking-dialog'
+import { PartyBookingForm } from './form/party-booking-form'
+
+/**
+ * The full screen dialog for booking or editing a party, and the delete dialog. Mounted once on the bookings page,
+ * where it also gives the store its server calls.
+ */
+export function PartyBookingDialog() {
+    usePartyBookingServer()
+    const open = usePartyBookingsStore((state) => state.dialog !== null)
+    const dialog = useWhileClosing(usePartyBookingsStore((state) => state.dialog))
+    const closeDialog = usePartyBookingsStore((state) => state.closeDialog)
+
+    return (
+        <>
+            <Sheet open={open} onOpenChange={(open) => !open && closeDialog()}>
+                {/* slides up to fill the screen */}
+                <SheetContent
+                    side="bottom"
+                    className="twp top-0 flex h-[100dvh] flex-col gap-0 border-0 bg-slate-100 p-0 focus:outline-none"
+                    // focusing the first field would pop the keyboard up over the form on the iPads
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    hideCloseBtn
+                >
+                    {dialog && (
+                        <>
+                            <FullScreenHeader
+                                className="max-w-3xl"
+                                title={dialog.mode === 'create' ? 'New party booking' : 'Edit party booking'}
+                                description={
+                                    dialog.mode === 'create'
+                                        ? 'Book the party in. The parent fills in creations and food in their party form.'
+                                        : `${getPartyBirthdayChildDisplay(dialog.booking)} party · ${dialog.booking.parentFirstName} ${dialog.booking.parentLastName}`
+                                }
+                            />
+                            <PartyBookingForm
+                                key={dialog.mode === 'edit' ? dialog.booking.id : 'new'}
+                                dialog={dialog}
+                            />
+                        </>
+                    )}
+                </SheetContent>
+            </Sheet>
+            <DeletePartyBookingDialog />
+        </>
+    )
+}
+
+function usePartyBookingServer() {
+    const trpc = useTRPC()
+    const { setDate } = useDateNavigation()
+    const register = usePartyBookingsStore((state) => state.register)
+
+    const { mutateAsync: create } = useMutation(trpc.parties.createPartyBooking.mutationOptions())
+    const { mutateAsync: update } = useMutation(trpc.parties.updatePartyBooking.mutationOptions())
+    const { mutateAsync: remove } = useMutation(trpc.parties.deletePartyBooking.mutationOptions())
+    const { mutateAsync: getPartyFormUrl } = useMutation(trpc.parties.getPartyFormUrl.mutationOptions())
+    const { mutateAsync: getCakeFormUrl } = useMutation(trpc.parties.getCakeFormUrl.mutationOptions())
+    const { mutateAsync: resendConfirmationEmail } = useMutation(
+        trpc.parties.resendPartyBookingConfirmationEmail.mutationOptions()
+    )
+
+    useEffect(() => {
+        register({
+            server: { create, update, delete: remove, getPartyFormUrl, getCakeFormUrl, resendConfirmationEmail },
+            showDate: (date) => setDate(DateTime.fromJSDate(date)),
+        })
+    }, [register, create, update, remove, getPartyFormUrl, getCakeFormUrl, resendConfirmationEmail, setDate])
+
+    // the store outlives the page, so leaving it closes anything still open
+    useEffect(
+        () => () => {
+            const { closeDialog, cancelDelete } = usePartyBookingsStore.getState()
+            closeDialog()
+            cancelDelete()
+        },
+        []
+    )
+}

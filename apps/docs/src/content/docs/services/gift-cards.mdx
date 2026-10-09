@@ -6,12 +6,11 @@ description: Sell, redeem and troubleshoot Fizz Kidz Square gift cards across lo
 import { Aside, Badge, Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components'
 
 Fizz Kidz gift cards are managed by Square. The current sales channel is the shared Square e-gift card website, while
-redemptions can happen in supported online checkouts or at a studio Square point of sale.
+redemptions can happen in supported online checkouts or at the studio through the Portal.
 
 <Aside type="danger" title="Sell through the gift-card website only">
-  Do not create or sell a new gift card from a studio Square POS. Shared gift-card sales are routed through the Fizz
-  Kidz HQ Square setup so a card can later be redeemed at a different studio without the sale being credited to the
-  wrong franchisee.
+  Do not create or sell a new gift card at a studio. Shared gift-card sales are routed through the Fizz Kidz HQ Square
+  setup so a card can later be redeemed at a different studio without the sale being credited to the wrong franchisee.
 </Aside>
 
 <CardGrid>
@@ -22,8 +21,8 @@ redemptions can happen in supported online checkouts or at a studio Square point
   />
   <LinkCard
     title="Accept a gift card in studio"
-    description="Follow Square's current POS instructions."
-    href="https://squareup.com/help/au/en/article/8404-accept-gift-cards"
+    description="Take a gift card when charging a party or selling products."
+    href="/services/birthday-parties/collect-payment/#gift-cards-and-discounts"
   />
 </CardGrid>
 
@@ -48,13 +47,16 @@ redemptions can happen in supported online checkouts or at a studio Square point
     <p>
       <Badge text="Supported" variant="tip" size="small" />
       <br />
-      Holiday Programs, Play Lab and the current Preschool Program checkout include a Fizz Kidz gift-card field.
+      Holiday Programs and the current Preschool Program checkout include a Fizz Kidz gift-card field.
     </p>
   </Card>
   <Card title="At a studio" icon="approve-check-circle">
     <p>
-      Staff can accept the gift card in Square POS. This is the path for in-studio purchases and service balances where
-      the online checkout does not show a gift-card field.
+      <Badge text="Supported" variant="tip" size="small" />
+      <br />
+      Staff accept the gift card when charging a party with{' '}
+      <a href="/services/birthday-parties/collect-payment/">Collect payment</a> or selling kits with{' '}
+      <a href="/portal/pos/">Sell products</a>. The balance comes off first and the studio's terminal charges the rest.
     </p>
   </Card>
 </CardGrid>
@@ -93,13 +95,13 @@ ignored by the online balance lookup.
 
 ## Refunds and cancellations
 
-Eligible Holiday Program, Play Lab and current Preschool Program cancellations are refunded to the original payment
+Eligible Holiday Program and current Preschool Program cancellations are refunded to the original payment
 methods. This means a split gift-card/card purchase can also have a split refund.
 
 <Aside type="caution" title="Refunds return to the original payment methods">
   Refund eligibility depends on the service's cancellation rules. The automated program workflows generally do not
-  refund cancellations inside 48 hours, and Play Lab term enrolments have separate handling. A split gift-card/card
-  payment may also have a split refund, so do not promise that the full refund will appear on the bank card.
+  refund cancellations inside 48 hours. A split gift-card/card payment may also have a split refund, so do not promise
+  that the full refund will appear on the bank card.
 </Aside>
 
 For an in-studio manual refund, refund the original Square transaction using the approved Square process. Do not replace
@@ -148,7 +150,7 @@ reporting month, studio and disputed redeemed amount when contacting HQ.
 ## Quick team checklist
 
 - Sell new cards only through the official Square e-gift card link.
-- Redeem online only where the checkout displays a gift-card field; otherwise use Square POS.
+- Redeem online where the checkout displays a gift-card field, and at the studio with Collect payment or Sell products.
 - Share only the last four gift-card digits when asking for support.
 
 ## Video introduction

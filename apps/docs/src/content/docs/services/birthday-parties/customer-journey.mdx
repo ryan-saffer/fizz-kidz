@@ -22,8 +22,8 @@ the background. It is not a party-day run sheet.
     <p>
       <Badge text="Optional at booking" variant="caution" size="small" />
       <br />
-      If <strong>Send confirmation email</strong> was selected, the family receives the date, time, location, contact
-      details and useful links.
+      If <strong>Send the parent a confirmation email</strong> was selected, the family receives the date, time,
+      location, contact details and useful links.
     </p>
   </Card>
   <Card title="Cake and goodies" icon="add-document">
@@ -42,6 +42,12 @@ the background. It is not a party-day run sheet.
     <p>
       The Portal booking is updated, the customer receives a summary, and relevant studio or supplier emails are sent.
       Paid items go through Square first.
+    </p>
+  </Card>
+  <Card title="Party payment" icon="approve-check-circle">
+    <p>
+      Staff charge the party on the studio's Square Terminal once it's over, and the family is emailed an itemised
+      receipt.
     </p>
   </Card>
   <Card title="Review request" icon="star">
@@ -66,7 +72,7 @@ the background. It is not a party-day run sheet.
     <li>
       <h3>Family receives the booking confirmation</h3>
       <p>
-        This email is only automatic when <strong>Send confirmation email</strong> was selected.
+        This email is only automatic when <strong>Send the parent a confirmation email</strong> was selected.
       </p>
       <p>
         It includes the party date and time, address, food-package choice for studio parties, the relevant Fizz contact,
@@ -112,8 +118,8 @@ the background. It is not a party-day run sheet.
         the form is marked complete. If none of those items is selected, it goes straight to completion.
       </p>
       <p>
-        Food additions and the final party balance are not charged by this checkout. The Portal labels these additions
-        as unpaid; the party confirmation explains when the remaining balance is handled.
+        Food additions and the party itself aren't charged by this checkout. They're paid at the party, and the Portal
+        labels the additions <strong>Pay at party</strong>.
       </p>
     </li>
     <li>
@@ -126,6 +132,15 @@ the background. It is not a party-day run sheet.
       <p>
         Cake orders are emailed to <code>orders@birthdaycakeshop.com.au</code> with the studio copied. New take-home bag
         orders are also emailed to that supplier. The customer receives the appropriate Party Form or order summary.
+      </p>
+    </li>
+    <li>
+      <h3>Staff collect the party payment</h3>
+      <p>
+        Once the party is over, staff use <strong>Collect payment</strong> on the booking to charge the party and its
+        food additions on the studio's Square Terminal. The family receives an itemised receipt by email, and the
+        booking shows <strong>Paid</strong>. See{' '}
+        <a href="/services/birthday-parties/collect-payment/">Collect party payment</a>.
       </p>
     </li>
     <li>
@@ -145,6 +160,11 @@ the background. It is not a party-day run sheet.
     title="Manage bookings"
     description="Create, edit, resend links and delete bookings."
     href="/services/birthday-parties/manage-bookings/"
+  />
+  <LinkCard
+    title="Collect party payment"
+    description="Charge the party on the studio's Square Terminal once it's over."
+    href="/services/birthday-parties/collect-payment/"
   />
   <LinkCard
     title="Forms and add-ons"

@@ -334,6 +334,20 @@ export class MailClient {
                     useMjml: true,
                 }
             }
+            case 'partyPaymentReceipt':
+                return {
+                    emailInfo: {
+                        to,
+                        from: {
+                            name: 'Fizz Kidz',
+                            email: 'bookings@fizzkidz.com.au',
+                        },
+                        subject: subject || 'Your Fizz Kidz party receipt',
+                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
+                    },
+                    template: 'party_payment_receipt.mjml',
+                    useMjml: true,
+                }
             case 'partyBookingConfirmation':
                 return {
                     emailInfo: {
@@ -557,34 +571,6 @@ export class MailClient {
                     },
                     template: 'minimum_shift_length_report.html',
                     useMjml: false,
-                }
-            case 'createDiscountCode':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'bookings@fizzkidz.com.au',
-                        },
-                        subject: subject || 'Here is your unique discount code!',
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'discount_code.mjml',
-                    useMjml: true,
-                }
-            case 'invitationGuests':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'bookings@fizzkidz.com.au',
-                        },
-                        subject: subject || 'We hope you had fun at Fizz Kidz!',
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'guest_of_party.mjml',
-                    useMjml: true,
                 }
             case 'notContinuingNotification':
                 return {
@@ -851,34 +837,6 @@ export class MailClient {
                     },
                     template: 'take_home_bag_notification.html',
                     useMjml: false,
-                }
-            case 'playLabBookingConfirmation':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'bookings@fizzkidz.com.au',
-                        },
-                        subject: subject || 'Play Lab Booking Confirmation',
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'play_lab_confirmation.mjml',
-                    useMjml: true,
-                }
-            case 'playLabCancellation':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'bookings@fizzkidz.com.au',
-                        },
-                        subject: subject || 'Play Lab Session Cancelled',
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'play_lab_cancellation.mjml',
-                    useMjml: true,
                 }
             case 'preschoolProgramBookingConfirmation':
                 return {

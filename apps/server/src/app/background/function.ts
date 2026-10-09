@@ -9,7 +9,6 @@ import {
 } from '@/features/google-business-profile/core/google-business-profile-review-notification'
 import { cleanUpStaleInvitations } from '@/features/party-bookings/core/rsvp/clean-up-stale-invitations'
 import { sendCakeForms } from '@/features/party-bookings/core/send-cake-form'
-import { sendGuestsEmail } from '@/features/party-bookings/core/send-guests-email'
 import { sendPartyFeedbackEmails } from '@/features/party-bookings/core/send-party-feedback-emails'
 import { sendPartyFormReminderEmails } from '@/features/party-bookings/core/send-party-form-reminder-emails'
 import { sendPartyForms } from '@/features/party-bookings/core/send-party-forms'
@@ -17,6 +16,7 @@ import { updateSlingWages } from '@/features/staff/core/payroll/update-sling-wag
 import { remindAboutTurning18NextMonth } from '@/features/staff/core/remind-about-turning-18-next-month'
 import { remindAboutWwcc } from '@/features/staff/core/remind-about-wwcc'
 import { sendMinimumShiftLengthReport } from '@/features/staff/core/send-minimum-shift-length-report'
+import { finishIdleWebsiteChats } from '@/features/website-chat/core/finish-idle-website-chats'
 import { logError } from '@/integrations/observability/log-error'
 import { handlePaperformSubmission } from '@/integrations/paperforms/functions/pubsub/paperform.pubsub'
 
@@ -34,10 +34,6 @@ export const pubsub = onMessagePublished(
                 case 'sendIncursionForms':
                     // daily at 8:30am
                     await sendIncursionForms()
-                    break
-                case 'sendGuestsEmail':
-                    // daily at 12pm
-                    await sendGuestsEmail()
                     break
                 case 'sendPartyFormReminderEmails':
                     // 8:30am every Monday
@@ -78,6 +74,10 @@ export const pubsub = onMessagePublished(
                 case 'cleanUpStaleInvitations':
                     // 1st of each month at 3:00am
                     await cleanUpStaleInvitations()
+                    break
+                case 'finishWebsiteChats':
+                    // every 15 minutes
+                    await finishIdleWebsiteChats()
                     break
                 default:
                     assertNever(name)

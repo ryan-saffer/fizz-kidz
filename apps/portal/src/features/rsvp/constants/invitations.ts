@@ -1,48 +1,48 @@
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import type { Invitations } from '@fizz-kidz/core'
 
-export const INVITATIONS: { name: InvitationsV2.InvitationOption; src: string }[] = [
+export const INVITATIONS: { name: Invitations.InvitationOption; src: string }[] = [
     {
         name: 'Kpop Demon Hunters',
-        src: '/invitations-v2/Kpop-Demon-Hunters.png',
+        src: '/invitations/Kpop-Demon-Hunters.png',
     },
     {
         name: 'Freckles',
-        src: '/invitations-v2/Freckles.png',
+        src: '/invitations/Freckles.png',
     },
     {
         name: 'Stripes',
-        src: '/invitations-v2/Stripes.png',
+        src: '/invitations/Stripes.png',
     },
     {
         name: 'Dots',
-        src: '/invitations-v2/Dots.png',
+        src: '/invitations/Dots.png',
     },
     {
         name: 'Glitz & Glam',
-        src: '/invitations-v2/Glitz.png',
+        src: '/invitations/Glitz.png',
     },
     {
         name: 'Swiftie',
-        src: '/invitations-v2/Swift.png',
+        src: '/invitations/Swift.png',
     },
     {
         name: 'Unicorn',
-        src: '/invitations-v2/Unicorn.png',
+        src: '/invitations/Unicorn.png',
     },
     {
         name: 'Bubbling Fun',
-        src: '/invitations-v2/Bubbling.png',
+        src: '/invitations/Bubbling.png',
     },
     {
         name: 'Bubbling Blue Fun',
-        src: '/invitations-v2/Bubbling-Blue.png',
+        src: '/invitations/Bubbling-Blue.png',
     },
     {
         name: 'Slime Time',
-        src: '/invitations-v2/Slime.png',
+        src: '/invitations/Slime.png',
     },
     {
         name: 'Tie Dye',
-        src: '/invitations-v2/Tie-Dye.png',
+        src: '/invitations/Tie-Dye.png',
     },
 ]

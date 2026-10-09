@@ -8,8 +8,7 @@ import type {
     Employee,
     Event,
     FirestoreBooking,
-    Invitation,
-    InvitationsV2,
+    Invitations,
     Rsvp,
     PreschoolProgramEnrolment,
     ZohoAccessToken,
@@ -18,9 +17,12 @@ import type {
     InventoryStockLevel,
     InventoryStockMovement,
     InventoryUsageRule,
+    PartyFormSubmission,
     Studio,
+    WebsiteChat,
 } from '@fizz-kidz/core'
 
+import { timestampConverter } from './firestore-converters'
 import { FirestoreClient } from './firestore.client'
 
 import type { FieldValue, CollectionGroup } from 'firebase-admin/firestore'
@@ -97,21 +99,11 @@ export class FirestoreRefs {
     }
 
     static async invitations() {
-        return (await FirestoreClient.getInstance()).collection('invitations') as Collection<Invitation>
-    }
-
-    static async invitationsV2() {
-        return (await FirestoreClient.getInstance()).collection(
-            'invitations-v2'
-        ) as Collection<InvitationsV2.Invitation>
+        return (await FirestoreClient.getInstance()).collection('invitations-v2') as Collection<Invitations.Invitation>
     }
 
     static async invitation(id: string) {
         return (await this.invitations()).doc(id)
-    }
-
-    static async invitationV2(id: string) {
-        return (await this.invitationsV2()).doc(id)
     }
 
     static async rsvps(bookingId: string) {
@@ -171,6 +163,26 @@ export class FirestoreRefs {
 
     static async partyFormSubmissionProcessingDoc(submissionId: string) {
         return (await this.partyFormSubmissionProcessing()).doc(submissionId)
+    }
+
+    static async partyFormSubmissions() {
+        return (await FirestoreClient.getInstance()).collection(
+            'partyFormSubmissions'
+        ) as Collection<PartyFormSubmission>
+    }
+
+    static async partyFormSubmission(submissionId: string) {
+        return (await this.partyFormSubmissions()).doc(submissionId)
+    }
+
+    static async websiteChats() {
+        return (await FirestoreClient.getInstance())
+            .collection('websiteChats')
+            .withConverter(timestampConverter) as Collection<WebsiteChat>
+    }
+
+    static async websiteChat(id: string) {
+        return (await this.websiteChats()).doc(id)
     }
 
     static async googleBusinessProfileReviews() {

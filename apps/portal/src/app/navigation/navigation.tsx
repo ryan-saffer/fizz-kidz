@@ -10,9 +10,9 @@ import { getOrgName } from '@shared/lib/studio-utils'
 import type { MouseEvent } from 'react'
 
 export const Navigation = () => {
-    const { hasPermission, currentOrg } = useOrg()
+    const { hasPermission, currentOrg, role } = useOrg()
     const auth = useAuth()
-    const navigationSections = getDashboardNavigationSections({ currentOrg, hasPermission })
+    const navigationSections = getDashboardNavigationSections({ currentOrg, role, hasPermission })
 
     return (
         <div className="relative min-h-full px-4 py-6 sm:px-6 sm:py-8">

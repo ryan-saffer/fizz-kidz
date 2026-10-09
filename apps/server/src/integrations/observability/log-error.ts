@@ -3,7 +3,8 @@ import { logger } from 'firebase-functions/v2'
 
 export function logError(message: string, error?: unknown, additionalInfo: object = {}) {
     const hasAdditionalInfo = Object.keys(additionalInfo).length !== 0
-    Sentry.captureException(error)
+    if (error === undefined) Sentry.captureMessage(message, 'error')
+    else Sentry.captureException(error)
     if (error) {
         if (error instanceof Error) {
             logger.error(

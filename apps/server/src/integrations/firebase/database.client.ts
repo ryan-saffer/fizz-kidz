@@ -10,13 +10,14 @@ import type {
     FirestoreBooking,
     GoogleBusinessProfileReview,
     IncursionEvent,
-    Invitation,
-    InvitationsV2,
+    Invitations,
     InventoryCategory,
     InventoryItem,
     InventoryStockLevel,
     InventoryStockMovement,
     InventoryUsageRule,
+    PartyFormSubmission,
+    PartyPayment,
     PreschoolProgramEnrolment,
     RecursivePartial,
     Rsvp,
@@ -24,16 +25,16 @@ import type {
     StudioOrMaster,
     WithoutId,
     DiscountCodeRedemption,
+    WebsiteChat,
 } from '@fizz-kidz/core'
 
+import { DocumentNotFoundError } from './document-not-found-error'
 import { FirestoreClient } from './firestore.client'
 import { FirestoreRefs, type Document } from './firestore.refs'
 
 import type { CreateEvent } from '@/features/events/core/create-event'
 import type { DocumentReference, Query } from 'firebase-admin/firestore'
 import type { DateTime } from 'luxon'
-
-import { midnight } from '@/shared/time/midnight'
 
 type CreateDocOptions<T> = {
     ref?: Document<T>
@@ -89,7 +90,7 @@ class Client {
         if (data) {
             return this.#convertTimestamps<T>(data)
         } else {
-            throw new Error(`Cannot find document at path '${ref.path}' with id '${ref.id}'`)
+            throw new DocumentNotFoundError(ref.path, ref.id)
         }
     }
 
@@ -152,6 +153,21 @@ class Client {
         return this.#updateDocument(FirestoreRefs.partyBooking(bookingId), booking)
     }
 
+    /**
+     * Records a party's payment unless that order is already recorded. It's a transaction so the terminal webhook and
+     * the iPad checking at the same moment only record (and email) it once.
+     */
+    async recordPartyPayment(bookingId: string, payment: PartyPayment) {
+        const firestore = await FirestoreClient.getInstance()
+        const ref = await FirestoreRefs.partyBooking(bookingId)
+        return firestore.runTransaction(async (tx) => {
+            const previous = (await tx.get(ref)).data()?.payment
+            if (previous?.squareOrderId === payment.squareOrderId) return { recorded: false as const }
+            tx.update(ref, { payment })
+            return { recorded: true as const, replacedOrderId: previous?.squareOrderId ?? null }
+        })
+    }
+
     async getPartyBookingsForCapacityReport(input: { startDate: Date; endDate: Date; studio: StudioOrMaster }) {
         const partiesRef = await FirestoreRefs.partyBookings()
         let partiesQuery = partiesRef.where('dateTime', '>=', input.startDate).where('dateTime', '<', input.endDate)
@@ -161,7 +177,7 @@ class Client {
         }
 
         const snap = await partiesQuery.get()
-        return snap.docs.map((doc) => doc.data()).filter((booking) => booking.type === 'studio')
+        return snap.docs.map((doc) => doc.data())
     }
 
     async listPartyBookingsForInventoryShoppingList(input: { startDate: Date; endDate: Date; location?: Studio }) {
@@ -353,46 +369,21 @@ class Client {
         })
     }
 
-    createInvitation(ref: DocumentReference<Invitation>, date: Date) {
-        return this.#createDocument(
-            {
-                date,
-                claimedDiscountCode: [],
-            },
-            ref
-        )
+    async createInvitation(invitation: Invitations.Invitation) {
+        return this.#createDocument(invitation, (await FirestoreRefs.invitations()).doc(invitation.id))
     }
 
-    async createInvitationV2(invitation: InvitationsV2.Invitation) {
-        return this.#createDocument(invitation, (await FirestoreRefs.invitationsV2()).doc(invitation.id))
+    getInvitation(invitationId: string) {
+        return this.#getDocument(FirestoreRefs.invitation(invitationId))
     }
 
-    getInvitationV2(invitationId: string) {
-        return this.#getDocument(FirestoreRefs.invitationV2(invitationId))
-    }
-
-    async deleteInvitationV2(invitationId: string) {
-        return (await FirestoreRefs.invitationV2(invitationId)).delete()
+    async deleteInvitation(invitationId: string) {
+        return (await FirestoreRefs.invitation(invitationId)).delete()
     }
 
     async addRsvpToParty(bookingId: string, rsvp: WithoutId<Rsvp>) {
         const rsvpRef = (await FirestoreRefs.rsvps(bookingId)).doc()
         return this.#createDocument(rsvp, rsvpRef)
-    }
-
-    async addGuestToInvitation(person: Invitation['claimedDiscountCode'][number], invitationId: string) {
-        const ref = await FirestoreRefs.invitation(invitationId)
-        await ref.update({ claimedDiscountCode: FieldValue.arrayUnion({ name: person.name, email: person.email }) })
-    }
-
-    async getInvitationGuestsOnDay(date: DateTime) {
-        const start = midnight(date)
-        const end = start.plus({ days: 1 })
-
-        const ref = await FirestoreRefs.invitations()
-        const query = ref.where('date', '>=', start.toJSDate()).where('date', '<=', end.toJSDate())
-
-        return this.#getDocuments(query)
     }
 
     async createDiscountCode(discountCode: WithoutId<DiscountCode>) {
@@ -414,8 +405,13 @@ class Client {
         }
     }
 
-    async createDiscountCodeRedemption(discountCodeRedemption: WithoutId<DiscountCodeRedemption>) {
-        return this.#createDocument(discountCodeRedemption, (await FirestoreRefs.discountCodeRedemptions()).doc())
+    async createDiscountCodeRedemption(discountCodeRedemption: WithoutId<DiscountCodeRedemption>, id?: string) {
+        const collection = await FirestoreRefs.discountCodeRedemptions()
+        return this.#createDocument(discountCodeRedemption, id ? collection.doc(id) : collection.doc())
+    }
+
+    async hasDiscountCodeRedemption(id: string) {
+        return (await (await FirestoreRefs.discountCodeRedemptions()).doc(id).get()).exists
     }
 
     async getDiscountCodeRedemptions(redemptionKey: string) {
@@ -464,6 +460,19 @@ class Client {
 
     setZohoAccessToken(accessToken: string) {
         return this.#updateDocument(FirestoreRefs.zohoAccessToken(), { accessToken, isRefreshing: false })
+    }
+
+    async createPartyFormSubmission(submissionId: string, submission: WithoutId<PartyFormSubmission>) {
+        return this.#createDocument(submission, await FirestoreRefs.partyFormSubmission(submissionId))
+    }
+
+    /** Undefined when no submission has been saved with this id yet. */
+    async getPartyFormSubmission(submissionId: string) {
+        return (await (await FirestoreRefs.partyFormSubmission(submissionId)).get()).data()
+    }
+
+    markPartyFormSubmissionApplied(submissionId: string) {
+        return this.#updateDocument(FirestoreRefs.partyFormSubmission(submissionId), { bookingApplied: true })
     }
 
     async claimPartyFormSubmissionProcessing(submissionId: string, bookingId: string) {
@@ -535,6 +544,36 @@ class Client {
     async createPaymentIdempotencyKey(key: string) {
         const ref = await FirestoreRefs.paymentIdempotencyKey(key)
         return ref.create({ createdAt: FieldValue.serverTimestamp() })
+    }
+
+    async getWebsiteChat(id: string) {
+        const snapshot = await (await FirestoreRefs.websiteChat(id)).get()
+        return snapshot.exists ? snapshot.data() : undefined
+    }
+
+    async setWebsiteChat(chat: WebsiteChat) {
+        return (await FirestoreRefs.websiteChat(chat.id)).set(chat)
+    }
+
+    async listWebsiteChats() {
+        const snapshot = await (await FirestoreRefs.websiteChats()).orderBy('startedAt', 'desc').get()
+        return snapshot.docs.map((doc) => doc.data())
+    }
+
+    async deleteWebsiteChats(ids: string[]) {
+        const firestore = await FirestoreClient.getInstance()
+        const batch = firestore.batch()
+        for (const id of ids) batch.delete(await FirestoreRefs.websiteChat(id))
+        await batch.commit()
+    }
+
+    async getActiveWebsiteChats() {
+        const snapshot = await (await FirestoreRefs.websiteChats()).where('status', '==', 'active').get()
+        return snapshot.docs.map((doc) => doc.data())
+    }
+
+    async updateWebsiteChat(id: string, chat: Partial<WebsiteChat>) {
+        return (await FirestoreRefs.websiteChat(id)).update(chat)
     }
 
     async upsertGoogleBusinessProfileReviews(reviews: GoogleBusinessProfileReview[]) {

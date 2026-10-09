@@ -12,7 +12,7 @@ import {
 
 import type { PaperformSubmission } from '@/integrations/paperforms/paperform.client'
 
-const PAPERFORM_CREATION_FIELDS = [
+export const PAPERFORM_CREATION_FIELDS = [
     { mobile: 'glam_creations_mobile', packageKey: 'glam', studio: 'glam_creations' },
     { mobile: 'science_creations_mobile', packageKey: 'science', studio: 'science_creations' },
     { mobile: 'slime_creations_mobile', packageKey: 'slime', studio: 'slime_creations' },

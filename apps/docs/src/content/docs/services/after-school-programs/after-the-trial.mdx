@@ -1,12 +1,12 @@
 ---
 title: After the trial
-description: How continuation choices move from email back into the Portal after a free trial.
+description: How families tell Fizz Kidz whether they are continuing after a free trial, and what staff do next.
 ---
 
 import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components'
 
-The continuation step is started by staff. From the after-school invoicing view, staff select the relevant enrolments
-and send an email asking each family whether their child will continue for the term.
+Staff start the continuation step from **After School Program Invoicing**. Select the enrolments, then choose
+**Action** > **Send Enrolment Email** to ask each family whether their child will continue for the term.
 
 <Steps>
   <ol>
@@ -15,22 +15,22 @@ and send an email asking each family whether their child will continue for the t
         Staff send the continuation email <Badge text="Manual start" variant="note" size="small" />
       </h3>
       <p>
-        The email includes the child, program, current term total, and separate links for continuing or not continuing.
-        The Portal shows that the continuation email has been sent.
+        The email includes the child, program, term total, and separate links for continuing or not continuing. The{' '}
+        <strong>Enrolment Email Sent</strong> column changes to <strong>YES</strong>.
       </p>
     </li>
     <li>
       <h3>The family chooses yes or no</h3>
       <p>
-        Opening either link updates the child's continuation choice on the Portal enrolment. The invoicing list then
-        shows <strong>YES</strong>, <strong>NO</strong>, or <strong>UNKNOWN</strong>.
+        Opening either link records the family's choice. The <strong>Continuing?</strong> column then shows{' '}
+        <strong>YES</strong>, <strong>NO</strong>, or <strong>UNKNOWN</strong>.
       </p>
     </li>
     <li>
       <h3>Staff complete the matching action</h3>
       <p>
-        A yes response is ready for a Square invoice. A no response sends a notification to the bookings team and must
-        still be followed by the Portal unenrolment action.
+        For a yes, use <strong>Action</strong> &gt; <strong>Send Invoice</strong>. For a no, the bookings team is
+        alerted, and staff still use <strong>Action</strong> &gt; <strong>Unenroll From Term</strong>.
       </p>
     </li>
   </ol>
@@ -38,35 +38,40 @@ and send an email asking each family whether their child will continue for the t
 
 <CardGrid>
   <Card title="YES: continuing" icon="approve-check-circle">
-    The family sees confirmation that their term place is confirmed and that an invoice will follow. Their choice alone
-    does not send the invoice; staff do that from the invoicing view.
+    The family sees that their term place is confirmed and that an invoice will follow. Their choice alone does not send
+    the invoice; staff send it with **Send Invoice**.
   </Card>
   <Card title="NO: not continuing" icon="information">
-    The Portal records the choice and alerts the bookings team. Check-in screens show the child as not continuing, but
-    the Acuity appointments still exist until staff use the full unenrolment action.
+    The Portal records the choice and alerts the bookings team. Check-in shows the child as not continuing, but they
+    stay booked into the term until staff use **Unenroll From Term**.
   </Card>
   <Card title="UNKNOWN: no choice yet" icon="warning">
     The family has not selected yes or no. Staff decide whether to send another continuation email or contact them
-    manually.
+    directly.
   </Card>
 </CardGrid>
 
+Sending an invoice also sets **Continuing?** and **Enrolment Email Sent** to **YES**, even if the family never answered
+the email. Staff can also record **Not Continuing With Term** from the check-in **More** menu, which alerts the bookings
+team in the same way.
+
 <Aside type="caution" title="A no response is not the final cancellation">
-  Recording <strong>not continuing</strong> does not cancel the child's Acuity appointments, void an unpaid invoice, or
-  make the Portal enrolment inactive. Use the Portal's <strong>Unenrol</strong> action to complete those changes.
+  Recording <strong>not continuing</strong> does not cancel the child's classes, void an unpaid invoice, or remove the
+  enrolment from the active lists. Use <strong>Unenroll From Term</strong> to complete those changes.
 </Aside>
 
 ## Completing an unenrolment
 
-The Portal unenrolment action:
+**Unenroll From Term**:
 
-- Cancels every linked after-school appointment in Acuity.
-- Cancels the linked Square invoice when it is still cancellable.
-- Marks the Portal enrolment inactive so it leaves active check-in and invoicing lists.
+- Cancels the child's remaining after-school classes.
+- Cancels the unpaid invoice when it is still cancellable.
+- Removes the enrolment from the active check-in and invoicing lists.
 - Optionally sends the family an unenrolment confirmation email.
 
-Paid invoices are not refunded by this action. If a refund is appropriate, it must be handled separately in Square and
-will continue to appear as paid in the Portal. See [Invoicing](/services/after-school-programs/invoicing/) for invoice
-statuses and refund implications.
+Paid invoices are not refunded by this action. If a refund is appropriate, make it separately in Square. A partial
+refund still shows as **PAID**, while a full refund shows as **UNPAID** and the parent portal offers **Pay Now**. Don't
+send a new invoice in that case; record the child and program and report it. See
+[Invoicing](/services/after-school-programs/invoicing/) for invoice statuses.
 
 For the earlier steps, see [Enrolments and waitlists](/services/after-school-programs/enrolments-and-waitlists/).

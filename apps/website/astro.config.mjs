@@ -52,7 +52,6 @@ export default defineConfig({
         'in-studio-after-school-art-program/': '/after-school-programs/art-and-makers-program/',
         'school-science': '/in-schools/after-school-programs/',
         'school-science-incursions': '/in-schools/incursions/',
-        team: '/our-team/',
         'terms-and-conditions': '/policies/',
         'book-a-party': '/birthday-parties/book-a-party/',
         'privacy-policy': '/policies/#privacy',

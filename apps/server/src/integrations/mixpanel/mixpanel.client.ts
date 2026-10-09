@@ -3,13 +3,13 @@ import { logger } from 'firebase-functions/v2'
 import type {
     ContactFormLocationOption,
     ContactFormServiceOption,
-    InvitationOption,
-    InvitationsV2,
+    Invitations,
     ReferenceOption,
     WebsiteFormId,
 } from '@fizz-kidz/core'
 import { type ScienceModule, type Studio, type StudioOrTest } from '@fizz-kidz/core'
 
+import type { TimeOfWeekProperties } from './time-of-week-properties'
 import type { ClientStatus } from '@/shared/lazy-client/client-status'
 import type { Mixpanel } from 'mixpanel'
 
@@ -57,44 +57,39 @@ export class MixpanelClient {
 }
 
 export type MixpanelEvent = {
+    'invitation-preview-generated': {
+        distinct_id: string
+        bookingId: string
+        invitationId: string
+        partyDate: Date
+        invitation: Invitations.InvitationOption
+        parentName: string
+        parentEmail: string
+    }
+    'invitation-download-requested': {
+        distinct_id: string
+        bookingId: string
+        invitationId: string
+        partyDate: Date
+        invitation: Invitations.InvitationOption
+        parentName: string
+        parentEmail: string
+    }
+    'invitation-edited': {
+        distinct_id: string
+        bookingId: string
+        invitationId: string
+        partyDate: Date
+        invitation: Invitations.InvitationOption
+        parentName: string
+        parentEmail: string
+    }
     'invitation-generated': {
-        invitationId: string
-        partyDate: Date
-        invitation: InvitationOption
-    }
-    'invitation-preview-generated-v2': {
         distinct_id: string
         bookingId: string
         invitationId: string
         partyDate: Date
-        invitation: InvitationsV2.InvitationOption
-        parentName: string
-        parentEmail: string
-    }
-    'invitation-download-requested-v2': {
-        distinct_id: string
-        bookingId: string
-        invitationId: string
-        partyDate: Date
-        invitation: InvitationsV2.InvitationOption
-        parentName: string
-        parentEmail: string
-    }
-    'invitation-edited-v2': {
-        distinct_id: string
-        bookingId: string
-        invitationId: string
-        partyDate: Date
-        invitation: InvitationsV2.InvitationOption
-        parentName: string
-        parentEmail: string
-    }
-    'invitation-generated-v2': {
-        distinct_id: string
-        bookingId: string
-        invitationId: string
-        partyDate: Date
-        invitation: InvitationsV2.InvitationOption
+        invitation: Invitations.InvitationOption
         parentName: string
         parentEmail: string
     }
@@ -117,21 +112,11 @@ export type MixpanelEvent = {
         parentName: string
         numberOfChildren: number
     }
-    'invitation-coupon-signup': {
-        distinct_id: string
-        invitationId: string
-        view: // used the sidebar on desktop
-            | 'sidebar'
-            // used the mobile drawer
-            | 'drawer'
-            // used the section just sitting under the invite on mobile (no drawer)
-            | 'scroll'
-    }
     'holiday-program-website-discount': {
         distinct_id: string
         name: string
     }
-    'website-enquiry': {
+    'website-enquiry': TimeOfWeekProperties & {
         distinct_id: string
         form: WebsiteFormId
         service?: ContactFormServiceOption
@@ -139,6 +124,18 @@ export type MixpanelEvent = {
         reference?: ReferenceOption
         referenceOther?: string
         partyTheme?: string
+    }
+    // The time of week is when the chat started.
+    'website-chat-finished': TimeOfWeekProperties & {
+        distinct_id: string
+        chatId: string
+        messageCount: number
+        durationMinutes: number
+        // auto-enquiry: sent after the customer left without confirming (see sendUnconfirmedEnquiry).
+        outcome: 'enquiry' | 'auto-enquiry' | 'none'
+        model: string
+        entryPage: string | null
+        resumed: boolean
     }
     'google-business-profile-review': {
         distinct_id: string
@@ -197,7 +194,6 @@ export type MixpanelEvent = {
         type: 'studio' | 'mobile'
         childAge: string
         date: string // ISO
-        useRsvpSystem: boolean
     }
     'birthday-party-form-completed': {
         distinct_id: string
@@ -268,35 +264,18 @@ export type MixpanelEvent = {
         className: string
         numberOfWeeks: number
     }
-    'play-lab-booking': {
-        distinct_id: string
-        bookingType: 'term-booking' | 'casual'
-        appointmntTypeIds: number[]
-        programNames: string[]
-        location: StudioOrTest
-        amount: number
-        discountType?: 'percentage' | 'price'
-        discountAmount?: number
-        discountCode?: string
-        numberOfPrograms: number
-        numberOfKids: number
-        childAges: string[]
-        reference: string
-        referenceOther?: string
-    }
 }
 
 const EventNameMap: Record<keyof MixpanelEvent, string> = {
-    'invitation-generated': 'Invitation Generated',
-    'invitation-preview-generated-v2': 'Invitation Preview Generated [New]',
-    'invitation-download-requested-v2': 'Invitation Download Requested [New]',
-    'invitation-edited-v2': 'Invitation Edited [New]',
-    'invitation-generated-v2': 'Invitation Generated [New]',
+    'invitation-preview-generated': 'Invitation Preview Generated [New]',
+    'invitation-download-requested': 'Invitation Download Requested [New]',
+    'invitation-edited': 'Invitation Edited [New]',
+    'invitation-generated': 'Invitation Generated [New]',
     'invitation-rsvp': 'Invitation RSVP',
     'Host Invitation RSVP': 'Host Invitation RSVP',
-    'invitation-coupon-signup': 'Invitation Coupon Code Signup',
     'holiday-program-website-discount': 'Website Holiday Program Discount Generated',
     'website-enquiry': 'Website Enquiry',
+    'website-chat-finished': 'Website Chat Finished',
     'google-business-profile-review': 'Google Review',
     'holiday-program-checkout-reached': 'Holiday Program Checkout Reached',
     'holiday-program-booking': 'Holiday Program Booking',
@@ -309,5 +288,4 @@ const EventNameMap: Record<keyof MixpanelEvent, string> = {
     'after-school-program-unenrolment': 'After School Program Unenrolment',
     'preschool-program-enrolment': 'Preschool Program Enrolment',
     'preschool-program-unenrolment': 'Preschool Program Unenrolment',
-    'play-lab-booking': 'Play Lab Booking',
 }

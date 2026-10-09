@@ -12,11 +12,12 @@ import {
     type WebsiteFormId,
 } from '@fizz-kidz/core'
 
-import { generateDiscountCode } from '@/features/holiday-programs/core/discount-codes/generate-discount-code'
+import { generateDiscountCode } from '@/features/discount-codes/core/generate-discount-code'
 import { MixpanelClient } from '@/integrations/mixpanel/mixpanel.client'
+import { getTimeOfWeekProperties } from '@/integrations/mixpanel/time-of-week-properties'
 import { logError } from '@/integrations/observability/log-error'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
-import { ZohoClient } from '@/integrations/zoho/zoho.client'
+import { getZohoRecordUrl, ZohoClient } from '@/integrations/zoho/zoho.client'
 
 type WebsiteFormSubmission = {
     [FormId in WebsiteFormId]: { formId: FormId; data: WebsiteForm[FormId] }
@@ -25,7 +26,8 @@ type HolidayProgramDiscountSubmission = Extract<WebsiteFormSubmission, { formId:
 type StandardWebsiteFormSubmission = Exclude<WebsiteFormSubmission, HolidayProgramDiscountSubmission>
 type HolidayProgramDiscountCode = Awaited<ReturnType<typeof generateDiscountCode>>
 
-async function runZohoTask({
+/** Runs a Zoho sync, logging a failure rather than failing the submission. Returns the task's result, if it succeeds. */
+async function runZohoTask<T>({
     description,
     formId,
     requestBody,
@@ -34,10 +36,10 @@ async function runZohoTask({
     description: string
     formId: WebsiteFormId
     requestBody: unknown
-    task: () => Promise<unknown>
+    task: () => Promise<T>
 }) {
     try {
-        await task()
+        return await task()
     } catch (err) {
         logError(`Zoho sync failed for website form '${formId}' during ${description}`, err, {
             formId,
@@ -46,12 +48,21 @@ async function runZohoTask({
     }
 }
 
+type ProcessWebsiteFormOptions = {
+    /** A website chat transcript, added as a note on the Zoho deal for contact enquiries left by the chat assistant. */
+    chatTranscript?: string
+}
+
 export function processWebsiteFormSubmission(
     submission: HolidayProgramDiscountSubmission
 ): Promise<HolidayProgramDiscountCode>
-export function processWebsiteFormSubmission(submission: StandardWebsiteFormSubmission): Promise<void>
+export function processWebsiteFormSubmission(
+    submission: StandardWebsiteFormSubmission,
+    options?: ProcessWebsiteFormOptions
+): Promise<void>
 export async function processWebsiteFormSubmission(
-    submission: WebsiteFormSubmission
+    submission: WebsiteFormSubmission,
+    options: ProcessWebsiteFormOptions = {}
 ): Promise<HolidayProgramDiscountCode | void> {
     const formId = submission.formId
     const requestBody = submission.data
@@ -65,7 +76,8 @@ export async function processWebsiteFormSubmission(
                 const formData = submission.data
 
                 const [firstName, lastName] = formData.name.split(' ')
-                await runZohoTask({
+                // A link to the enquiry in Zoho for the team's email.
+                const zohoUrl = await runZohoTask({
                     description: 'party enquiry sync',
                     formId,
                     requestBody,
@@ -79,7 +91,7 @@ export async function processWebsiteFormSubmission(
                             optOutOfMarketing: false,
                         })
 
-                        await zohoClient.createBirthdayPartyDeal({
+                        const dealId = await zohoClient.createBirthdayPartyDeal({
                             firstName,
                             lastName: lastName || '',
                             email: formData.email,
@@ -101,6 +113,7 @@ export async function processWebsiteFormSubmission(
                             partyTheme: formData.partyTheme,
                             enquiry: formData.enquiry,
                         })
+                        return getZohoRecordUrl('Deals', dealId)
                     },
                 })
 
@@ -130,6 +143,7 @@ export async function processWebsiteFormSubmission(
                     'websitePartyFormToFizz',
                     'bookings@fizzkidz.com.au',
                     {
+                        zohoUrl,
                         name: formData.name,
                         email: formData.email,
                         contactNumber: formData.contactNumber,
@@ -150,6 +164,7 @@ export async function processWebsiteFormSubmission(
                 )
 
                 await mixpanelClient.track('website-enquiry', {
+                    ...getTimeOfWeekProperties(new Date()),
                     distinct_id: formData.email,
                     form: 'party',
                     service: 'party',
@@ -168,15 +183,37 @@ export async function processWebsiteFormSubmission(
                 const [firstName, lastName] = formData['name'].split(' ')
 
                 const service = formData.service
+                // Added to the deal, or to the contact when the enquiry has no deal.
+                const addChatTranscript = async (module: 'Deals' | 'Contacts', recordId: string) => {
+                    if (!options.chatTranscript) return
+                    await zohoClient.addNote({
+                        module,
+                        recordId,
+                        title: 'Website chat transcript',
+                        content: options.chatTranscript,
+                    })
+                }
 
-                await runZohoTask({
+                // A link to the enquiry in Zoho for the team's email.
+                const zohoUrl = await runZohoTask({
                     description: 'contact form sync',
                     formId,
                     requestBody,
                     task: async () => {
                         switch (true) {
-                            case service === 'other':
-                                break
+                            case service === 'other': {
+                                // Kept as a lead, so the team can follow up and they get the right marketing.
+                                const contactId = await zohoClient.addBasicB2CContact({
+                                    firstName,
+                                    lastName,
+                                    email: formData.email,
+                                    mobile: formData.contactNumber,
+                                    optOutOfMarketing: false,
+                                    ...(formData.location && { studio: ContactFormLocationMap[formData.location] }),
+                                })
+                                await addChatTranscript('Contacts', contactId)
+                                return getZohoRecordUrl('Contacts', contactId)
+                            }
                             case service === 'party' && formData.partyTheme !== undefined: {
                                 const contactId = await zohoClient.addBasicB2CContact({
                                     firstName,
@@ -186,7 +223,7 @@ export async function processWebsiteFormSubmission(
                                     optOutOfMarketing: false,
                                     ...(formData.location && { studio: ContactFormLocationMap[formData.location] }),
                                 })
-                                await zohoClient.createBirthdayPartyDeal({
+                                const dealId = await zohoClient.createBirthdayPartyDeal({
                                     firstName,
                                     lastName: lastName || '',
                                     email: formData.email,
@@ -208,10 +245,11 @@ export async function processWebsiteFormSubmission(
                                     partyTheme: formData.partyTheme,
                                     enquiry: formData.enquiry,
                                 })
-                                break
+                                await addChatTranscript('Deals', dealId)
+                                return getZohoRecordUrl('Deals', dealId)
                             }
                             case service === 'holiday-program' || service === 'after-school-program': {
-                                await zohoClient.addBasicB2CContact({
+                                const contactId = await zohoClient.addBasicB2CContact({
                                     firstName,
                                     lastName,
                                     email: formData.email,
@@ -219,7 +257,8 @@ export async function processWebsiteFormSubmission(
                                     optOutOfMarketing: false,
                                     ...(formData.location && { studio: ContactFormLocationMap[formData.location] }),
                                 })
-                                break
+                                await addChatTranscript('Contacts', contactId)
+                                return getZohoRecordUrl('Contacts', contactId)
                             }
                             case service === 'incursion': {
                                 const contactId = await zohoClient.createB2BContact({
@@ -229,7 +268,7 @@ export async function processWebsiteFormSubmission(
                                     mobile: formData.contactNumber,
                                     service: 'incursion',
                                 })
-                                await zohoClient.createB2BDeal({
+                                const dealId = await zohoClient.createB2BDeal({
                                     firstName,
                                     lastName,
                                     email: formData.email,
@@ -244,7 +283,8 @@ export async function processWebsiteFormSubmission(
                                     enquiry: formData.enquiry,
                                     reference: formData.reference,
                                 })
-                                break
+                                await addChatTranscript('Deals', dealId)
+                                return getZohoRecordUrl('Deals', dealId)
                             }
                             case service === 'activation': {
                                 const contactId = await zohoClient.createB2BContact({
@@ -254,7 +294,7 @@ export async function processWebsiteFormSubmission(
                                     mobile: formData.contactNumber,
                                     service: 'activation_event',
                                 })
-                                await zohoClient.createB2BDeal({
+                                const dealId = await zohoClient.createB2BDeal({
                                     firstName,
                                     lastName,
                                     email: formData.email,
@@ -268,11 +308,13 @@ export async function processWebsiteFormSubmission(
                                     enquiry: formData.enquiry,
                                     reference: formData.reference,
                                 })
-                                break
+                                await addChatTranscript('Deals', dealId)
+                                return getZohoRecordUrl('Deals', dealId)
                             }
                             default: {
                                 // we still want the user to see a success here, so only log the error
                                 logError(`Unrecognised service when submitting website 'contact' form: '${service}'`)
+                                return undefined
                             }
                         }
                     },
@@ -313,6 +355,7 @@ export async function processWebsiteFormSubmission(
                     'websiteContactFormToFizz',
                     'bookings@fizzkidz.com.au',
                     {
+                        zohoUrl,
                         name: formData.name,
                         email: formData.email,
                         contactNumber: formData.contactNumber,
@@ -342,6 +385,7 @@ export async function processWebsiteFormSubmission(
                 )
 
                 await mixpanelClient.track('website-enquiry', {
+                    ...getTimeOfWeekProperties(new Date()),
                     distinct_id: formData.email,
                     form: 'contact',
                     service,
@@ -359,7 +403,8 @@ export async function processWebsiteFormSubmission(
                 const formData = submission.data
 
                 const [firstName, lastName] = formData.name.split(' ')
-                await runZohoTask({
+                // A link to the enquiry in Zoho for the team's email.
+                const zohoUrl = await runZohoTask({
                     description: 'event enquiry sync',
                     formId,
                     requestBody,
@@ -371,7 +416,7 @@ export async function processWebsiteFormSubmission(
                             mobile: formData.contactNumber,
                             service: 'activation_event',
                         })
-                        await zohoClient.createB2BDeal({
+                        const dealId = await zohoClient.createB2BDeal({
                             firstName,
                             lastName,
                             email: formData.email,
@@ -385,6 +430,7 @@ export async function processWebsiteFormSubmission(
                             enquiry: formData.enquiry,
                             reference: formData.reference,
                         })
+                        return getZohoRecordUrl('Deals', dealId)
                     },
                 })
 
@@ -410,6 +456,7 @@ export async function processWebsiteFormSubmission(
                     'websiteEventFormToFizz',
                     'bookings@fizzkidz.com.au',
                     {
+                        zohoUrl,
                         name: formData.name,
                         email: formData.email,
                         contactNumber: formData.contactNumber,
@@ -427,6 +474,7 @@ export async function processWebsiteFormSubmission(
                 )
 
                 await mixpanelClient.track('website-enquiry', {
+                    ...getTimeOfWeekProperties(new Date()),
                     distinct_id: formData.email,
                     form: 'event',
                     service: 'activation',
@@ -440,7 +488,8 @@ export async function processWebsiteFormSubmission(
                 const formData = submission.data
 
                 const [firstName, lastName] = formData.name.split(' ')
-                await runZohoTask({
+                // A link to the enquiry in Zoho for the team's email.
+                const zohoUrl = await runZohoTask({
                     description: 'incursion enquiry sync',
                     formId,
                     requestBody,
@@ -452,7 +501,7 @@ export async function processWebsiteFormSubmission(
                             mobile: formData.contactNumber,
                             service: 'incursion',
                         })
-                        await zohoClient.createB2BDeal({
+                        const dealId = await zohoClient.createB2BDeal({
                             firstName,
                             lastName,
                             email: formData.email,
@@ -467,6 +516,7 @@ export async function processWebsiteFormSubmission(
                             enquiry: formData.enquiry,
                             reference: formData.reference,
                         })
+                        return getZohoRecordUrl('Deals', dealId)
                     },
                 })
 
@@ -493,6 +543,7 @@ export async function processWebsiteFormSubmission(
                     'websiteIncurionFormToFizz',
                     'bookings@fizzkidz.com.au',
                     {
+                        zohoUrl,
                         name: formData.name,
                         school: formData.school,
                         email: formData.email,
@@ -511,6 +562,7 @@ export async function processWebsiteFormSubmission(
                 )
 
                 await mixpanelClient.track('website-enquiry', {
+                    ...getTimeOfWeekProperties(new Date()),
                     distinct_id: formData.email,
                     form: 'incursion',
                     service: 'incursion',
@@ -587,6 +639,7 @@ export async function processWebsiteFormSubmission(
                 })
 
                 await mixpanelClient.track('website-enquiry', {
+                    ...getTimeOfWeekProperties(new Date()),
                     distinct_id: formData.email,
                     form: 'mailingList',
                 })

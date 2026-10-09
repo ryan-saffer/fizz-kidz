@@ -1,26 +1,20 @@
 import { z } from 'zod'
 
-import { publicProcedure, authenticatedProcedure, router } from '@/app/trpc/trpc'
-import { checkGiftCardBalance } from '@/features/gift-cards/check-gift-card-balance'
-import {
-    type HolidayProgramBookingProps,
-    bookHolidayProgram,
-} from '@/features/holiday-programs/core/book-holiday-program'
-import { checkDiscountCode } from '@/features/holiday-programs/core/discount-codes/check-discount-code'
-import {
-    type CreateDiscountCode,
-    createDiscountCode,
-} from '@/features/holiday-programs/core/discount-codes/create-discount-code'
-import {
-    type CreateDiscountCodeFromInvitation,
-    createDiscountCodeFromInvitation,
-} from '@/features/holiday-programs/core/discount-codes/create-discount-code-from-invitation'
 import {
     cancelManagedAppointment,
     getManagedAppointment,
     getRescheduleSessions,
     rescheduleManagedAppointment,
-} from '@/features/holiday-programs/core/manage-appointment'
+} from '../../core/manage-appointment'
+
+import { publicProcedure, authenticatedProcedure, router } from '@/app/trpc/trpc'
+import { checkDiscountCode } from '@/features/discount-codes/core/check-discount-code'
+import { type CreateDiscountCode, createDiscountCode } from '@/features/discount-codes/core/create-discount-code'
+import { checkGiftCardBalance } from '@/features/gift-cards/check-gift-card-balance'
+import {
+    type HolidayProgramBookingProps,
+    bookHolidayProgram,
+} from '@/features/holiday-programs/core/book-holiday-program'
 import { getMedicalPlanUrl } from '@/features/medical-plans/get-medical-plan-url'
 import { MEDICAL_PLAN_PREFIXES } from '@/features/medical-plans/medical-plan-path'
 
@@ -41,9 +35,6 @@ export const holidayProgramsRouter = router({
     createDiscountCode: authenticatedProcedure
         .input((input: unknown) => input as CreateDiscountCode)
         .mutation(({ input }) => createDiscountCode(input)),
-    createDiscountCodeFromInvitation: publicProcedure
-        .input((input: unknown) => input as CreateDiscountCodeFromInvitation)
-        .mutation(({ input }) => createDiscountCodeFromInvitation(input)),
     checkDiscountCode: publicProcedure
         .input((input: unknown) => input as { code: string; customerEmail?: string })
         .mutation(({ input }) => checkDiscountCode(input.code, input.customerEmail)),

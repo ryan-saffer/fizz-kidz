@@ -9,7 +9,7 @@ export async function remindAboutWwcc() {
         .where('wwcc.status', '==', 'I have applied for a WWCC and have an application number')
         .get()
 
-    // only remind about employees older than 18
+    // only employees who are 18 or older need a WWCC
     const employees = snap.docs
         .map((doc) => {
             return doc.data()
@@ -18,7 +18,7 @@ export async function remindAboutWwcc() {
             if (employee.status === 'form-sent') return false
             const dob = DateTime.fromISO(employee.dob)
             const cutoff = DateTime.now().minus({ years: 18 })
-            return dob > cutoff
+            return dob <= cutoff
         })
         .map((employee) => `${employee.firstName} ${employee.lastName}`)
 

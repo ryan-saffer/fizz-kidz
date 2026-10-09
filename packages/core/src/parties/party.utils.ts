@@ -1,7 +1,7 @@
 import { ADDITIONS, type Addition } from './additions'
-import { getBirthdayPartyBookingCreationName, type BirthdayPartyBookingCatalogue } from './birthday-party-catalogue'
 
 import type { Studio } from '../core/studio'
+import type { BirthdayPartyBookingCatalogue } from './birthday-party-catalogue'
 import type { BaseBooking, Booking } from './booking'
 
 const CAKE_ORDER_EXCLUDED_STUDIOS: Studio[] = ['geelong', 'werribee']
@@ -12,8 +12,17 @@ export function getBookingCreationDisplayValues(booking: BaseBooking, catalogue?
         .map((creation) => getBirthdayPartyCreationDisplayName(creation, catalogue))
 }
 
+/**
+ * A booked creation's name. Bookings hold its key, but older bookings can hold a value that's now one of its legacy
+ * labels. Without a match (or before the catalogue loads) the key is spelled out rather than shown raw.
+ */
 export function getBirthdayPartyCreationDisplayName(key: string, catalogue?: BirthdayPartyBookingCatalogue) {
-    return (catalogue && getBirthdayPartyBookingCreationName(catalogue, key)) ?? key
+    const normalize = (value: string) => value.trim().toLocaleLowerCase('en-AU')
+    const creation =
+        catalogue?.creations.find((it) => it.key === key) ??
+        catalogue?.creations.find((it) => [it.name, ...it.legacyLabels].some((it) => normalize(it) === normalize(key)))
+    // e.g. 'sparklingLipBalm' -> 'Sparkling Lip Balm'
+    return creation?.name ?? key.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/^./, (first) => first.toUpperCase())
 }
 
 export function getBookingAdditionDisplayValues(booking: BaseBooking) {

@@ -5,7 +5,12 @@ import fizzUiPreset from '@fizz-kidz/ui/tailwind-preset'
 /** @type {import('tailwindcss').Config} */
 export default withUt({
     darkMode: ['class'],
-    content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}', '../../packages/ui/src/**/*.{js,jsx,ts,tsx}'],
+    content: [
+        './src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}',
+        '../../packages/ui/src/**/*.{js,jsx,ts,tsx}',
+        // Streamdown renders chat markdown with Tailwind classes.
+        '../../node_modules/streamdown/dist/*.js',
+    ],
     prefix: '',
     presets: [fizzUiPreset],
     theme: {

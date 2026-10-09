@@ -1,44 +1,38 @@
 ---
 title: Parent portal and attendance
-description: How parent updates and staff check-in share the same enrolment and Acuity sessions.
+description: What parents can change in their portal and how staff record after-school attendance and pickup.
 ---
 
 import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components'
 
-Each child has a parent portal linked to their Portal enrolment. The link is emailed when the enrolment is created, and
-staff can also open it from the child's expanded details in the invoicing view.
+Each child has a parent portal. The link is emailed when the child enrols, and staff can also open it from the child's
+expanded details in **After School Program Invoicing**.
 
 <CardGrid>
   <Card title="Enrolment and invoice" icon="open-book">
-    The portal shows the program, child, expected term price, and invoice status. An unpaid invoice includes a payment
-    link; a paid invoice can still be viewed.
+    The portal shows the program, child, expected term price, and invoice status. An unpaid invoice has a payment link;
+    a paid invoice can still be viewed.
   </Card>
-  <Card title="Weekly attendance" icon="calendar">
-    The parent can turn attendance off for an individual session. This applies a not-attending marker to the matching
-    Acuity appointment so it also appears in staff check-in.
+  <Card title="Weekly attendance" icon="clock">
+    The parent can turn attendance off for an individual class. Staff see the child as not attending at check-in.
   </Card>
-  <Card title="Pickup people" icon="people">
-    The parent can add or remove approved pickup people. The updated list is saved directly to the enrolment and appears
-    to staff during pickup.
+  <Card title="Pickup people" icon="heart">
+    The parent can add or remove approved pickup people. Staff see the updated list at pickup.
   </Card>
 </CardGrid>
 
 <Aside type="note" title="An absence is not a cancellation">
-  Turning off one week only marks that Acuity appointment as not attending. It does not remove the appointment, change
-  the invoice, or create a credit or refund.
+  Turning off one week only marks the child as not attending that class. It does not remove the booking, change the
+  invoice, or create a credit or refund.
 </Aside>
 
 ## Staff attendance flow
 
+Open **Programs** > **After School Program** and select the class. Turn on **Show past classes** to find an earlier
+date.
+
 <Steps>
   <ol>
-    <li>
-      <h3>Select the program and class date</h3>
-      <p>
-        The check-in view reads the class sessions and appointments from Acuity, then matches them to active Portal
-        enrolments.
-      </p>
-    </li>
     <li>
       <h3>Review the child's current details</h3>
       <p>
@@ -49,23 +43,35 @@ staff can also open it from the child's expanded details in the invoicing view.
     <li>
       <h3>Sign the child in</h3>
       <p>
-        Signing in changes the Acuity appointment's attendance marker. Children marked not attending are clearly shown
-        and do not receive the normal sign-in action.
+        Use <strong>Sign In</strong> when the child arrives. Children marked not attending do not show the sign-in
+        button.
       </p>
     </li>
     <li>
       <h3>Record pickup</h3>
       <p>
-        For after-school sessions, staff select the collecting person and save their signature. The enrolment keeps the
-        pickup person, signature, and time against that specific appointment, while Acuity is marked signed out.
+        Use <strong>Sign Out</strong>, select the person collecting the child, and capture their signature. The pickup
+        person, signature, and time are saved for that class.
       </p>
     </li>
   </ol>
 </Steps>
 
-The sign-out choices include the enrolled parent, the extra pickup people maintained in the parent portal, and a staff
-option. The enrolled parent is included automatically. Sessions beginning before 2 pm are treated as lunchtime classes
-and are signed out without a pickup signature.
+The sign-out choices are the enrolled parent, the pickup people added in the parent portal, and **Fizz Kidz Staff**.
+Signing out as Fizz Kidz Staff also needs the staff member's name and the reason. Classes starting before 2 pm are
+lunchtime classes, so **Sign Out** records them without a pickup signature.
+
+## Other staff actions
+
+Open the child's row and use **More** to correct attendance or record a change.
+
+| Action                       | What it does                                                            |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| **Mark Not Attending**       | Marks the child absent for this class.                                  |
+| **Mark As Attending**        | Clears a not-attending mark so the child can be signed in.              |
+| **Not Continuing With Term** | Records that the family is not continuing and alerts the bookings team. |
+| **Undo Sign In**             | Returns a signed-in child to not signed in.                             |
+| **Undo Sign Out**            | Returns a signed-out child to signed in.                                |
 
 For full-term removal rather than a single absence, follow [After the trial](/services/after-school-programs/after-the-trial/).
 For payment questions, see [Invoicing](/services/after-school-programs/invoicing/).

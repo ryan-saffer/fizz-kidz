@@ -10,12 +10,14 @@ change in the Portal rather than editing an automatic calendar event by hand.
 
 ## Find a booking
 
-1. Open **Portal > Bookings**.
+1. Open **Parties, Events & Incursions** from the Portal dashboard.
 2. Choose the party date and, if needed, the location filter.
 3. Expand the booking under the correct studio.
 4. A direct booking link containing `?id=` opens that specific record and moves the page to its date and location.
 
 ## Create a booking
+
+Select **New Booking**, then **Party**. The booking form opens full screen.
 
 <Steps>
   <ol>
@@ -23,25 +25,26 @@ change in the Portal rather than editing an automatic calendar event by hand.
       <h3>Enter the family and child details</h3>
       <p>
         Add every birthday child separately. Check each birthday and the age they will be turning; those records also
-        feed the Calendar title, confirmation wording and Zoho CRM.
+        feed the Calendar title, confirmation wording and Zoho CRM. If the family already has an enquiry deal in Zoho,
+        enter its <strong>Zoho deal ID</strong>.
       </p>
     </li>
     <li>
       <h3>Enter date, time and party setup</h3>
       <p>
-        Select studio or mobile, the Fizz location, party length and mobile address where applicable. Studio bookings
-        also require the included-food or self-catered choice.
+        Select the type (studio or mobile), the studio, party length, date and start time, and the party address for a
+        mobile party. Studio bookings also need the food package: included or self-catered.
       </p>
     </li>
     <li>
       <h3>Choose whether to send the confirmation</h3>
       <p>
-        <strong>Send confirmation email</strong> is selected by default. Clear it only when there is a deliberate reason
-        not to contact the customer yet.
+        <strong>Send the parent a confirmation email</strong> is selected by default. Clear it only when there is a
+        deliberate reason not to contact the customer yet.
       </p>
     </li>
     <li>
-      <h3>Save the booking</h3>
+      <h3>Select Book party</h3>
       <p>
         The Portal saves the booking, creates its Google Calendar event, and creates or updates the confirmed Birthday
         Party deal, parent and children in Zoho CRM.
@@ -59,8 +62,8 @@ change in the Portal rather than editing an automatic calendar event by hand.
   </Card>
   <Card title="Zoho CRM" icon="rocket">
     <p>
-      An existing enquiry deal can be confirmed using its Zoho deal ID. Without one, the system creates or upserts a
-      confirmed booking deal and writes the new deal ID back to the booking.
+      With a Zoho deal ID, the family's enquiry deal becomes the confirmed booking. Without one, a new confirmed deal is
+      created and linked to the booking. Once the party is paid, the deal records the amount.
     </p>
   </Card>
   <Card title="Confirmation email" icon="email">
@@ -74,8 +77,9 @@ change in the Portal rather than editing an automatic calendar event by hand.
 ## Change a booking
 
 1. Expand the booking and select **Edit**.
-2. Change the available fields. The location is locked in the existing-booking form.
-3. Select **Save**.
+2. Change the details. The party type and studio can't be changed on an existing booking. A paid cake, take-home bags
+   and products show under **Cake & goodies** for reference, but can't be changed here.
+3. Select **Save changes**.
 
 ### What changes automatically
 
@@ -86,14 +90,37 @@ change in the Portal rather than editing an automatic calendar event by hand.
 | Mobile address                                           | Event location updates                                            | No automatic email                | No address update in this workflow                     |
 | Parent contact, child, food, notes, creations or add-ons | Event title may use changed parent/child/mobile values when saved | No automatic email                | No general contact/deal sync in this workflow          |
 
-## Booking menu actions
+## Booking actions
+
+The buttons beside an expanded booking:
 
 <CardGrid>
-  <Card title="Get Party Form link" icon="open-book">
-    <p>Copies a durable link that loads Paperform with the booking's current details.</p>
+  <Card title="Collect payment" icon="approve-check-circle">
+    <p>
+      Charges a studio party on the studio's Square Terminal once it's over. See
+      <a href="/services/birthday-parties/collect-payment/">Collect party payment</a>. A paid party shows
+      <strong>Paid</strong> instead, linking to its Square receipt.
+    </p>
   </Card>
-  <Card title="Get cake form link" icon="add-document">
-    <p>Copies the order-mode form link. Check cake eligibility before sending it.</p>
+  <Card title="View RSVPs" icon="list-format">
+    <p>Opens the party's invitation and guest list, once the family has made an invitation.</p>
+  </Card>
+</CardGrid>
+
+The **⋯** menu:
+
+<CardGrid>
+  <Card title="Copy form link" icon="open-book">
+    <p>
+      Copies the <strong>Party form</strong> or <strong>Cake form</strong> link for this booking. Both open with the
+      booking's current details. Check cake eligibility before sending the cake form.
+    </p>
+  </Card>
+  <Card title="Copy invitation link" icon="rocket">
+    <p>
+      For RSVP-enabled bookings, copies the existing invitation, or the link for the host to create one if they haven't
+      yet.
+    </p>
   </Card>
   <Card title="Resend confirmation email" icon="email">
     <p>
@@ -101,11 +128,8 @@ change in the Portal rather than editing an automatic calendar event by hand.
       address in the resend prompt.
     </p>
   </Card>
-  <Card title="Get invitation link" icon="rocket">
-    <p>
-      For RSVP-enabled bookings, copies the existing public invite or the host's create-invitation entry link when no
-      invite has been finalised yet.
-    </p>
+  <Card title="Delete booking" icon="warning">
+    <p>Removes the booking and what's linked to it. See below.</p>
   </Card>
 </CardGrid>
 
@@ -129,6 +153,11 @@ Choose the lost reason carefully because it is recorded in Zoho.
 ## Related guides
 
 <CardGrid>
+  <LinkCard
+    title="Collect party payment"
+    description="Charge a studio party on the studio's Square Terminal."
+    href="/services/birthday-parties/collect-payment/"
+  />
   <LinkCard
     title="Customer journey"
     description="See where booking actions fit in the customer's email timeline."

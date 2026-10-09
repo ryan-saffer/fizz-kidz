@@ -1,6 +1,6 @@
 import { toast } from 'sonner'
 
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import type { Invitations } from '@fizz-kidz/core'
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@shared/components/ui/dialog'
 
@@ -11,7 +11,7 @@ export function HostRsvpDialog({
     isOpen,
     close,
 }: {
-    invitation: InvitationsV2.Invitation
+    invitation: Invitations.Invitation
     isOpen: boolean
     close: () => void
 }) {

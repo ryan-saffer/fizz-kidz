@@ -5,12 +5,16 @@ const PERMISSIONS = [
     'bookings:read',
     'bookings:edit',
     'bookings:create',
+    'bookings:collect-payment',
+    'products:sell',
     'after-school-programs:read',
     'creations:read',
     'inventory:read',
     'inventory:write',
     'inventory:stocktake',
     'inventory:shopping-list',
+    'website-chats:read',
+    'website-chats:delete',
     'admin', // everything else.. could be broken down, but unneccesary for now.
 ] as const
 
@@ -26,7 +30,14 @@ export const RolePermissionMap: Record<Role, Permission[]> = {
         'creations:read',
         'after-school-programs:read',
     ],
-    'studio-ipad': ['dashboard:view', 'bookings:read', 'creations:read', 'after-school-programs:read'],
+    'studio-ipad': [
+        'dashboard:view',
+        'bookings:read',
+        'bookings:collect-payment',
+        'products:sell',
+        'creations:read',
+        'after-school-programs:read',
+    ],
     manager: ['dashboard:view', 'bookings:edit', 'bookings:read', 'creations:read', 'after-school-programs:read'],
     facilitator: ['dashboard:view', 'after-school-programs:read'],
     'super-admin': [
@@ -35,11 +46,15 @@ export const RolePermissionMap: Record<Role, Permission[]> = {
         'bookings:read',
         'bookings:create',
         'bookings:edit',
+        'bookings:collect-payment',
+        'products:sell',
         'creations:read',
         'after-school-programs:read',
         'inventory:read',
         'inventory:write',
         'inventory:stocktake',
         'inventory:shopping-list',
+        'website-chats:read',
+        'website-chats:delete',
     ],
 }

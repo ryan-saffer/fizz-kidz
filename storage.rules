@@ -1,0 +1,19 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Customers upload medical plans from the public enrolment and booking forms, which
+    // only accept PDFs under 5MB. Uploads can't be read or deleted from the browser;
+    // staff open them through short-lived signed URLs from the server.
+    match /anaphylaxisPlans/{filename} {
+      allow create, update: if request.resource.contentType == 'application/pdf'
+        && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // Guests open invitation images by id; listing them is not allowed.
+    match /invitations-v2/{allPaths=**} {
+      allow get: if true;
+    }
+
+    // Everything else (including payroll exports) is only written and read by the server.
+  }
+}

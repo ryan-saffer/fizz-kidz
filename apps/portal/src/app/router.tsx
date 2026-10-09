@@ -1,7 +1,7 @@
 import '/fonts/LilitaOne-Regular.ttf'
 import '/fonts/Gotham-Light.otf'
 import { Suspense, lazy } from 'react'
-import { Navigate, RouterProvider, createBrowserRouter, useParams, useSearchParams } from 'react-router-dom'
+import { Navigate, RouterProvider, createBrowserRouter, useSearchParams } from 'react-router-dom'
 
 import { NotFound404 } from '@app/root/404.js'
 import { Root } from '@app/root/root.js'
@@ -19,6 +19,11 @@ const SignInPage = lazy(() =>
 )
 const Paperform = lazy(() =>
     import('../features/forms/paperform-page.js').then((module) => ({ default: module.Paperform }))
+)
+const PartyFormV2Page = lazy(() =>
+    import('../features/party-form-v2/pages/party-form-v2-page.js').then((module) => ({
+        default: module.PartyFormV2Page,
+    }))
 )
 const SignUpPage = lazy(() =>
     import('../features/authentication/pages/sign-up-page.js').then((module) => ({ default: module.SignUpPage }))
@@ -132,21 +137,6 @@ const HolidayCreationsPage = lazy(() =>
         default: module.HolidayCreationsPage,
     }))
 )
-const ChooseInvitationPage = lazy(() =>
-    import('../features/invitations/choose-invitation-page.js').then((module) => ({
-        default: module.ChooseInvitationPage,
-    }))
-)
-const CreateInvitationPage = lazy(() =>
-    import('../features/invitations/create-invitation-page.js').then((module) => ({
-        default: module.CreateInvitationPage,
-    }))
-)
-const ViewInvitationPage = lazy(() =>
-    import('../features/invitations/view-invitation-page.js').then((module) => ({
-        default: module.ViewInvitationPage,
-    }))
-)
 const DiscountCodesPage = lazy(() =>
     import('../features/discount-codes/discount-codes-page.js').then((module) => ({
         default: module.DiscountCodesPage,
@@ -159,27 +149,10 @@ const Account = lazy(() => import('../features/settings/account.js').then((modul
 const ManageUsersTable = lazy(() =>
     import('../features/settings/manage-users-table.js').then((module) => ({ default: module.ManageUsersTable }))
 )
-const PlayLabBookingPage = lazy(() =>
-    import('../features/play-lab/booking-form/pages/play-lab-booking-page.js').then((module) => ({
-        default: module.PlayLabBookingPage,
-    }))
-)
 const PreschoolProgramV2BookingPage = lazy(() =>
     import('../features/preschool-program/booking-v2/pages/preschool-program-v2-booking-page.js').then((module) => ({
         default: module.PreschoolProgramV2BookingPage,
     }))
-)
-const PlayLabSessionSelectorPage = lazy(() =>
-    import('../features/play-lab/attendance/session-selector/play-lab-session-selector-page.js').then((module) => ({
-        default: module.PlayLabSessionSelectorPage,
-    }))
-)
-const PlayLabSessionAttendancePage = lazy(() =>
-    import('../features/play-lab/attendance/session-attendance/pages/play-lab-session-attendance-page.js').then(
-        (module) => ({
-            default: module.PlayLabSessionAttendancePage,
-        })
-    )
 )
 const TerritoryMappingPage = lazy(() =>
     import('../features/territory-mapping/territory-mapping-page.js').then((module) => ({
@@ -192,17 +165,32 @@ const ReportsPage = lazy(() =>
 const InventoryPage = lazy(() =>
     import('../features/inventory/pages/inventory-page.js').then((module) => ({ default: module.InventoryPage }))
 )
-const CreateInvitationPageV2 = lazy(() =>
+const WebsiteChatsPage = lazy(() =>
+    import('../features/website-chats/pages/website-chats-page.js').then((module) => ({
+        default: module.WebsiteChatsPage,
+    }))
+)
+const WebsiteChatTranscriptPage = lazy(() =>
+    import('../features/website-chats/pages/website-chat-transcript-page.js').then((module) => ({
+        default: module.WebsiteChatTranscriptPage,
+    }))
+)
+const PosPage = lazy(() =>
+    import('../features/pos/pages/pos-page.js').then((module) => ({
+        default: module.PosPage,
+    }))
+)
+const CreateInvitationPage = lazy(() =>
     import('../features/rsvp/pages/create-invitation-page.js').then((module) => ({
         default: module.CreateInvitationPage,
     }))
 )
-const DesignInvitationPageV2 = lazy(() =>
+const DesignInvitationPage = lazy(() =>
     import('../features/rsvp/pages/design-invitation-page.js').then((module) => ({
         default: module.DesignInvitationPage,
     }))
 )
-const ViewInvitationPageV2 = lazy(() =>
+const ViewInvitationPage = lazy(() =>
     import('../features/rsvp/pages/view-invitation-page.js').then((module) => ({ default: module.ViewInvitationPage }))
 )
 const RsvpPage = lazy(() =>
@@ -287,6 +275,14 @@ const router = createBrowserRouter([
                         ),
                     },
                 ],
+            },
+            {
+                path: 'party-form-v2',
+                Component: () => (
+                    <Suspense fallback={<Loader fullScreen />}>
+                        <PartyFormV2Page />
+                    </Suspense>
+                ),
             },
             {
                 path: 'dashboard',
@@ -403,6 +399,36 @@ const router = createBrowserRouter([
                         ),
                     },
                     {
+                        path: 'website-chats',
+                        Component: () => (
+                            <Suspense fallback={<Loader fullScreen />}>
+                                <ProtectedRoute permission="website-chats:read">
+                                    <WebsiteChatsPage />
+                                </ProtectedRoute>
+                            </Suspense>
+                        ),
+                    },
+                    {
+                        path: 'website-chats/:chatId',
+                        Component: () => (
+                            <Suspense fallback={<Loader fullScreen />}>
+                                <ProtectedRoute permission="website-chats:read">
+                                    <WebsiteChatTranscriptPage />
+                                </ProtectedRoute>
+                            </Suspense>
+                        ),
+                    },
+                    {
+                        path: 'pos',
+                        Component: () => (
+                            <Suspense fallback={<Loader fullScreen />}>
+                                <ProtectedRoute permission="products:sell">
+                                    <PosPage />
+                                </ProtectedRoute>
+                            </Suspense>
+                        ),
+                    },
+                    {
                         path: 'holiday-program',
                         children: [
                             {
@@ -421,31 +447,6 @@ const router = createBrowserRouter([
                                     <Suspense fallback={<Loader fullScreen />}>
                                         <ProtectedRoute permission="bookings:read">
                                             <ClassDetailsPage />
-                                        </ProtectedRoute>
-                                    </Suspense>
-                                ),
-                            },
-                        ],
-                    },
-                    {
-                        path: 'play-lab',
-                        children: [
-                            {
-                                path: '',
-                                Component: () => (
-                                    <Suspense fallback={<Loader fullScreen />}>
-                                        <ProtectedRoute permission="bookings:read">
-                                            <PlayLabSessionSelectorPage />
-                                        </ProtectedRoute>
-                                    </Suspense>
-                                ),
-                            },
-                            {
-                                path: ':appointmentTypeId',
-                                Component: () => (
-                                    <Suspense fallback={<Loader fullScreen />}>
-                                        <ProtectedRoute permission="bookings:read">
-                                            <PlayLabSessionAttendancePage />
                                         </ProtectedRoute>
                                     </Suspense>
                                 ),
@@ -648,14 +649,6 @@ const router = createBrowserRouter([
                 ],
             },
             {
-                path: 'play-lab-booking',
-                Component: () => (
-                    <Suspense fallback={<Loader fullScreen />}>
-                        <PlayLabBookingPage />
-                    </Suspense>
-                ),
-            },
-            {
                 path: 'preschool-program-v2-booking',
                 Component: () => (
                     <Suspense fallback={<Loader fullScreen />}>
@@ -664,34 +657,13 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: 'invitations',
-                children: [
-                    {
-                        path: '',
-                        Component: () => (
-                            <Suspense fallback={<Loader fullScreen />}>
-                                <ChooseInvitationPage />
-                            </Suspense>
-                        ),
-                    },
-                    {
-                        path: 'create',
-                        Component: () => (
-                            <Suspense fallback={<Loader fullScreen />}>
-                                <CreateInvitationPage />
-                            </Suspense>
-                        ),
-                    },
-                ],
-            },
-            {
                 path: 'invite',
                 children: [
                     {
                         path: '',
                         Component: () => (
                             <Suspense fallback={<Loader fullScreen />}>
-                                <CreateInvitationPageV2 />
+                                <CreateInvitationPage />
                             </Suspense>
                         ),
                     },
@@ -699,7 +671,7 @@ const router = createBrowserRouter([
                         path: 'design',
                         Component: () => (
                             <Suspense fallback={<Loader fullScreen />}>
-                                <DesignInvitationPageV2 />
+                                <DesignInvitationPage />
                             </Suspense>
                         ),
                     },
@@ -707,7 +679,7 @@ const router = createBrowserRouter([
                         path: ':id',
                         Component: () => (
                             <Suspense fallback={<Loader fullScreen />}>
-                                <ViewInvitationPageV2 />
+                                <ViewInvitationPage />
                             </Suspense>
                         ),
                     },
@@ -718,57 +690,6 @@ const router = createBrowserRouter([
                                 <RsvpPage />
                             </Suspense>
                         ),
-                    },
-                ],
-            },
-            {
-                path: 'invitation',
-                children: [
-                    {
-                        path: ':id',
-                        Component: () => (
-                            <Suspense fallback={<Loader fullScreen />}>
-                                <ViewInvitationPage />
-                            </Suspense>
-                        ),
-                    },
-                ],
-            },
-            // FIXME: Delete after 2026-06-06 once all legacy /invitation/v2 links have expired.
-            {
-                path: 'invitation/v2',
-                children: [
-                    {
-                        path: '',
-                        Component: () => (
-                            <Navigate to={{ pathname: '/invite', search: window.location.search }} replace />
-                        ),
-                    },
-                    {
-                        path: 'design',
-                        Component: () => <Navigate to="/invite/design" replace />,
-                    },
-                    {
-                        path: ':id',
-                        Component: function LegacyInvitationRedirect() {
-                            const { id } = useParams()
-                            const [searchParams] = useSearchParams()
-                            const redirectTo = searchParams.size
-                                ? `/invite/${id}?${searchParams.toString()}`
-                                : `/invite/${id}`
-                            return <Navigate to={redirectTo} replace />
-                        },
-                    },
-                    {
-                        path: ':id/rsvp',
-                        Component: function LegacyInvitationRsvpRedirect() {
-                            const { id } = useParams()
-                            const [searchParams] = useSearchParams()
-                            const redirectTo = searchParams.size
-                                ? `/invite/${id}/rsvp?${searchParams.toString()}`
-                                : `/invite/${id}/rsvp`
-                            return <Navigate to={redirectTo} replace />
-                        },
                     },
                 ],
             },

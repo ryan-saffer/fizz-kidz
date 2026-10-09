@@ -8,15 +8,17 @@ import {
     HandCoins,
     Home,
     Map,
+    MessagesSquare,
     PartyPopper,
+    CreditCardReader,
     Sparkles,
     TicketPercent,
     TreePalm,
     Users,
 } from 'lucide-react'
 
-import { isFranchiseOrMaster } from '@fizz-kidz/core'
-import type { Permission, StudioOrMaster } from '@fizz-kidz/core'
+import { getTerminalCheckoutStudios, isFranchiseOrMaster } from '@fizz-kidz/core'
+import type { Permission, Role, StudioOrMaster } from '@fizz-kidz/core'
 
 import afterSchool from '@shared/assets/after-school.webp'
 import bodyGlitter from '@shared/assets/body-glitter.webp'
@@ -31,6 +33,7 @@ import type { LucideIcon } from 'lucide-react'
 
 type DashboardNavigationContext = {
     currentOrg: StudioOrMaster | null
+    role: Role | null
     hasPermission: (permission: Permission) => boolean
 }
 
@@ -129,6 +132,24 @@ const dashboardNavigationSections: DashboardNavigationSection[] = [
         ],
     },
     {
+        title: 'Sales',
+        subtitle: "Charge customers on the studio's Square Terminal.",
+        // studios that don't sell yet don't see it; super-admins always do
+        visible: ({ currentOrg, role, hasPermission }) =>
+            hasPermission('products:sell') &&
+            getTerminalCheckoutStudios(currentOrg, import.meta.env.VITE_ENV, role === 'super-admin').length > 0,
+        items: [
+            {
+                label: 'Point of sale',
+                description: 'Sell our kits to a customer.',
+                to: 'pos',
+                icon: CreditCardReader,
+                accent: '#b14594',
+                accentSoft: 'rgba(177, 69, 148, 0.14)',
+            },
+        ],
+    },
+    {
         title: 'Quick links',
         sidebarTitle: 'Useful links',
         subtitle: 'Open-and-go references.',
@@ -216,6 +237,15 @@ const dashboardNavigationSections: DashboardNavigationSection[] = [
                 icon: Archive,
                 accent: '#9ecc48',
                 accentSoft: 'rgba(158, 204, 72, 0.16)',
+            },
+            {
+                label: 'Chat Transcripts',
+                description: 'Read every conversation customers have had with Frankie on the website.',
+                to: 'website-chats',
+                icon: MessagesSquare,
+                accent: '#b14594',
+                accentSoft: 'rgba(177, 69, 148, 0.14)',
+                visible: ({ hasPermission }) => hasPermission('website-chats:read'),
             },
             {
                 label: 'Territory Mapping',

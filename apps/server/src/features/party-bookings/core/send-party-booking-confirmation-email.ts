@@ -3,7 +3,6 @@ import { DateTime } from 'luxon'
 import type { Booking } from '@fizz-kidz/core'
 import {
     capitalise,
-    getApplicationDomain,
     getInvitationEntryUrl,
     getStudioAddress,
     getPartyChildCapacityMessages,
@@ -38,26 +37,8 @@ export async function sendPartyBookingConfirmationEmail({
 }: SendPartyBookingConfirmationEmailInput) {
     const end = getPartyEndDate(booking.dateTime, booking.partyLength)
     const bookingDateTime = DateTime.fromJSDate(booking.dateTime, { zone: 'Australia/Melbourne' })
-    const startTime = `${bookingDateTime.toFormat('h:mm a')} - ${DateTime.fromJSDate(end, {
-        zone: 'Australia/Melbourne',
-    }).toFormat('h:mm a')}`
 
-    const params = [
-        `childName=${encodeURIComponent(booking.childName)}`,
-        `childAge=${encodeURIComponent(booking.childAge)}`,
-        `date=${encodeURIComponent(booking.dateTime.toISOString())}`,
-        `time=${encodeURIComponent(startTime)}`,
-        `type=${encodeURIComponent(booking.type)}`,
-        `studio=${encodeURIComponent(booking.location)}`,
-        `address=${encodeURIComponent(booking.address)}`,
-        `rsvpName=${encodeURIComponent(booking.parentFirstName)}`,
-        `rsvpDate=${encodeURIComponent(bookingDateTime.minus({ days: 14 }).toISO())}`,
-        `rsvpNumber=${encodeURIComponent(booking.parentMobile)}`,
-    ]
-
-    const invitationsUrl = booking.useRsvpSystem
-        ? getInvitationEntryUrl(env, isUsingEmulator(), bookingId)
-        : `${getApplicationDomain(env, isUsingEmulator())}/invitations?${params.join('&')}`
+    const invitationsUrl = getInvitationEntryUrl(env, isUsingEmulator(), bookingId)
 
     const customerContact = getPartyCustomerContactInfo(booking.location)
     const studioContactEmail = getStudioContactEmail(booking.location)
@@ -86,7 +67,6 @@ export async function sendPartyBookingConfirmationEmail({
             contactName: customerContact.contactName || '',
             numberOfKidsAllowed: getPartyChildCapacityMessages(booking.location),
             studioPhotoUrl: getPictureOfStudioUrl(booking.location),
-            useRsvpSystem: booking.useRsvpSystem || false,
             invitationsUrl,
             includesFood: booking.includesFood,
             canOrderCake: canOrderCake(booking.type, booking.location),

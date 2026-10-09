@@ -26,12 +26,12 @@ npm run website:local   # Public Astro site against local server
 npm run website:prod    # Public Astro site against production
 npm run docs            # Starlight knowledge base
 npm run check           # Read-only checks
-npm run test            # Core + Portal + server tests
+npm run test            # Core, UI, Portal, server and website tests
 npm run verify          # Fix checks + tests
 npm run verify:full     # Include Astro checks
 ```
 
-Scope tests with `vp test --run --project portal` or `vp test --run --project server`. Build Astro apps with `npm run build --workspace docs` or `npm run build --workspace website`.
+Scope tests with `vp test --run --project <name>` (`portal`, `server`, `website`, `core` or `ui`). Build Astro apps with `npm run build --workspace docs` or `npm run build --workspace website`.
 
 ## Boundaries
 
@@ -43,5 +43,20 @@ Scope tests with `vp test --run --project portal` or `vp test --run --project se
 - Firestore access stays thin; workflows belong in feature `core` directories. Read `apps/server/src/integrations/firebase/README.md`.
 - New Portal UI should prefer shadcn/ui and Zustand. MUI and Ant Design are legacy.
 - Backend browser routes must match in `app/http/app.ts`, `firebase.json`, and the root Vite proxy.
+
+## Skills
+
+- Updating Frankie's knowledge (the website chat's copy of the website), on request or after website content changes: `.agents/skills/update-frankie-knowledge/SKILL.md`.
+
+## Code Review
+
+Reviews (and new code) follow these rules:
+
+- Don't over-engineer. Skip rare edge cases that are unlikely in production; log them with `logError` (Cloud Logging) instead, and fix them if they turn up often.
+- Keep files and folders cleanly structured, so it's easy to see where things live.
+- Portal features prefer a dedicated Zustand store over prop drilling, with the feature's core logic in the store rather than spread through components, so how a feature works can be read in one place.
+- Avoid Firestore unless it's absolutely necessary; the plan is to migrate off it. Don't add collections, documents or fields for edge cases like locks, claims or processing markers on an order or booking. If Firestore seems genuinely needed, ask first.
+- Follow the app's existing patterns. Don't add architecture for a single use case (e.g. a dedicated tRPC middleware or router changes for one feature). If something genuinely needs it, ask first; if the existing architecture has a real problem affecting the wider codebase, raise it as an issue instead of solving it for one feature.
+- Keep the website chat in sync with the website. When a change affects customer-facing website content (services, packages, prices, dates, policies, studios, links or page URLs), finish by updating Frankie's knowledge (see Skills).
 
 Do not touch unrelated worktree changes or commit credentials. Build the affected app after changing build configuration, and update the nearest README when an important boundary changes.

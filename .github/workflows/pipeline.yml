@@ -18,6 +18,9 @@ on:
             - '.node-version'
             - 'firebase.json'
             - '.firebaserc'
+            - 'firestore.rules'
+            - 'firestore.indexes.json'
+            - 'storage.rules'
             - 'apps/portal/predeploy.sh'
             - '.github/deploy-netlify.sh'
             - '.github/workflows/pipeline.yml'
@@ -37,6 +40,7 @@ jobs:
         environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
         permissions:
             contents: read
+            actions: read
 
         env:
             # Only deploy to prod on pushes to main. All other contexts (PRs, manual PR runs,
@@ -52,13 +56,32 @@ jobs:
                   # historical file contents that this deployment never reads.
                   filter: blob:none
 
+            # Diff against the last successful deploy of this branch rather than the previous
+            # push, so targets from a failed run are redeployed by the next push.
+            - name: Find last successful deploy
+              id: last-deploy
+              if: github.event_name == 'push'
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  sha=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow pipeline.yml --branch "$GITHUB_REF_NAME" \
+                    --status success --limit 1 --json headSha --jq '.[0].headSha // empty')
+
+                  if [ -z "$sha" ] || ! git cat-file -e "$sha^{commit}" 2>/dev/null; then
+                    echo "No usable successful deploy found; falling back to the previous push"
+                    sha="${{ github.event.before }}"
+                  fi
+
+                  echo "Detecting changes since $sha"
+                  echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
             # Pushes deploy only affected targets. Manual runs intentionally deploy every
             # target available for the selected branch as a full recovery deployment.
             - name: Detect deployment targets
               id: changes
               uses: dorny/paths-filter@v3
               with:
-                  base: ${{ github.ref }}
+                  base: ${{ steps.last-deploy.outputs.sha || github.ref }}
                   filters: |
                       portal:
                         - 'apps/portal/**'
@@ -80,6 +103,12 @@ jobs:
                         - 'vite.config.ts'
                         - 'tsconfig.json'
                         - '.node-version'
+                        - 'firebase.json'
+                        - '.firebaserc'
+                      rules:
+                        - 'firestore.rules'
+                        - 'firestore.indexes.json'
+                        - 'storage.rules'
                         - 'firebase.json'
                         - '.firebaserc'
                       website:
@@ -189,20 +218,21 @@ jobs:
                   fi
 
             - name: Deploy Firebase targets
-              if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.portal == 'true' || steps.changes.outputs.server == 'true'
+              if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.portal == 'true' || steps.changes.outputs.server == 'true' || steps.changes.outputs.rules == 'true'
               env:
                   DEPLOY_PORTAL: ${{ github.event_name == 'workflow_dispatch' || steps.changes.outputs.portal == 'true' }}
                   DEPLOY_SERVER: ${{ github.event_name == 'workflow_dispatch' || steps.changes.outputs.server == 'true' }}
+                  DEPLOY_RULES: ${{ github.event_name == 'workflow_dispatch' || steps.changes.outputs.rules == 'true' }}
                   GCLOUD_PROJECT: ${{ env.PROJECT_ID }}
                   FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
               run: |
-                  if [ "$DEPLOY_PORTAL" = "true" ] && [ "$DEPLOY_SERVER" = "true" ]; then
-                    targets="functions,hosting"
-                  elif [ "$DEPLOY_SERVER" = "true" ]; then
-                    targets="functions"
-                  elif [ "$DEPLOY_PORTAL" = "true" ]; then
-                    targets="hosting"
-                  fi
+                  targets=""
+                  if [ "$DEPLOY_SERVER" = "true" ]; then targets="$targets,functions"; fi
+                  if [ "$DEPLOY_PORTAL" = "true" ]; then targets="$targets,hosting"; fi
+                  # firestore covers rules and indexes. --force below also deletes indexes
+                  # that are not in firestore.indexes.json, so that file is the source of truth.
+                  if [ "$DEPLOY_RULES" = "true" ]; then targets="$targets,firestore,storage"; fi
+                  targets="${targets#,}"
 
                   # Artifacts were built above. Removing hooks from this generated config
                   # affects CI only; local firebase deploy still runs every predeploy hook.

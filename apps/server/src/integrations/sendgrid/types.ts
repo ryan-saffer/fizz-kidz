@@ -32,28 +32,6 @@ export type Emails = {
         bookings: { datetime: string; confirmationPage: string }[]
     }
 
-    createDiscountCode: {
-        name: string
-        code: string
-        expiryDate: string
-    }
-
-    // PLAY LAB
-    playLabBookingConfirmation: {
-        parentName: string
-        location: string
-        bookings: { time: string; details: string; confirmationPage: string }[]
-        isTermEnrolment: boolean
-        receiptUrl: string | undefined
-    }
-
-    playLabCancellation: {
-        parentName: string
-        location: string
-        booking: string
-        receiptUrl: string | undefined
-    }
-
     preschoolProgramBookingConfirmation: {
         parentName: string
         childName: string
@@ -129,6 +107,20 @@ export type Emails = {
     }
 
     // BIRTHDAY PARTIES
+    partyPaymentReceipt: {
+        parentName: string
+        /** e.g. "Mia's 7th" */
+        birthday: string
+        date: string
+        studio: string
+        lines: { label: string; amount: string }[]
+        discount: string
+        giftCard: string
+        total: string
+        receiptUrl: string
+        contactEmail: string
+        contactPhone: string
+    }
     partyBookingConfirmation: {
         header: string
         openingLine: string
@@ -146,7 +138,6 @@ export type Emails = {
         contactName?: string
         numberOfKidsAllowed: string[]
         studioPhotoUrl: string
-        useRsvpSystem: boolean
         invitationsUrl: string
         includesFood: boolean
         canOrderCake: boolean
@@ -317,10 +308,6 @@ export type Emails = {
         parentName: string
         childName: string
         reviewUrl: string
-    }
-
-    invitationGuests: {
-        name: string
     }
 
     cakeNotification: {
@@ -509,6 +496,8 @@ export type Emails = {
     }
 
     websiteContactFormToFizz: {
+        /** The enquiry's deal, or contact when there's no deal. Missing if the Zoho sync failed. */
+        zohoUrl?: string
         name: string
         email: string
         contactNumber: string
@@ -540,6 +529,8 @@ export type Emails = {
     }
 
     websiteEventFormToFizz: {
+        /** The enquiry's deal, or contact when there's no deal. Missing if the Zoho sync failed. */
+        zohoUrl?: string
         name: string
         email: string
         contactNumber: string
@@ -565,6 +556,8 @@ export type Emails = {
     }
 
     websiteIncurionFormToFizz: {
+        /** The enquiry's deal, or contact when there's no deal. Missing if the Zoho sync failed. */
+        zohoUrl?: string
         name: string
         school: string
         email: string
@@ -618,6 +611,8 @@ export type Emails = {
     }
 
     websitePartyFormToFizz: {
+        /** The enquiry's deal, or contact when there's no deal. Missing if the Zoho sync failed. */
+        zohoUrl?: string
         name: string
         email: string
         contactNumber: string

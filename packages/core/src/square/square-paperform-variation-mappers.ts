@@ -1,8 +1,6 @@
 import { assertNever } from '../utilities/assert-never'
 
 import type { PartyForm } from '../paperform'
-import type { ProductType } from '../parties/products'
-import type { TakeHomeBagType } from '../parties/take-home-bags'
 
 export function mapCakeSizeToSquareVariation(env: 'prod' | 'dev', size: PartyForm['cake_size']) {
     if (env === 'prod') {
@@ -26,7 +24,7 @@ export function mapCakeSizeToSquareVariation(env: 'prod' | 'dev', size: PartyFor
         case 'medium_cake':
             return '33R4W7BPZG5TXCB3IFRGT3AF'
         case 'large_cake':
-            return '33R4W7BPZG5TXCB3IFRGT3AF'
+            return 'MX53WUFOD5KFKSTJU5LVISM6'
         default: {
             assertNever(size)
             throw new Error(`Unable to get cake size variation for size: ${size}`)
@@ -88,41 +86,4 @@ export function mapCandleToSquareVariation(env: 'prod' | 'dev', candles: PartyFo
             throw new Error(`Unable to get cake candles variation for candles: ${candles}`)
         }
     }
-}
-
-export function mapTakeHomeBagToSquareVariation(env: 'prod' | 'dev', variation: TakeHomeBagType) {
-    if (env === 'prod') {
-        switch (variation) {
-            case 'lollyBags':
-                return 'RFPAE4HT6XGDC2TA33BHELLI'
-            case 'lollyToyMixBags':
-                return '6VUJRREWNRG3S7B3ZCIZJ6KL'
-            default: {
-                assertNever(variation)
-                throw new Error(`Unable to get take home bag variation for: ${variation}`)
-            }
-        }
-    }
-
-    return 'HT4WSYFMNZEDDCTPU735633C' // lolly bag in dev always - cbf setting up others
-}
-export function mapProductToSquareVariation(env: 'prod' | 'dev', variation: ProductType) {
-    if (env === 'prod') {
-        switch (variation) {
-            case 'bathBombKit':
-                return 'VKV2DKJKYHBSD4NHJKGKGGIQ'
-            case 'soapMakingKit':
-                return 'KEEJ75BGAUW75WFYUND7RN2E'
-            case 'stringSlimeKit':
-                return 'GJLAMKQXRXPHWLU2PSFAVSCU'
-            case 'superSlimeKit':
-                return 'H5CGI4PV6TF3YPKT547BZGX3'
-            default: {
-                assertNever(variation)
-                throw new Error(`Unable to get product variation for: ${variation}`)
-            }
-        }
-    }
-
-    return 'ZEFTLTUDWL3YU6M6HBM3KT6Y' // bath bomb kit in dev always - cbf setting up others
 }

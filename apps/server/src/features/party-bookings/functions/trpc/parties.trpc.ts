@@ -1,30 +1,38 @@
 import { z } from 'zod'
 
-import type {
-    Booking,
-    GenerateInvitation,
-    InvitationsV2,
-    PartyLostReason,
-    Studio,
-    WithoutId,
-    WithoutUid,
+import {
+    partyTerminalCheckoutSchema,
+    preparePartyCheckoutSchema,
+    preparePartyFormV2Schema,
+    startPartyCheckoutSchema,
+    submitPartyFormV2Schema,
 } from '@fizz-kidz/core'
+import type { Booking, Invitations, PartyLostReason, Studio, WithoutId, WithoutUid } from '@fizz-kidz/core'
 
-import type { HostRsvpProps, RsvpProps } from '@/features/party-bookings/core/rsvp/rsvp-to-party-v2'
+import type { HostRsvpProps, RsvpProps } from '@/features/party-bookings/core/rsvp/rsvp-to-party'
 
 import { throwTrpcError } from '@/app/trpc/transport-errors'
 import { authenticatedProcedure, publicProcedure, router } from '@/app/trpc/trpc'
 import { createPartyBooking } from '@/features/party-bookings/core/create-party-booking'
 import { deletePartyBooking } from '@/features/party-bookings/core/delete-party-booking'
-import { generateInvitation } from '@/features/party-bookings/core/generate-invitation'
+import {
+    cancelPartyCheckout,
+    getPartyCheckoutStatus,
+    startPartyCheckout,
+} from '@/features/party-bookings/core/party-checkout/charge-party-checkout'
+import { getPartyCheckout } from '@/features/party-bookings/core/party-checkout/get-party-checkout'
+import { preparePartyCheckout } from '@/features/party-bookings/core/party-checkout/prepare-party-checkout'
 import { getCakeFormUrl, getPartyFormUrl } from '@/features/party-bookings/core/party-form-urls'
-import { generateAndLinkInvitation } from '@/features/party-bookings/core/rsvp/edit-invitation-v2'
+import { preparePartyFormV2 } from '@/features/party-bookings/core/party-form-v2/checkout/prepare-party-form-v2'
+import { submitPartyFormV2 } from '@/features/party-bookings/core/party-form-v2/checkout/submit-party-form-v2'
+import { getPartyFormV2Config } from '@/features/party-bookings/core/party-form-v2/config/get-party-form-v2-config'
+import { generateAndLinkInvitation } from '@/features/party-bookings/core/rsvp/edit-invitation'
+import { generateInvitation } from '@/features/party-bookings/core/rsvp/generate-invitation'
 import { generateInvitationUrl } from '@/features/party-bookings/core/rsvp/generate-invitation-url'
-import { generateInvitationV2 } from '@/features/party-bookings/core/rsvp/generate-invitation-v2'
-import { getInvitationDownloadUrl } from '@/features/party-bookings/core/rsvp/get-invitation-download-url-v2'
-import { linkInvitation } from '@/features/party-bookings/core/rsvp/link-invitation-v2'
-import { resetInvitation } from '@/features/party-bookings/core/rsvp/reset-invitation-v2'
-import { hostRsvpToParty, guestRsvpToParty } from '@/features/party-bookings/core/rsvp/rsvp-to-party-v2'
+import { getInvitationDownloadUrl } from '@/features/party-bookings/core/rsvp/get-invitation-download-url'
+import { linkInvitation } from '@/features/party-bookings/core/rsvp/link-invitation'
+import { resetInvitation } from '@/features/party-bookings/core/rsvp/reset-invitation'
+import { hostRsvpToParty, guestRsvpToParty } from '@/features/party-bookings/core/rsvp/rsvp-to-party'
 import { sendPartyBookingConfirmationEmail } from '@/features/party-bookings/core/send-party-booking-confirmation-email'
 import { updatePartyBooking } from '@/features/party-bookings/core/update-party-booking'
 import { UnavailableBirthdayPartyCreationsError } from '@/features/party-bookings/core/validate-booking-creations'
@@ -33,6 +41,7 @@ import { getPartyFormEmbedConfig } from '@/integrations/paperforms/core/party-fo
 
 export type CreatePartyBooking = Booking
 export type UpdatePartyBooking = { bookingId: string; booking: Booking }
+
 export type DeletePartyBooking = {
     bookingId: string
     eventId: string
@@ -86,23 +95,42 @@ export const partiesRouter = router({
     getPaperformEmbedConfig: publicProcedure
         .input(z.object({ bookingId: z.string(), partyOrCakeForm: z.enum(['party', 'cake']) }))
         .query(({ input }) => getPartyFormEmbedConfig(input.bookingId, input.partyOrCakeForm)),
-    generateInvitation: publicProcedure
-        .input((input: unknown) => input as GenerateInvitation)
-        .mutation(({ input }) => generateInvitation(input)),
+    getPartyFormV2Config: publicProcedure
+        .input(z.object({ bookingId: z.string() }))
+        .query(({ input }) => getPartyFormV2Config(input.bookingId)),
+    preparePartyFormV2: publicProcedure
+        .input(preparePartyFormV2Schema)
+        .mutation(({ input }) => preparePartyFormV2(input)),
+    submitPartyFormV2: publicProcedure.input(submitPartyFormV2Schema).mutation(({ input }) => submitPartyFormV2(input)),
+    getPartyCheckout: authenticatedProcedure
+        .input(z.object({ bookingId: z.string() }))
+        .query(({ input, ctx }) => getPartyCheckout(input.bookingId, ctx.uid)),
+    preparePartyCheckout: authenticatedProcedure
+        .input(preparePartyCheckoutSchema)
+        .mutation(({ input, ctx }) => preparePartyCheckout(input, ctx.uid)),
+    startPartyCheckout: authenticatedProcedure
+        .input(startPartyCheckoutSchema)
+        .mutation(({ input, ctx }) => startPartyCheckout(input, ctx.uid)),
+    getPartyCheckoutStatus: authenticatedProcedure
+        .input(partyTerminalCheckoutSchema)
+        .mutation(({ input }) => getPartyCheckoutStatus(input)),
+    cancelPartyCheckout: authenticatedProcedure
+        .input(partyTerminalCheckoutSchema)
+        .mutation(({ input }) => cancelPartyCheckout(input)),
     generateInvitationUrl: authenticatedProcedure
         .input(z.object({ bookingId: z.string() }))
         .mutation(({ input }) => generateInvitationUrl(input.bookingId)),
     getInvitationDownloadUrl: authenticatedProcedure
         .input(z.object({ invitationId: z.string() }))
         .mutation(({ input, ctx }) => getInvitationDownloadUrl({ ...input, distinctId: ctx.email })),
-    generateInvitationV2: publicProcedure
-        .input((input: unknown) => input as WithoutId<WithoutUid<InvitationsV2.Invitation>>)
-        .mutation(({ input }) => generateInvitationV2(input)),
+    generateInvitation: publicProcedure
+        .input((input: unknown) => input as WithoutId<WithoutUid<Invitations.Invitation>>)
+        .mutation(({ input }) => generateInvitation(input)),
     linkInvitation: authenticatedProcedure
-        .input((input: unknown) => input as WithoutUid<InvitationsV2.Invitation>)
+        .input((input: unknown) => input as WithoutUid<Invitations.Invitation>)
         .mutation(({ input, ctx }) => linkInvitation({ ...input, uid: ctx.uid }, ctx.email)),
     generateAndLinkInvitation: authenticatedProcedure
-        .input((input: unknown) => input as InvitationsV2.Invitation)
+        .input((input: unknown) => input as Invitations.Invitation)
         .mutation(({ input, ctx }) => generateAndLinkInvitation({ ...input, uid: ctx.uid }, ctx.email)),
     resetInvitation: authenticatedProcedure
         .input((input: unknown) => input as { invitationId: string })

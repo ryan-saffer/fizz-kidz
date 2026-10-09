@@ -57,7 +57,7 @@ npm run docs            # Knowledge base on :4321
 npm run sanity          # Sanity Studio
 
 npm run check           # Read-only format, lint, and type checks
-npm run test            # Core, Portal, and server tests
+npm run test            # Core, UI, Portal, server, and website tests
 npm run verify          # Fix checks, then test
 npm run verify:full     # Include Astro and Sanity checks
 npm run build           # Core + server + Portal
@@ -88,6 +88,7 @@ vp add <package> --filter @fizz-kidz/core
 - `main` builds and deploys only changed production targets. Firebase deploys first, Sanity deploys when affected, then GitHub Actions triggers a cached Netlify production build when Website code changed.
 - A failed Firebase deployment prevents the Website deployment from running.
 - Portal watches `apps/portal`, `packages/core`, and `packages/ui`; server watches `apps/server` and `packages/core`; Website and Sanity Studio watch their own apps plus `packages/core` and `packages/ui`.
+- Firestore rules, Firestore indexes, and Storage rules live at the root (`firestore.rules`, `firestore.indexes.json`, `storage.rules`). One copy serves both projects: changes deploy to dev from `develop` and to prod from `main`. Indexes missing from `firestore.indexes.json` are deleted on deploy, so add new ones there rather than in the console.
 - Manual production runs deploy Portal, server, Sanity Studio, and Website as a full recovery deployment. Manual development runs deploy only Firebase targets.
 - The `dev` and `prod` GitHub environments require the `NETLIFY_AUTH_TOKEN` and `NETLIFY_BUILD_HOOK_URL` secrets plus the `NETLIFY_SITE_ID` variable. Use the `develop` hook in `dev` and the `main` hook in `prod`.
 - The `prod` GitHub environment also requires a `SANITY_AUTH_TOKEN` deploy-token secret for `fizz-kidz.sanity.studio`.

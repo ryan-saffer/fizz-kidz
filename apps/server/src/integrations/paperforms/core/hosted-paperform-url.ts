@@ -42,3 +42,11 @@ export function buildHostedPaperformUrl(
 
     return url.toString()
 }
+
+/** The custom party form (`/party-form-v2` in the portal) that replaces the party and cake Paperforms. */
+export function buildCustomPartyFormUrl(form: 'party' | 'cake', bookingId: string, useEmulator = isUsingEmulator()) {
+    const url = new URL(`${getApplicationDomain(env, useEmulator)}/party-form-v2`)
+    url.searchParams.set('id', bookingId)
+    if (form === 'cake') url.searchParams.set('mode', 'cake')
+    return url.toString()
+}

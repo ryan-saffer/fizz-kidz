@@ -1,5 +1,5 @@
 import { createContext } from 'react'
 
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import type { Invitations } from '@fizz-kidz/core'
 
-export const InvitationContext = createContext<InvitationsV2.Invitation | null>(null)
+export const InvitationContext = createContext<Invitations.Invitation | null>(null)
