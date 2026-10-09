@@ -68,6 +68,9 @@ describe('Fizz Kidz Utilities', () => {
         it("should return '4 & 5th' for '4 & 5'", () => {
             strictEqual(addOrdinalSuffix('4 & 5'), '4 & 5th')
         })
+        it("should return '1 & 11th' for '1 & 11'", () => {
+            strictEqual(addOrdinalSuffix('1 & 11'), '1 & 11th')
+        })
         it('should return "2 & 3rd" for "2 & 3"', () => {
             strictEqual(addOrdinalSuffix('2 & 3'), '2 & 3rd')
         })

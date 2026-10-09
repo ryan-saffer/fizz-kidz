@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 import QRCode from 'qrcode'
 
 import type { Invitations, WithoutUid } from '@fizz-kidz/core'
-import { ObjectKeys, getInvitationShareUrl, getStudioAddress } from '@fizz-kidz/core'
+import { ObjectKeys, addOrdinalSuffix, getInvitationShareUrl, getStudioAddress } from '@fizz-kidz/core'
 
 import type { CanvasRenderingContext2D, PNGStream } from 'canvas'
 
@@ -123,9 +123,9 @@ export class InvitationImageGenerator {
 
     #formatChildsName(name: string, age: string) {
         if (name.endsWith('s')) {
-            return `${name}' ${age}th`
+            return `${name}' ${addOrdinalSuffix(age)}`
         }
-        return `${name}'s ${age}th`
+        return `${name}'s ${addOrdinalSuffix(age)}`
     }
 }
 
