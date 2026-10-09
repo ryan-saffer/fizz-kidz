@@ -41,8 +41,6 @@ export type GetAppointmentTypesParams = {
         | 'art-werribee'
         | 'preschool-program'
         | 'preschool-program-test'
-        | 'play-lab-test'
-        | 'play-lab'
     >
     availableToBook?: boolean
 }

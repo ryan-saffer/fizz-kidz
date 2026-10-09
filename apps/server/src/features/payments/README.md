@@ -2,7 +2,7 @@
 
 The shared server-side payment module for booking flows that take payments through Square. It owns the money: pricing in Square, discount codes, gift cards, card and wallet payments, and replays. Booking flows own everything else: what is being bought, their own UI, and what happens once payment succeeds.
 
-Currently used by the custom party form, the party checkout (charging a party on a Square Terminal) and product sales (selling our kits on a Square Terminal). Preschool v2 and holiday programs are to move onto it; Play Lab is deprecated.
+Currently used by the custom party form, the party checkout (charging a party on a Square Terminal) and product sales (selling our kits on a Square Terminal). Preschool v2 and holiday programs are to move onto it.
 
 Tests live in a `__tests__` folder next to the file they cover (e.g. `core/__tests__/pay-checkout.test.ts` tests `core/pay-checkout.ts`). This is being tried here and in the party form before the rest of the repo.
 

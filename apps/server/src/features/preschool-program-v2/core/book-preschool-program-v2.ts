@@ -18,6 +18,7 @@ import { logError } from '@/integrations/observability/log-error'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 import { getOrCreateCustomer } from '@/integrations/square/core/get-or-create-customer'
 import { getSquareError } from '@/integrations/square/square.client'
+import { ZohoClient } from '@/integrations/zoho/zoho.client'
 
 const TERM_LOOKBACK_MONTHS = 6
 /** Three weeks between classes, so one skipped week (e.g. a public holiday) stays in the same term. */
@@ -218,6 +219,25 @@ export async function bookPreschoolProgramV2(input: BookPreschoolProgramV2Props)
         logError('preschool-v2 booked successfully, but unable to send confirmation email', err, {
             orderId: order.id,
             appointmentIds: appointments.map((appointment) => appointment.id),
+        })
+    }
+
+    // MARK: CRM
+    // Always add the parent, so the team can see every customer. Unticking the mailing list checkbox
+    // sets their marketing opt-out, which stops Zoho Campaigns from emailing them.
+    try {
+        await new ZohoClient().addPreschoolProgramContact({
+            firstName: input.parentFirstName,
+            lastName: input.parentLastName,
+            email: input.parentEmail,
+            mobile: input.parentPhone,
+            studio: AcuityUtilities.getStudioByCalendarId(sanitizedLineItems[0].calendarID),
+            children: input.children.map((child) => ({ childName: child.firstName, childBirthdayISO: child.dob })),
+            optOutOfMarketing: !input.joinMailingList,
+        })
+    } catch (err) {
+        logError(`unable to add preschool program booking to zoho with parent email '${input.parentEmail}'`, err, {
+            orderId: order.id,
         })
     }
 

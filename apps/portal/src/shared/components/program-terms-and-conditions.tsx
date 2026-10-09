@@ -1,12 +1,9 @@
 type Props = {
-    programName?: string
-    programUrl?: string
+    programName: string
+    programUrl: string
 }
 
-export function TermsAndConditions({
-    programName = 'play lab program',
-    programUrl = 'https://www.fizzkidz.com.au/play-lab',
-}: Props) {
+export function TermsAndConditions({ programName, programUrl }: Props) {
     return (
         <>
             <p>

@@ -20,7 +20,6 @@ import { runRemovePreschoolProgramClassScript } from './preschool-program/remove
 import { getEvents } from './reports/get-events'
 import { getHolidayPrograms } from './reports/get-holiday-programs'
 import { getParties } from './reports/get-parties'
-import { getPlayLabPrograms } from './reports/get-play-lab'
 import { restoreHolidayProgramContactPhones } from './zoho/restore-holiday-program-contact-phones'
 
 import type { Square } from 'square'
@@ -273,13 +272,11 @@ import { SquareClient } from '@/integrations/square/square.client'
         const parties = await getParties({ from: startDate, to: endDate, studio })
         const events = await getEvents({ from: startDate, to: endDate, studio })
         const holidayPrograms = await getHolidayPrograms({ from: startDate, to: endDate, studio })
-        const playLab = await getPlayLabPrograms({ from: startDate, to: endDate, studio })
 
         console.table({
             Parties: parties.length,
             Events: events.length,
             'Holiday bookings': holidayPrograms.length,
-            'Play Lab bookings': playLab.length,
         })
     }
     if (script === 'updateSlingWages') {

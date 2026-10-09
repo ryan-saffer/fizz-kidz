@@ -325,19 +325,6 @@ export const websitePagesPartiesSlimePartyJpg = getWebsiteImage('websitePagesPar
 export const websitePagesPartiesTaylorSwiftPartyJpg = getWebsiteImage('websitePagesPartiesTaylorSwiftPartyJpg')
 export const websitePagesPartiesTieDyePartyJpg = getWebsiteImage('websitePagesPartiesTieDyePartyJpg')
 export const websitePagesPartiesUnicornPartyJpg = getWebsiteImage('websitePagesPartiesUnicornPartyJpg')
-export const websitePagesPlayLabAllPlaysBannerJpg = getWebsiteImage('websitePagesPlayLabAllPlaysBannerJpg')
-export const websitePagesPlayLabAllPlaysJpg = getWebsiteImage('websitePagesPlayLabAllPlaysJpg')
-export const websitePagesPlayLabBlackGraphicsPng = getWebsiteImage('websitePagesPlayLabBlackGraphicsPng')
-export const websitePagesPlayLabCreativeKindersBannerJpg = getWebsiteImage(
-    'websitePagesPlayLabCreativeKindersBannerJpg'
-)
-export const websitePagesPlayLabCreativeKindersJpg = getWebsiteImage('websitePagesPlayLabCreativeKindersJpg')
-export const websitePagesPlayLabGraphicsPng = getWebsiteImage('websitePagesPlayLabGraphicsPng')
-export const websitePagesPlayLabLittleExplorersBannerJpg = getWebsiteImage(
-    'websitePagesPlayLabLittleExplorersBannerJpg'
-)
-export const websitePagesPlayLabLittleExplorersJpg = getWebsiteImage('websitePagesPlayLabLittleExplorersJpg')
-export const websitePagesPlayLabSwingJpg = getWebsiteImage('websitePagesPlayLabSwingJpg')
 export const websitePagesPreschoolProgram1Jpg = getWebsiteImage('websitePagesPreschoolProgram1Jpg')
 export const websitePagesPreschoolProgram2Jpg = getWebsiteImage('websitePagesPreschoolProgram2Jpg')
 export const websitePagesPreschoolProgram3Jpg = getWebsiteImage('websitePagesPreschoolProgram3Jpg')

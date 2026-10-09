@@ -95,8 +95,7 @@ export async function createPreschoolProgramEnrolment(input: CreatePreschoolProg
             email: input.parent.email,
             mobile: input.parent.phone,
             studio,
-            childName: input.child.firstName,
-            childBirthdayISO: input.child.dob,
+            children: [{ childName: input.child.firstName, childBirthdayISO: input.child.dob }],
             optOutOfMarketing: !input.joinMailingList,
         })
     } catch (err) {
