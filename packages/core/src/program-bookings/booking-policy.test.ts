@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { getHolidayProgramChangeEligibility } from './booking-policy'
+import { getSessionChangeEligibility } from './booking-policy'
 
 const HOUR = 60 * 60 * 1000
 
-describe('holiday program change cutoff', () => {
+describe('session change cutoff', () => {
     const now = Date.parse('2026-10-01T00:00:00Z')
     const inHours = (hours: number) => new Date(now + hours * HOUR).toISOString()
 
@@ -14,11 +14,11 @@ describe('holiday program change cutoff', () => {
         [47, true, false],
         [0, false, false],
     ])('%i hours before the start', (hours, canCancel, canReschedule) => {
-        expect(getHolidayProgramChangeEligibility(inHours(hours), false, now)).toEqual({ canCancel, canReschedule })
+        expect(getSessionChangeEligibility(inHours(hours), false, now)).toEqual({ canCancel, canReschedule })
     })
 
     it('does not allow changes to cancelled appointments', () => {
-        expect(getHolidayProgramChangeEligibility(inHours(72), true, now)).toEqual({
+        expect(getSessionChangeEligibility(inHours(72), true, now)).toEqual({
             canCancel: false,
             canReschedule: false,
         })

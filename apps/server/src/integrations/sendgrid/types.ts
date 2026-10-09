@@ -1,3 +1,5 @@
+import type { ProgramBookingPolicy } from '@fizz-kidz/core'
+
 export type Emails = {
     // HOLIDAY PROGRAMS
     holidayProgramConfirmation: {
@@ -7,7 +9,7 @@ export type Emails = {
         bookings: { datetime: string; confirmationPage: string }[]
         receiptUrl: string | undefined
         rescheduled: boolean
-        policy: { title: string; paragraphs: readonly string[] }
+        policy: ProgramBookingPolicy
     }
 
     holidayProgramCancellation: {
@@ -15,7 +17,7 @@ export type Emails = {
         location: string
         booking: string
         receiptUrl: string | undefined
-        policy: { title: string; paragraphs: readonly string[] }
+        policy: ProgramBookingPolicy
     }
 
     werribeeOpeningConfirmation: {
@@ -45,6 +47,8 @@ export type Emails = {
         location: string
         bookings: { time: string; details: string; confirmationPage: string; isFullTermDiscount: boolean }[]
         receiptUrl: string | undefined
+        rescheduled: boolean
+        policy: ProgramBookingPolicy
     }
 
     preschoolProgramV2Cancellation: {
@@ -54,6 +58,7 @@ export type Emails = {
         receiptUrl: string
         refundAmount: string
         hasRefund: boolean
+        policy: ProgramBookingPolicy
     }
 
     preschoolProgramUnenrolmentConfirmation: {

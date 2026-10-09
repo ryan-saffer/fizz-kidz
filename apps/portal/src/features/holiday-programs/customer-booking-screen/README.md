@@ -35,11 +35,7 @@ Attendance shows separate anaphylaxis and asthma indicators and plan buttons. Si
 
 ## Cancellations and rescheduling
 
-Confirmation emails link each appointment to `/programs/manage/:appointmentId#token=...`, a public page for rescheduling or cancelling one child's session. The token is an HMAC of the appointment ID signed with `ACUITY_API_KEY`.
-
-Rescheduling moves the appointment to another session at the same studio, at least 48 hours before the current session. Cancelling is allowed until the session starts, and the Acuity webhook handles the refund. Acuity's client reschedule cutoff must be no stricter than 48 hours.
-
-Policy copy and the cutoff live in `packages/core/src/holiday-programs/booking-policy.ts`.
+Confirmation emails link each appointment to the shared management page; see [`features/program-bookings`](../../program-bookings/README.md).
 
 The Acuity webhook finds the exact Square line item using the stored order ID and line-item identifier.
 

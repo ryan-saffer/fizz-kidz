@@ -8,7 +8,7 @@ import { isUsingEmulator } from '@/shared/runtime/is-using-emulator'
 // Signed with the Acuity API key, so rotating that key revokes existing links.
 export function createAppointmentManagementToken(appointmentId: number) {
     return createHmac('sha256', process.env.ACUITY_API_KEY!)
-        .update(`holiday-program-management:${appointmentId}`)
+        .update(`program-booking-management:${appointmentId}`)
         .digest('hex')
 }
 

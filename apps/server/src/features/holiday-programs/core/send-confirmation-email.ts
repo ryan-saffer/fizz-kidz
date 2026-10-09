@@ -3,10 +3,9 @@ import { DateTime } from 'luxon'
 import type { AcuityTypes } from '@fizz-kidz/core'
 import { AcuityConstants, AcuityUtilities, capitalise, getStudioAddress, HOLIDAY_PROGRAM_POLICY } from '@fizz-kidz/core'
 
-import { getAppointmentManagementUrl } from './appointment-management-link'
-
 import type { Emails } from '@/integrations/sendgrid/types'
 
+import { getAppointmentManagementUrl } from '@/features/program-bookings/core/appointment-management-link'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 
 type ConfirmationAppointmentType =

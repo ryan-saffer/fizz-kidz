@@ -2,7 +2,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { HOLIDAY_PROGRAM_POLICY } from '@fizz-kidz/core'
+import { HOLIDAY_PROGRAM_POLICY, PRESCHOOL_PROGRAM_POLICY } from '@fizz-kidz/core'
 
 import { MailClient } from './sendgrid.client'
 
@@ -120,5 +120,37 @@ describe('website enquiry emails to the team', () => {
 
     it('leaves the link out when the Zoho sync failed', async () => {
         expect((await renderContactEnquiry()).querySelector('a')).toBeNull()
+    })
+})
+
+describe('preschool program confirmation email', () => {
+    beforeEach(() => vi.clearAllMocks())
+
+    it('renders the rescheduled copy, management link and policy', async () => {
+        const client = await MailClient.getInstance()
+        const managementUrl = 'https://bookings.fizzkidz.com.au/programs/manage/456#token=abc'
+        await client.sendEmail('preschoolProgramV2BookingConfirmation', 'parent@example.com', {
+            parentName: 'Parent',
+            location: 'Malvern',
+            bookings: [
+                {
+                    time: 'Friday, Oct 16, 9:30 AM - 11:30 AM',
+                    details: 'Alex',
+                    confirmationPage: managementUrl,
+                    isFullTermDiscount: false,
+                },
+            ],
+            receiptUrl: undefined,
+            rescheduled: true,
+            policy: PRESCHOOL_PROGRAM_POLICY,
+        })
+        const { default: mail } = await import('@sendgrid/mail')
+        const payload = vi.mocked(mail.send).mock.calls[0][0]
+        if (Array.isArray(payload) || !payload.html) throw new Error('Expected a single HTML email')
+        const document = new DOMParser().parseFromString(payload.html, 'text/html')
+        expect(document.querySelector('a[href*="/programs/manage/"]')?.getAttribute('href')).toBe(managementUrl)
+        expect(document.body.textContent).toContain('Your Preschool Program session has been rescheduled.')
+        expect(document.body.textContent).not.toContain('booking is confirmed and paid')
+        expect(document.body.textContent).toContain(PRESCHOOL_PROGRAM_POLICY.paragraphs[1])
     })
 })

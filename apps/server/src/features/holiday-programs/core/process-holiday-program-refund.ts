@@ -1,11 +1,7 @@
 import { logger } from 'firebase-functions/v2'
 
-import {
-    AcuityConstants,
-    AcuityUtilities,
-    getHolidayProgramChangeEligibility,
-    HOLIDAY_PROGRAM_POLICY,
-} from '@fizz-kidz/core'
+import { AcuityConstants, AcuityUtilities, getSessionChangeEligibility, HOLIDAY_PROGRAM_POLICY } from '@fizz-kidz/core'
+import type { AcuityTypes } from '@fizz-kidz/core'
 
 import { formatHolidayProgramAppointment } from './send-confirmation-email'
 
@@ -43,15 +39,8 @@ export async function processHolidayProgramRefund(data: AcuityWebhookData) {
         )
         return
     }
-    // if searching for line items that just match classId, multiple line items could be found if multiple children booked.
-    // so to be sure we are processing the refund on the correct line item, we get the line item identifier
-    const lineItemIdentifier =
-        AcuityUtilities.retrieveFormAndField(
-            appointment,
-            AcuityConstants.Forms.PAYMENT,
-            AcuityConstants.FormFields.LINE_ITEM_IDENTIFIER
-        ) || 'not-found'
-    const lineItemToRefund = order?.lineItems?.find((it) => it?.metadata?.['lineItemIdentifier'] === lineItemIdentifier)
+    const lineItemIdentifier = getLineItemIdentifier(appointment)
+    const lineItemToRefund = findLineItem(order, appointment)
     if (!lineItemToRefund) {
         logError(
             `Unable to find line item with matching class id and line item identifier for holiday program booking with id: ${appointment.id}`,
@@ -66,7 +55,7 @@ export async function processHolidayProgramRefund(data: AcuityWebhookData) {
     let amountToRefund = lineItemToRefund.totalMoney?.amount
 
     // refunds follow the same 48 hour cutoff as rescheduling
-    if (!getHolidayProgramChangeEligibility(appointment.datetime).canReschedule) {
+    if (!getSessionChangeEligibility(appointment.datetime).canReschedule) {
         logger.log('Less than 48 hours before program, not performing refund.')
         await mailClient.sendEmail('holidayProgramCancellation', appointment.email, {
             booking: formatHolidayProgramAppointment(appointment),
@@ -175,4 +164,35 @@ export async function processHolidayProgramRefund(data: AcuityWebhookData) {
         receiptUrl,
         policy: HOLIDAY_PROGRAM_POLICY,
     })
+}
+
+/** The amount cancelling this appointment now would refund, using the same rules as the cancellation webhook. */
+export async function quoteHolidayProgramRefund(appointment: AcuityTypes.Api.Appointment) {
+    if (!getSessionChangeEligibility(appointment.datetime).canReschedule) return { refundCents: 0 }
+
+    const orderId = AcuityUtilities.retrieveFormAndField(
+        appointment,
+        AcuityConstants.Forms.PAYMENT,
+        AcuityConstants.FormFields.ORDER_ID
+    ) as string
+    const square = await SquareClient.getInstance()
+    const { order } = await square.orders.get({ orderId })
+    return { refundCents: Number(findLineItem(order!, appointment)?.totalMoney?.amount ?? 0) }
+}
+
+// if searching for line items that just match classId, multiple line items could be found if multiple children booked.
+// so to be sure we are processing the refund on the correct line item, we get the line item identifier
+function getLineItemIdentifier(appointment: AcuityTypes.Api.Appointment) {
+    return (
+        AcuityUtilities.retrieveFormAndField(
+            appointment,
+            AcuityConstants.Forms.PAYMENT,
+            AcuityConstants.FormFields.LINE_ITEM_IDENTIFIER
+        ) || 'not-found'
+    )
+}
+
+function findLineItem(order: Square.Order, appointment: AcuityTypes.Api.Appointment) {
+    const lineItemIdentifier = getLineItemIdentifier(appointment)
+    return order.lineItems?.find((it) => it?.metadata?.['lineItemIdentifier'] === lineItemIdentifier)
 }

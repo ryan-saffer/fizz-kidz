@@ -2,8 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
-import { HOLIDAY_PROGRAM_POLICY } from '@fizz-kidz/core'
+import { HOLIDAY_PROGRAM_POLICY, PRESCHOOL_PROGRAM_POLICY } from '@fizz-kidz/core'
 
+import { SessionDetails } from '@features/holiday-programs/customer-booking-screen/components/session-details'
+import { formatSessionTime } from '@features/holiday-programs/customer-booking-screen/components/session-time'
 import { useTRPC } from '@integrations/trpc'
 import Root from '@shared/components/public-page-shell'
 import { Button } from '@shared/components/ui/button'
@@ -16,10 +18,22 @@ import {
     DialogTitle,
 } from '@shared/components/ui/dialog'
 
-import { SessionDetails } from '../components/session-details'
-import { formatSessionTime } from '../components/session-time'
+const PROGRAMS = {
+    'holiday-program': {
+        name: 'holiday program',
+        policy: HOLIDAY_PROGRAM_POLICY,
+        sessionScope: 'at',
+        scheduleUrl: 'https://www.fizzkidz.com.au/holiday-programs/',
+    },
+    'preschool-program': {
+        name: 'Preschool Program',
+        policy: PRESCHOOL_PROGRAM_POLICY,
+        sessionScope: 'this term at',
+        scheduleUrl: undefined,
+    },
+} as const
 
-export function ManageAppointmentPage() {
+export function ManageBookingPage() {
     const { appointmentId } = useParams()
     const { hash } = useLocation()
     const token = new URLSearchParams(hash.slice(1)).get('token') || ''
@@ -27,17 +41,7 @@ export function ManageAppointmentPage() {
     return (
         <Root width="centered">
             <div className="w-full max-w-[500px] space-y-6 pb-4">
-                <header className="space-y-2 text-center">
-                    <h1 className="text-2xl font-semibold">Manage your holiday program</h1>
-                    <p className="text-sm text-muted-foreground">Change or cancel one child's session.</p>
-                </header>
                 <ManageAppointment appointmentId={Number(appointmentId)} token={token} />
-                <section className="space-y-3 border-t pt-5 text-sm">
-                    <h2 className="font-semibold">{HOLIDAY_PROGRAM_POLICY.title}</h2>
-                    {HOLIDAY_PROGRAM_POLICY.paragraphs.map((paragraph) => (
-                        <p key={paragraph}>{paragraph}</p>
-                    ))}
-                </section>
                 <p className="text-center text-sm">
                     Need a hand? Call{' '}
                     <a className="underline" href="tel:0390598144">
@@ -59,14 +63,20 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
     const [notice, setNotice] = useState('')
     const [error, setError] = useState('')
 
-    const appointmentQueryKey = trpc.holidayPrograms.getManagedAppointment.queryKey(access)
+    const appointmentQueryKey = trpc.programBookings.getManagedAppointment.queryKey(access)
     const {
         data: appointment,
         isPending,
         error: loadError,
-    } = useQuery(trpc.holidayPrograms.getManagedAppointment.queryOptions(access, { retry: false }))
+    } = useQuery(trpc.programBookings.getManagedAppointment.queryOptions(access, { retry: false }))
     const sessions = useQuery(
-        trpc.holidayPrograms.rescheduleSessions.queryOptions(access, { enabled: choosingSession })
+        trpc.programBookings.rescheduleSessions.queryOptions(access, { enabled: choosingSession })
+    )
+    const refund = useQuery(
+        trpc.programBookings.cancellationRefund.queryOptions(access, {
+            enabled: confirmation === 'cancel',
+            retry: false,
+        })
     )
     const selected = sessions.data?.find((session) => session.id === selectedClassId)
 
@@ -82,7 +92,7 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
         setError(cause.message)
     }
     const cancel = useMutation(
-        trpc.holidayPrograms.cancelAppointment.mutationOptions({
+        trpc.programBookings.cancelAppointment.mutationOptions({
             onSuccess: () =>
                 onSuccess(
                     'Your session has been cancelled. You will receive a cancellation email with any refund details.'
@@ -91,7 +101,7 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
         })
     )
     const reschedule = useMutation(
-        trpc.holidayPrograms.rescheduleAppointment.mutationOptions({
+        trpc.programBookings.rescheduleAppointment.mutationOptions({
             onSuccess: () =>
                 onSuccess('Your session has been rescheduled. We have emailed your updated booking details.'),
             onError,
@@ -109,9 +119,14 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
     if (!appointment) {
         return <p role="alert">{loadError?.message || 'We could not load your booking. Please try again.'}</p>
     }
+    const program = PROGRAMS[appointment.program]
 
     return (
         <>
+            <header className="space-y-2 text-center">
+                <h1 className="text-2xl font-semibold">Manage your {program.name} booking</h1>
+                <p className="text-sm text-muted-foreground">Change or cancel one child's session.</p>
+            </header>
             {notice && (
                 <p role="status" className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm">
                     {notice}
@@ -171,25 +186,27 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
                         <section className="space-y-4">
                             <h2 className="text-lg font-semibold">Choose a new session</h2>
                             <p className="text-sm">
-                                Available sessions at Fizz Kidz {appointment.studio}. Your current booking stays in
-                                place until you confirm the change.
+                                Available sessions {program.sessionScope} Fizz Kidz {appointment.studio}. Your current
+                                booking stays in place until you confirm the change.
                             </p>
-                            <a
-                                className="block text-sm underline"
-                                href="https://www.fizzkidz.com.au/holiday-programs/"
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                View what we are making each day
-                            </a>
+                            {program.scheduleUrl && (
+                                <a
+                                    className="block text-sm underline"
+                                    href={program.scheduleUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    View what we are making each day
+                                </a>
+                            )}
                             {sessions.isPending ? (
                                 <p role="status">Loading sessions...</p>
                             ) : sessions.isError ? (
                                 <p role="alert">We could not load available sessions. Please try again later.</p>
                             ) : !sessions.data.some((session) => session.slotsAvailable > 0) ? (
                                 <p>
-                                    No other sessions are available at this studio at the moment. Please check again
-                                    later or contact us.
+                                    No other sessions are available {program.sessionScope} this studio at the moment.
+                                    Please check again later or contact us.
                                 </p>
                             ) : (
                                 <fieldset className="space-y-2" disabled={busy}>
@@ -242,6 +259,12 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
                     )}
                 </>
             )}
+            <section className="space-y-3 border-t pt-5 text-sm">
+                <h2 className="font-semibold">{program.policy.title}</h2>
+                {program.policy.paragraphs.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                ))}
+            </section>
             <Dialog open={confirmation !== null} onOpenChange={(open) => !open && !busy && setConfirmation(null)}>
                 <DialogContent className="twp" hideCloseBtn={busy}>
                     <DialogHeader>
@@ -259,11 +282,7 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
                             {formatSessionTime(appointment.datetime, Number(appointment.duration))}
                         </p>
                         {confirmation === 'cancel' ? (
-                            <p>
-                                {appointment.canReschedule
-                                    ? 'The amount paid for this session will be automatically refunded to your original payment method.'
-                                    : 'This cancellation will not be refunded because the session starts in less than 48 hours.'}
-                            </p>
+                            <CancellationRefund refund={refund} canReschedule={appointment.canReschedule} />
                         ) : (
                             selected && (
                                 <p>
@@ -279,7 +298,7 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
                         </Button>
                         <Button
                             variant={confirmation === 'cancel' ? 'destructive' : 'default'}
-                            disabled={busy}
+                            disabled={busy || (confirmation === 'cancel' && refund.isPending)}
                             onClick={() => {
                                 if (confirmation === 'cancel') cancel.mutate(access)
                                 else if (selected) reschedule.mutate({ ...access, classId: selected.id })
@@ -294,6 +313,39 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+        </>
+    )
+}
+
+function CancellationRefund({
+    refund,
+    canReschedule,
+}: {
+    refund: { data?: { refundCents: number; fullTermDiscountRemoved: boolean }; isPending: boolean; isError: boolean }
+    canReschedule: boolean
+}) {
+    if (refund.isPending) return <p role="status">Working out your refund...</p>
+    if (refund.isError || !refund.data) {
+        return <p>We could not work out your refund right now. Your cancellation email will confirm any refund.</p>
+    }
+
+    const { refundCents, fullTermDiscountRemoved } = refund.data
+    return (
+        <>
+            <p>
+                <strong>Refund:</strong>{' '}
+                {refundCents > 0 ? `$${(refundCents / 100).toFixed(2)} to your original payment method.` : 'No refund.'}
+            </p>
+            {!canReschedule ? (
+                <p>This session starts in less than 48 hours, so it is not eligible for a refund.</p>
+            ) : (
+                fullTermDiscountRemoved && (
+                    <p>
+                        Your booking has the 20% full-term discount. Cancelling this session means it no longer covers
+                        the full term, so the discount is removed from your other sessions and taken out of this refund.
+                    </p>
+                )
+            )}
         </>
     )
 }

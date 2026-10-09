@@ -29,7 +29,8 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    Preschool Program booking confirmation
+                    {{#rescheduled}}Preschool Program session rescheduled{{/rescheduled}} {{^rescheduled}}Preschool
+                    Program booking confirmation{{/rescheduled}}
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -42,6 +43,12 @@
             <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px" padding-top="0">
                 <mj-column width="100%">
                     <mj-text font-size="16px"> Hi {{ parentName }}, </mj-text>
+                    {{#rescheduled}}
+                    <mj-text font-size="16px">
+                        Your Preschool Program session has been rescheduled. Here are your updated session details. You
+                        can use the Change / Cancel link if you need to make another change.
+                    </mj-text>
+                    {{/rescheduled}} {{^rescheduled}}
                     <mj-text font-size="16px">
                         Yay! Your Fizz Kidz Preschool Program booking is confirmed and paid. We can't wait to welcome
                         your child into the studio.
@@ -50,6 +57,7 @@
                         Below are the sessions you have booked. You can use the Change / Cancel link beside each session
                         if you need to manage an individual booking.
                     </mj-text>
+                    {{/rescheduled}}
                 </mj-column>
                 <mj-column width="100%">
                     <mj-text
@@ -95,11 +103,10 @@
                         story time, and take home their creations each week.
                     </mj-text>
                     <mj-text font-size="16px">
-                        <strong>Cancellation and refunds:</strong> You can cancel a session more than 48 hours before
-                        its scheduled start time for an automatic full refund, using the Change / Cancel link above.
-                        Cancellations made within 48 hours are not eligible for a refund. If cancelling a session means
-                        a booking no longer includes every session in a discounted full-term booking, the refund is
-                        recalculated at the standard session price.
+                        <strong>{{ policy.title }}</strong>
+                        {{#policy.paragraphs}}
+                        <p>{{.}}</p>
+                        {{/policy.paragraphs}}
                     </mj-text>
                     <mj-text font-size="16px">
                         If you have any questions, just reply to this email or call us on

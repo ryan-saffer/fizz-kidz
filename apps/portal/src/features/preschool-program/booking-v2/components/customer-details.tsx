@@ -6,6 +6,8 @@ import { Fragment, useRef, useState } from 'react'
 import { useFieldArray, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
+import { PRESCHOOL_PROGRAM_POLICY } from '@fizz-kidz/core'
+
 import useFirebase from '@integrations/firebase/use-firebase'
 import {
     AlertDialog,
@@ -443,7 +445,7 @@ export function CustomerDetails() {
             <Dialog open={showCancellationPolicy} onOpenChange={setShowCancellationPolicy}>
                 <DialogContent className="twp max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Cancellation Policy</DialogTitle>
+                        <DialogTitle>{PRESCHOOL_PROGRAM_POLICY.title}</DialogTitle>
                     </DialogHeader>
                     <PreschoolProgramCancellationPolicy />
                 </DialogContent>

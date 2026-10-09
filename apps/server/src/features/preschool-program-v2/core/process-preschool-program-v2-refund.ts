@@ -1,10 +1,16 @@
 import { logger } from 'firebase-functions/v2'
 import { DateTime } from 'luxon'
 
-import { AcuityConstants, AcuityUtilities, studioNameAndAddress } from '@fizz-kidz/core'
+import {
+    AcuityConstants,
+    AcuityUtilities,
+    getSessionChangeEligibility,
+    PRESCHOOL_PROGRAM_POLICY,
+    studioNameAndAddress,
+} from '@fizz-kidz/core'
 import type { AcuityTypes } from '@fizz-kidz/core'
 
-import { calculateRefundCents, repriceRemainingOrder } from './preschool-program-v2-pricing'
+import { calculateRefundCents, isFullTermDiscountRemoved, repriceRemainingOrder } from './preschool-program-v2-pricing'
 
 import type { AcuityWebhookData } from '@/integrations/acuity/functions/acuity.webhook'
 import type { Square } from 'square'
@@ -15,7 +21,6 @@ import { logError } from '@/integrations/observability/log-error'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 import { SquareClient } from '@/integrations/square/square.client'
 
-const REFUND_CUTOFF_HOURS = 48
 const SIBLING_APPOINTMENT_LOOKBACK_MONTHS = 6
 const SIBLING_APPOINTMENT_LOOKAHEAD_MONTHS = 18
 
@@ -23,38 +28,71 @@ const SIBLING_APPOINTMENT_LOOKAHEAD_MONTHS = 18
 export async function processPreschoolProgramV2Refund(data: AcuityWebhookData) {
     const acuity = await AcuityClient.getInstance()
     const appointment = await acuity.getAppointment(data.id)
+    const square = await SquareClient.getInstance()
 
-    const orderId = getAppointmentOrderId(appointment)
-    if (!orderId) {
-        logError('Unable to find Square order id while processing preschool-v2 refund', null, { data, appointment })
+    const refund = await calculatePreschoolProgramV2Refund(acuity, square, appointment)
+    if (!refund) return
+    const { order, lineItem, refundCents } = refund
+
+    if (refundCents <= BigInt(0)) {
+        await sendCancellationEmail({ appointment, lineItem, receiptUrl: '', refundAmountCents: 0 })
         return
     }
 
-    const square = await SquareClient.getInstance()
-    let order: Square.Order
+    const receiptUrl = await refundAcrossTenders(square, order, refundCents, data)
 
+    await sendCancellationEmail({ appointment, lineItem, receiptUrl, refundAmountCents: Number(refundCents) })
+}
+
+/** The amount cancelling this appointment now would refund, using the same rules as the cancellation webhook. */
+export async function quotePreschoolProgramV2Refund(appointment: AcuityTypes.Api.Appointment) {
+    const acuity = await AcuityClient.getInstance()
+    const square = await SquareClient.getInstance()
+    const refund = await calculatePreschoolProgramV2Refund(acuity, square, appointment)
+    if (!refund) throw new Error(`unable to quote preschool-v2 refund for appointment ${appointment.id}`)
+
+    return {
+        refundCents: Number(refund.refundCents),
+        sessionPaidCents: Number(refund.lineItem.totalMoney?.amount ?? 0),
+        fullTermDiscountRemoved: refund.fullTermDiscountRemoved,
+    }
+}
+
+/**
+ * Works out the refund for an appointment that is (or is about to be) cancelled.
+ * Returns undefined when the Square order or line item can't be found.
+ */
+async function calculatePreschoolProgramV2Refund(
+    acuity: Awaited<ReturnType<typeof AcuityClient.getInstance>>,
+    square: Awaited<ReturnType<typeof SquareClient.getInstance>>,
+    appointment: AcuityTypes.Api.Appointment
+) {
+    const orderId = getAppointmentOrderId(appointment)
+    if (!orderId) {
+        logError('Unable to find Square order id while processing preschool-v2 refund', null, { appointment })
+        return
+    }
+
+    let order: Square.Order
     try {
         const result = await square.orders.get({ orderId })
         order = result.order!
     } catch (err) {
-        logError('Unable to find Square order while processing preschool-v2 refund', err, { data, orderId })
-        return
-    }
-
-    const lineItemIdentifier = getAppointmentLineItemIdentifier(appointment)
-    const cancelledLineItem = findLineItemByIdentifier(order, lineItemIdentifier)
-    if (!cancelledLineItem) {
-        logError('Unable to find matching Square line item while processing preschool-v2 refund', null, {
-            data,
+        logError('Unable to find Square order while processing preschool-v2 refund', err, {
+            appointmentId: appointment.id,
             orderId,
-            lineItemIdentifier,
         })
         return
     }
 
-    if (!isOutsideRefundCutoff(appointment)) {
-        logger.log('Less than 48 hours before preschool-v2 session, not performing refund.')
-        await sendCancellationEmail({ appointment, lineItem: cancelledLineItem, receiptUrl: '', refundAmountCents: 0 })
+    const lineItemIdentifier = getAppointmentLineItemIdentifier(appointment)
+    const lineItem = findLineItemByIdentifier(order, lineItemIdentifier)
+    if (!lineItem) {
+        logError('Unable to find matching Square line item while processing preschool-v2 refund', null, {
+            appointmentId: appointment.id,
+            orderId,
+            lineItemIdentifier,
+        })
         return
     }
 
@@ -62,21 +100,15 @@ export async function processPreschoolProgramV2Refund(data: AcuityWebhookData) {
     const remainingLineItemIdentifiers = new Set(
         remainingAppointments.map(getAppointmentLineItemIdentifier).filter(Boolean)
     )
-    const amountToRefund = await calculateRefundAmount(square, order, remainingLineItemIdentifiers)
+    const fullTermDiscountRemoved = isFullTermDiscountRemoved(order, remainingLineItemIdentifiers, lineItemIdentifier)
 
-    if (amountToRefund <= BigInt(0)) {
-        await sendCancellationEmail({ appointment, lineItem: cancelledLineItem, receiptUrl: '', refundAmountCents: 0 })
-        return
+    if (!getSessionChangeEligibility(appointment.datetime).canReschedule) {
+        logger.log('Less than 48 hours before preschool-v2 session, not performing refund.')
+        return { order, lineItem, refundCents: BigInt(0), fullTermDiscountRemoved }
     }
 
-    const receiptUrl = await refundAcrossTenders(square, order, amountToRefund, data)
-
-    await sendCancellationEmail({
-        appointment,
-        lineItem: cancelledLineItem,
-        receiptUrl,
-        refundAmountCents: Number(amountToRefund),
-    })
+    const refundCents = await calculateRefundAmount(square, order, remainingLineItemIdentifiers)
+    return { order, lineItem, refundCents, fullTermDiscountRemoved }
 }
 
 /** Calculates the currently refundable amount from net paid funds and remaining appointment line items. */
@@ -200,12 +232,6 @@ async function getRemainingOrderAppointments(
     )
 }
 
-/** Reports whether the appointment is at least 48 hours away and therefore refund eligible. */
-function isOutsideRefundCutoff(appointment: AcuityTypes.Api.Appointment) {
-    const hoursUntilAppointment = DateTime.fromISO(appointment.datetime, { setZone: true }).diffNow('hours').hours
-    return hoursUntilAppointment >= REFUND_CUTOFF_HOURS
-}
-
 /** Reads the Square order ID stored on an Acuity appointment. */
 function getAppointmentOrderId(appointment: AcuityTypes.Api.Appointment) {
     return AcuityUtilities.retrieveFormAndField(
@@ -251,6 +277,7 @@ async function sendCancellationEmail({
         receiptUrl,
         refundAmount: (refundAmountCents / 100).toFixed(2),
         hasRefund: refundAmountCents > 0,
+        policy: PRESCHOOL_PROGRAM_POLICY,
     })
 
     const mixpanel = await MixpanelClient.getInstance()
