@@ -5,7 +5,7 @@ import { createCanvas, loadImage, registerFont } from 'canvas'
 import { DateTime } from 'luxon'
 import QRCode from 'qrcode'
 
-import type { InvitationsV2, WithoutUid } from '@fizz-kidz/core'
+import type { Invitations, WithoutUid } from '@fizz-kidz/core'
 import { ObjectKeys, getInvitationShareUrl, getStudioAddress } from '@fizz-kidz/core'
 
 import type { PNGStream } from 'canvas'
@@ -14,9 +14,9 @@ import { env } from '@/app/init/firebase'
 import { isUsingEmulator } from '@/shared/runtime/is-using-emulator'
 
 export class InvitationImageGenerator {
-    #invitation: WithoutUid<InvitationsV2.Invitation>
+    #invitation: WithoutUid<Invitations.Invitation>
 
-    constructor(invitation: WithoutUid<InvitationsV2.Invitation>) {
+    constructor(invitation: WithoutUid<Invitations.Invitation>) {
         this.#invitation = invitation
     }
 
@@ -146,7 +146,7 @@ type InvitationCoordinates = {
 }
 
 const InvitationInfo: Record<
-    InvitationsV2.InvitationOption,
+    Invitations.InvitationOption,
     {
         filename: string
         textInfo: InvitationCoordinates

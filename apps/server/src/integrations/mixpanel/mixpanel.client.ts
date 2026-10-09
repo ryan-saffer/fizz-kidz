@@ -3,7 +3,7 @@ import { logger } from 'firebase-functions/v2'
 import type {
     ContactFormLocationOption,
     ContactFormServiceOption,
-    InvitationsV2,
+    Invitations,
     ReferenceOption,
     WebsiteFormId,
 } from '@fizz-kidz/core'
@@ -57,39 +57,39 @@ export class MixpanelClient {
 }
 
 export type MixpanelEvent = {
-    'invitation-preview-generated-v2': {
+    'invitation-preview-generated': {
         distinct_id: string
         bookingId: string
         invitationId: string
         partyDate: Date
-        invitation: InvitationsV2.InvitationOption
+        invitation: Invitations.InvitationOption
         parentName: string
         parentEmail: string
     }
-    'invitation-download-requested-v2': {
+    'invitation-download-requested': {
         distinct_id: string
         bookingId: string
         invitationId: string
         partyDate: Date
-        invitation: InvitationsV2.InvitationOption
+        invitation: Invitations.InvitationOption
         parentName: string
         parentEmail: string
     }
-    'invitation-edited-v2': {
+    'invitation-edited': {
         distinct_id: string
         bookingId: string
         invitationId: string
         partyDate: Date
-        invitation: InvitationsV2.InvitationOption
+        invitation: Invitations.InvitationOption
         parentName: string
         parentEmail: string
     }
-    'invitation-generated-v2': {
+    'invitation-generated': {
         distinct_id: string
         bookingId: string
         invitationId: string
         partyDate: Date
-        invitation: InvitationsV2.InvitationOption
+        invitation: Invitations.InvitationOption
         parentName: string
         parentEmail: string
     }
@@ -283,10 +283,10 @@ export type MixpanelEvent = {
 }
 
 const EventNameMap: Record<keyof MixpanelEvent, string> = {
-    'invitation-preview-generated-v2': 'Invitation Preview Generated [New]',
-    'invitation-download-requested-v2': 'Invitation Download Requested [New]',
-    'invitation-edited-v2': 'Invitation Edited [New]',
-    'invitation-generated-v2': 'Invitation Generated [New]',
+    'invitation-preview-generated': 'Invitation Preview Generated [New]',
+    'invitation-download-requested': 'Invitation Download Requested [New]',
+    'invitation-edited': 'Invitation Edited [New]',
+    'invitation-generated': 'Invitation Generated [New]',
     'invitation-rsvp': 'Invitation RSVP',
     'Host Invitation RSVP': 'Host Invitation RSVP',
     'holiday-program-website-discount': 'Website Holiday Program Discount Generated',

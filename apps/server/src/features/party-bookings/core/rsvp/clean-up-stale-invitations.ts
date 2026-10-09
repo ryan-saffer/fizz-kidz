@@ -1,4 +1,4 @@
-import { deleteInvitationV2 } from './delete-invitation-v2'
+import { deleteInvitation } from './delete-invitation'
 
 import { projectId } from '@/app/init/firebase'
 import { FirestoreRefs } from '@/integrations/firebase/firestore.refs'
@@ -20,7 +20,7 @@ import { StorageClient } from '@/integrations/firebase/storage.client'
  */
 export async function cleanUpStaleInvitations() {
     const bookingsRef = await FirestoreRefs.partyBookings()
-    const invitationsRef = await FirestoreRefs.invitationsV2()
+    const invitationsRef = await FirestoreRefs.invitations()
 
     // only fetch invitationId from bookings to reduce payload
     const [bookingsSnap, invitationsSnap] = await Promise.all([
@@ -39,7 +39,7 @@ export async function cleanUpStaleInvitations() {
     const staleInvitations = invitationsSnap.docs.filter((invitationDoc) => !activeInvitationIds.has(invitationDoc.id))
 
     if (staleInvitations.length > 0) {
-        await Promise.all(staleInvitations.map((invitationDoc) => deleteInvitationV2(invitationDoc.id)))
+        await Promise.all(staleInvitations.map((invitationDoc) => deleteInvitation(invitationDoc.id)))
     }
 
     // Delete storage-only orphans (no Firestore doc)

@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { Img } from 'react-image'
 import { toast } from 'sonner'
 
-import type { InvitationsV2 } from '@fizz-kidz/core'
+import type { Invitations } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
 import Loader from '@shared/components/loader'
@@ -43,7 +43,7 @@ export function EditInvitationDialog({
         trpc.parties.generateInvitationUrl.mutationOptions()
     )
 
-    async function onSubmit(values: InvitationsV2.Invitation) {
+    async function onSubmit(values: Invitations.Invitation) {
         try {
             await generateAndLinkInvitation({
                 ...values,

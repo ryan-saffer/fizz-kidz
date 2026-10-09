@@ -12,7 +12,6 @@ One invitation, two experiences:
 - `/invite/:invitationId` is the stable share page.
 - `/invite/:invitationId/rsvp` is reached from that page and relies on router state. A refresh returns to the share page.
 - `/api/webhooks/invitation/:bookingId` is the durable host entry and redirects to create or manage.
-- `/invitation/v2` exists for old links only.
 
 ## Who Can Do What
 

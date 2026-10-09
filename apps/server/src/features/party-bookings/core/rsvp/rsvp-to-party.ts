@@ -56,7 +56,7 @@ export async function guestRsvpToParty(input: RsvpProps) {
 
     await DatabaseClient.addRsvpToParty(bookingId, { ...rsvp, source: 'guest' })
 
-    const invitation = await DatabaseClient.getInvitationV2(invitationId)
+    const invitation = await DatabaseClient.getInvitation(invitationId)
 
     try {
         const zoho = new ZohoClient()
@@ -147,7 +147,7 @@ export async function guestRsvpToParty(input: RsvpProps) {
 
 export async function hostRsvpToParty(input: HostRsvpProps, host: { uid: string; email: string }) {
     const { bookingId, invitationId, ...rsvp } = input
-    const invitation = await DatabaseClient.getInvitationV2(invitationId)
+    const invitation = await DatabaseClient.getInvitation(invitationId)
 
     if (invitation.uid !== host.uid || invitation.bookingId !== bookingId) {
         throwTrpcError('FORBIDDEN', 'Host is not authorised to manage RSVPs for this invitation', undefined, {

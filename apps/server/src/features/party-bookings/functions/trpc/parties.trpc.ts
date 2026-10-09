@@ -7,9 +7,9 @@ import {
     startPartyCheckoutSchema,
     submitPartyFormV2Schema,
 } from '@fizz-kidz/core'
-import type { Booking, InvitationsV2, PartyLostReason, Studio, WithoutId, WithoutUid } from '@fizz-kidz/core'
+import type { Booking, Invitations, PartyLostReason, Studio, WithoutId, WithoutUid } from '@fizz-kidz/core'
 
-import type { HostRsvpProps, RsvpProps } from '@/features/party-bookings/core/rsvp/rsvp-to-party-v2'
+import type { HostRsvpProps, RsvpProps } from '@/features/party-bookings/core/rsvp/rsvp-to-party'
 
 import { throwTrpcError } from '@/app/trpc/transport-errors'
 import { authenticatedProcedure, publicProcedure, router } from '@/app/trpc/trpc'
@@ -26,13 +26,13 @@ import { getCakeFormUrl, getPartyFormUrl } from '@/features/party-bookings/core/
 import { preparePartyFormV2 } from '@/features/party-bookings/core/party-form-v2/checkout/prepare-party-form-v2'
 import { submitPartyFormV2 } from '@/features/party-bookings/core/party-form-v2/checkout/submit-party-form-v2'
 import { getPartyFormV2Config } from '@/features/party-bookings/core/party-form-v2/config/get-party-form-v2-config'
-import { generateAndLinkInvitation } from '@/features/party-bookings/core/rsvp/edit-invitation-v2'
+import { generateAndLinkInvitation } from '@/features/party-bookings/core/rsvp/edit-invitation'
+import { generateInvitation } from '@/features/party-bookings/core/rsvp/generate-invitation'
 import { generateInvitationUrl } from '@/features/party-bookings/core/rsvp/generate-invitation-url'
-import { generateInvitationV2 } from '@/features/party-bookings/core/rsvp/generate-invitation-v2'
-import { getInvitationDownloadUrl } from '@/features/party-bookings/core/rsvp/get-invitation-download-url-v2'
-import { linkInvitation } from '@/features/party-bookings/core/rsvp/link-invitation-v2'
-import { resetInvitation } from '@/features/party-bookings/core/rsvp/reset-invitation-v2'
-import { hostRsvpToParty, guestRsvpToParty } from '@/features/party-bookings/core/rsvp/rsvp-to-party-v2'
+import { getInvitationDownloadUrl } from '@/features/party-bookings/core/rsvp/get-invitation-download-url'
+import { linkInvitation } from '@/features/party-bookings/core/rsvp/link-invitation'
+import { resetInvitation } from '@/features/party-bookings/core/rsvp/reset-invitation'
+import { hostRsvpToParty, guestRsvpToParty } from '@/features/party-bookings/core/rsvp/rsvp-to-party'
 import { sendPartyBookingConfirmationEmail } from '@/features/party-bookings/core/send-party-booking-confirmation-email'
 import { updatePartyBooking } from '@/features/party-bookings/core/update-party-booking'
 import { UnavailableBirthdayPartyCreationsError } from '@/features/party-bookings/core/validate-booking-creations'
@@ -123,14 +123,14 @@ export const partiesRouter = router({
     getInvitationDownloadUrl: authenticatedProcedure
         .input(z.object({ invitationId: z.string() }))
         .mutation(({ input, ctx }) => getInvitationDownloadUrl({ ...input, distinctId: ctx.email })),
-    generateInvitationV2: publicProcedure
-        .input((input: unknown) => input as WithoutId<WithoutUid<InvitationsV2.Invitation>>)
-        .mutation(({ input }) => generateInvitationV2(input)),
+    generateInvitation: publicProcedure
+        .input((input: unknown) => input as WithoutId<WithoutUid<Invitations.Invitation>>)
+        .mutation(({ input }) => generateInvitation(input)),
     linkInvitation: authenticatedProcedure
-        .input((input: unknown) => input as WithoutUid<InvitationsV2.Invitation>)
+        .input((input: unknown) => input as WithoutUid<Invitations.Invitation>)
         .mutation(({ input, ctx }) => linkInvitation({ ...input, uid: ctx.uid }, ctx.email)),
     generateAndLinkInvitation: authenticatedProcedure
-        .input((input: unknown) => input as InvitationsV2.Invitation)
+        .input((input: unknown) => input as Invitations.Invitation)
         .mutation(({ input, ctx }) => generateAndLinkInvitation({ ...input, uid: ctx.uid }, ctx.email)),
     resetInvitation: authenticatedProcedure
         .input((input: unknown) => input as { invitationId: string })

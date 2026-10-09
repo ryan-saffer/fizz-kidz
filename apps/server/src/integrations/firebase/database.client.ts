@@ -10,7 +10,7 @@ import type {
     FirestoreBooking,
     GoogleBusinessProfileReview,
     IncursionEvent,
-    InvitationsV2,
+    Invitations,
     InventoryCategory,
     InventoryItem,
     InventoryStockLevel,
@@ -369,16 +369,16 @@ class Client {
         })
     }
 
-    async createInvitationV2(invitation: InvitationsV2.Invitation) {
-        return this.#createDocument(invitation, (await FirestoreRefs.invitationsV2()).doc(invitation.id))
+    async createInvitation(invitation: Invitations.Invitation) {
+        return this.#createDocument(invitation, (await FirestoreRefs.invitations()).doc(invitation.id))
     }
 
-    getInvitationV2(invitationId: string) {
-        return this.#getDocument(FirestoreRefs.invitationV2(invitationId))
+    getInvitation(invitationId: string) {
+        return this.#getDocument(FirestoreRefs.invitation(invitationId))
     }
 
-    async deleteInvitationV2(invitationId: string) {
-        return (await FirestoreRefs.invitationV2(invitationId)).delete()
+    async deleteInvitation(invitationId: string) {
+        return (await FirestoreRefs.invitation(invitationId)).delete()
     }
 
     async addRsvpToParty(bookingId: string, rsvp: WithoutId<Rsvp>) {

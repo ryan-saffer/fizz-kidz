@@ -1,14 +1,14 @@
 import { collection, deleteDoc, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 
-import type { InvitationsV2, Rsvp, Service } from '@fizz-kidz/core'
+import type { Invitations, Rsvp, Service } from '@fizz-kidz/core'
 
 import useFirebase from '@integrations/firebase/use-firebase'
 import { useConfirm } from '@shared/components/dialogs/confirmation/use-confirmation-dialog'
 
 import type { UseRsvpTableProps } from './use-rsvp-table'
 
-export function useRsvps(invitation: InvitationsV2.Invitation) {
+export function useRsvps(invitation: Invitations.Invitation) {
     const firebase = useFirebase()
 
     const confirm = useConfirm()

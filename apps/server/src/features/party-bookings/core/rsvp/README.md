@@ -28,6 +28,6 @@ An edit replaces the invitation document and image while keeping the same ID. Ol
 - RSVP: `/invite/:invitationId/rsvp`, reached from the share page
 - Durable host entry: `/api/webhooks/invitation/:bookingId`
 
-The QR code points to the share page. Legacy `/invitation/v2` routes remain only for old links; never generate new ones.
+The QR code points to the share page.
 
 Portal details: [`apps/portal/src/features/rsvp/README.md`](../../../../../../portal/src/features/rsvp/README.md).
