@@ -95,11 +95,10 @@
                         story time, and take home their creations each week.
                     </mj-text>
                     <mj-text font-size="16px">
-                        <strong>Cancellation and refunds:</strong> You can cancel a session more than 48 hours before
-                        its scheduled start time for an automatic full refund, using the Change / Cancel link above.
-                        Cancellations made within 48 hours are not eligible for a refund. If cancelling a session means
-                        a booking no longer includes every session in a discounted full-term booking, the refund is
-                        recalculated at the standard session price.
+                        <strong>{{ policy.title }}</strong>
+                        {{#policy.paragraphs}}
+                        <p>{{.}}</p>
+                        {{/policy.paragraphs}}
                     </mj-text>
                     <mj-text font-size="16px">
                         If you have any questions, just reply to this email or call us on

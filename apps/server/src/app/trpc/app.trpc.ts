@@ -11,6 +11,7 @@ import { paymentsRouter } from '@/features/payments/functions/trpc/payments.trpc
 import { posRouter } from '@/features/pos/functions/trpc/pos.trpc'
 import { preschoolProgramV2Router } from '@/features/preschool-program-v2/functions/trpc/preschool-program-v2.trpc'
 import { preschoolProgramRouter } from '@/features/preschool-program/functions/trpc/preschool-program.trpc'
+import { programBookingsRouter } from '@/features/program-bookings/functions/trpc/program-bookings.trpc'
 import { reportsRouter } from '@/features/reports/functions/trpc/reports.trpc'
 import { staffRouter } from '@/features/staff/functions/trpc/staff.trpc'
 import { websiteChatsRouter } from '@/features/website-chat/functions/trpc/website-chats.trpc'
@@ -25,6 +26,7 @@ export const appRouter = router({
     afterSchoolProgram: afterSchoolProgramRouter,
     preschoolProgram: preschoolProgramRouter,
     preschoolProgramV2: preschoolProgramV2Router,
+    programBookings: programBookingsRouter,
     staff: staffRouter,
     auth: authRouter,
     creations: creationsRouter,

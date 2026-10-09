@@ -70,11 +70,28 @@
             {{^hasRefund}}
             <mj-column width="100%">
                 <mj-text font-size="16px">
-                    No automatic refund was processed. This can happen when the session was cancelled within 48 hours,
-                    or when cancelling the session removes a full-term discount from the remaining booking.
+                    No refund was processed. This happens when a session is cancelled less than 48 hours before it
+                    starts, or when cancelling it removes the full-term discount from the rest of your booking. See our
+                    policy below.
                 </mj-text>
             </mj-column>
             {{/hasRefund}}
+            <mj-column width="100%">
+                <mj-text
+                    color="#212b35"
+                    font-size="12px"
+                    text-transform="uppercase"
+                    font-weight="bold"
+                    padding-bottom="0"
+                >
+                    {{ policy.title }}
+                </mj-text>
+                <mj-text font-size="16px">
+                    {{#policy.paragraphs}}
+                    <p>{{.}}</p>
+                    {{/policy.paragraphs}}
+                </mj-text>
+            </mj-column>
             {{#receiptUrl}}
             <mj-column width="100%"
                 ><mj-text align="center"

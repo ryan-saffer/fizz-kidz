@@ -164,6 +164,20 @@ export class MailClient {
                     template: 'holiday_program_confirmation.mjml',
                     useMjml: true,
                 }
+            case 'programSessionRescheduled':
+                return {
+                    emailInfo: {
+                        to,
+                        from: {
+                            name: 'Fizz Kidz',
+                            email: 'bookings@fizzkidz.com.au',
+                        },
+                        subject: subject || 'Your session has been rescheduled',
+                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
+                    },
+                    template: 'program_session_rescheduled.mjml',
+                    useMjml: true,
+                }
             case 'holidayProgramCancellation':
                 return {
                     emailInfo: {

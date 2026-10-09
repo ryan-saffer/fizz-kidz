@@ -1,10 +1,11 @@
 import { DateTime } from 'luxon'
 
 import type { AcuityTypes } from '@fizz-kidz/core'
-import { AcuityConstants, AcuityUtilities, capitalise, getStudioAddress } from '@fizz-kidz/core'
+import { AcuityConstants, AcuityUtilities, capitalise, getStudioAddress, HOLIDAY_PROGRAM_POLICY } from '@fizz-kidz/core'
 
 import type { Emails } from '@/integrations/sendgrid/types'
 
+import { getAppointmentManagementUrl } from '@/features/program-bookings/core/appointment-management-link'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 
 type ConfirmationAppointmentType =
@@ -41,15 +42,12 @@ export async function sendConfirmationEmail(
         return a.datetime < b.datetime ? -1 : a.datetime > b.datetime ? 1 : child1Name < child2Name ? 1 : -1
     })
     const bookings: Emails['holidayProgramConfirmation']['bookings'] = sortedAppointments.map((appointment) => {
-        const startTime = DateTime.fromISO(appointment.datetime, { setZone: true })
-        const endTime = startTime.plus({ minutes: parseInt(appointment.duration) })
         return {
-            datetime: `${AcuityUtilities.retrieveFormAndField(
-                appointment,
-                AcuityConstants.Forms.CHILDREN_DETAILS,
-                AcuityConstants.FormFields.CHILDREN_NAMES
-            )} - ${startTime.toFormat('cccc, LLL dd, t')} - ${endTime.toFormat('t')}`,
-            confirmationPage: appointment.confirmationPage,
+            datetime: formatHolidayProgramAppointment(appointment),
+            confirmationPage:
+                appointment.appointmentTypeID === AcuityConstants.AppointmentTypes.OPEN_DAY
+                    ? appointment.confirmationPage
+                    : getAppointmentManagementUrl(appointment.id),
         }
     })
 
@@ -65,6 +63,7 @@ export async function sendConfirmationEmail(
                 address: appointments[0].location,
                 bookings,
                 receiptUrl,
+                policy: HOLIDAY_PROGRAM_POLICY,
             })
             break
         }
@@ -84,4 +83,15 @@ export async function sendConfirmationEmail(
         }
     }
     return
+}
+
+export function formatHolidayProgramAppointment(appointment: AcuityTypes.Api.Appointment) {
+    const startTime = DateTime.fromISO(appointment.datetime, { setZone: true })
+    const endTime = startTime.plus({ minutes: parseInt(appointment.duration) })
+    const childName = AcuityUtilities.retrieveFormAndField(
+        appointment,
+        AcuityConstants.Forms.CHILDREN_DETAILS,
+        AcuityConstants.FormFields.CHILDREN_NAMES
+    )
+    return `${childName} - ${startTime.toFormat('cccc, LLL dd, t')} - ${endTime.toFormat('t')}`
 }

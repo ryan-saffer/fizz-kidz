@@ -199,7 +199,7 @@ export const Step2: React.FC<Props> = ({ form, appointmentTypeId }) => {
                                 showModal(e, 'cancellation')
                             }}
                         >
-                            Cancellation Policy
+                            Cancellation and rescheduling policy
                         </Typography.Link>{' '}
                         and the{' '}
                         <Typography.Link
