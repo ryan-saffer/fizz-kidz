@@ -26,8 +26,7 @@ function getOpenDayConfirmation(calendarId: number) {
 
 export async function sendConfirmationEmail(
     appointments: AcuityTypes.Api.Appointment[],
-    receiptUrl: string | undefined,
-    rescheduled = false
+    receiptUrl: string | undefined
 ) {
     const sortedAppointments = appointments.sort((a, b) => {
         const child1Name = AcuityUtilities.retrieveFormAndField(
@@ -58,20 +57,14 @@ export async function sendConfirmationEmail(
     switch (appointmentTypeId) {
         case AcuityConstants.AppointmentTypes.HOLIDAY_PROGRAM:
         case AcuityConstants.AppointmentTypes.TEST_HOLIDAY_PROGRAM: {
-            await mailClient.sendEmail(
-                'holidayProgramConfirmation',
-                appointments[0].email,
-                {
-                    parentName: appointments[0].firstName,
-                    location: `Fizz Kidz ${appointments[0].calendar}`,
-                    address: appointments[0].location,
-                    bookings,
-                    receiptUrl,
-                    rescheduled,
-                    policy: HOLIDAY_PROGRAM_POLICY,
-                },
-                { subject: rescheduled ? 'Holiday program rescheduling confirmation' : undefined }
-            )
+            await mailClient.sendEmail('holidayProgramConfirmation', appointments[0].email, {
+                parentName: appointments[0].firstName,
+                location: `Fizz Kidz ${appointments[0].calendar}`,
+                address: appointments[0].location,
+                bookings,
+                receiptUrl,
+                policy: HOLIDAY_PROGRAM_POLICY,
+            })
             break
         }
         case AcuityConstants.AppointmentTypes.OPEN_DAY: {

@@ -29,8 +29,7 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    {{#rescheduled}}Preschool Program session rescheduled{{/rescheduled}} {{^rescheduled}}Preschool
-                    Program booking confirmation{{/rescheduled}}
+                    Preschool Program booking confirmation
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -43,12 +42,6 @@
             <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px" padding-top="0">
                 <mj-column width="100%">
                     <mj-text font-size="16px"> Hi {{ parentName }}, </mj-text>
-                    {{#rescheduled}}
-                    <mj-text font-size="16px">
-                        Your Preschool Program session has been rescheduled. Here are your updated session details. You
-                        can use the Change / Cancel link if you need to make another change.
-                    </mj-text>
-                    {{/rescheduled}} {{^rescheduled}}
                     <mj-text font-size="16px">
                         Yay! Your Fizz Kidz Preschool Program booking is confirmed and paid. We can't wait to welcome
                         your child into the studio.
@@ -57,7 +50,6 @@
                         Below are the sessions you have booked. You can use the Change / Cancel link beside each session
                         if you need to manage an individual booking.
                     </mj-text>
-                    {{/rescheduled}}
                 </mj-column>
                 <mj-column width="100%">
                     <mj-text

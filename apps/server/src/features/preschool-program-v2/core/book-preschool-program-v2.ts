@@ -370,7 +370,6 @@ async function sendConfirmationEmail(
                 }
             }),
         receiptUrl,
-        rescheduled: false,
         policy: PRESCHOOL_PROGRAM_POLICY,
     })
 }

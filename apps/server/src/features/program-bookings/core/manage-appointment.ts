@@ -5,15 +5,14 @@ import type { AcuityTypes } from '@fizz-kidz/core'
 import { AcuityConstants, AcuityUtilities, getSessionChangeEligibility } from '@fizz-kidz/core'
 
 import { verifyAppointmentManagementToken } from './appointment-management-link'
+import { sendRescheduledEmail } from './send-rescheduled-email'
 
 import { quoteHolidayProgramRefund } from '@/features/holiday-programs/core/process-holiday-program-refund'
-import { sendConfirmationEmail } from '@/features/holiday-programs/core/send-confirmation-email'
 import {
     getSameTermClasses,
     TERM_LOOKBACK_MONTHS,
 } from '@/features/preschool-program-v2/core/preschool-program-v2-terms'
 import { quotePreschoolProgramV2Refund } from '@/features/preschool-program-v2/core/process-preschool-program-v2-refund'
-import { sendPreschoolProgramV2RescheduledEmail } from '@/features/preschool-program-v2/core/send-preschool-program-v2-rescheduled-email'
 import { AcuityClient } from '@/integrations/acuity/acuity.client'
 import { mergeAcuityWithSanity } from '@/integrations/acuity/core/merge-sanity-with-acuity'
 import { logError } from '@/integrations/observability/log-error'
@@ -25,6 +24,7 @@ type ReplacementSession = AcuityTypes.Api.Class & { title?: string }
 /** What differs between the programs that can be managed from the confirmation email link. */
 const PROGRAMS = {
     'holiday-program': {
+        name: 'holiday program',
         // any later session at the same studio
         async getReplacementSessions(acuity: AcuityClient, appointment: Appointment): Promise<ReplacementSession[]> {
             const classes = await acuity.getClasses([appointment.appointmentTypeID], true, Date.now())
@@ -34,13 +34,13 @@ const PROGRAMS = {
                 )
             )
         },
-        sendRescheduledEmail: (appointment: Appointment) => sendConfirmationEmail([appointment], undefined, true),
         quoteRefund: async (appointment: Appointment) => ({
             ...(await quoteHolidayProgramRefund(appointment)),
             fullTermDiscountRemoved: false,
         }),
     },
     'preschool-program': {
+        name: 'Preschool Program',
         // any later session at the same studio in the same term, on any day
         async getReplacementSessions(acuity: AcuityClient, appointment: Appointment): Promise<ReplacementSession[]> {
             const classes = await acuity.getClasses(
@@ -52,7 +52,6 @@ const PROGRAMS = {
                 (klass) => DateTime.fromISO(klass.time, { setZone: true }).toMillis() > Date.now()
             )
         },
-        sendRescheduledEmail: sendPreschoolProgramV2RescheduledEmail,
         quoteRefund: quotePreschoolProgramV2Refund,
     },
 }
@@ -171,7 +170,7 @@ export async function rescheduleManagedAppointment(input: Access & { classId: nu
             })
         })
     try {
-        await config.sendRescheduledEmail(updated)
+        await sendRescheduledEmail({ programName: config.name, previous: appointment, updated })
     } catch (err) {
         logError(`Error sending ${program} rescheduling confirmation email`, err, { appointmentId: updated.id })
     }

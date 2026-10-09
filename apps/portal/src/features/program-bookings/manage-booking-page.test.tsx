@@ -85,8 +85,8 @@ describe('manage program booking page', () => {
             { id: 12, time: '2026-10-07T10:00:00+10:00', title: 'Full session', duration: 180, slotsAvailable: 0 },
         ])
         mocks.refund.mockResolvedValue({ refundCents: 6500, fullTermDiscountRemoved: false })
-        mocks.cancel.mockResolvedValue({})
-        mocks.reschedule.mockResolvedValue({})
+        mocks.cancel.mockResolvedValue({ ...appointment(), canceled: true })
+        mocks.reschedule.mockResolvedValue({ ...appointment(), datetime: '2026-10-06T10:00:00+10:00' })
     })
     afterEach(cleanup)
 
@@ -102,7 +102,9 @@ describe('manage program booking page', () => {
         expect(await within(dialog).findByText(/less than 48 hours/)).toBeTruthy()
         expect(within(dialog).getByText(/No refund/)).toBeTruthy()
         await user.click(within(dialog).getByRole('button', { name: 'Yes, cancel session' }))
-        await screen.findByText(/Your session has been cancelled/)
+        expect(await screen.findByRole('heading', { name: 'Session cancelled' })).toBeTruthy()
+        expect(screen.getByText(/cancellation confirmation, including any refund details/)).toBeTruthy()
+        expect(screen.queryByRole('button', { name: 'Cancel session' })).toBeNull()
         expect(mocks.cancel.mock.calls[0][0]).toEqual({ appointmentId: 123, token })
     })
 
@@ -113,7 +115,11 @@ describe('manage program booking page', () => {
         await user.click(await screen.findByRole('radio', { name: /Slime time/ }))
         await user.click(screen.getByRole('button', { name: 'Continue' }))
         await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm reschedule' }))
-        await screen.findByText(/Your session has been rescheduled/)
+        expect(await screen.findByRole('heading', { name: 'Session rescheduled' })).toBeTruthy()
+        expect(screen.getByText(/Sunday, 04 Oct 2026/).className).toContain('line-through')
+        expect(screen.getByText(/Tuesday, 06 Oct 2026/)).toBeTruthy()
+        expect(screen.queryByRole('button', { name: 'Reschedule session' })).toBeNull()
+        expect(screen.queryByRole('button', { name: 'Cancel session' })).toBeNull()
         expect(mocks.reschedule.mock.calls[0][0]).toEqual({ appointmentId: 123, token, classId: 11 })
     })
 

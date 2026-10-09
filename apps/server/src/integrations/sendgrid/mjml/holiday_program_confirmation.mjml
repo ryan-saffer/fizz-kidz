@@ -26,8 +26,7 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    {{#rescheduled}}Holiday program rescheduled{{/rescheduled}} {{^rescheduled}}Holiday program booking
-                    confirmation{{/rescheduled}}
+                    Holiday program booking confirmation
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -40,9 +39,8 @@
             <mj-column width="100%">
                 <mj-text color="#637381" font-size="16px"> Hi {{ parentName }}, </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    {{#rescheduled}}Your holiday-program session has been rescheduled. Here are your updated booking
-                    details:{{/rescheduled}} {{^rescheduled}}We're delighted to confirm your booking into the Fizz Kidz
-                    holiday program! Below are the details of what you have booked:{{/rescheduled}}
+                    We're delighted to confirm your booking into the Fizz Kidz holiday program! Below are the details of
+                    what you have booked:
                 </mj-text>
             </mj-column>
 

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { CircleCheck } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
@@ -17,6 +18,14 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@shared/components/ui/dialog'
+
+type ManagedAppointment = {
+    childName: string
+    datetime: string
+    duration: string
+    studio: string
+    address: string
+}
 
 const PROGRAMS = {
     'holiday-program': {
@@ -60,7 +69,11 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
     const [choosingSession, setChoosingSession] = useState(false)
     const [selectedClassId, setSelectedClassId] = useState<number | null>(null)
     const [confirmation, setConfirmation] = useState<'cancel' | 'reschedule' | null>(null)
-    const [notice, setNotice] = useState('')
+    const [completed, setCompleted] = useState<{
+        action: 'cancel' | 'reschedule'
+        previousTime: string
+        appointment: ManagedAppointment
+    } | null>(null)
     const [error, setError] = useState('')
 
     const appointmentQueryKey = trpc.programBookings.getManagedAppointment.queryKey(access)
@@ -80,12 +93,12 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
     )
     const selected = sessions.data?.find((session) => session.id === selectedClassId)
 
-    function onSuccess(message: string) {
+    function onSuccess(action: 'cancel' | 'reschedule', updated: ManagedAppointment) {
+        setCompleted({ action, previousTime: appointment?.datetime ?? updated.datetime, appointment: updated })
         void queryClient.invalidateQueries({ queryKey: appointmentQueryKey })
         setConfirmation(null)
         setChoosingSession(false)
         setSelectedClassId(null)
-        setNotice(message)
     }
     function onError(cause: { message: string }) {
         setConfirmation(null)
@@ -93,17 +106,13 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
     }
     const cancel = useMutation(
         trpc.programBookings.cancelAppointment.mutationOptions({
-            onSuccess: () =>
-                onSuccess(
-                    'Your session has been cancelled. You will receive a cancellation email with any refund details.'
-                ),
+            onSuccess: (updated) => onSuccess('cancel', updated),
             onError,
         })
     )
     const reschedule = useMutation(
         trpc.programBookings.rescheduleAppointment.mutationOptions({
-            onSuccess: () =>
-                onSuccess('Your session has been rescheduled. We have emailed your updated booking details.'),
+            onSuccess: (updated) => onSuccess('reschedule', updated),
             onError,
         })
     )
@@ -121,17 +130,17 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
     }
     const program = PROGRAMS[appointment.program]
 
+    // once the change is made, confirm it clearly rather than showing the options again
+    if (completed) {
+        return <ChangeConfirmed {...completed} programName={program.name} />
+    }
+
     return (
         <>
             <header className="space-y-2 text-center">
                 <h1 className="text-2xl font-semibold">Manage your {program.name} booking</h1>
                 <p className="text-sm text-muted-foreground">Change or cancel one child's session.</p>
             </header>
-            {notice && (
-                <p role="status" className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm">
-                    {notice}
-                </p>
-            )}
             {error && (
                 <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm">
                     {error}
@@ -165,7 +174,6 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
                             onClick={() => {
                                 setChoosingSession(true)
                                 setError('')
-                                setNotice('')
                             }}
                         >
                             Reschedule session
@@ -347,5 +355,56 @@ function CancellationRefund({
                 )
             )}
         </>
+    )
+}
+
+function ChangeConfirmed({
+    action,
+    previousTime,
+    appointment,
+    programName,
+}: {
+    action: 'cancel' | 'reschedule'
+    previousTime: string
+    appointment: ManagedAppointment
+    programName: string
+}) {
+    const duration = Number(appointment.duration)
+    const rescheduled = action === 'reschedule'
+
+    return (
+        <section role="status" className="space-y-5 rounded-lg border border-green-200 bg-green-50 p-6 text-center">
+            <CircleCheck className="mx-auto h-12 w-12 text-green-600" aria-hidden="true" />
+            <h1 className="text-2xl font-semibold">{rescheduled ? 'Session rescheduled' : 'Session cancelled'}</h1>
+            <p>
+                {appointment.childName}'s {programName} session has been {rescheduled ? 'moved' : 'cancelled'}.
+            </p>
+            <div className="space-y-3 rounded-lg bg-white p-4 text-left">
+                {rescheduled && (
+                    <div>
+                        <p className="text-xs font-semibold uppercase text-muted-foreground">Previous session</p>
+                        <p className="text-muted-foreground line-through">
+                            {formatSessionTime(previousTime, duration)}
+                        </p>
+                    </div>
+                )}
+                <div>
+                    <p className="text-xs font-semibold uppercase text-muted-foreground">
+                        {rescheduled ? 'New session' : 'Cancelled session'}
+                    </p>
+                    <p className={rescheduled ? 'font-semibold' : 'line-through'}>
+                        {formatSessionTime(rescheduled ? appointment.datetime : previousTime, duration)}
+                    </p>
+                </div>
+                <p className="text-sm">
+                    Fizz Kidz {appointment.studio}, {appointment.address}
+                </p>
+            </div>
+            <p className="text-sm">
+                {rescheduled
+                    ? 'We have emailed you a confirmation of the change.'
+                    : 'We have emailed you a cancellation confirmation, including any refund details.'}
+            </p>
+        </section>
     )
 }

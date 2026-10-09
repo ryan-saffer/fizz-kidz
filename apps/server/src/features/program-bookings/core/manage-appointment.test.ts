@@ -8,8 +8,7 @@ const mocks = vi.hoisted(() => ({
     getClasses: vi.fn(),
     cancelAppointment: vi.fn(),
     rescheduleAppointment: vi.fn(),
-    sendConfirmationEmail: vi.fn(),
-    sendPreschoolProgramV2RescheduledEmail: vi.fn(),
+    sendRescheduledEmail: vi.fn(),
     quoteHolidayProgramRefund: vi.fn(),
     quotePreschoolProgramV2Refund: vi.fn(),
     logError: vi.fn(),
@@ -20,14 +19,9 @@ vi.mock('@/integrations/acuity/acuity.client', () => ({ AcuityClient: { getInsta
 vi.mock('@/integrations/acuity/core/merge-sanity-with-acuity', () => ({
     mergeAcuityWithSanity: async (classes: unknown) => classes,
 }))
-vi.mock('@/features/holiday-programs/core/send-confirmation-email', () => ({
-    sendConfirmationEmail: mocks.sendConfirmationEmail,
-}))
+vi.mock('./send-rescheduled-email', () => ({ sendRescheduledEmail: mocks.sendRescheduledEmail }))
 vi.mock('@/features/holiday-programs/core/process-holiday-program-refund', () => ({
     quoteHolidayProgramRefund: mocks.quoteHolidayProgramRefund,
-}))
-vi.mock('@/features/preschool-program-v2/core/send-preschool-program-v2-rescheduled-email', () => ({
-    sendPreschoolProgramV2RescheduledEmail: mocks.sendPreschoolProgramV2RescheduledEmail,
 }))
 vi.mock('@/features/preschool-program-v2/core/process-preschool-program-v2-refund', () => ({
     quotePreschoolProgramV2Refund: mocks.quotePreschoolProgramV2Refund,
@@ -87,18 +81,18 @@ describe('holiday program appointment management', () => {
         expect(mocks.getAppointment).not.toHaveBeenCalled()
     })
 
-    it('reschedules and sends an updated confirmation', async () => {
+    it('reschedules and emails the previous and new session', async () => {
         await rescheduleManagedAppointment({ ...access(), classId: 11 })
         expect(mocks.rescheduleAppointment).toHaveBeenCalledWith(123, session.time, 55)
-        expect(mocks.sendConfirmationEmail).toHaveBeenCalledWith(
-            [expect.objectContaining({ id: 123 })],
-            undefined,
-            true
-        )
+        expect(mocks.sendRescheduledEmail).toHaveBeenCalledWith({
+            programName: 'holiday program',
+            previous: expect.objectContaining({ datetime: '2026-10-04T10:00:00+10:00' }),
+            updated: expect.objectContaining({ datetime: session.time }),
+        })
     })
 
     it('still succeeds when the confirmation email fails', async () => {
-        mocks.sendConfirmationEmail.mockRejectedValueOnce(new Error('SendGrid down'))
+        mocks.sendRescheduledEmail.mockRejectedValueOnce(new Error('SendGrid down'))
         expect((await rescheduleManagedAppointment({ ...access(), classId: 11 })).datetime).toBe(session.time)
         expect(mocks.logError).toHaveBeenCalled()
     })
@@ -175,11 +169,14 @@ describe('preschool program appointment management', () => {
         expect(mocks.rescheduleAppointment).not.toHaveBeenCalled()
     })
 
-    it('reschedules and sends the preschool rescheduled email', async () => {
+    it('reschedules and emails the previous and new session', async () => {
         await rescheduleManagedAppointment({ ...access(), classId: 6 })
         expect(mocks.rescheduleAppointment).toHaveBeenCalledWith(123, classes[5].time, 55)
-        expect(mocks.sendPreschoolProgramV2RescheduledEmail).toHaveBeenCalledWith(expect.objectContaining({ id: 123 }))
-        expect(mocks.sendConfirmationEmail).not.toHaveBeenCalled()
+        expect(mocks.sendRescheduledEmail).toHaveBeenCalledWith({
+            programName: 'Preschool Program',
+            previous: expect.objectContaining({ datetime: classes[2].time }),
+            updated: expect.objectContaining({ datetime: classes[5].time }),
+        })
     })
 
     it('previews the preschool refund', async () => {
