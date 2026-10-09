@@ -1,24 +1,19 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    // Customers upload medical plans from the public enrolment and booking forms, which
+    // only accept PDFs under 5MB. Uploads can't be read or deleted from the browser;
+    // staff open them through short-lived signed URLs from the server.
     match /anaphylaxisPlans/{filename} {
-      allow write: if true;
+      allow create, update: if request.resource.contentType == 'application/pdf'
+        && request.resource.size < 5 * 1024 * 1024;
     }
 
-    match /anaphylaxisPlans/{id}/{filename} {
-    	allow read: if request.auth != null
-    }
-
-  	match /invitations/{allPaths=**} {
-    	allow read: if true;
-    }
-
+    // Guests open invitation images by id; listing them is not allowed.
     match /invitations-v2/{allPaths=**} {
-    	allow read: if true;
+      allow get: if true;
     }
 
-    match /payroll/{allPaths=**} {
-    	allow read, write: if request.auth != null
-    }
+    // Everything else (including payroll exports) is only written and read by the server.
   }
 }

@@ -17,11 +17,6 @@ service cloud.firestore {
     	allow read: if request.auth != null && request.auth.uid == userId;
     }
 
-    // ANYONE CAN READ HOLIDAY PROGRAMS TO ALLOW PARENTS TO CHECK IF THEIR ENROLMENT WORKED
-    match /holidayProgramBookings/{document=**} {
-    	allow read, write: if true
-    }
-
     // INVITATIONS
     match /invitations-v2/{invitationId} {
     	// Allow read access if the request is for a specific document
@@ -40,15 +35,10 @@ service cloud.firestore {
       allow read, write: if get(/databases/$(database)/documents/bookings/$(bookingId)).data.invitationOwnerUid == request.auth.uid;
     }
 
-    // ALLOWS PUBLIC ACCESS TO CHECK OUR SCHEDULE
-    match /acuityCalendars/{document=**} {
-    	allow read, write: if true
-    }
-    match /scienceAppointments/{document=**} {
-    	allow read: if true;
-    }
-    match /afterSchoolEnrolments/{document=**} {
-    	allow read: if true;
+    // AFTER SCHOOL PROGRAM PARENT PORTAL
+    // Parents open their enrolment by id; listing enrolments is staff only.
+    match /afterSchoolEnrolments/{enrolmentId} {
+      allow get: if true;
     }
 
     // ACCESS TOKENS - blocked for everyone
