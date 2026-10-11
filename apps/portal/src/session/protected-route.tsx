@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 
 import { isFranchiseOrMaster, type Permission } from '@fizz-kidz/core'
 
@@ -21,8 +21,11 @@ export function ProtectedRoute({
 }) {
     const authUser = useAuth()
     const { hasPermission, currentOrg } = useOrg()
+    const location = useLocation()
     if (!authUser?.uid) {
-        return <Navigate to="/sign-in" />
+        // come back to this page (and its query, e.g. a CRM link's booking details) once signed in
+        const returnTo = encodeURIComponent(location.pathname + location.search)
+        return <Navigate to={`/sign-in?returnTo=${returnTo}`} replace />
     }
 
     if (!currentOrg) {

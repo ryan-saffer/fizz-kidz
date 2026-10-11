@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useSearchParams } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { ProtectedRoute } from './protected-route'
@@ -26,11 +26,16 @@ vi.mock('./Unauthorised', () => ({
     ),
 }))
 
-function renderProtectedRoute() {
+function SignInPage() {
+    const [searchParams] = useSearchParams()
+    return <div>Sign in, then return to {searchParams.get('returnTo')}</div>
+}
+
+function renderProtectedRoute(path = '/protected') {
     render(
-        <MemoryRouter initialEntries={['/protected']}>
+        <MemoryRouter initialEntries={[path]}>
             <Routes>
-                <Route path="/sign-in" element={<div>Sign in</div>} />
+                <Route path="/sign-in" element={<SignInPage />} />
                 <Route
                     path="/protected"
                     element={
@@ -50,10 +55,12 @@ describe('ProtectedRoute', () => {
         currentOrg = null
     })
 
-    it('redirects signed-out users to sign in', () => {
-        renderProtectedRoute()
+    it('redirects signed-out users to sign in, returning them to the page and its query afterwards', () => {
+        renderProtectedRoute('/protected?parentName=Jane%20Smith&zohoDealId=123')
 
-        expect(screen.getByText('Sign in')).toBeTruthy()
+        expect(
+            screen.getByText('Sign in, then return to /protected?parentName=Jane%20Smith&zohoDealId=123')
+        ).toBeTruthy()
     })
 
     it('does not redirect signed-in users without an organisation back to sign in', () => {
