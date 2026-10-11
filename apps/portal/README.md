@@ -32,7 +32,7 @@ Birthday-party instruction group labels and colours are package-owned: the serve
 
 Staff book and edit parties from the [bookings page](src/features/bookings/parties/README.md). Its creation menus come from the server's Sanity catalogue: they filter choices by studio/mobile availability and keep a booking's retired or historical selection without offering that value on other bookings.
 
-The custom [party details form](src/features/party-form-v2/README.md) at `/party-form-v2?id=<bookingId>` uses TanStack Form for a guided customer journey, Sanity creation photos, and a review before checkout.
+The [party form](src/features/party-form/README.md) at `/party-form?id=<bookingId>` (reached through the `/forms/party` and `/forms/cake` links we send) guides parents through their party details, creations, cake and take-home goodies, with a review and payment at the end.
 
 ## Run It
 

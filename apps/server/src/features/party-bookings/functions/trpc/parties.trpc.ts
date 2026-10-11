@@ -3,9 +3,9 @@ import { z } from 'zod'
 import {
     partyTerminalCheckoutSchema,
     preparePartyCheckoutSchema,
-    preparePartyFormV2Schema,
+    preparePartyFormSchema,
     startPartyCheckoutSchema,
-    submitPartyFormV2Schema,
+    submitPartyFormSchema,
 } from '@fizz-kidz/core'
 import type { Booking, Invitations, PartyLostReason, Studio, WithoutId, WithoutUid } from '@fizz-kidz/core'
 
@@ -22,10 +22,10 @@ import {
 } from '@/features/party-bookings/core/party-checkout/charge-party-checkout'
 import { getPartyCheckout } from '@/features/party-bookings/core/party-checkout/get-party-checkout'
 import { preparePartyCheckout } from '@/features/party-bookings/core/party-checkout/prepare-party-checkout'
-import { getCakeFormUrl, getPartyFormUrl } from '@/features/party-bookings/core/party-form-urls'
-import { preparePartyFormV2 } from '@/features/party-bookings/core/party-form-v2/checkout/prepare-party-form-v2'
-import { submitPartyFormV2 } from '@/features/party-bookings/core/party-form-v2/checkout/submit-party-form-v2'
-import { getPartyFormV2Config } from '@/features/party-bookings/core/party-form-v2/config/get-party-form-v2-config'
+import { preparePartyForm } from '@/features/party-bookings/core/party-form/checkout/prepare-party-form'
+import { submitPartyForm } from '@/features/party-bookings/core/party-form/checkout/submit-party-form'
+import { getPartyFormConfig } from '@/features/party-bookings/core/party-form/config/get-party-form-config'
+import { getCakeFormUrl, getPartyFormUrl } from '@/features/party-bookings/core/party-form/party-form-urls'
 import { generateAndLinkInvitation } from '@/features/party-bookings/core/rsvp/edit-invitation'
 import { generateInvitation } from '@/features/party-bookings/core/rsvp/generate-invitation'
 import { generateInvitationUrl } from '@/features/party-bookings/core/rsvp/generate-invitation-url'
@@ -37,7 +37,6 @@ import { sendPartyBookingConfirmationEmail } from '@/features/party-bookings/cor
 import { updatePartyBooking } from '@/features/party-bookings/core/update-party-booking'
 import { UnavailableBirthdayPartyCreationsError } from '@/features/party-bookings/core/validate-booking-creations'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
-import { getPartyFormEmbedConfig } from '@/integrations/paperforms/core/party-form-prefill'
 
 export type CreatePartyBooking = Booking
 export type UpdatePartyBooking = { bookingId: string; booking: Booking }
@@ -92,16 +91,11 @@ export const partiesRouter = router({
                 throwTrpcError('INTERNAL_SERVER_ERROR', 'Unable to resend party booking confirmation email', err, input)
             }
         }),
-    getPaperformEmbedConfig: publicProcedure
-        .input(z.object({ bookingId: z.string(), partyOrCakeForm: z.enum(['party', 'cake']) }))
-        .query(({ input }) => getPartyFormEmbedConfig(input.bookingId, input.partyOrCakeForm)),
-    getPartyFormV2Config: publicProcedure
+    getPartyFormConfig: publicProcedure
         .input(z.object({ bookingId: z.string() }))
-        .query(({ input }) => getPartyFormV2Config(input.bookingId)),
-    preparePartyFormV2: publicProcedure
-        .input(preparePartyFormV2Schema)
-        .mutation(({ input }) => preparePartyFormV2(input)),
-    submitPartyFormV2: publicProcedure.input(submitPartyFormV2Schema).mutation(({ input }) => submitPartyFormV2(input)),
+        .query(({ input }) => getPartyFormConfig(input.bookingId)),
+    preparePartyForm: publicProcedure.input(preparePartyFormSchema).mutation(({ input }) => preparePartyForm(input)),
+    submitPartyForm: publicProcedure.input(submitPartyFormSchema).mutation(({ input }) => submitPartyForm(input)),
     getPartyCheckout: authenticatedProcedure
         .input(z.object({ bookingId: z.string() }))
         .query(({ input, ctx }) => getPartyCheckout(input.bookingId, ctx.uid)),

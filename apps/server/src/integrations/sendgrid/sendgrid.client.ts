@@ -418,20 +418,6 @@ export class MailClient {
                     template: 'party_form_filled_in_again.html',
                     useMjml: false,
                 }
-            case 'tooManyCreationsChosen':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'noreply@fizzkidz.com.au',
-                        },
-                        subject: subject || 'Too many creations chosen!',
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'too_many_creations_chosen.html',
-                    useMjml: false,
-                }
             case 'partyFormQuestions':
                 return {
                     emailInfo: {
@@ -444,20 +430,6 @@ export class MailClient {
                         replyTo: replyTo || 'bookings@fizzkidz.com.au',
                     },
                     template: 'party_form_questions.html',
-                    useMjml: false,
-                }
-            case 'partyPackNotification':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'noreply@fizzkidz.com.au',
-                        },
-                        subject: subject || 'Party packs ordered!',
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'party_pack_notification.html',
                     useMjml: false,
                 }
             case 'takeHomeNotification':

@@ -14,7 +14,7 @@ import {
     canOrderCake,
 } from '@fizz-kidz/core'
 
-import { getCakeFormUrl } from './party-form-urls'
+import { getCakeFormUrl } from './party-form/party-form-urls'
 
 import { env } from '@/app/init/firebase'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'

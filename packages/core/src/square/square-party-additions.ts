@@ -1,4 +1,4 @@
-import type { PartyFormV2Addition } from '../parties/party-form-v2'
+import type { PartyFormAddition } from '../parties/party-form'
 
 /** The Square category whose items are offered as party food additions. */
 export const PARTY_ADDITIONS_SQUARE_CATEGORY = {
@@ -31,9 +31,9 @@ const PARTY_ADDITION_SQUARE_ITEMS = {
         '62QOM22LWLHN5CPEVOII3I3T': 'watermelonPlatter',
         HUUY6FVWNOULTV7IRHICRIY4: 'wedges',
     },
-} as const satisfies Record<'prod' | 'dev', Record<string, PartyFormV2Addition>>
+} as const satisfies Record<'prod' | 'dev', Record<string, PartyFormAddition>>
 
-export function mapSquareItemToPartyAddition(env: 'prod' | 'dev', itemId: string): PartyFormV2Addition | undefined {
-    const items: Record<string, PartyFormV2Addition> = PARTY_ADDITION_SQUARE_ITEMS[env]
+export function mapSquareItemToPartyAddition(env: 'prod' | 'dev', itemId: string): PartyFormAddition | undefined {
+    const items: Record<string, PartyFormAddition> = PARTY_ADDITION_SQUARE_ITEMS[env]
     return items[itemId]
 }

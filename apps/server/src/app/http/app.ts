@@ -8,12 +8,12 @@ import { appRouter } from '@/app/trpc/app.trpc'
 import { createContext } from '@/app/trpc/trpc'
 import { getErrorCode, type AppErrorCode } from '@/app/trpc/trpc.errors'
 import { googleReviewsRoute } from '@/features/google-business-profile/functions/routes/google-reviews'
+import { partyFormLinks } from '@/features/party-bookings/functions/routes/party-form-links'
 import { invitationEntryRedirect } from '@/features/party-bookings/functions/webhooks/invitation-redirect'
 import { websiteChatRoute } from '@/features/website-chat/functions/routes/website-chat.route'
 import { acuityWebhook } from '@/integrations/acuity/functions/acuity.webhook'
 import { esignaturesWebhook } from '@/integrations/esignatures.io/functions/esignatures.webhook'
 import { hostedPaperformRedirect } from '@/integrations/paperforms/functions/routes/hosted-paperform-redirect'
-import { partyFormRedirect } from '@/integrations/paperforms/functions/webhooks/paperform-redirect'
 import { paperformWebhook } from '@/integrations/paperforms/functions/webhooks/paperform.webhook'
 import { isUsingEmulator } from '@/shared/runtime/is-using-emulator'
 
@@ -83,7 +83,6 @@ webhooks.use('/webhooks', [
     esignaturesWebhook,
     paperformWebhook,
     terminalCheckoutWebhook,
-    partyFormRedirect,
     invitationEntryRedirect,
 ])
 apiRouter.use(webhooks)
@@ -91,5 +90,6 @@ apiRouter.use(webhooks)
 // Mount all API routes under /api
 app.use('/api', apiRouter)
 
-// Public durable entrypoints for hosted Paperforms.
+// Public durable form links: party and cake forms, then the Paperforms.
+app.use('/forms', partyFormLinks)
 app.use('/forms', hostedPaperformRedirect)

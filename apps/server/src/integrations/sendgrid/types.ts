@@ -237,15 +237,6 @@ export type Emails = {
         newProducts?: { name: string; quantity: string }[]
     }
 
-    tooManyCreationsChosen: {
-        parentName: string
-        parentEmail: string
-        parentMobile: string
-        childName: string
-        dateTime: string
-        chosenCreations: string[]
-    }
-
     partyFormQuestions: {
         dateTime: string
         location: string
@@ -253,15 +244,6 @@ export type Emails = {
         childName: string
         questions: string
         parentEmail: string
-    }
-
-    partyPackNotification: {
-        parentName: string
-        dateTime: string
-        location: string
-        mobile: string
-        email: string
-        partyPacks: string[]
     }
 
     takeHomeNotification: {

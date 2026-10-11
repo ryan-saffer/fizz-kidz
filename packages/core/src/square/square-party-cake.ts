@@ -1,7 +1,6 @@
 /**
- * The Square ice-cream cake item drives the custom form's cake step: its variations are the sizes, and its
+ * The Square ice-cream cake item drives the party form's cake step: its variations are the sizes, and its
  * modifier lists are the designs and flavours ($0) and the serving and candle options.
- * The Paperform checkout still uses the fixed mappings in `square-paperform-variation-mappers.ts`.
  */
 export const PARTY_CAKE_SQUARE_CATALOG = {
     prod: {
