@@ -144,6 +144,22 @@ describe('checking a terminal payment', () => {
         expect(square.orders.pay).not.toHaveBeenCalled()
     })
 
+    it("waits for Square's receipt on an order paid a moment ago", async () => {
+        vi.useFakeTimers()
+        square.orders.get.mockResolvedValue({ order: order(0, 'COMPLETED') })
+        square.terminal.checkouts.get.mockResolvedValue({ checkout: { orderId: 'order', status: 'COMPLETED' } })
+        // the receipt arrives about four seconds after the order is paid
+        square.payments.get
+            .mockResolvedValueOnce({ payment: { status: 'APPROVED' } })
+            .mockResolvedValueOnce({ payment: { status: 'APPROVED' } })
+            .mockResolvedValueOnce({ payment: { status: 'APPROVED' } })
+            .mockResolvedValueOnce({ payment: { status: 'APPROVED' } })
+        const result = status()
+        await vi.advanceTimersByTimeAsync(5000)
+        expect(await result).toEqual({ status: 'paid', receiptUrl: 'https://receipt' })
+        vi.useRealTimers()
+    })
+
     it('says why a charge was cancelled, and releases the gift-card share', async () => {
         square.orders.get.mockResolvedValue({ order: order(20000) })
         square.payments.get.mockResolvedValue({ payment: { status: 'APPROVED' } })
