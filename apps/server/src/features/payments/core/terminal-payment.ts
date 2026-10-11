@@ -19,6 +19,9 @@ export type TerminalPaymentResult =
 
 type CheckoutOrder = Square.Order & { id: string }
 
+/** Seconds to wait for Square's receipt once an order is paid. It usually takes three or four. */
+const RECEIPT_ATTEMPTS = 10
+
 const CANCEL_REASONS: Record<string, string> = {
     BUYER_CANCELED: 'The customer cancelled the payment on the terminal.',
     SELLER_CANCELED: 'The charge was cancelled.',
@@ -47,7 +50,8 @@ export async function startTerminalPayment(input: {
 }): Promise<TerminalPaymentResult> {
     const square = await SquareClient.getInstance()
     const { order, checkout } = await getCheckoutOrder(input.checkoutId, input.metadata)
-    if (order.state === 'COMPLETED') return { status: 'paid', receiptUrl: await getReceiptUrl(getPaymentIds(order)) }
+    if (order.state === 'COMPLETED')
+        return { status: 'paid', receiptUrl: await waitForReceiptUrl(getPaymentIds(order)) }
 
     const giftCardPaymentId = await authoriseGiftCard(order, checkout)
     const terminalCents = Number(order.totalMoney?.amount ?? 0) - checkout.giftCardCents
@@ -96,7 +100,8 @@ export async function getTerminalPayment(input: {
     const { checkout: terminalCheckout } = await square.terminal.checkouts.get({ checkoutId: input.terminalCheckoutId })
     if (terminalCheckout?.orderId !== order.id) throwTrpcError('BAD_REQUEST', 'This charge is for a different order.')
 
-    if (order.state === 'COMPLETED') return { status: 'paid', receiptUrl: await getReceiptUrl(getPaymentIds(order)) }
+    if (order.state === 'COMPLETED')
+        return { status: 'paid', receiptUrl: await waitForReceiptUrl(getPaymentIds(order)) }
 
     switch (terminalCheckout.status) {
         case 'COMPLETED': {
@@ -184,10 +189,13 @@ async function payOrder(order: CheckoutOrder, paymentIds: string[]): Promise<Ter
     return { status: 'paid', receiptUrl: await waitForReceiptUrl(paymentIds) }
 }
 
-/** Square captures the payments a moment after the order is paid, and only then has a receipt. */
+/**
+ * Square captures the payments a few seconds after the order is paid, and only then has a receipt. Every paid result
+ * waits for it, since whichever check (the iPad's or the webhook's) records the payment first keeps its receipt.
+ */
 async function waitForReceiptUrl(paymentIds: string[]) {
     // an order discounted to nothing is paid without any payment, so has no receipt
-    for (let attempt = 0; paymentIds.length > 0 && attempt < 5; attempt++) {
+    for (let attempt = 0; paymentIds.length > 0 && attempt < RECEIPT_ATTEMPTS; attempt++) {
         const receiptUrl = await getReceiptUrl(paymentIds)
         if (receiptUrl) return receiptUrl
         await new Promise((resolve) => setTimeout(resolve, 1000))
