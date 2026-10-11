@@ -1,12 +1,12 @@
 ---
 title: Party forms and add-ons
-description: How Paperform, Square, the Portal and supplier notifications work together for final details and paid items.
+description: How the Party Form and cake form collect final details, take payment for cakes and goodies, and notify the studio and suppliers.
 ---
 
 import { Aside, Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components'
 
-Fizz Kidz uses one hosted Paperform in two modes. The **Party Form** gathers final event details. The **cake form** is an
-earlier route for eligible cakes, take-home bags and products.
+Fizz Kidz uses one party form in two modes. The **Party Form** gathers final party details. The **cake form** is an
+earlier way to order a cake and take-home goodies.
 
 ## Which link to send
 
@@ -18,26 +18,26 @@ earlier route for eligible cakes, take-home bags and products.
   </Card>
   <Card title="Cake form" icon="add-document">
     <p>
-      Use for an eligible customer's cake, take-home bag or product order before the main Party Form is due. Cakes are
-      available only for studio parties outside Geelong.
+      Use for a cake, take-home bag or kit order before the Party Form is due. Cakes are available only for studio
+      parties outside Geelong and Werribee; families there can still order goodies.
     </p>
   </Card>
 </CardGrid>
 
-Both links are tied to the booking. When opened, Fizz Kidz prefills Paperform with the current location, parent, child,
-food-package and previous paid-item details.
+Both links are tied to the booking. The form opens with the booking's parent and child details and shows anything the
+family has already ordered.
 
 <Aside type="caution" title="Never reuse a link for another family">
-  The booking ID controls which Portal record is updated. Always copy the form link from the correct booking menu.
+  The link decides which booking is updated. Always copy the form link from the correct booking menu.
 </Aside>
 
 ## Automatic sends
 
-| Workflow               | Who it selects                                     | Who it skips                                                                     |
-| ---------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Early cake/order email | Eligible parties roughly 3-4 weeks away            | Mobile, Geelong, or a booking already recording a cake, take-home bag or product |
-| Party Form email       | Parties in the following Tuesday-to-Tuesday window | No `Party Form filled in` filter on the initial send                             |
-| Party Form reminder    | Parties in the upcoming Tuesday-to-Tuesday window  | Any booking already marked `Party Form filled in`                                |
+| Workflow               | Who it selects                                     | Who it skips                                                                           |
+| ---------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Early cake/order email | Eligible parties roughly 3-4 weeks away            | Mobile, Geelong, Werribee, or a booking already recording a cake, take-home bag or kit |
+| Party Form email       | Parties in the following Tuesday-to-Tuesday window | No `Party Form filled in` filter on the initial send                                   |
+| Party Form reminder    | Parties in the upcoming Tuesday-to-Tuesday window  | Any booking already marked `Party Form filled in`                                      |
 
 The exact send time is scheduled automatically. If a customer needs the form now, use **Copy form link > Party form**
 from the booking menu instead of waiting for the scheduled email.
@@ -45,78 +45,75 @@ from the booking menu instead of waiting for the scheduled email.
 ## Paid now and paid later
 
 <CardGrid>
-  <Card title="Paid in Square checkout" icon="approve-check-circle">
+  <Card title="Paid in the form" icon="approve-check-circle">
     <p>
-      Fizz cake, take-home bags and products selected in the form create a Square payment link. Square payment happens
-      before the form is completed.
+      Ice-cream cakes, take-home bags and kits are paid on the form's review page by card, Apple Pay or Google Pay.
+      Discount codes and Square gift cards can be used. Nothing needs paying if none of these are ordered.
     </p>
   </Card>
   <Card title="Paid at the party" icon="warning">
     <p>
       Food additions and the party itself are saved on the booking and charged at the party with
       <a href="/services/birthday-parties/collect-payment/">Collect payment</a>. The Portal labels the additions
-      <strong>Pay at party</strong>. Party packs aren't charged by the form.
+      <strong>Pay at party</strong>.
     </p>
   </Card>
 </CardGrid>
 
-If there are no paid items, the customer skips Square and goes directly to form completion. If paid items are selected,
-the order is paid in Square before the form is completed.
+Take-home bags and kits are ordered in lots of at least 12. Once an item is ordered, the family can add any number
+more, for example after late RSVPs. Each party can order one cake; once it's ordered, the form shows it instead of
+offering another.
 
-## What happens after completion
+## What happens after submission
 
 <Steps>
   <ol>
     <li>
-      <h3>Square records paid items</h3>
-      <p>
-        Cakes, take-home bags and products are paid through the Square checkout. Supplier-fulfilled take-home bags and
-        products are added back to the studio's Square inventory.
-      </p>
-    </li>
-    <li>
       <h3>The Portal booking is updated</h3>
       <p>
         The Party Form marks <code>Party Form filled in</code>, then saves final numbers, creations, food selection,
-        additions, questions and ordered items. Cake-only mode does not mark the Party Form complete.
+        additions, questions and ordered items. The cake form saves only the cake and goodies, and does not mark the
+        Party Form complete.
       </p>
     </li>
     <li>
-      <h3>Customer and internal emails are sent</h3>
+      <h3>The family receives a summary</h3>
       <p>
-        The customer receives a Party Form summary, or an order summary for cake mode when something was ordered. Studio
-        and supplier notices are sent according to the selections below.
+        The customer receives a Party Form summary, or an order summary from the cake form when something was ordered,
+        plus Square's payment receipt for anything paid.
       </p>
+    </li>
+    <li>
+      <h3>The studio and suppliers are told</h3>
+      <p>Studio and supplier notices are sent according to the selections below.</p>
     </li>
   </ol>
 </Steps>
 
 ## Internal notifications
 
-| Trigger                          | Automatic effect                                                           |
-| -------------------------------- | -------------------------------------------------------------------------- |
-| Party Form submitted again       | Studio inbox receives the old and new details                              |
-| Studio food package changed      | Studio inbox receives a separate notice, including on the first form       |
-| Too many creations selected      | Studio inbox is asked to contact the parent and agree on a workable set    |
-| Customer leaves a question       | Studio inbox receives the question with the parent as reply-to             |
-| Party pack selected              | Studio inbox is notified; the party pack remains unpaid by this checkout   |
-| Take-home bag or product ordered | Studio inbox is notified                                                   |
-| Cake ordered                     | `orders@birthdaycakeshop.com.au` is emailed and the studio is blind-copied |
-| Take-home bags ordered           | `orders@birthdaycakeshop.com.au` is emailed                                |
+| Trigger                      | Automatic effect                                                           |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| Party Form submitted again   | Studio inbox receives the old and new details                              |
+| Studio food package changed  | Studio inbox receives a separate notice, including on the first form       |
+| Customer leaves a question   | Studio inbox receives the question with the parent as reply-to             |
+| Take-home bag or kit ordered | Studio inbox is notified                                                   |
+| Cake ordered                 | `orders@birthdaycakeshop.com.au` is emailed and the studio is blind-copied |
+| Take-home bags ordered       | `orders@birthdaycakeshop.com.au` is emailed                                |
 
 Contact the supplier directly for late changes or corrections to an order already sent.
 
 ## Repeated forms need care
 
 - A second Party Form sends a comparison email to the studio.
-- New take-home bag and product quantities are added to quantities already on the booking; they are not treated as a replacement.
+- New take-home bag and kit quantities are added to quantities already on the booking; they are not treated as a replacement.
 - Previously selected unpaid additions may still need manual correction in the Portal if the customer removes them on a later form.
-- A new paid order can create another Square payment and another supplier email.
 - Guest numbers, creations and food-package values are updated from the latest Party Form.
 
 <Aside type="caution" title="A repeat form can create a new order">
-  Repeating the form can add quantities, charge the family again and send another supplier email. Use the approved
-  correction or refund process for an existing paid order instead.
+  Ordering more goodies on a later form charges the family again and sends another supplier email. To change a cake
+  already ordered, the family emails <code>bookings@fizzkidz.com.au</code>; use the approved correction or refund
+  process for an existing paid order.
 </Aside>
 
 ## Related guides

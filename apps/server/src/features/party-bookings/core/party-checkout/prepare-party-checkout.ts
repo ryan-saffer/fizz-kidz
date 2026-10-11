@@ -7,7 +7,7 @@ import {
     type PreparePartyCheckout,
 } from '@fizz-kidz/core'
 
-import { getPartyFormV2Additions } from '../party-form-v2/options/get-party-form-v2-additions'
+import { getPartyFormAdditions } from '../party-form/options/get-party-form-additions'
 import { getBlockedReason } from './get-party-checkout'
 
 import type { Square } from 'square'
@@ -29,7 +29,7 @@ export async function preparePartyCheckout(input: PreparePartyCheckout, uid: str
 
     const priceList = getPartyPriceList(env, booking.oldPrices)
     const chargedChildren = Math.max(input.childrenCount, MIN_CHARGED_CHILDREN)
-    const additions = input.additions.length > 0 ? await getPartyFormV2Additions(booking.location) : []
+    const additions = input.additions.length > 0 ? await getPartyFormAdditions(booking.location) : []
 
     const lineItems: Square.OrderLineItem[] = [
         {

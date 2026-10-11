@@ -17,7 +17,7 @@ type TakeHomeCatalog = {
 
 /**
  * Square variations for take-home bags and kits. Bookings store quantities by these keys, so each Square variation
- * must map to one; the custom form reads names, photos and prices from Square.
+ * must map to one; the party form reads names, photos and prices from Square.
  */
 export const PARTY_TAKE_HOME_SQUARE_CATALOG = {
     prod: {

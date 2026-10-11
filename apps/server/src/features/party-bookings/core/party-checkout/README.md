@@ -8,7 +8,7 @@ Tests live in a `__tests__` folder next to the files they cover.
 
 A party is charged the price per child for its length (1.5 or 2 hours) with or without the food package, for the children who came but at least `MIN_CHARGED_CHILDREN` (12), plus one of each food addition. Party packs, cakes and take-home goodies are paid for in advance in the party form, so they aren't charged here.
 
-Every price comes from Square. `PARTY_PRICE_SQUARE_CATALOG` maps each length and food package to a Square variation, one price list for current prices and one for bookings flagged `oldPrices`. Food additions are the party form's (`getPartyFormV2Additions`), ordered by their Square variation. Names shown to staff and parents drop Square's staff tags such as `[NO FOOD]` (`withoutSquareTags`).
+Every price comes from Square. `PARTY_PRICE_SQUARE_CATALOG` maps each length and food package to a Square variation, one price list for current prices and one for bookings flagged `oldPrices`. Food additions are the party form's (`getPartyFormAdditions`), ordered by their Square variation. Names shown to staff and parents drop Square's staff tags such as `[NO FOOD]` (`withoutSquareTags`).
 
 Staff can add a discount (a dollar amount off the whole order, up to all of it) and a Square gift card. Both are optional. A discount needs a reason, kept in the order's metadata and the booking's `payment` record; Square and the customer's receipt just show 'Discount'.
 

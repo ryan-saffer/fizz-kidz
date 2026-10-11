@@ -38,7 +38,7 @@ vi.mock('@/integrations/square/core/get-catalog-item-options', () => ({
     isSoldAtLocation: (option: { locationIds: string[] | null }, locationId: string) =>
         option.locationIds === null || option.locationIds.includes(locationId),
 }))
-vi.mock('../../party-form-v2/options/get-party-form-v2-additions', () => ({ getPartyFormV2Additions: mocks.additions }))
+vi.mock('../../party-form/options/get-party-form-additions', () => ({ getPartyFormAdditions: mocks.additions }))
 vi.mock('@/features/payments/core/prepare-checkout', () => ({ prepareCheckout: mocks.prepareCheckout }))
 vi.mock('@/features/payments/core/terminal-payment', () => ({
     startTerminalPayment: mocks.startTerminalPayment,

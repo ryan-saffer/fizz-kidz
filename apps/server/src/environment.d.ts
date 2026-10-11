@@ -14,7 +14,6 @@ declare global {
             GOOGLE_OAUTH_CLIENT_SECRET: string
             GOOGLE_OAUTH_REFRESH_TOKEN: string
             GOOGLE_OAUTH_REDIRECT_URI: string
-            PAPERFORM_API_TOKEN: string
             SEND_GRID_API_KEY: string
             SLING_PASSWORD: string
             ZOHO_CLIENT_ID: string

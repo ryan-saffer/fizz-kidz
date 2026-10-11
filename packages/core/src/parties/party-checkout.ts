@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { PARTY_FORM_V2_ADDITIONS } from './party-form-v2'
+import { PARTY_FORM_ADDITIONS } from './party-form'
 
 import type { CheckoutSummary } from '../payments/checkout'
 import type { TerminalCheckoutStatus } from '../payments/terminal-checkout'
@@ -19,7 +19,7 @@ export const preparePartyCheckoutSchema = z
         /** The children who came; fewer than the minimum are charged as the minimum. */
         childrenCount: z.number().int().min(1).max(200),
         additions: z
-            .array(z.enum(PARTY_FORM_V2_ADDITIONS))
+            .array(z.enum(PARTY_FORM_ADDITIONS))
             .refine((additions) => new Set(additions).size === additions.length, 'Additions must be unique'),
         discountCents: z.number().int().min(0).default(0),
         /** Why staff gave the discount. Kept on the order and booking for us, not shown to the customer. */

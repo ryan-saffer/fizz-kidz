@@ -20,9 +20,9 @@ const SignInPage = lazy(() =>
 const Paperform = lazy(() =>
     import('../features/forms/paperform-page.js').then((module) => ({ default: module.Paperform }))
 )
-const PartyFormV2Page = lazy(() =>
-    import('../features/party-form-v2/pages/party-form-v2-page.js').then((module) => ({
-        default: module.PartyFormV2Page,
+const PartyFormPage = lazy(() =>
+    import('../features/party-form/pages/party-form-page.js').then((module) => ({
+        default: module.PartyFormPage,
     }))
 )
 const SignUpPage = lazy(() =>
@@ -277,10 +277,10 @@ const router = createBrowserRouter([
                 ],
             },
             {
-                path: 'party-form-v2',
+                path: 'party-form',
                 Component: () => (
                     <Suspense fallback={<Loader fullScreen />}>
-                        <PartyFormV2Page />
+                        <PartyFormPage />
                     </Suspense>
                 ),
             },

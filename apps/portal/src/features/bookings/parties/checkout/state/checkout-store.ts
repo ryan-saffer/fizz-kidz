@@ -1,7 +1,7 @@
 import {
     formatCents,
     type FirestoreBooking,
-    type PartyFormV2Addition,
+    type PartyFormAddition,
     type PreparePartyCheckout,
     type WithId,
 } from '@fizz-kidz/core'
@@ -82,5 +82,5 @@ export function getEstimateLines(config: CheckoutConfig, answers: CheckoutAnswer
     ]
 }
 
-export const toggleAddition = (additions: PartyFormV2Addition[], key: PartyFormV2Addition) =>
+export const toggleAddition = (additions: PartyFormAddition[], key: PartyFormAddition) =>
     additions.includes(key) ? additions.filter((it) => it !== key) : [...additions, key]

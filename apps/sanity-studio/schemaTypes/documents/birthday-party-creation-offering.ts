@@ -122,9 +122,9 @@ export const birthdayPartyCreationOffering = defineType({
         }),
         defineField({
             name: 'legacyLabels',
-            title: 'Previous Paperform labels',
+            title: 'Previous labels',
             type: 'array',
-            description: 'Keep old submitted labels here so historical submissions can still be resolved.',
+            description: 'Names older bookings stored for this creation, so they still show its current name.',
             of: [defineArrayMember({ type: 'string', validation: (rule) => rule.required() })],
             validation: (rule) => rule.unique(),
         }),
