@@ -1,6 +1,6 @@
-import type { IncursionForm, OnboardingForm, PartyForm } from '.'
+import type { IncursionForm, OnboardingForm } from '.'
 
-export type PaperForm = PartyForm | OnboardingForm | IncursionForm
+export type PaperForm = OnboardingForm | IncursionForm
 
 type PaperFormQuestion<TForm extends PaperForm, T extends keyof TForm = keyof TForm> = {
     title: string

@@ -4,12 +4,10 @@ import { describe, it } from 'vite-plus/test'
 
 import {
     getActiveBirthdayPartyBookingPackages,
-    getBirthdayPartyBookingCreationName,
     getBirthdayPartyPackageCreationsTitle,
     getBirthdayPartyPackageColourHex,
     getBirthdayPartyPackageImageDescription,
     getBirthdayPartyPackagePartyName,
-    resolveBirthdayPartyBookingCreation,
     validateBirthdayPartyCatalogue,
     validateBirthdayPartyBookingCatalogue,
     type BirthdayPartyBookingCatalogue,
@@ -428,42 +426,6 @@ describe('birthday party booking catalogue', () => {
             ),
             ['fairySlime']
         )
-    })
-
-    it('resolves package choices by channel and unique archived values globally', () => {
-        deepStrictEqual(
-            resolveBirthdayPartyBookingCreation(bookingCatalogue, {
-                channel: 'mobile',
-                packageKey: 'fairy',
-                submittedValue: ' Fairy Glitter Slime ',
-            })?.key,
-            'fairySlime'
-        )
-        deepStrictEqual(
-            resolveBirthdayPartyBookingCreation(bookingCatalogue, {
-                channel: 'studio',
-                packageKey: 'fairy',
-                submittedValue: 'unicornSoap',
-            })?.key,
-            'unicornSoap'
-        )
-        deepStrictEqual(
-            resolveBirthdayPartyBookingCreation(bookingCatalogue, {
-                channel: 'mobile',
-                packageKey: 'fairy',
-                submittedValue: 'Unicorn Soap',
-            }),
-            undefined
-        )
-        deepStrictEqual(
-            resolveBirthdayPartyBookingCreation(bookingCatalogue, {
-                channel: 'studio',
-                packageKey: 'fairy',
-                submittedValue: 'Chocolate Slime',
-            })?.key,
-            'nutellaSlime'
-        )
-        deepStrictEqual(getBirthdayPartyBookingCreationName(bookingCatalogue, 'fairySlime'), 'Fairy Slime')
     })
 
     it('rejects malformed package booking configuration', () => {

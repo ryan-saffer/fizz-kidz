@@ -134,12 +134,6 @@ export type BirthdayPartyBookingCatalogue = {
     packages: BirthdayPartyBookingCataloguePackage[]
 }
 
-export type BirthdayPartyCreationResolutionInput = {
-    channel: BirthdayPartyBookingChannel
-    packageKey: string
-    submittedValue: string
-}
-
 function hasCompleteImage(image: BirthdayPartyCatalogueImage | undefined) {
     return Boolean(
         image?.assetId &&
@@ -469,30 +463,6 @@ export function validateBirthdayPartyBookingCatalogue(
     return catalogue
 }
 
-export function resolveBirthdayPartyBookingCreation(
-    catalogue: BirthdayPartyBookingCatalogue,
-    { channel, packageKey, submittedValue }: BirthdayPartyCreationResolutionInput
-) {
-    const normalizedValue = normalizeBirthdayPartyCreationValue(submittedValue)
-    const partyPackage = catalogue.packages.find((candidate) => candidate.key === packageKey)
-    const packageMatches =
-        partyPackage?.creations.flatMap((packageCreation) => {
-            const creation = catalogue.creations.find((candidate) => candidate.key === packageCreation.key)
-            return creation && birthdayPartyCreationMatchesSubmittedValue(creation, normalizedValue) ? [creation] : []
-        }) ?? []
-
-    if (packageMatches.length === 1) {
-        return packageMatches[0].bookingChannels.includes(channel) ? packageMatches[0] : undefined
-    }
-    if (packageMatches.length > 1) return undefined
-
-    const archivedMatches = catalogue.creations.filter(
-        (creation) =>
-            creation.status === 'retired' && birthdayPartyCreationMatchesSubmittedValue(creation, normalizedValue)
-    )
-    return archivedMatches.length === 1 ? archivedMatches[0] : undefined
-}
-
 export function getActiveBirthdayPartyBookingPackages(
     catalogue: BirthdayPartyBookingCatalogue,
     channel: BirthdayPartyBookingChannel
@@ -525,15 +495,6 @@ export function getActiveBirthdayPartyBookingCreationKeys(
 
 export function getBirthdayPartyBookingCreationName(catalogue: BirthdayPartyBookingCatalogue, key: string) {
     return catalogue.creations.find((creation) => creation.key === key)?.name
-}
-
-function birthdayPartyCreationMatchesSubmittedValue(
-    creation: Pick<BirthdayPartyBookingCatalogueCreation, 'key' | 'legacyLabels' | 'name'>,
-    normalizedValue: string
-) {
-    return [creation.key, creation.name, ...creation.legacyLabels].some(
-        (value) => normalizeBirthdayPartyCreationValue(value) === normalizedValue
-    )
 }
 
 function normalizeBirthdayPartyCreationValue(value: string) {

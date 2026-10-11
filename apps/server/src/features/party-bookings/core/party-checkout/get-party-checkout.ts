@@ -4,11 +4,11 @@ import {
     MIN_CHARGED_CHILDREN,
     type Booking,
     type ChargedPartyLength,
-    type PartyFormV2Addition,
+    type PartyFormAddition,
     withoutSquareTags,
 } from '@fizz-kidz/core'
 
-import { getPartyFormV2Additions } from '../party-form-v2/options/get-party-form-v2-additions'
+import { getPartyFormAdditions } from '../party-form/options/get-party-form-additions'
 
 import { env } from '@/app/init/firebase'
 import { canUseTerminalCheckout } from '@/features/payments/core/terminal-checkout-access'
@@ -37,7 +37,7 @@ export async function getPartyCheckout(bookingId: string, uid: string) {
     const priceList = getPartyPriceList(env, booking.oldPrices)
     const [{ variations }, additions] = await Promise.all([
         getCatalogItemOptions(priceList.itemId),
-        getPartyFormV2Additions(booking.location),
+        getPartyFormAdditions(booking.location),
     ])
 
     const partyPrices: PartyPriceOption[] = []
@@ -85,7 +85,7 @@ export async function getPartyCheckout(bookingId: string, uid: string) {
             childrenCount: getBookedChildren(booking.numberOfChildren),
             additions: offered
                 .map((addition) => addition.key)
-                .filter((key): key is PartyFormV2Addition => booking[key] === true),
+                .filter((key): key is PartyFormAddition => booking[key] === true),
         },
     } as const
 }

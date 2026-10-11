@@ -1,78 +1,39 @@
-import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { ErrorScreen } from '@app/root/error-page'
-import { useTRPC } from '@integrations/trpc'
-import Loader from '@shared/components/loader'
 
-const QUERY_PAPERFORMS = {
+const PAPERFORMS = {
     'incident-reporting': { paperformId: 'pyornlcz' },
     onboarding: { paperformId: 'fizz-kidz-onboarding' },
     incursion: { paperformId: 'dtrdgb8b' },
     'staff-feedback': { paperformId: 'b55fbq3h' },
 } as const
 
-const SERVER_PAPERFORMS = {
-    party: { partyOrCakeForm: 'party' },
-    cake: { partyOrCakeForm: 'cake' },
-} as const
+type PaperformKey = keyof typeof PAPERFORMS
 
-type QueryPaperformKey = keyof typeof QUERY_PAPERFORMS
-type ServerPaperformKey = keyof typeof SERVER_PAPERFORMS
-type HostedPaperformKey = QueryPaperformKey | ServerPaperformKey
-
-function isHostedPaperformKey(value: string | null): value is HostedPaperformKey {
-    return Boolean(value && (value in QUERY_PAPERFORMS || value in SERVER_PAPERFORMS))
-}
-
-function getHostedPaperformKey(searchParams: URLSearchParams): HostedPaperformKey | null {
+function getPaperformKey(searchParams: URLSearchParams): PaperformKey | null {
     const form = searchParams.get('form')
-    if (isHostedPaperformKey(form)) {
-        return form
-    }
-
-    return null
+    return form && form in PAPERFORMS ? (form as PaperformKey) : null
 }
 
+/** Every query parameter except `form` prefills the Paperform. */
 function getQueryPrefill(searchParams: URLSearchParams) {
     const params = new URLSearchParams(searchParams)
     params.delete('form')
     return params.toString()
 }
 
+/** Embeds a hosted Paperform (staff onboarding, incursions, incident reporting, staff feedback). */
 export const Paperform = () => {
-    const trpc = useTRPC()
     const [searchParams] = useSearchParams()
     const paperformRef = useRef<HTMLDivElement | null>(null)
 
-    const bookingId = searchParams.get('id')
-    const form = getHostedPaperformKey(searchParams)
-    const isServerPaperform = form === 'party' || form === 'cake'
-
-    const embedConfigQuery = useQuery(
-        trpc.parties.getPaperformEmbedConfig.queryOptions(
-            {
-                bookingId: bookingId || '',
-                partyOrCakeForm: isServerPaperform ? SERVER_PAPERFORMS[form].partyOrCakeForm : 'party',
-            },
-            { enabled: Boolean(bookingId) && isServerPaperform }
-        )
-    )
-
-    const queryPaperformConfig = form && form in QUERY_PAPERFORMS ? QUERY_PAPERFORMS[form as QueryPaperformKey] : null
-    const resolvedEmbedConfig = isServerPaperform
-        ? embedConfigQuery.data || null
-        : queryPaperformConfig
-          ? {
-                paperformId: queryPaperformConfig.paperformId,
-                prefill: getQueryPrefill(searchParams),
-            }
-          : null
+    const form = getPaperformKey(searchParams)
+    const paperformId = form ? PAPERFORMS[form].paperformId : null
+    const prefill = getQueryPrefill(searchParams)
 
     useEffect(() => {
-        const prefill = resolvedEmbedConfig?.prefill
-        const paperformId = resolvedEmbedConfig?.paperformId
         const node = paperformRef.current
         if (!paperformId || !node) {
             return
@@ -95,7 +56,7 @@ export const Paperform = () => {
         return () => {
             script.remove()
         }
-    }, [resolvedEmbedConfig?.paperformId, resolvedEmbedConfig?.prefill])
+    }, [paperformId, prefill])
 
     if (!form) {
         return (
@@ -107,30 +68,5 @@ export const Paperform = () => {
         )
     }
 
-    if (isServerPaperform && !bookingId) {
-        return (
-            <ErrorScreen
-                showGoHome={false}
-                label="Invalid form link"
-                text="This form link is missing information or is no longer available."
-            />
-        )
-    }
-
-    if (isServerPaperform && embedConfigQuery.isPending) {
-        return <Loader fullScreen />
-    }
-
-    if ((isServerPaperform && embedConfigQuery.isError) || !resolvedEmbedConfig) {
-        return (
-            <ErrorScreen
-                showRefresh
-                showGoHome={false}
-                label="Unable to load form"
-                text="We couldn't load this form right now. Please refresh and try again, or contact us if the problem continues."
-            />
-        )
-    }
-
-    return <div key={`${form}:${resolvedEmbedConfig.prefill}`} ref={paperformRef} data-takeover="1"></div>
+    return <div key={`${form}:${prefill}`} ref={paperformRef} data-takeover="1"></div>
 }

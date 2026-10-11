@@ -201,8 +201,6 @@ export type MixpanelEvent = {
         location: Studio
         creations: string[]
         additions: string[]
-        orderedPartyPack: boolean
-        partyPack?: string
         cakeOrdered: boolean
         cakeSelection?: string
         cakeFlavours?: string[]

@@ -12,7 +12,7 @@ import {
 } from '@fizz-kidz/core'
 
 import { getUpcoming } from './party-form-scheduling'
-import { getPartyFormUrl } from './party-form-urls'
+import { getPartyFormUrl } from './party-form/party-form-urls'
 
 import { FirestoreRefs } from '@/integrations/firebase/firestore.refs'
 import { logError } from '@/integrations/observability/log-error'
