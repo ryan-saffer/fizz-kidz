@@ -4,6 +4,7 @@ import { Suspense, lazy } from 'react'
 import { Navigate, RouterProvider, createBrowserRouter, useSearchParams } from 'react-router-dom'
 
 import { NotFound404 } from '@app/root/404.js'
+import { RootRedirect } from '@app/root/root-redirect.js'
 import { Root } from '@app/root/root.js'
 import { ProtectedRoute } from '@session/protected-route.js'
 import { SignedIn } from '@session/signed-in.js'
@@ -204,13 +205,9 @@ const router = createBrowserRouter([
         ErrorBoundary: NotFound404,
         children: [
             {
-                // redirects the base route to the dashboard, or the sign in page if not logged in
+                // redirects the base route to the dashboard (see RootRedirect)
                 index: true,
-                Component: () => (
-                    // <ProtectedRoute roles={[]}>
-                    <Navigate to="dashboard" />
-                    // </ProtectedRoute>
-                ),
+                Component: RootRedirect,
             },
             {
                 path: 'sign-in',
