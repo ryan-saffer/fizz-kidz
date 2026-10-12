@@ -32,7 +32,7 @@ export function getPartyCustomerContactInfo(location: Studio) {
         case 'werribee':
             return {
                 email: 'werribee@fizzkidz.com.au',
-                phoneDisplay: genericContact.mainPhoneDisplay,
+                phoneDisplay: '0433 522 071',
                 contactName: 'Paris',
                 contactSignoff: 'Paris and the Fizz Kidz team',
             }
