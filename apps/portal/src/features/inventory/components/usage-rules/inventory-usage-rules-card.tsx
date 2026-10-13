@@ -1,5 +1,6 @@
 import { Loader2, PackageSearch, Plus } from 'lucide-react'
 
+import { assertNever } from '@fizz-kidz/core'
 import type { InventoryUsageRuleQuantity } from '@fizz-kidz/core'
 
 import { Badge } from '@shared/components/ui/badge'
@@ -152,5 +153,8 @@ function formatRuleQuantity(quantity: InventoryUsageRuleQuantity) {
             return `${quantity.quantityPerChild} per child`
         case 'fixed-plus-per-child':
             return `${quantity.fixedQuantity} per booking + ${quantity.quantityPerChild} per child`
+        default:
+            assertNever(quantity)
+            throw new Error(`Unhandled quantity.$operation: ${JSON.stringify(quantity)}`)
     }
 }

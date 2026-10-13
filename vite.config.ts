@@ -324,7 +324,28 @@ export default defineConfig(({ command, mode }) => {
                 : undefined,
         ],
         test: {
-            coverage: { reporter: ['text', 'html'] },
+            // One report for every project, at the repo root, counting every source file (untested ones at 0%), not just
+            // what the tests load. The config's root is the portal, so the paths are absolute and files outside it are
+            // allowed. Each app is listed on its own (only .ts/.tsx): a wildcard across apps also matched docs and Astro
+            // files, which coverage can't read, and stopped untested files being counted.
+            coverage: {
+                reporter: ['text', 'html'],
+                reportsDirectory: path.join(workspaceDir, 'coverage'),
+                allowExternal: true,
+                include: [
+                    'apps/portal/src/**/*.{ts,tsx}',
+                    'apps/server/src/**/*.ts',
+                    'apps/website/src/**/*.{ts,tsx}',
+                    'packages/core/src/**/*.ts',
+                ].map((glob) => path.join(workspaceDir, glob)),
+                exclude: [
+                    '**/node_modules/**',
+                    '**/dist/**',
+                    '**/test-support/**',
+                    '**/*.test.{ts,tsx}',
+                    '**/__tests__/**',
+                ],
+            },
             projects: [
                 {
                     extends: true,

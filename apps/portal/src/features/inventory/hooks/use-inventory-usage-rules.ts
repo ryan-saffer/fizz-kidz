@@ -6,7 +6,7 @@ import { useOrg } from '@session/use-org'
 export function useInventoryUsageRules() {
     const trpc = useTRPC()
     const { hasPermission } = useOrg()
-    const canEdit = hasPermission('inventory:write')
+    const canEdit = hasPermission('inventory:manage-items')
     const usageRulesQuery = useQuery(
         trpc.inventory.listUsageRules.queryOptions({ includeArchived: true }, { enabled: canEdit })
     )

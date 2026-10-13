@@ -9,10 +9,12 @@ import {
 } from '@fizz-kidz/core'
 
 import { getPartyFormAdditions } from '../party-form/options/get-party-form-additions'
+import { getPartyCheckoutCake } from './party-checkout-cake'
 
 import { env } from '@/app/init/firebase'
 import { canUseTerminalCheckout } from '@/features/payments/core/terminal-checkout-access'
 import { DatabaseClient } from '@/integrations/firebase/database.client'
+import { logError } from '@/integrations/observability/log-error'
 import { getCatalogItemOptions, isSoldAtLocation } from '@/integrations/square/core/get-catalog-item-options'
 
 export type PartyPriceOption = {
@@ -35,9 +37,14 @@ export async function getPartyCheckout(bookingId: string, uid: string) {
 
     const locationId = getSquareLocationId(env === 'prod' ? booking.location : 'test')
     const priceList = getPartyPriceList(env, booking.oldPrices)
-    const [{ variations }, additions] = await Promise.all([
+    const [{ variations }, additions, cake] = await Promise.all([
         getCatalogItemOptions(priceList.itemId),
         getPartyFormAdditions(booking.location),
+        getPartyCheckoutCake(booking).catch((error: unknown) => {
+            // without it staff aren't asked, and the cake and its supplies count as used
+            logError('Unable to load the party cake for checkout', error, { bookingId })
+            return null
+        }),
     ])
 
     const partyPrices: PartyPriceOption[] = []
@@ -72,6 +79,8 @@ export async function getPartyCheckout(bookingId: string, uid: string) {
         minChildren: MIN_CHARGED_CHILDREN,
         bookedChildren: booking.numberOfChildren,
         partyPrices,
+        /** A studio-stock cake paid for in the party form, for staff to confirm was used. */
+        cake,
         additions: offered.map(({ key, name, description, imageUrl, priceCents }) => ({
             key,
             name,
@@ -86,6 +95,10 @@ export async function getPartyCheckout(bookingId: string, uid: string) {
             additions: offered
                 .map((addition) => addition.key)
                 .filter((key): key is PartyFormAddition => booking[key] === true),
+            // a studio-stock cake starts from what the parent chose in the party form
+            cakeUsed: true,
+            cakeServingUsed: cake?.serving?.ordered ?? false,
+            cakeCandlesUsed: cake?.candles?.ordered ?? false,
         },
     } as const
 }

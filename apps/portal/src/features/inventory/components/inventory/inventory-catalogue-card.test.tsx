@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
@@ -10,8 +10,25 @@ import { InventoryCatalogueCard } from './inventory-catalogue-card'
 import type { ClientInventoryItem, ClientInventoryStockLevel } from '../../utils/inventory.types'
 import type { ReactNode } from 'react'
 
+function hasPermission(permission: string) {
+    return (
+        (permission === 'inventory:manage-items' && canManageItems) ||
+        (permission === 'inventory:update-stock' && canUpdateStock)
+    )
+}
+
 vi.mock('@session/use-org', () => ({
-    useOrg: () => ({ hasPermission: (permission: string) => permission === 'inventory:write' && canEdit }),
+    useOrg: () => ({ hasPermission }),
+}))
+
+vi.mock('@tanstack/react-query', () => ({
+    useQuery: () => ({ data: [], isPending: false }),
+}))
+
+const trpc = { inventory: { listSquareOptions: { queryOptions: () => ({}) } } }
+
+vi.mock('@integrations/trpc', () => ({
+    useTRPC: () => trpc,
 }))
 
 vi.mock('@shared/lib/studio-utils', () => ({
@@ -51,16 +68,34 @@ vi.mock('@shared/components/ui/select', async () => {
             </select>
         ),
         SelectContent: ({ children }: { children: ReactNode }) => <>{children}</>,
+        SelectGroup: ({ children }: { children: ReactNode }) => <>{children}</>,
         SelectItem,
+        SelectLabel: () => null,
         SelectTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
         SelectValue: () => null,
     }
 })
 
-let canEdit = true
+let canManageItems = true
+let canUpdateStock = true
+let catalogueOrderableItems: ClientInventoryItem[] = []
 let canChooseLocation = true
 let catalogueHiddenItems: ClientInventoryItem[] = []
 let catalogueLocation: 'balwyn' | undefined = 'balwyn'
+let catalogueIsLoading = false
+let catalogueSupplyItems: ClientInventoryItem[] = []
+
+/** Hook results stay the same object until an input changes, like the real hooks between renders. */
+const stableResults = new Map<string, { inputs: unknown[]; value: unknown }>()
+function stable<T>(name: string, inputs: unknown[], build: () => T): T {
+    const cached = stableResults.get(name)
+    if (cached && cached.inputs.every((input, index) => Object.is(input, inputs[index]))) {
+        return cached.value as T
+    }
+    const value = build()
+    stableResults.set(name, { inputs, value })
+    return value
+}
 
 const now = new Date('2026-05-01T00:00:00.000Z')
 
@@ -81,7 +116,7 @@ const hiddenItem: ClientInventoryItem = {
     ...trackedItem,
     id: 'item-2',
     name: 'Archived glitter',
-    category: 'glitter',
+    category: 'party-food',
     status: 'archived',
 }
 
@@ -94,49 +129,85 @@ const trackedStock: ClientInventoryStockLevel = {
     updatedAt: now,
 }
 
+const cakeItem: ClientInventoryItem = {
+    ...trackedItem,
+    id: 'cake',
+    name: 'Unicorn cake',
+    inventoryKey: undefined,
+    category: 'cakes',
+    runningLowThreshold: null,
+    squareCatalogObjectId: 'square-unicorn',
+}
+
+const cakeStock: ClientInventoryStockLevel = {
+    ...trackedStock,
+    id: 'stock-cake',
+    itemId: 'cake',
+    measurement: { $type: 'quantity', quantity: 5 },
+    reservedQuantity: 2,
+}
+
+const stockByItemId = new Map([
+    ['item-1', trackedStock],
+    ['cake', cakeStock],
+])
+
+const actions = {
+    createItem: vi.fn(),
+    isCreatingItem: false,
+    isStockChangePending: false,
+    isSetStockedPending: false,
+    markQuantityUnknown: vi.fn(),
+    setItemStocked: vi.fn(),
+}
+
 vi.mock('../../hooks/use-inventory-data', () => ({
-    useInventoryData: () => ({
-        activeTrackedCount: 1,
-        availableLocations: ['balwyn', 'kingsville'],
-        canChooseLocation,
-        hiddenItems: catalogueHiddenItems,
-        isLoading: false,
-        itemCount: 2,
-        location: catalogueLocation,
-        needsCountItemCount: 0,
-        notRunningLowItemCount: 0,
-        runningLowItemCount: 1,
-        shownItemCount: 2,
-        stockByItemId: new Map([['item-1', trackedStock]]),
-        trackedItems: [trackedItem],
-        trackedStockCount: 1,
-    }),
+    useInventoryData: () =>
+        stable(
+            'data',
+            [canChooseLocation, catalogueHiddenItems, catalogueIsLoading, catalogueLocation, catalogueOrderableItems],
+            () => ({
+                activeTrackedCount: 1,
+                availableLocations: ['balwyn', 'kingsville'],
+                canChooseLocation,
+                hiddenItems: catalogueHiddenItems,
+                isLoading: catalogueIsLoading,
+                location: catalogueLocation,
+                needsCountItemCount: 0,
+                notRunningLowItemCount: 0,
+                runningLowItemCount: 1,
+                shownItemCount: 2,
+                stockByItemId,
+                orderableItems: catalogueOrderableItems,
+                supplyItems: catalogueSupplyItems,
+                receivableItems: catalogueOrderableItems,
+            })
+        ),
 }))
 
 vi.mock('../../hooks/use-inventory-actions', () => ({
-    useInventoryActions: () => ({
-        createItem: vi.fn(),
-        isAdjustStockPending: false,
-        isCreatingItem: false,
-        isSetStockedPending: false,
-        markQuantityUnknown: vi.fn(),
-        setItemStocked: vi.fn(),
-    }),
+    useInventoryActions: () => actions,
 }))
 
 describe('InventoryCatalogueCard', () => {
     beforeEach(() => {
-        canEdit = true
+        canManageItems = true
+        canUpdateStock = true
         canChooseLocation = true
+        catalogueOrderableItems = []
         catalogueHiddenItems = [hiddenItem]
         catalogueLocation = 'balwyn'
+        catalogueIsLoading = false
+        catalogueSupplyItems = [trackedItem]
         useInventoryStore.setState({
             categoryFilter: 'all',
             isCreateDialogOpen: false,
+            isReceiveDeliveryOpen: false,
             search: '',
             selectedLocation: undefined,
             showHiddenItems: false,
             stockStatusFilter: 'all',
+            isCountAllOpen: false,
         })
     })
 
@@ -150,7 +221,7 @@ describe('InventoryCatalogueCard', () => {
         const { rerender } = render(<InventoryCatalogueCard />)
         rerender(<InventoryCatalogueCard />)
 
-        expect(screen.getByText('Inventory catalogue')).toBeTruthy()
+        expect(screen.getByRole('heading', { name: 'Inventory' })).toBeTruthy()
         expect(screen.getByText('2 shown')).toBeTruthy()
         expect(screen.getByRole('button', { name: /Create new item/ })).toBeTruthy()
 
@@ -160,9 +231,10 @@ describe('InventoryCatalogueCard', () => {
         expect(useInventoryStore.getState().search).toBe('')
 
         const comboboxes = screen.getAllByRole('combobox')
-        await user.selectOptions(comboboxes[5], 'paint')
-        await user.selectOptions(comboboxes[6], 'kingsville')
-        expect(useInventoryStore.getState().categoryFilter).toBe('paint')
+        // the first three belong to the (always rendered) create item form
+        await user.selectOptions(comboboxes[3], 'cakes')
+        await user.selectOptions(comboboxes[4], 'kingsville')
+        expect(useInventoryStore.getState().categoryFilter).toBe('cakes')
         expect(useInventoryStore.getState().selectedLocation).toBe('kingsville')
 
         await user.click(screen.getByRole('button', { name: /Running low/ }))
@@ -173,8 +245,70 @@ describe('InventoryCatalogueCard', () => {
         expect(screen.getByText('Archived glitter')).toBeTruthy()
     })
 
-    it('hides create and action controls without write permission', () => {
-        canEdit = false
+    it('shows cakes and take-home bags above supplies with a receive delivery button', async () => {
+        const user = userEvent.setup()
+        catalogueOrderableItems = [cakeItem]
+
+        render(<InventoryCatalogueCard />)
+
+        const headings = screen.getAllByRole('heading').map((heading) => heading.textContent)
+        // one section per category, in catalogue order; no take-home bags are stocked here, so no section for them
+        expect(headings.filter((heading) => ['Party Food', 'Cakes', 'Take Home Bags'].includes(heading ?? ''))).toEqual(
+            ['Party Food', 'Cakes']
+        )
+        expect(screen.getByText('5 here')).toBeTruthy()
+        expect(screen.getByText('2 reserved · 3 available to order')).toBeTruthy()
+        expect(screen.getByText('4 units')).toBeTruthy()
+
+        await user.click(screen.getByRole('button', { name: /Receive delivery/ }))
+        expect(useInventoryStore.getState().isReceiveDeliveryOpen).toBe(true)
+    })
+
+    it('hides the cakes section when nothing is orderable here', () => {
+        render(<InventoryCatalogueCard />)
+
+        expect(screen.queryByRole('heading', { name: 'Cakes' })).toBeNull()
+        expect(screen.queryByRole('button', { name: /Receive delivery/ })).toBeNull()
+        expect(screen.getByRole('heading', { name: 'Party Food' })).toBeTruthy()
+    })
+
+    it('shows only the sections matching the category filter', () => {
+        catalogueOrderableItems = [cakeItem]
+
+        useInventoryStore.setState({ categoryFilter: 'cakes' })
+        const { rerender } = render(<InventoryCatalogueCard />)
+        expect(screen.getByRole('heading', { name: 'Cakes' })).toBeTruthy()
+        expect(screen.queryByRole('heading', { name: 'Party Food' })).toBeNull()
+
+        useInventoryStore.setState({ categoryFilter: 'party-food' })
+        rerender(<InventoryCatalogueCard />)
+        expect(screen.queryByRole('heading', { name: 'Cakes' })).toBeNull()
+        expect(screen.getByRole('heading', { name: 'Party Food' })).toBeTruthy()
+    })
+
+    it('hides empty categories, saying so when nothing is left to show', () => {
+        useInventoryStore.setState({ categoryFilter: 'take-home-bags' })
+        render(<InventoryCatalogueCard />)
+
+        expect(screen.queryByRole('heading', { name: 'Party Food' })).toBeNull()
+        expect(screen.getByText('No take home bags found.')).toBeTruthy()
+    })
+
+    it('lets staff update stock without managing items', () => {
+        canManageItems = false
+        catalogueOrderableItems = [cakeItem]
+
+        render(<InventoryCatalogueCard />)
+
+        expect(screen.queryByRole('button', { name: /Create new item/ })).toBeNull()
+        expect(screen.getByRole('button', { name: /Receive delivery/ })).toBeTruthy()
+        expect(screen.getByRole('button', { name: 'Receive' })).toBeTruthy()
+    })
+
+    it('hides create and action controls without inventory permissions', () => {
+        canManageItems = false
+        canUpdateStock = false
+        catalogueOrderableItems = [cakeItem]
         canChooseLocation = false
         catalogueHiddenItems = []
         catalogueLocation = undefined
@@ -184,7 +318,51 @@ describe('InventoryCatalogueCard', () => {
 
         expect(screen.queryByRole('button', { name: /Create new item/ })).toBeNull()
         expect(screen.queryByRole('button', { name: 'Receive' })).toBeNull()
+        expect(screen.queryByRole('button', { name: /Receive delivery/ })).toBeNull()
         expect(screen.getByText('Viewing stock for selected studio.')).toBeTruthy()
         expect(screen.queryByRole('button', { name: /Show .* hidden/ })).toBeNull()
+    })
+
+    it('opens a stock count and hides hidden items again', async () => {
+        const user = userEvent.setup()
+        catalogueOrderableItems = [cakeItem]
+        render(<InventoryCatalogueCard />)
+
+        await user.click(screen.getByRole('button', { name: /Count stock/ }))
+        expect(useInventoryStore.getState().isCountAllOpen).toBe(true)
+
+        await user.click(screen.getByRole('button', { name: /Show 1 hidden item/ }))
+        await user.click(screen.getByRole('button', { name: /Hide 1 hidden item/ }))
+        expect(screen.queryByText('Hidden items')).toBeNull()
+        expect(screen.getByRole('button', { name: /Show 1 hidden item/ })).toBeTruthy()
+    })
+
+    it('says no items were found only once loading has finished', () => {
+        catalogueSupplyItems = []
+        catalogueHiddenItems = []
+        catalogueIsLoading = true
+        const { rerender } = render(<InventoryCatalogueCard />)
+        expect(screen.queryByText('No items found.')).toBeNull()
+
+        catalogueIsLoading = false
+        rerender(<InventoryCatalogueCard />)
+        expect(screen.getByText('No items found.')).toBeTruthy()
+    })
+
+    it('keeps the catalogue in place while the search and filters change', async () => {
+        const user = userEvent.setup()
+        catalogueOrderableItems = [cakeItem]
+        render(<InventoryCatalogueCard />)
+
+        await user.type(screen.getByPlaceholderText('Search items'), 'cake')
+        await user.click(screen.getByRole('button', { name: /Running low/ }))
+        await user.click(screen.getByRole('button', { name: /Show 1 hidden item/ }))
+        act(() => useInventoryStore.setState({ isCreateDialogOpen: true }))
+
+        expect(useInventoryStore.getState()).toMatchObject({ search: 'cake', stockStatusFilter: 'running-low' })
+        expect(screen.getByRole('heading', { name: 'Cakes' })).toBeTruthy()
+        expect(screen.getByRole('heading', { name: 'Party Food' })).toBeTruthy()
+        expect(screen.getByText('Hidden items')).toBeTruthy()
+        expect(screen.getByRole('button', { name: /Receive delivery/ })).toBeTruthy()
     })
 })

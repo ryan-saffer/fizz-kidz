@@ -17,6 +17,7 @@ export function ImageCard({
     price,
     square,
     disabled,
+    badge,
     control,
 }: {
     name: string
@@ -25,6 +26,8 @@ export function ImageCard({
     price?: string
     square?: boolean
     disabled?: boolean
+    /** A short label over the photo, eg. 'Sold out'. */
+    badge?: string
     control: React.ReactNode
 }) {
     return (
@@ -47,6 +50,11 @@ export function ImageCard({
                     <img className="absolute inset-0 h-full w-full object-cover" src={imageUrl} alt="" loading="lazy" />
                 ) : (
                     <ImageIcon size={28} aria-hidden="true" />
+                )}
+                {badge && (
+                    <span className="absolute left-2.5 top-2.5 rounded-full bg-party-ink px-2.5 py-1 text-xs font-semibold text-white">
+                        {badge}
+                    </span>
                 )}
                 {control}
             </span>

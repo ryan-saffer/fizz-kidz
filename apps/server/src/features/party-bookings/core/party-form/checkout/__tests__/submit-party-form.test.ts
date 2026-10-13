@@ -32,8 +32,19 @@ describe('submitting the party form', () => {
             token: 'card-token',
             buyerVerificationToken: '',
             metadata: { answersHash: 'answers' },
+            revalidate: expect.any(Function),
         })
         expect(mocks.process).toHaveBeenCalledWith('square-order', payload, 'square-order')
+    })
+    it('checks the answers again before an unpaid order is charged, eg. the last cake sold since it was prepared', async () => {
+        mocks.validate.mockRejectedValue(new Error('Sorry, the Unicorn cake has just sold out.'))
+        mocks.pay.mockImplementation(async ({ revalidate }) => {
+            await revalidate()
+            return { status: 'paid', receiptUrl: null }
+        })
+        await expect(submitPartyForm(paid)).rejects.toThrow('just sold out')
+        expect(mocks.validate).toHaveBeenCalledWith(payload)
+        expect(mocks.process).not.toHaveBeenCalled()
     })
     it('leaves an unclear payment for a replay without applying the answers', async () => {
         mocks.pay.mockResolvedValue({ status: 'processing' })

@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { create } from 'zustand'
 
 import { useInventoryStore } from '../../state/inventory-store'
 import { InventoryDialogs } from './inventory-dialogs'
@@ -56,7 +57,9 @@ vi.mock('@shared/components/ui/select', async () => {
             </select>
         ),
         SelectContent: ({ children }: { children: ReactNode }) => <>{children}</>,
+        SelectGroup: ({ children }: { children: ReactNode }) => <>{children}</>,
         SelectItem,
+        SelectLabel: () => null,
         SelectTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
         SelectValue: () => null,
     }
@@ -67,22 +70,37 @@ vi.mock('@shared/lib/studio-utils', () => ({
 }))
 
 vi.mock('../../hooks/use-inventory-location', () => ({
-    useInventoryLocation: () => ({ location: 'balwyn' }),
+    useInventoryLocation: () => ({ location: useHookResults((state) => state.location) }),
+}))
+
+const mocks = vi.hoisted(() => ({
+    listMovementsQueryOptions: vi.fn((input: unknown) => ({ input, query: 'movements' })),
+    movements: [] as unknown[],
+    receivableItems: [] as unknown[],
+}))
+
+vi.mock('@tanstack/react-query', () => ({
+    useQuery: (options: { query?: string }) =>
+        options.query === 'movements' ? { data: mocks.movements, isPending: false } : { data: [], isPending: false },
+}))
+
+const trpc = {
+    inventory: {
+        listMovements: { queryOptions: mocks.listMovementsQueryOptions },
+        listSquareOptions: { queryOptions: () => ({ query: 'square' }) },
+    },
+}
+
+vi.mock('@integrations/trpc', () => ({
+    useTRPC: () => trpc,
+}))
+
+vi.mock('../../hooks/use-inventory-data', () => ({
+    useInventoryData: () => useHookResults((state) => state.data),
 }))
 
 vi.mock('../../hooks/use-inventory-actions', () => ({
-    useInventoryActions: () => ({
-        adjustStock: vi.fn(),
-        deleteItem: vi.fn(),
-        deleteUsageRule: vi.fn(),
-        isAdjustStockPending: false,
-        isDeletingItem: false,
-        isDeletingUsageRule: false,
-        isUpdatingItem: false,
-        isUpdatingUsageRule: false,
-        updateItem: vi.fn(),
-        updateUsageRule: vi.fn(),
-    }),
+    useInventoryActions: () => useHookResults((state) => state.actions),
 }))
 
 const now = new Date('2026-05-01T00:00:00.000Z')
@@ -119,9 +137,60 @@ const usageRule: ClientInventoryUsageRule = {
     updatedAt: now,
 }
 
+// the mocked hooks read from a store so a change re-renders the dialogs, as React Query does for the real hooks
+const useHookResults = create(() => ({
+    location: 'balwyn',
+    data: {} as Record<string, unknown>,
+    actions: idleActions(),
+}))
+
+function idleActions() {
+    return {
+        countAll: vi.fn(),
+        deleteItem: vi.fn(),
+        deleteUsageRule: vi.fn(),
+        isStockChangePending: false,
+        isDeletingItem: false,
+        isDeletingUsageRule: false,
+        isUpdatingItem: false,
+        isUpdatingUsageRule: false,
+        receiveDelivery: vi.fn(),
+        submitStockAction: vi.fn(),
+        updateItem: vi.fn(),
+        updateUsageRule: vi.fn(),
+    }
+}
+
 describe('InventoryDialogs', () => {
     beforeEach(() => {
-        useInventoryStore.setState({ editingItem: null, editingUsageRule: null, stockAction: null })
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                observe() {}
+                unobserve() {}
+                disconnect() {}
+            }
+        )
+        mocks.listMovementsQueryOptions.mockClear()
+        mocks.movements = []
+        mocks.receivableItems = []
+        useHookResults.setState({
+            location: 'balwyn',
+            data: {
+                location: 'balwyn',
+                receivableItems: mocks.receivableItems,
+                stockByItemId: new Map([['cake', { ...stock, itemId: 'cake', reservedQuantity: 1 }]]),
+            },
+            actions: idleActions(),
+        })
+        useInventoryStore.setState({
+            editingItem: null,
+            editingUsageRule: null,
+            stockAction: null,
+            isReceiveDeliveryOpen: false,
+            isCountAllOpen: false,
+            historyItem: null,
+        })
     })
 
     afterEach(() => {
@@ -133,7 +202,10 @@ describe('InventoryDialogs', () => {
         useInventoryStore.setState({
             editingItem: item,
             editingUsageRule: usageRule,
-            stockAction: { $type: 'set', item, stock },
+            stockAction: { $type: 'count', item, stock },
+            isReceiveDeliveryOpen: true,
+            isCountAllOpen: true,
+            historyItem: item,
         })
 
         const { rerender } = render(<InventoryDialogs />)
@@ -141,10 +213,11 @@ describe('InventoryDialogs', () => {
 
         expect(screen.getByText('Edit inventory item')).toBeTruthy()
         expect(screen.getByText('Edit usage rule')).toBeTruthy()
-        expect(screen.getByText('Set stock for Party pies')).toBeTruthy()
-        expect(
-            screen.getByText('Enter the actual count at balwyn studio. This is the fastest stocktake correction.')
-        ).toBeTruthy()
+        expect(screen.getByText('Count Party pies')).toBeTruthy()
+        expect(screen.getByText('Enter what is physically at balwyn studio right now.')).toBeTruthy()
+        expect(screen.getByText('Receive a delivery at balwyn studio')).toBeTruthy()
+        expect(screen.getByText('Count stock at balwyn studio')).toBeTruthy()
+        expect(screen.getByText('Party pies history')).toBeTruthy()
 
         await user.click(screen.getAllByRole('button', { name: 'Keep dialog open' })[0])
         expect(useInventoryStore.getState().editingItem?.id).toBe('item-1')
@@ -153,10 +226,72 @@ describe('InventoryDialogs', () => {
         await user.click(closeButtons[0])
         await user.click(closeButtons[1])
         await user.click(closeButtons[2])
+        await user.click(closeButtons[3])
+        await user.click(closeButtons[4])
+        await user.click(closeButtons[5])
 
         expect(useInventoryStore.getState().editingItem).toBeNull()
         expect(useInventoryStore.getState().editingUsageRule).toBeNull()
         expect(useInventoryStore.getState().stockAction).toBeNull()
+        expect(useInventoryStore.getState().isReceiveDeliveryOpen).toBe(false)
+        expect(useInventoryStore.getState().isCountAllOpen).toBe(false)
+        expect(useInventoryStore.getState().historyItem).toBeNull()
+    })
+
+    it('lists receivable items in the receive delivery dialog', () => {
+        mocks.receivableItems = [
+            { ...item, id: 'cake', name: 'Unicorn cake', category: 'cakes', squareCatalogObjectId: 'sq-1' },
+        ]
+        useHookResults.setState((state) => ({ data: { ...state.data, receivableItems: mocks.receivableItems } }))
+        useInventoryStore.setState({ isReceiveDeliveryOpen: true })
+
+        render(<InventoryDialogs />)
+
+        expect(screen.getByLabelText('Unicorn cake received')).toBeTruthy()
+        expect(screen.getByText('4 here now')).toBeTruthy()
+        expect(screen.getByRole('button', { name: 'Receive delivery' })).toBeTruthy()
+    })
+
+    it('shows stock history for the selected item and location', () => {
+        mocks.movements = [
+            {
+                id: 'm-1',
+                itemId: 'item-1',
+                location: 'balwyn',
+                $type: 'counted',
+                quantityBefore: 4,
+                quantityAfter: 3,
+                reason: 'One was squashed',
+                createdAt: now,
+                createdBy: { $type: 'staff', uid: 'uid-1', email: 'staff@fizzkidz.com.au' },
+            },
+            {
+                id: 'm-2',
+                itemId: 'item-1',
+                location: 'balwyn',
+                $type: 'reserved',
+                bookingId: 'booking-1',
+                quantity: 1,
+                reservedBefore: 0,
+                reservedAfter: 1,
+                createdAt: now,
+                createdBy: { $type: 'system' },
+            },
+        ]
+        useInventoryStore.setState({ historyItem: item })
+
+        render(<InventoryDialogs />)
+
+        expect(mocks.listMovementsQueryOptions).toHaveBeenCalledWith({
+            location: 'balwyn',
+            itemId: 'item-1',
+            limit: 100,
+        })
+        expect(screen.getByText('Counted 3')).toBeTruthy()
+        expect(screen.getByText(/On hand 4 → 3 · staff@fizzkidz.com.au/)).toBeTruthy()
+        expect(screen.getByText('“One was squashed”')).toBeTruthy()
+        expect(screen.getByText('Reserved 1 for a party')).toBeTruthy()
+        expect(screen.getByText(/Reserved 0 → 1 · Automatic/)).toBeTruthy()
     })
 
     it('renders empty stock dialog content safely when no action is selected', () => {
@@ -164,5 +299,81 @@ describe('InventoryDialogs', () => {
         rerender(<InventoryDialogs />)
 
         expect(screen.queryByText('Receive Party pies')).toBeNull()
+    })
+
+    it('disables every open form while its mutation is pending', () => {
+        useInventoryStore.setState({
+            editingItem: item,
+            editingUsageRule: usageRule,
+            stockAction: { $type: 'count', item, stock },
+            isCountAllOpen: true,
+            historyItem: item,
+        })
+        render(<InventoryDialogs />)
+        expect((screen.getByRole('button', { name: 'Save changes' }) as HTMLButtonElement).disabled).toBe(false)
+
+        act(() =>
+            useHookResults.setState((state) => ({
+                actions: { ...state.actions, isDeletingItem: true, isDeletingUsageRule: true },
+            }))
+        )
+        expect((screen.getByRole('button', { name: 'Save changes' }) as HTMLButtonElement).disabled).toBe(true)
+        expect((screen.getByRole('button', { name: 'Save rule' }) as HTMLButtonElement).disabled).toBe(true)
+
+        act(() =>
+            useHookResults.setState({
+                actions: {
+                    ...idleActions(),
+                    isUpdatingItem: true,
+                    isUpdatingUsageRule: true,
+                    isStockChangePending: true,
+                },
+            })
+        )
+        expect((screen.getByRole('button', { name: 'Save changes' }) as HTMLButtonElement).disabled).toBe(true)
+        expect((screen.getByRole('button', { name: 'Save rule' }) as HTMLButtonElement).disabled).toBe(true)
+        expect((screen.getByRole('button', { name: 'Save count' }) as HTMLButtonElement).disabled).toBe(true)
+
+        // an unrelated mutation finishing leaves the open forms as they were
+        act(() => useHookResults.setState((state) => ({ actions: { ...state.actions, countAll: vi.fn() } })))
+        expect((screen.getByRole('button', { name: 'Save changes' }) as HTMLButtonElement).disabled).toBe(true)
+        expect(screen.getByText('Party pies history')).toBeTruthy()
+    })
+
+    it('swaps dialog content when the selection changes at another studio', () => {
+        useInventoryStore.setState({
+            editingItem: item,
+            editingUsageRule: usageRule,
+            stockAction: { $type: 'count', item, stock },
+            isReceiveDeliveryOpen: true,
+            isCountAllOpen: true,
+            historyItem: item,
+        })
+        render(<InventoryDialogs />)
+
+        act(() =>
+            useHookResults.setState((state) => ({
+                location: 'kingsville',
+                data: { ...state.data, location: 'kingsville' },
+            }))
+        )
+        expect(screen.getByText('Count Party pies')).toBeTruthy()
+        expect(screen.getByText('Enter what is physically at kingsville studio right now.')).toBeTruthy()
+        expect(screen.getByText('Receive a delivery at kingsville studio')).toBeTruthy()
+        expect(screen.getByText('Count stock at kingsville studio')).toBeTruthy()
+        expect(screen.getByText('Every stock change at kingsville studio, newest first.')).toBeTruthy()
+
+        const otherItem = { ...item, id: 'item-2', name: 'Fairy bread' }
+        act(() =>
+            useInventoryStore.setState({
+                editingItem: otherItem,
+                editingUsageRule: { ...usageRule, id: 'rule-2' },
+                stockAction: { $type: 'remove', item: otherItem, stock },
+                historyItem: otherItem,
+            })
+        )
+
+        expect(screen.getByText('Remove Fairy bread')).toBeTruthy()
+        expect(screen.getByText('Fairy bread history')).toBeTruthy()
     })
 })

@@ -53,8 +53,9 @@ function getDefaultValues(config: PartyFormConfig): FormValues {
         foodPackage: config.type === 'studio' ? (config.prefill.includesFood ? 'include' : 'self-cater') : '',
         additions: [],
         cakeSelection: BRING_OWN_CAKE,
-        cakeSize: '',
-        cakeFlavours: [],
+        // studio-stock cakes come in one size and fixed flavours, so those aren't asked
+        cakeSize: config.cakeOptions?.sizes.length === 1 ? config.cakeOptions.sizes[0].name : '',
+        cakeFlavours: config.cakeOptions?.fixedFlavours ?? [],
         cakeServed: '',
         cakeCandles: '',
         cakeMessage: '',
@@ -97,7 +98,9 @@ export function toPayload(config: PartyFormConfig, value: FormValues, mode: Part
                     flavours: value.cakeFlavours,
                     served: value.cakeServed,
                     candles: value.cakeCandles,
-                    ...(value.cakeMessage.trim() && { message: value.cakeMessage.trim() }),
+                    // studio-stock cakes are made ahead, so they can't have a message
+                    ...(value.cakeMessage.trim() &&
+                        config.cakeSource !== 'studio-stock' && { message: value.cakeMessage.trim() }),
                 },
             }),
         takeHomeBags: Object.fromEntries(Object.entries(value.takeHomeBags).filter(([, quantity]) => quantity > 0)),

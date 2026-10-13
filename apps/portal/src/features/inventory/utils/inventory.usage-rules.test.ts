@@ -23,6 +23,7 @@ describe('inventory usage-rule utils', () => {
         expect(getUsageRuleTypeLabel('party-addition')).toBe('Party addition')
         expect(getUsageRuleTypeLabel('party-food-package')).toBe('Food package')
         expect(getUsageRuleTypeLabel('party-base')).toBe('Every party')
+        expect(getUsageRuleTypeLabel('retired-type' as never)).toBe('retired-type')
         expect(getUsageRuleNameLabel('party-addition', 'chickenNuggets')).toBe('Chicken Nuggets')
         expect(getUsageRuleNameLabel('party-addition', 'unknown')).toBe('unknown')
         expect(getUsageRuleNameLabel('party-base', 'partyPies')).toBe('partyPies')

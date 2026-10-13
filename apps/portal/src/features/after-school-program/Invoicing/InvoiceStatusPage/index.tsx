@@ -4,6 +4,7 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { assertNever } from '@fizz-kidz/core'
 import type { AfterSchoolEnrolment, Service } from '@fizz-kidz/core'
 
 import useFirebase from '@integrations/firebase/use-firebase'
@@ -55,6 +56,7 @@ export const AfterSchoolProgramInvoicing: React.FC = () => {
     }, [appointmentTypeId])
 
     switch (enrolmentsService.status) {
+        case 'init':
         case 'loading':
             return <SkeletonRows rowCount={(height - 64) / 64} />
         case 'loaded':
@@ -66,7 +68,10 @@ export const AfterSchoolProgramInvoicing: React.FC = () => {
                     onAppointmentTypeChange={(id: number) => setAppointmentTypeId(id)}
                 />
             )
-        default: // error
+        case 'error':
             return <Result status="500" title="Oh no" subTitle="There was an error retrieving the enrolments" />
+        default:
+            assertNever(enrolmentsService)
+            throw new Error(`Unhandled service status: ${JSON.stringify(enrolmentsService)}`)
     }
 }

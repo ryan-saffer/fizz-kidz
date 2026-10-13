@@ -14,7 +14,8 @@ import {
 import { useTRPC } from '@integrations/trpc'
 import { useWhileClosing } from '@shared/hooks/use-while-closing'
 
-import { getEstimateLines, useCheckoutStore } from '../state/checkout-store'
+import { getCheckoutSteps, getEstimateLines, useCheckoutStore } from '../state/checkout-store'
+import { CakeStep } from './steps/cake-step'
 import { FoodStep } from './steps/food-step'
 import { PartyStep } from './steps/party-step'
 
@@ -70,6 +71,7 @@ function CheckoutBody({ bookingId }: { bookingId: string }) {
             useCheckoutStore.getState().init({
                 config: config.data,
                 answers: config.data.prefill,
+                steps: getCheckoutSteps(config.data),
                 server: {
                     prepare: (answers) => prepare({ bookingId, ...answers }),
                     start: (input) => start({ bookingId, ...input }),
@@ -97,7 +99,7 @@ function CheckoutBody({ bookingId }: { bookingId: string }) {
     return (
         <CheckoutSteps
             estimate={getEstimateLines(config.data, answers)}
-            renderStep={(step) => (step === 'party' ? <PartyStep /> : <FoodStep />)}
+            renderStep={(step) => (step === 'party' ? <PartyStep /> : step === 'food' ? <FoodStep /> : <CakeStep />)}
         />
     )
 }

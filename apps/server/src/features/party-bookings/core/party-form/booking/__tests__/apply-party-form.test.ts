@@ -116,4 +116,13 @@ describe('applying a party form to its booking', () => {
         expect(sent()).not.toContain('partyFormConfirmation')
         expect(sent()).not.toContain('partyFormFilledInAgain')
     })
+    it('sends studio-stock cake orders to the studio rather than the supplier, and no bag order to the supplier', async () => {
+        await applyPartyForm(partyForm, { ...booking, location: 'werribee' })
+
+        const cakeEmail = mocks.send.mock.calls.find(([template]) => template === 'cakeNotification')
+        expect(cakeEmail?.[1]).toBe('ryan@fizzkidz.com.au') // the dev studio contact
+        expect(cakeEmail?.[3]).toMatchObject({ subject: 'Cake reserved from studio stock' })
+        expect(sent()).toContain('takeHomeNotification')
+        expect(sent()).not.toContain('takeHomeBagNotification')
+    })
 })

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import {
+    getCountAllFormSchema,
+    getReceiveDeliveryLines,
     getStockActionFormDefaultValues,
     getStockActionFormSchema,
     inventoryItemFormSchema,
@@ -8,6 +10,7 @@ import {
     normalizeInventoryItemFormValues,
     normalizeStockActionFormValues,
     normalizeUsageRuleFormValues,
+    receiveDeliveryFormSchema,
     usageRuleFormSchema,
     usageRuleToFormValues,
 } from './inventory.form-schemas'
@@ -24,13 +27,11 @@ const now = new Date('2026-05-01T00:00:00.000Z')
 const quantityItem: ClientInventoryItem = {
     id: 'item-1',
     name: 'Party pies',
-    inventoryKey: 'party-base:partyPies',
     category: 'party-food',
     status: 'active',
     $trackingMode: 'quantity',
     baseUnit: 'each',
     runningLowThreshold: 10,
-    minimumTargetQuantity: 20,
     notes: 'Notes',
     createdAt: now,
     updatedAt: now,
@@ -39,8 +40,7 @@ const quantityItem: ClientInventoryItem = {
 const qualitativeItem: ClientInventoryItem = {
     id: 'item-2',
     name: 'Glitter',
-    inventoryKey: 'custom-key',
-    category: 'glitter',
+    category: 'party-food',
     status: 'archived',
     $trackingMode: 'qualitative',
     createdAt: now,
@@ -69,13 +69,12 @@ describe('inventory form schemas', () => {
     it('maps inventory items to form values and normalizes quantity inputs', () => {
         expect(inventoryItemToFormValues(quantityItem)).toEqual({
             name: 'Party pies',
-            inventoryKeyType: 'party-base',
-            inventoryKeyName: 'partyPies',
             category: 'party-food',
             $trackingMode: 'quantity',
             baseUnit: 'each',
             runningLowThreshold: '10',
-            minimumTargetQuantity: '20',
+            squareCatalogObjectId: '',
+            usedPer: '',
             status: 'active',
             notes: 'Notes',
         })
@@ -84,25 +83,22 @@ describe('inventory form schemas', () => {
             normalizeInventoryItemFormValues({
                 $trackingMode: 'quantity',
                 name: 'Party pies',
-                inventoryKeyType: 'party-base',
-                inventoryKeyName: ' partyPies ',
                 category: 'party-food',
                 baseUnit: 'each',
                 runningLowThreshold: '',
-                minimumTargetQuantity: '20',
+                squareCatalogObjectId: '',
+                usedPer: '',
                 status: 'active',
                 notes: '',
             })
         ).toEqual({
             $trackingMode: 'quantity',
             name: 'Party pies',
-            inventoryKeyType: 'party-base',
-            inventoryKeyName: 'partyPies',
-            inventoryKey: 'party-base:partyPies',
             category: 'party-food',
             baseUnit: 'each',
             runningLowThreshold: null,
-            minimumTargetQuantity: 20,
+            squareCatalogObjectId: null,
+            usedPer: null,
             status: 'active',
             notes: '',
         })
@@ -110,33 +106,67 @@ describe('inventory form schemas', () => {
 
     it('maps qualitative items and clears empty inventory keys', () => {
         expect(inventoryItemToFormValues(qualitativeItem)).toMatchObject({
-            inventoryKeyType: 'party-addition',
-            inventoryKeyName: 'custom-key',
-            baseUnit: 'each',
+            baseUnit: '',
             runningLowThreshold: '',
-            minimumTargetQuantity: '',
+            squareCatalogObjectId: '',
+            usedPer: '',
         })
 
         expect(
             normalizeInventoryItemFormValues({
                 $trackingMode: 'qualitative',
                 name: 'Glitter',
-                inventoryKeyType: 'party-base',
-                inventoryKeyName: ' ',
-                category: 'glitter',
+                category: 'party-food',
                 baseUnit: 'tub',
                 runningLowThreshold: '999',
-                minimumTargetQuantity: '999',
+                squareCatalogObjectId: 'square-cake',
+                usedPer: '',
                 status: 'active',
                 notes: '',
             })
         ).toMatchObject({
             $trackingMode: 'qualitative',
-            inventoryKeyName: '',
-            inventoryKey: null,
             runningLowThreshold: null,
-            minimumTargetQuantity: null,
+            squareCatalogObjectId: null,
+            usedPer: null,
         })
+    })
+
+    it('maps and keeps the square catalog link on orderable quantity items', () => {
+        expect(inventoryItemToFormValues({ ...quantityItem, squareCatalogObjectId: 'square-cake' })).toMatchObject({
+            squareCatalogObjectId: 'square-cake',
+            usedPer: '',
+        })
+        expect(
+            normalizeInventoryItemFormValues({
+                ...inventoryItemToFormValues(quantityItem),
+                $trackingMode: 'quantity',
+                category: 'cakes',
+                squareCatalogObjectId: 'square-cake',
+                usedPer: '',
+            })
+        ).toMatchObject({ $trackingMode: 'quantity', squareCatalogObjectId: 'square-cake' })
+        // party food is never ordered by customers, so a leftover link is dropped
+        expect(
+            normalizeInventoryItemFormValues({
+                ...inventoryItemToFormValues(quantityItem),
+                $trackingMode: 'quantity',
+                category: 'party-food',
+                squareCatalogObjectId: 'square-cake',
+                usedPer: '',
+            })
+        ).toMatchObject({ squareCatalogObjectId: null })
+    })
+
+    it('requires cakes and take-home bags to be counted and linked to Square', () => {
+        const values = { ...inventoryItemToFormValues(quantityItem), category: 'take-home-bags' as const }
+        const result = inventoryItemFormSchema.safeParse({ ...values, squareCatalogObjectId: '' })
+        expect(result.success).toBe(false)
+        expect(result.error?.issues[0].path).toEqual(['squareCatalogObjectId'])
+        expect(
+            inventoryItemFormSchema.safeParse({ ...values, $trackingMode: 'qualitative' }).error?.issues[0].path
+        ).toEqual(['$trackingMode'])
+        expect(inventoryItemFormSchema.safeParse({ ...values, squareCatalogObjectId: 'square-bag' }).success).toBe(true)
     })
 
     it('adds custom inventory item quantity validation', () => {
@@ -144,12 +174,11 @@ describe('inventory form schemas', () => {
             inventoryItemFormSchema.safeParse({
                 $trackingMode: 'quantity',
                 name: 'Party pies',
-                inventoryKeyType: 'party-base',
-                inventoryKeyName: 'partyPies',
                 category: 'party-food',
                 baseUnit: 'each',
                 runningLowThreshold: '-1',
-                minimumTargetQuantity: '',
+                squareCatalogObjectId: '',
+                usedPer: '',
                 status: 'active',
                 notes: '',
             }).success
@@ -158,26 +187,11 @@ describe('inventory form schemas', () => {
             inventoryItemFormSchema.safeParse({
                 $trackingMode: 'quantity',
                 name: 'Party pies',
-                inventoryKeyType: 'party-base',
-                inventoryKeyName: 'partyPies',
                 category: 'party-food',
                 baseUnit: 'each',
                 runningLowThreshold: '',
-                minimumTargetQuantity: '-1',
-                status: 'active',
-                notes: '',
-            }).success
-        ).toBe(false)
-        expect(
-            inventoryItemFormSchema.safeParse({
-                $trackingMode: 'quantity',
-                name: 'Party pies',
-                inventoryKeyType: 'party-base',
-                inventoryKeyName: 'partyPies',
-                category: 'party-food',
-                baseUnit: 'each',
-                runningLowThreshold: '',
-                minimumTargetQuantity: '',
+                squareCatalogObjectId: '',
+                usedPer: '',
                 status: 'active',
                 notes: '',
             }).success
@@ -187,8 +201,8 @@ describe('inventory form schemas', () => {
     it('maps and normalizes usage rule values for all operations', () => {
         const fixedRule: ClientInventoryUsageRule = {
             id: 'fixed',
-            $type: 'party-base',
             inventoryKey: 'party-base:partyPies',
+            $type: 'party-base',
             label: 'Party pies',
             status: 'active',
             quantity: { $operation: 'fixed', quantity: 2 },
@@ -197,9 +211,9 @@ describe('inventory form schemas', () => {
         }
         const additionRule: ClientInventoryUsageRule = {
             id: 'addition',
+            inventoryKey: 'party-addition:chickenNuggets',
             $type: 'party-addition',
             addition: 'chickenNuggets',
-            inventoryKey: 'party-addition:chickenNuggets',
             status: 'active',
             quantity: { $operation: 'per-child', quantityPerChild: 1 },
             createdAt: now,
@@ -207,8 +221,8 @@ describe('inventory form schemas', () => {
         }
         const perChildRule: ClientInventoryUsageRule = {
             id: 'per-child',
-            $type: 'party-base',
             inventoryKey: 'unparsed-key',
+            $type: 'party-base',
             status: 'active',
             quantity: { $operation: 'per-child', quantityPerChild: 1 },
             createdAt: now,
@@ -216,8 +230,8 @@ describe('inventory form schemas', () => {
         }
         const fixedPlusRule: ClientInventoryUsageRule = {
             id: 'fixed-plus',
-            $type: 'party-food-package',
             inventoryKey: 'party-food-package:fairyBread',
+            $type: 'party-food-package',
             status: 'active',
             quantity: { $operation: 'fixed-plus-per-child', fixedQuantity: 1, quantityPerChild: 0.5 },
             createdAt: now,
@@ -330,7 +344,7 @@ describe('inventory form schemas', () => {
 
     it('validates stock action quantities and normalizes payloads', () => {
         const receive: StockAction = { $type: 'receive', item: quantityItem, stock: quantityStock }
-        const set: StockAction = { $type: 'set', item: quantityItem, stock: quantityStock }
+        const count: StockAction = { $type: 'count', item: quantityItem, stock: quantityStock }
         const level: StockAction = { $type: 'level', item: qualitativeItem, stock: qualitativeStock }
 
         expect(
@@ -339,24 +353,181 @@ describe('inventory form schemas', () => {
         expect(
             getStockActionFormSchema(receive).safeParse({ quantity: 'abc', level: 'unknown', reason: '' }).success
         ).toBe(false)
-        expect(getStockActionFormSchema(set).safeParse({ quantity: '-1', level: 'unknown', reason: '' }).success).toBe(
+        expect(
+            getStockActionFormSchema(receive).safeParse({ quantity: '1.5', level: 'unknown', reason: '' }).success
+        ).toBe(false)
+        expect(
+            getStockActionFormSchema(receive).safeParse({ quantity: '3', level: 'unknown', reason: '' }).success
+        ).toBe(true)
+        expect(getStockActionFormSchema(count).safeParse({ quantity: '', level: 'unknown', reason: '' }).success).toBe(
             false
         )
-        expect(getStockActionFormSchema(set).safeParse({ quantity: '4', level: 'unknown', reason: '' }).success).toBe(
-            false
+        expect(
+            getStockActionFormSchema(count).safeParse({ quantity: '-1', level: 'unknown', reason: '' }).success
+        ).toBe(false)
+        // supplies can be recounted to any number (including zero) without a reason
+        expect(getStockActionFormSchema(count).safeParse({ quantity: '0', level: 'unknown', reason: '' }).success).toBe(
+            true
         )
-        expect(getStockActionFormSchema(set).safeParse({ quantity: '5', level: 'unknown', reason: '' }).success).toBe(
+        expect(getStockActionFormSchema(count).safeParse({ quantity: '9', level: 'unknown', reason: '' }).success).toBe(
             true
         )
         expect(getStockActionFormSchema(level).safeParse({ quantity: '', level: 'high', reason: '' }).success).toBe(
             true
         )
-        expect(getStockActionFormDefaultValues(set)).toEqual({ quantity: '4', level: 'unknown', reason: '' })
+        // counts start empty so staff have to actually count
+        expect(getStockActionFormDefaultValues(count)).toEqual({ quantity: '', level: 'unknown', reason: '' })
         expect(getStockActionFormDefaultValues(level)).toEqual({ quantity: '', level: 'medium', reason: '' })
         expect(normalizeStockActionFormValues({ quantity: '3', level: 'low', reason: ' counted ' })).toEqual({
             quantity: 3,
             level: 'low',
             reason: ' counted ',
         })
+    })
+
+    it('requires a reason when an orderable count does not match the record', () => {
+        const orderableItem: ClientInventoryItem = {
+            ...quantityItem,
+            category: 'cakes',
+            squareCatalogObjectId: 'square-cake',
+        }
+        const count: StockAction = { $type: 'count', item: orderableItem, stock: quantityStock }
+        const schema = getStockActionFormSchema(count)
+
+        expect(schema.safeParse({ quantity: '4', level: 'unknown', reason: '' }).success).toBe(true)
+
+        const mismatch = schema.safeParse({ quantity: '3', level: 'unknown', reason: '' })
+        expect(mismatch.success).toBe(false)
+        expect(mismatch.error?.issues).toEqual([
+            expect.objectContaining({ path: ['reason'], message: expect.stringContaining('4 on record') }),
+        ])
+        expect(schema.safeParse({ quantity: '3', level: 'unknown', reason: 'One was squashed' }).success).toBe(true)
+
+        // an unknown count never matches, so a first count of an orderable item needs a reason too
+        const unknownCount = getStockActionFormSchema({
+            $type: 'count',
+            item: orderableItem,
+            stock: { ...quantityStock, measurement: { $type: 'quantity', quantity: null } },
+        })
+        expect(unknownCount.safeParse({ quantity: '2', level: 'unknown', reason: '' }).success).toBe(false)
+    })
+
+    it('requires a reason to remove stock and caps it at what is on hand', () => {
+        const schema = getStockActionFormSchema({ $type: 'remove', item: quantityItem, stock: quantityStock })
+
+        expect(schema.safeParse({ quantity: '0', level: 'unknown', reason: 'Damaged' }).success).toBe(false)
+
+        const missingReason = schema.safeParse({ quantity: '2', level: 'unknown', reason: '' })
+        expect(missingReason.error?.issues).toEqual([
+            expect.objectContaining({ path: ['reason'], message: 'Say why it was removed.' }),
+        ])
+
+        const tooMany = schema.safeParse({ quantity: '5', level: 'unknown', reason: 'Damaged' })
+        expect(tooMany.error?.issues).toEqual([
+            expect.objectContaining({ path: ['quantity'], message: 'Only 4 on hand.' }),
+        ])
+
+        expect(schema.safeParse({ quantity: '4', level: 'unknown', reason: 'Damaged' }).success).toBe(true)
+    })
+
+    it('validates receive delivery quantities and builds receive lines', () => {
+        const valid = {
+            quantities: { cake: '3', bags: '', unicorn: '0' },
+            note: 'Monthly drop',
+            checked: true,
+        }
+
+        expect(receiveDeliveryFormSchema.safeParse(valid).success).toBe(true)
+        expect(getReceiveDeliveryLines(valid)).toEqual([{ itemId: 'cake', quantity: 3 }])
+
+        const unchecked = receiveDeliveryFormSchema.safeParse({ ...valid, checked: false })
+        expect(unchecked.error?.issues).toEqual([expect.objectContaining({ path: ['checked'] })])
+
+        const empty = receiveDeliveryFormSchema.safeParse({
+            quantities: { cake: '', bags: '0' },
+            note: '',
+            checked: true,
+        })
+        expect(empty.error?.issues).toEqual([
+            expect.objectContaining({ path: ['note'], message: 'Enter at least one quantity.' }),
+        ])
+
+        const fractional = receiveDeliveryFormSchema.safeParse({ ...valid, quantities: { cake: '1.5', bags: '2' } })
+        expect(fractional.error?.issues).toEqual([
+            expect.objectContaining({ path: ['quantities', 'cake'], message: 'Whole number' }),
+        ])
+    })
+
+    it('explains missing Square links for cake supplies and keeps empty links on linked items null', () => {
+        const supply = {
+            $trackingMode: 'quantity' as const,
+            name: 'Ice-cream cups',
+            category: 'cake-supplies' as const,
+            baseUnit: 'cup',
+            runningLowThreshold: '',
+            squareCatalogObjectId: '',
+            usedPer: 'child' as const,
+            status: 'active' as const,
+            notes: '',
+        }
+
+        const result = inventoryItemFormSchema.safeParse(supply)
+        expect(result.success).toBe(false)
+        expect(result.error?.issues.map((issue) => issue.message)).toContain(
+            'Choose the serving or candle option that uses this.'
+        )
+        expect(normalizeInventoryItemFormValues(supply).squareCatalogObjectId).toBeNull()
+    })
+
+    it('rejects a negative fixed amount on a usage rule', () => {
+        const result = usageRuleFormSchema.safeParse({
+            $type: 'party-base',
+            name: 'partyPies',
+            label: '',
+            status: 'active',
+            quantity: { $operation: 'fixed-plus-per-child', fixedQuantity: '-1', quantityPerChild: '1' },
+            notes: '',
+        })
+
+        expect(result.error?.issues.map((issue) => issue.message)).toEqual(['Quantity must be zero or greater.'])
+    })
+
+    it('throws on unknown usage rule quantity operations', () => {
+        const rule = {
+            id: 'rule-1',
+            $type: 'party-base',
+            inventoryKey: 'party-base:partyPies',
+            status: 'active',
+            quantity: { $operation: 'mystery' },
+            createdAt: now,
+            updatedAt: now,
+        } as never
+
+        expect(() => usageRuleToFormValues(rule)).toThrow('Unhandled ruleQuantity.$operation')
+        expect(() =>
+            normalizeUsageRuleFormValues({
+                $type: 'party-base',
+                name: 'partyPies',
+                label: '',
+                status: 'active',
+                quantity: { $operation: 'mystery' } as never,
+                notes: '',
+            })
+        ).toThrow('Unhandled quantity.$operation')
+    })
+
+    it('needs at least one whole-number count in a stocktake', () => {
+        const schema = getCountAllFormSchema(new Map([['cake', 4]]))
+
+        expect(schema.safeParse({ quantities: { cake: '' }, reason: '' }).error?.issues[0].message).toBe(
+            'Enter at least one count.'
+        )
+        expect(
+            schema
+                .safeParse({ quantities: { cake: '1.5' }, reason: 'Melted' })
+                .error?.issues.map((issue) => issue.message)
+        ).toContain('Whole number')
+        expect(schema.safeParse({ quantities: { cake: '-1' }, reason: 'Melted' }).success).toBe(false)
+        expect(schema.safeParse({ quantities: { cake: '4' }, reason: '' }).success).toBe(true)
     })
 })

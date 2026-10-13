@@ -1,11 +1,15 @@
+import { isStockedPartyOrder } from '@fizz-kidz/core'
 import type { PartyCheckoutStatus, PartyPayment, PartyTerminalCheckout, StartPartyCheckout } from '@fizz-kidz/core'
 
 import { getBlockedReason } from './get-party-checkout'
+import { getCakeSupplyChoices, readCakeUsage } from './party-checkout-cake'
 import { getPartyCheckoutMetadata, getPartyCheckoutNote } from './prepare-party-checkout'
 import { sendPartyPaymentReceipt } from './send-party-payment-receipt'
 import { syncPartyPaymentToZoho } from './sync-party-payment-to-zoho'
 
 import { throwTrpcError } from '@/app/trpc/transport-errors'
+import { useCakeSuppliesForBooking } from '@/features/inventory/core/inventory.cake-supplies'
+import { useInventoryForBooking } from '@/features/inventory/core/inventory.reservations'
 import { ORDER_DISCOUNT_UID, readCheckoutMetadata } from '@/features/payments/core/checkout-order'
 import {
     cancelTerminalPayment,
@@ -55,8 +59,8 @@ async function settle(bookingId: string, checkoutId: string, result: TerminalPay
 }
 
 /**
- * Records the payment on the booking once, however many times it's checked, then emails the receipt and adds the
- * payment to the party's Zoho deal.
+ * Records the payment on the booking once, however many times it's checked, then emails the receipt, adds the
+ * payment to the party's Zoho deal and takes the party's reserved cake and take-home bags off studio stock.
  */
 async function recordPartyPayment(bookingId: string, checkoutId: string, receiptUrl: string | null) {
     const booking = await DatabaseClient.getPartyBooking(bookingId)
@@ -97,5 +101,37 @@ async function recordPartyPayment(bookingId: string, checkoutId: string, receipt
         await syncPartyPaymentToZoho(booking, order, payment)
     } catch (error) {
         logError('Party payment collected, but unable to add it to the Zoho deal', error, { bookingId, checkoutId })
+    }
+    // the party's over, so what it used from studio stock (Geelong, Werribee) has left the studio
+    if (isStockedPartyOrder(booking.type, booking.location)) {
+        // staff confirmed what the party used when they prepared the charge
+        const usage = readCakeUsage(order.metadata)
+        try {
+            await useInventoryForBooking({ location: booking.location, bookingId, cakeUsed: usage?.cakeUsed ?? true })
+        } catch (error) {
+            logError('Party payment collected, but unable to take its cake and bags off stock', error, {
+                bookingId,
+                checkoutId,
+            })
+        }
+        try {
+            const { serving, candles } = await getCakeSupplyChoices(booking)
+            const optionIds = [
+                (usage ? usage.cakeServingUsed : serving?.ordered) && serving?.optionId,
+                (usage ? usage.cakeCandlesUsed : candles?.ordered) && candles?.optionId,
+            ].filter((id): id is string => !!id)
+            if (optionIds.length > 0)
+                await useCakeSuppliesForBooking({
+                    location: booking.location,
+                    bookingId,
+                    optionIds,
+                    children: payment.chargedChildren,
+                })
+        } catch (error) {
+            logError('Party payment collected, but unable to take its cake supplies off stock', error, {
+                bookingId,
+                checkoutId,
+            })
+        }
     }
 }

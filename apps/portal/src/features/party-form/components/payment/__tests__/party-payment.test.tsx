@@ -60,6 +60,7 @@ vi.mock('react-square-web-payments-sdk', () => ({
 const config = {
     bookingId: 'booking',
     type: 'studio',
+    cakeSource: 'supplier',
     cakeOptions: null,
     creationsRequired: 2,
     prefill: {

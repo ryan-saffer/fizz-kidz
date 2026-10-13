@@ -1,10 +1,13 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { create } from 'zustand'
 
+import { CountAllForm } from './count-all-form'
 import { InventoryItemForm } from './inventory-item-form'
+import { ReceiveDeliveryForm } from './receive-delivery-form'
 import { StockActionForm } from './stock-action-form'
 
 import type { InventoryItemFormInput } from '../../utils/inventory.form-schemas'
@@ -13,8 +16,20 @@ import type { ClientInventoryItem, ClientInventoryStockLevel, StockAction } from
 vi.mock('@shared/components/ui/select', async () => {
     const React = await import('react')
 
-    function SelectItem({ value, children }: { value: string; children: React.ReactNode }) {
-        return <option value={value}>{children}</option>
+    function SelectItem({
+        value,
+        children,
+        disabled,
+    }: {
+        value: string
+        children: React.ReactNode
+        disabled?: boolean
+    }) {
+        return (
+            <option value={value} disabled={disabled}>
+                {children}
+            </option>
+        )
     }
 
     function collectOptions(children: React.ReactNode): React.ReactNode[] {
@@ -32,10 +47,60 @@ vi.mock('@shared/components/ui/select', async () => {
             </select>
         ),
         SelectContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+        SelectGroup: ({ children }: { children: React.ReactNode }) => <>{children}</>,
         SelectItem,
+        SelectLabel: () => null,
         SelectTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
         SelectValue: () => null,
     }
+})
+
+const squareOptions = [
+    { id: 'square-unicorn', name: 'Unicorn', category: 'cakes' },
+    { id: 'square-rainbow', name: 'Rainbow', category: 'cakes' },
+    { id: 'square-bag', name: 'Lolly bag', category: 'take-home-bags' },
+    { id: 'square-cup', name: 'Serving: Ice-cream cup with spoon', category: 'cake-supplies' },
+]
+
+const linkedItems = [
+    {
+        id: 'item-9',
+        name: 'Rainbow cake',
+        category: 'cakes',
+        $trackingMode: 'quantity',
+        squareCatalogObjectId: 'square-rainbow',
+    },
+]
+
+type QueryResult = { data: unknown; isPending: boolean }
+
+// a store, so changing a query result re-renders the components reading it, as React Query does
+const useQueryResults = create<{ items: QueryResult; square: QueryResult }>(() => ({
+    items: { data: linkedItems, isPending: false },
+    square: { data: squareOptions, isPending: false },
+}))
+
+vi.mock('@tanstack/react-query', () => ({
+    useQuery: (options: { query: string }) =>
+        useQueryResults((state) => (options.query === 'items' ? state.items : state.square)),
+}))
+
+const trpc = {
+    inventory: {
+        listSquareOptions: { queryOptions: () => ({ query: 'square' }) },
+        listItems: { queryOptions: () => ({ query: 'items' }) },
+    },
+}
+
+vi.mock('@integrations/trpc', () => ({
+    useTRPC: () => trpc,
+}))
+
+beforeEach(() => {
+    useQueryResults.setState({
+        items: { data: linkedItems, isPending: false },
+        square: { data: squareOptions, isPending: false },
+    })
 })
 
 const now = new Date('2026-05-01T00:00:00.000Z')
@@ -43,13 +108,11 @@ const now = new Date('2026-05-01T00:00:00.000Z')
 const quantityItem: ClientInventoryItem = {
     id: 'item-1',
     name: 'Party pies',
-    inventoryKey: 'party-base:partyPies',
     category: 'party-food',
     status: 'active',
     $trackingMode: 'quantity',
     baseUnit: 'each',
     runningLowThreshold: 10,
-    minimumTargetQuantity: 20,
     notes: 'Frozen',
     createdAt: now,
     updatedAt: now,
@@ -58,7 +121,7 @@ const quantityItem: ClientInventoryItem = {
 const qualitativeItem: ClientInventoryItem = {
     id: 'item-2',
     name: 'Glitter',
-    category: 'glitter',
+    category: 'party-food',
     status: 'active',
     $trackingMode: 'qualitative',
     baseUnit: 'tub',
@@ -104,36 +167,53 @@ describe('InventoryItemForm', () => {
         rerender(<InventoryItemForm isPending={false} submitLabel="Create item" onSubmit={onSubmit} />)
 
         await user.type(screen.getByLabelText('Item name'), 'Party pies')
-        await user.type(screen.getByLabelText('Shopping-list name'), 'partyPies')
+        expect(screen.queryByLabelText('Shopping-list name')).toBeNull()
+        await user.type(screen.getByLabelText('Counted in'), 'box')
         await user.type(screen.getByLabelText('Running low threshold'), '5')
-        await user.type(screen.getByLabelText('Keep at least'), '20')
+        expect(screen.queryByLabelText('Keep at least')).toBeNull()
 
-        const [keyType, category, tracking, baseUnit, status] = screen.getAllByRole('combobox')
-        await user.selectOptions(keyType, 'party-base')
-        await user.selectOptions(category, 'paint')
-        await user.selectOptions(baseUnit, 'box')
+        // party food isn't ordered by customers, so there's no Square link until it's a cake
+        expect(screen.queryByLabelText('Ordered by customers as')).toBeNull()
+        await user.selectOptions(screen.getAllByRole('combobox')[0], 'cakes')
+        const [category, tracking, squareLink, status] = screen.getAllByRole('combobox')
+        expect(within(squareLink).queryByText('Lolly bag')).toBeNull()
+        // a Square item already linked to another inventory item can't be picked again
+        const taken = within(squareLink).getByText('Rainbow (linked to Rainbow cake)') as HTMLOptionElement
+        expect(taken.disabled).toBe(true)
         await user.selectOptions(status, 'archived')
 
+        await user.click(screen.getByRole('button', { name: 'Create item' }))
+        expect(await screen.findByText(/Choose what customers order this as/)).toBeTruthy()
+        expect(onSubmit).not.toHaveBeenCalled()
+
+        await user.selectOptions(squareLink, 'square-unicorn')
         await user.click(screen.getByRole('button', { name: 'Create item' }))
 
         await waitFor(() => {
             expect(onSubmit).toHaveBeenLastCalledWith({
                 $trackingMode: 'quantity',
                 name: 'Party pies',
-                inventoryKeyType: 'party-base',
-                inventoryKeyName: 'partyPies',
-                inventoryKey: 'party-base:partyPies',
-                category: 'paint',
+                category: 'cakes',
                 baseUnit: 'box',
                 runningLowThreshold: 5,
-                minimumTargetQuantity: 20,
+                squareCatalogObjectId: 'square-unicorn',
+                usedPer: null,
                 status: 'archived',
                 notes: '',
             })
         })
 
+        await user.selectOptions(category, 'party-food')
+        expect(screen.queryByLabelText('Ordered by customers as')).toBeNull()
+        await user.click(screen.getByRole('button', { name: 'Create item' }))
+
+        await waitFor(() => {
+            expect(onSubmit).toHaveBeenLastCalledWith(expect.objectContaining({ squareCatalogObjectId: null }))
+        })
+
         await user.selectOptions(tracking, 'qualitative')
         expect(screen.queryByLabelText('Running low threshold')).toBeNull()
+        expect(screen.queryByLabelText('Ordered by customers as')).toBeNull()
         await user.click(screen.getByRole('button', { name: 'Create item' }))
 
         await waitFor(() => {
@@ -141,10 +221,40 @@ describe('InventoryItemForm', () => {
                 expect.objectContaining({
                     $trackingMode: 'qualitative',
                     runningLowThreshold: null,
-                    minimumTargetQuantity: null,
+                    squareCatalogObjectId: null,
+                    usedPer: null,
                 })
             )
         })
+    })
+
+    it('links cake supplies to the serving or candle option that uses them, and says how much a party uses', async () => {
+        const onSubmit = vi.fn()
+        const user = userEvent.setup()
+        render(<InventoryItemForm isPending={false} submitLabel="Create item" onSubmit={onSubmit} />)
+
+        await user.type(screen.getByLabelText('Item name'), 'Ice-cream cups')
+        await user.type(screen.getByLabelText('Counted in'), 'cup')
+        await user.selectOptions(screen.getAllByRole('combobox')[0], 'cake-supplies')
+        const [, , usedBy, usedPer] = screen.getAllByRole('combobox')
+        expect(screen.getByText('Used by')).toBeTruthy()
+        expect(within(usedBy).queryByText('Unicorn')).toBeNull()
+
+        await user.selectOptions(usedBy, 'square-cup')
+        await user.click(screen.getByRole('button', { name: 'Create item' }))
+        expect(await screen.findByText('Choose how much a party uses.')).toBeTruthy()
+
+        await user.selectOptions(usedPer, 'child')
+        await user.click(screen.getByRole('button', { name: 'Create item' }))
+        await waitFor(() =>
+            expect(onSubmit).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    category: 'cake-supplies',
+                    squareCatalogObjectId: 'square-cup',
+                    usedPer: 'child',
+                })
+            )
+        )
     })
 
     it('resets from default values and supports delete and pending states', async () => {
@@ -152,13 +262,12 @@ describe('InventoryItemForm', () => {
         const user = userEvent.setup()
         const defaultValues: InventoryItemFormInput = {
             name: 'Glitter',
-            inventoryKeyType: 'party-addition',
-            inventoryKeyName: 'glitter',
-            category: 'glitter',
+            category: 'party-food',
             $trackingMode: 'qualitative',
             baseUnit: 'tub',
             runningLowThreshold: '',
-            minimumTargetQuantity: '',
+            squareCatalogObjectId: '',
+            usedPer: '',
             status: 'active',
             notes: 'Use sparingly',
         }
@@ -192,9 +301,84 @@ describe('InventoryItemForm', () => {
         )
         expect((screen.getByRole('button', { name: /Save changes/ }) as HTMLButtonElement).disabled).toBe(true)
     })
+
+    it('waits for Square and only marks options linked to other orderable items as taken', () => {
+        const cake: ClientInventoryItem = {
+            ...quantityItem,
+            id: 'cake',
+            name: 'Unicorn cake',
+            category: 'cakes',
+            squareCatalogObjectId: 'square-unicorn',
+        }
+        const defaultValues: InventoryItemFormInput = {
+            name: 'Unicorn cake',
+            category: 'cakes',
+            $trackingMode: 'quantity',
+            baseUnit: 'each',
+            runningLowThreshold: '',
+            squareCatalogObjectId: 'square-unicorn',
+            usedPer: '',
+            status: 'active',
+            notes: '',
+        }
+        useQueryResults.setState({
+            items: { data: undefined, isPending: true },
+            square: { data: undefined, isPending: true },
+        })
+        const props = { defaultValues, isPending: false, item: cake, submitLabel: 'Save changes', onSubmit: vi.fn() }
+
+        const { rerender } = render(<InventoryItemForm {...props} />)
+        const squareLink = () => screen.getAllByRole('combobox')[2] as HTMLSelectElement
+        expect(squareLink().disabled).toBe(true)
+        expect(within(squareLink()).queryAllByRole('option')).toHaveLength(0)
+
+        act(() =>
+            useQueryResults.setState({
+                square: { data: squareOptions, isPending: false },
+                items: {
+                    isPending: false,
+                    data: [
+                        // the item being edited keeps its own link
+                        {
+                            id: 'cake',
+                            name: 'Unicorn cake',
+                            category: 'cakes',
+                            $trackingMode: 'quantity',
+                            squareCatalogObjectId: 'square-unicorn',
+                        },
+                        // supplies, qualitative and unlinked items don't take an option
+                        {
+                            id: 'cups',
+                            name: 'Cups',
+                            category: 'cake-supplies',
+                            $trackingMode: 'quantity',
+                            squareCatalogObjectId: 'square-rainbow',
+                        },
+                        { id: 'old', name: 'Old cake', category: 'cakes', $trackingMode: 'qualitative' },
+                        { id: 'plain', name: 'Plain cake', category: 'cakes', $trackingMode: 'quantity' },
+                    ],
+                },
+            })
+        )
+        rerender(<InventoryItemForm {...props} />)
+
+        expect(squareLink().disabled).toBe(false)
+        expect(squareLink().value).toBe('square-unicorn')
+        expect((within(squareLink()).getByText('Unicorn') as HTMLOptionElement).disabled).toBe(false)
+        expect((within(squareLink()).getByText('Rainbow') as HTMLOptionElement).disabled).toBe(false)
+        expect(screen.queryByText(/linked to/)).toBeNull()
+    })
 })
 
 describe('StockActionForm', () => {
+    const orderableItem: ClientInventoryItem = {
+        ...quantityItem,
+        name: 'Unicorn cake',
+        category: 'cakes',
+        squareCatalogObjectId: 'sq-1',
+    }
+    const orderableStock: ClientInventoryStockLevel = { ...quantityStock, reservedQuantity: 2 }
+
     it('submits received stock quantities', async () => {
         const onSubmit = vi.fn()
         const user = userEvent.setup()
@@ -203,8 +387,9 @@ describe('StockActionForm', () => {
         const { rerender } = render(<StockActionForm action={action} isPending={false} onSubmit={onSubmit} />)
         rerender(<StockActionForm action={action} isPending={false} onSubmit={onSubmit} />)
 
+        expect((screen.getByLabelText('Quantity received') as HTMLInputElement).value).toBe('')
         await user.type(screen.getByLabelText('Quantity received'), '3')
-        await user.type(screen.getByLabelText('Notes'), 'Delivery')
+        await user.type(screen.getByLabelText('Notes (optional)'), 'Delivery')
         await user.click(screen.getByRole('button', { name: 'Receive stock' }))
 
         await waitFor(() => {
@@ -212,25 +397,78 @@ describe('StockActionForm', () => {
         })
     })
 
-    it('renders set-stock guidance for known and unknown counts', async () => {
+    it('starts counts empty and shows the recorded count for supplies', async () => {
         const onSubmit = vi.fn()
         const user = userEvent.setup()
-        const unknownAction: StockAction = { $type: 'set', item: quantityItem, stock: unknownQuantityStock }
-        const knownAction: StockAction = { $type: 'set', item: quantityItem, stock: quantityStock }
+        const unknownAction: StockAction = { $type: 'count', item: quantityItem, stock: unknownQuantityStock }
+        const knownAction: StockAction = { $type: 'count', item: quantityItem, stock: quantityStock }
 
         const { rerender } = render(<StockActionForm action={unknownAction} isPending={false} onSubmit={onSubmit} />)
 
-        expect(screen.getByText('Current recorded stock is unknown. Saving will set the counted amount.')).toBeTruthy()
-        await user.type(screen.getByLabelText('Actual stock count'), '7')
-        await user.click(screen.getByRole('button', { name: 'Set stock count' }))
+        expect(screen.getByText('The recorded count is unknown.')).toBeTruthy()
+        expect((screen.getByLabelText('Counted quantity') as HTMLInputElement).value).toBe('')
+        await user.type(screen.getByLabelText('Counted quantity'), '7')
+        await user.click(screen.getByRole('button', { name: 'Save count' }))
 
         await waitFor(() => {
             expect(onSubmit).toHaveBeenCalledWith({ quantity: 7, level: 'unknown', reason: '' })
         })
 
         rerender(<StockActionForm action={knownAction} isPending onSubmit={onSubmit} />)
-        expect(screen.getByText('Current recorded stock is 4. Saving will set the counted amount.')).toBeTruthy()
-        expect((screen.getByRole('button', { name: /Set stock count/ }) as HTMLButtonElement).disabled).toBe(true)
+        expect(screen.getByText('The recorded count is 4.')).toBeTruthy()
+        expect((screen.getByRole('button', { name: /Save count/ }) as HTMLButtonElement).disabled).toBe(true)
+    })
+
+    it('requires a reason when an orderable count does not match and warns when parties will be short', async () => {
+        const onSubmit = vi.fn()
+        const user = userEvent.setup()
+        const action: StockAction = { $type: 'count', item: orderableItem, stock: orderableStock }
+
+        render(<StockActionForm action={action} isPending={false} onSubmit={onSubmit} />)
+
+        expect(screen.getByText(/The\s+system has 4 on hand \(2 reserved\)/)).toBeTruthy()
+        expect(screen.queryByText(/The recorded count is/)).toBeNull()
+        expect(screen.getByLabelText('Notes (optional)')).toBeTruthy()
+
+        await user.type(screen.getByLabelText('Counted quantity'), '1')
+        expect(screen.getByLabelText('Reason')).toBeTruthy()
+        expect(screen.getByText(/That leaves 1 on hand but 2 are reserved/)).toBeTruthy()
+
+        await user.click(screen.getByRole('button', { name: 'Save count' }))
+        expect(await screen.findByText(/doesn't match the 4 on record/)).toBeTruthy()
+        expect(onSubmit).not.toHaveBeenCalled()
+
+        await user.type(screen.getByLabelText('Reason'), 'Three were squashed')
+        await user.click(screen.getByRole('button', { name: 'Save count' }))
+
+        await waitFor(() => {
+            expect(onSubmit).toHaveBeenCalledWith({ quantity: 1, level: 'unknown', reason: 'Three were squashed' })
+        })
+    })
+
+    it('requires a reason to remove stock and caps it at what is on hand', async () => {
+        const onSubmit = vi.fn()
+        const user = userEvent.setup()
+        const action: StockAction = { $type: 'remove', item: orderableItem, stock: orderableStock }
+
+        render(<StockActionForm action={action} isPending={false} onSubmit={onSubmit} />)
+
+        await user.type(screen.getByLabelText('Quantity to remove'), '5')
+        await user.click(screen.getByRole('button', { name: 'Remove stock' }))
+
+        expect(await screen.findByText('Only 4 on hand.')).toBeTruthy()
+        expect(screen.getByText('Say why it was removed.')).toBeTruthy()
+        expect(onSubmit).not.toHaveBeenCalled()
+
+        await user.clear(screen.getByLabelText('Quantity to remove'))
+        await user.type(screen.getByLabelText('Quantity to remove'), '3')
+        expect(screen.getByText(/That leaves 1 on hand but 2 are reserved/)).toBeTruthy()
+        await user.type(screen.getByLabelText('Reason'), 'Dropped')
+        await user.click(screen.getByRole('button', { name: 'Remove stock' }))
+
+        await waitFor(() => {
+            expect(onSubmit).toHaveBeenCalledWith({ quantity: 3, level: 'unknown', reason: 'Dropped' })
+        })
     })
 
     it('submits qualitative stock levels', async () => {
@@ -247,5 +485,200 @@ describe('StockActionForm', () => {
         await waitFor(() => {
             expect(onSubmit).toHaveBeenCalledWith({ quantity: 0, level: 'high', reason: '' })
         })
+    })
+})
+
+describe('ReceiveDeliveryForm', () => {
+    const cake: ClientInventoryItem = {
+        ...quantityItem,
+        id: 'cake',
+        name: 'Unicorn cake',
+        category: 'cakes',
+        squareCatalogObjectId: 'sq-1',
+    }
+    const bags: ClientInventoryItem = {
+        ...quantityItem,
+        id: 'bags',
+        name: 'Lolly bags',
+        category: 'take-home-bags',
+        squareCatalogObjectId: 'sq-2',
+    }
+    const stockByItemId = new Map([['cake', { ...quantityStock, itemId: 'cake', reservedQuantity: 2 }]])
+
+    beforeEach(() => {
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                observe() {}
+                unobserve() {}
+                disconnect() {}
+            }
+        )
+    })
+
+    it('shows an empty state when nothing orderable is tracked here', () => {
+        render(<ReceiveDeliveryForm items={[]} stockByItemId={new Map()} isPending={false} onSubmit={vi.fn()} />)
+
+        expect(
+            screen.getByText('No cakes, cake supplies or take-home bags are tracked at this studio yet.')
+        ).toBeTruthy()
+    })
+
+    it('requires a checked delivery and submits only the lines that arrived', async () => {
+        const onSubmit = vi.fn()
+        const user = userEvent.setup()
+
+        render(
+            <ReceiveDeliveryForm
+                items={[cake, bags]}
+                stockByItemId={stockByItemId}
+                isPending={false}
+                onSubmit={onSubmit}
+            />
+        )
+
+        expect(screen.getByText('4 here now')).toBeTruthy()
+        expect(screen.getByText('0 here now')).toBeTruthy()
+
+        await user.click(screen.getByRole('button', { name: 'Receive delivery' }))
+        expect(await screen.findByText('Enter at least one quantity.')).toBeTruthy()
+        expect(screen.getByText('Physically check the delivery before receiving it.')).toBeTruthy()
+
+        await user.type(screen.getByLabelText('Unicorn cake received'), '6')
+        await user.type(screen.getByLabelText('Notes (optional)'), 'October drop')
+        await user.click(screen.getByRole('checkbox'))
+        await user.click(screen.getByRole('button', { name: 'Receive delivery' }))
+
+        await waitFor(() => {
+            expect(onSubmit).toHaveBeenCalledWith({ lines: [{ itemId: 'cake', quantity: 6 }], note: 'October drop' })
+        })
+    })
+})
+
+describe('CountAllForm', () => {
+    const cake: ClientInventoryItem = {
+        ...quantityItem,
+        id: 'cake',
+        name: 'Unicorn cake',
+        category: 'cakes',
+        squareCatalogObjectId: 'sq-1',
+    }
+    const dino: ClientInventoryItem = {
+        ...quantityItem,
+        id: 'dino',
+        name: 'Dinosaur cake',
+        category: 'cakes',
+        squareCatalogObjectId: 'sq-2',
+    }
+    const stockByItemId = new Map([
+        ['cake', { ...quantityStock, itemId: 'cake', reservedQuantity: 2 }],
+        ['dino', { ...quantityStock, itemId: 'dino', reservedQuantity: 0 }],
+    ])
+
+    it('saves a matching count of several cakes without a reason, skipping blank rows', async () => {
+        const onSubmit = vi.fn()
+        const user = userEvent.setup()
+        render(
+            <CountAllForm items={[cake, dino]} stockByItemId={stockByItemId} isPending={false} onSubmit={onSubmit} />
+        )
+
+        expect(screen.getAllByText('System has 4 (2 reserved)')).toHaveLength(1)
+        await user.type(screen.getByLabelText('Unicorn cake counted'), '4')
+        await user.click(screen.getByRole('button', { name: 'Save count' }))
+
+        await waitFor(() =>
+            expect(onSubmit).toHaveBeenCalledWith({ lines: [{ itemId: 'cake', quantity: 4 }], reason: '' })
+        )
+    })
+
+    it('needs one reason when any count differs, and warns when a party will be short', async () => {
+        const onSubmit = vi.fn()
+        const user = userEvent.setup()
+        render(
+            <CountAllForm items={[cake, dino]} stockByItemId={stockByItemId} isPending={false} onSubmit={onSubmit} />
+        )
+
+        await user.type(screen.getByLabelText('Unicorn cake counted'), '1')
+        await user.type(screen.getByLabelText('Dinosaur cake counted'), '4')
+        expect(screen.getByText(/Unicorn cake: fewer counted than are reserved/)).toBeTruthy()
+        await user.click(screen.getByRole('button', { name: 'Save count' }))
+        expect(await screen.findByText(/Some counts don't match the record/)).toBeTruthy()
+        expect(onSubmit).not.toHaveBeenCalled()
+
+        await user.type(screen.getByLabelText('Reason'), 'Melted')
+        await user.click(screen.getByRole('button', { name: 'Save count' }))
+        await waitFor(() =>
+            expect(onSubmit).toHaveBeenCalledWith({
+                lines: [
+                    { itemId: 'cake', quantity: 1 },
+                    { itemId: 'dino', quantity: 4 },
+                ],
+                reason: 'Melted',
+            })
+        )
+    })
+    it('lists supplies and unstocked items, and counts each mismatch', async () => {
+        const supply: ClientInventoryItem = {
+            ...quantityItem,
+            id: 'cups',
+            name: 'Ice-cream cups',
+            category: 'cake-supplies',
+        }
+        const bag: ClientInventoryItem = {
+            ...quantityItem,
+            id: 'bag',
+            name: 'Lolly bag',
+            category: 'take-home-bags',
+            squareCatalogObjectId: 'sq-3',
+        }
+        const user = userEvent.setup()
+        render(
+            <CountAllForm
+                items={[cake, dino, supply, bag]}
+                stockByItemId={stockByItemId}
+                isPending={false}
+                onSubmit={vi.fn()}
+            />
+        )
+
+        expect(screen.getAllByText('System has 0 (0 reserved)')).toHaveLength(2)
+        await user.type(screen.getByLabelText('Ice-cream cups counted'), '7')
+        await user.type(screen.getByLabelText('Lolly bag counted'), 'abc')
+        expect(screen.getByLabelText('Notes (optional)')).toBeTruthy()
+        expect(screen.queryByText(/doesn’t match/)).toBeNull()
+
+        await user.type(screen.getByLabelText('Unicorn cake counted'), '3')
+        expect(screen.getByText(/1 count doesn't match/)).toBeTruthy()
+        await user.type(screen.getByLabelText('Dinosaur cake counted'), '5')
+        expect(screen.getByText(/2 counts don't match/)).toBeTruthy()
+        expect(screen.getAllByText(/doesn’t match/)).toHaveLength(2)
+        expect(screen.getByLabelText('Reason')).toBeTruthy()
+    })
+
+    it('keeps typed counts and disables the form while saving', async () => {
+        const onSubmit = vi.fn()
+        const user = userEvent.setup()
+        const { rerender } = render(
+            <CountAllForm items={[cake, dino]} stockByItemId={stockByItemId} isPending={false} onSubmit={onSubmit} />
+        )
+        await user.type(screen.getByLabelText('Unicorn cake counted'), '4')
+
+        rerender(
+            <CountAllForm items={[cake, dino]} stockByItemId={stockByItemId} isPending={false} onSubmit={onSubmit} />
+        )
+        rerender(<CountAllForm items={[cake, dino]} stockByItemId={stockByItemId} isPending onSubmit={onSubmit} />)
+
+        expect((screen.getByLabelText('Unicorn cake counted') as HTMLInputElement).value).toBe('4')
+        expect((screen.getByLabelText('Unicorn cake counted') as HTMLInputElement).disabled).toBe(true)
+        expect((screen.getByRole('button', { name: 'Save count' }) as HTMLButtonElement).disabled).toBe(true)
+    })
+
+    it('explains when nothing can be counted', () => {
+        const { rerender } = render(
+            <CountAllForm items={[]} stockByItemId={stockByItemId} isPending={false} onSubmit={vi.fn()} />
+        )
+        rerender(<CountAllForm items={[]} stockByItemId={stockByItemId} isPending={false} onSubmit={vi.fn()} />)
+
+        expect(screen.getByText(/No cakes, cake supplies or take-home bags are tracked/)).toBeTruthy()
     })
 })

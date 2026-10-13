@@ -25,6 +25,14 @@ export const preparePartyCheckoutSchema = z
         /** Why staff gave the discount. Kept on the order and booking for us, not shown to the customer. */
         discountReason: z.string().trim().max(200).default(''),
         giftCardNumber: z.string().trim().max(40).default(''),
+        /**
+         * Studio-stock cakes only (see `getPartyCakeSource`): staff confirm the party used its cake, and whether it was
+         * served in our cups and spoons and had our candles, before they come off stock. Not charged; the parent paid
+         * in advance. The checkout starts them from the party form.
+         */
+        cakeUsed: z.boolean().default(true),
+        cakeServingUsed: z.boolean().default(false),
+        cakeCandlesUsed: z.boolean().default(false),
     })
     .refine((checkout) => checkout.discountCents === 0 || checkout.discountReason.length > 0, {
         message: 'A discount needs a reason',

@@ -1,7 +1,7 @@
 import express from 'express'
 import { logger } from 'firebase-functions/v2'
 
-import { AcuityConstants, AcuityUtilities } from '@fizz-kidz/core'
+import { AcuityConstants, AcuityUtilities, assertNever } from '@fizz-kidz/core'
 
 import { AcuityClient } from '../acuity.client'
 
@@ -70,8 +70,15 @@ acuityWebhook.post('/acuity', async (req, resp) => {
                     resp.status(200).send()
                     return
                 }
-            default:
+            case 'scheduled':
+            case 'order.completed':
                 logger.log(`Ignoring action: ${data.action}`)
+                resp.status(200).send()
+                return
+            default:
+                // Acuity could send an action we don't know about yet, so it's ignored rather than failing the webhook
+                assertNever(data.action)
+                logger.log(`Ignoring unknown action: ${JSON.stringify(data)}`)
                 resp.status(200).send()
                 return
         }

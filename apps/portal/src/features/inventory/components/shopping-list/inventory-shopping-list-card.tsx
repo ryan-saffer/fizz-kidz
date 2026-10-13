@@ -2,6 +2,7 @@ import { format } from 'date-fns'
 import { CalendarIcon, Loader2, ShoppingCart, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 
+import { assertNever } from '@fizz-kidz/core'
 import type {
     InventoryShoppingListLine,
     InventoryShoppingListStudioReport,
@@ -211,7 +212,6 @@ function ShoppingListTable({ lines }: { lines: InventoryShoppingListLine[] }) {
                     <TableHead>Item</TableHead>
                     <TableHead>Needed</TableHead>
                     <TableHead>In stock</TableHead>
-                    <TableHead>Keep at least</TableHead>
                     <TableHead>Buy</TableHead>
                     <TableHead>Source</TableHead>
                 </TableRow>
@@ -232,7 +232,6 @@ function ShoppingListTable({ lines }: { lines: InventoryShoppingListLine[] }) {
                         </TableCell>
                         <TableCell>{formatLineQuantity(line.requiredQuantity, line.baseUnit)}</TableCell>
                         <TableCell>{formatStockQuantity(line.quantityOnHand, line.baseUnit)}</TableCell>
-                        <TableCell>{formatKeepAtLeastQuantity(line.minimumTargetQuantity, line.baseUnit)}</TableCell>
                         <TableCell>
                             {line.suggestedPurchaseQuantity === null ? (
                                 <Badge className="w-fit rounded-full bg-slate-100 px-3 py-1 text-slate-600 hover:bg-slate-100">
@@ -302,10 +301,6 @@ function formatStockQuantity(quantity: number | null, unit: InventoryUnit) {
     return quantity === null ? 'Unknown' : formatLineQuantity(quantity, unit)
 }
 
-function formatKeepAtLeastQuantity(quantity: number | undefined, unit: InventoryUnit) {
-    return quantity ? formatLineQuantity(quantity, unit) : 'None'
-}
-
 function getWarningMessage(warning: InventoryShoppingListWarning) {
     switch (warning.$type) {
         case 'no-active-rules':
@@ -328,5 +323,8 @@ function getWarningMessage(warning: InventoryShoppingListWarning) {
             return `${getOrgName(warning.location)} needs '${warning.itemName}', but it is marked unused at that studio.`
         case 'unknown-stock-quantity':
             return `${getOrgName(warning.location)} needs '${warning.itemName}', but the current stock count is unknown.`
+        default:
+            assertNever(warning)
+            throw new Error(`Unhandled warning.$type: ${JSON.stringify(warning)}`)
     }
 }

@@ -23,8 +23,17 @@ const config = {
         { partyLength: '2', includesFood: true, name: '2 Hour Party', priceCents: 6000, imageUrl: null },
         { partyLength: '2', includesFood: false, name: '2 Hour Party', priceCents: 5300, imageUrl: null },
     ],
+    cake: null,
     additions: [],
-    prefill: { partyLength: '1.5', includesFood: true, childrenCount: 12, additions: [] },
+    prefill: {
+        partyLength: '1.5',
+        includesFood: true,
+        childrenCount: 12,
+        additions: [],
+        cakeUsed: true,
+        cakeServingUsed: false,
+        cakeCandlesUsed: false,
+    },
 } as CheckoutConfig
 
 beforeEach(() => {

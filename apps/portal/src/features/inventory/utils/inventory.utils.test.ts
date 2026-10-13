@@ -14,6 +14,7 @@ import {
     getStockActionSubmitLabel,
     getStockActionTitle,
     getStockStatusFilteredItems,
+    groupItemsByCategory,
     getVisibleInventoryItems,
     pluraliseItem,
 } from './inventory.utils'
@@ -41,7 +42,7 @@ const quantityItem: ClientInventoryItem = {
 const qualitativeItem: ClientInventoryItem = {
     id: 'qualitative',
     name: 'Glitter',
-    category: 'glitter',
+    category: 'party-food',
     status: 'active',
     $trackingMode: 'qualitative',
     baseUnit: 'tub',
@@ -85,6 +86,15 @@ describe('inventory utils', () => {
         expect(getIsRunningLow(qualitativeItem, qualitativeStock('low'))).toBe(true)
         expect(getIsRunningLow(qualitativeItem, qualitativeStock('out'))).toBe(true)
         expect(getIsRunningLow(qualitativeItem, qualitativeStock('medium'))).toBe(false)
+        expect(
+            getIsRunningLow(
+                { ...quantityItem, category: 'cakes', squareCatalogObjectId: 'square-cake', runningLowThreshold: 2 },
+                quantityStock(5, { reservedQuantity: 3 })
+            )
+        ).toBe(true)
+        expect(
+            getIsRunningLow({ ...quantityItem, runningLowThreshold: 2 }, quantityStock(5, { reservedQuantity: 3 }))
+        ).toBe(false)
         expect(getNeedsCount(quantityItem, quantityStock(null))).toBe(true)
         expect(getNeedsCount(quantityItem, quantityStock(1))).toBe(false)
         expect(getNeedsCount(qualitativeItem, qualitativeStock('unknown'))).toBe(false)
@@ -120,22 +130,34 @@ describe('inventory utils', () => {
         expect(getVisibleInventoryItems([quantityItem, qualitativeItem], '')).toEqual([quantityItem, qualitativeItem])
         expect(getVisibleInventoryItems([quantityItem, qualitativeItem], 'frozen')).toEqual([quantityItem])
         expect(getVisibleInventoryItems([quantityItem, qualitativeItem], 'qualitative')).toEqual([qualitativeItem])
+        const unitlessItem = { ...qualitativeItem, id: 'unitless', name: 'Streamers', baseUnit: undefined }
+        expect(getVisibleInventoryItems([unitlessItem as ClientInventoryItem, quantityItem], 'streamers')).toEqual([
+            unitlessItem,
+        ])
     })
 
     it('formats stock action text and stock values', () => {
         const receive: StockAction = { $type: 'receive', item: quantityItem, stock: quantityStock(2) }
-        const set: StockAction = { $type: 'set', item: quantityItem, stock: quantityStock(2) }
+        const count: StockAction = { $type: 'count', item: quantityItem, stock: quantityStock(2) }
+        const remove: StockAction = { $type: 'remove', item: quantityItem, stock: quantityStock(2) }
         const level: StockAction = { $type: 'level', item: qualitativeItem, stock: qualitativeStock('medium') }
 
         expect(getStockActionTitle(receive)).toBe('Receive Party pies')
-        expect(getStockActionTitle(set)).toBe('Set stock for Party pies')
+        expect(getStockActionTitle(count)).toBe('Count Party pies')
+        expect(getStockActionTitle(remove)).toBe('Remove Party pies')
         expect(getStockActionTitle(level)).toBe('Update level for Glitter')
         expect(getStockActionDescription(receive, 'balwyn')).toContain('balwyn studio')
-        expect(getStockActionDescription(set, 'balwyn')).toContain('actual count')
+        expect(getStockActionDescription(count, 'balwyn')).toContain('physically at balwyn studio')
+        expect(getStockActionDescription(remove, 'balwyn')).toContain('thrown out')
         expect(getStockActionDescription(level, 'balwyn')).toContain('high, medium, low')
         expect(getStockActionSubmitLabel(receive)).toBe('Receive stock')
-        expect(getStockActionSubmitLabel(set)).toBe('Set stock count')
+        expect(getStockActionSubmitLabel(count)).toBe('Save count')
+        expect(getStockActionSubmitLabel(remove)).toBe('Remove stock')
         expect(getStockActionSubmitLabel(level)).toBe('Update level')
+        const unknownAction = { ...receive, $type: 'unknown' } as never
+        expect(() => getStockActionTitle(unknownAction)).toThrow('Unhandled stock action')
+        expect(() => getStockActionDescription(unknownAction, 'balwyn')).toThrow('Unhandled stock action')
+        expect(() => getStockActionSubmitLabel(unknownAction)).toThrow('Unhandled stock action')
         expect(getCurrentQuantity(quantityStock(4))).toBe(4)
         expect(getCurrentQuantity(qualitativeStock('low'))).toBeNull()
         expect(getCurrentQualitativeLevel(qualitativeStock('low'))).toBe('low')
@@ -152,9 +174,27 @@ describe('inventory utils', () => {
         expect(formatQuantityUnit('box', 2)).toBe('boxes')
         expect(formatQuantityUnit('tray', 2)).toBe('trays')
         expect(formatQuantityUnit('tray', 1)).toBe('tray')
+        // units are typed by staff, so plurals are guessed from the text
+        expect(formatQuantityUnit(' Cake ', 3)).toBe('cakes')
+        expect(formatQuantityUnit('bags', 3)).toBe('bags')
+        expect(formatQuantityUnit('punch', 2)).toBe('punches')
         expect(formatQualitativeLevel('out')).toBe('Out')
         expect(formatQualitativeLevel('medium')).toBe('Medium')
         expect(pluraliseItem(1)).toBe('item')
         expect(pluraliseItem(2)).toBe('items')
+    })
+})
+
+describe('groupItemsByCategory', () => {
+    it('groups cakes before take-home bags, skipping empty categories', () => {
+        const bag = { ...quantityItem, id: 'bag', category: 'take-home-bags' } as ClientInventoryItem
+        const cake = { ...quantityItem, id: 'cake', category: 'cakes' } as ClientInventoryItem
+
+        expect(
+            groupItemsByCategory([bag, cake]).map((group) => [group.category, group.items.map((item) => item.id)])
+        ).toEqual([
+            ['cakes', ['cake']],
+            ['take-home-bags', ['bag']],
+        ])
     })
 })

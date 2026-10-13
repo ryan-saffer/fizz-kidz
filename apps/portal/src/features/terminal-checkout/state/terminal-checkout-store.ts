@@ -60,10 +60,15 @@ export type TerminalCheckoutActions<Subject, Config, Answers extends CheckoutAdj
     open: (subject: Subject) => void
     close: () => void
     /**
-     * Called once the subject's config has loaded, with any answers it starts from. Resumes a charge this iPad left on
-     * the terminal.
+     * Called once the subject's config has loaded, with any answers it starts from, and the steps before review when
+     * they depend on the subject (eg. a party with a cake). Resumes a charge this iPad left on the terminal.
      */
-    init: (input: { config: Config; server: TerminalCheckoutServer<Answers>; answers?: Partial<Answers> }) => void
+    init: (input: {
+        config: Config
+        server: TerminalCheckoutServer<Answers>
+        answers?: Partial<Answers>
+        steps?: readonly { key: string; label: string }[]
+    }) => void
     /** The studio's paired terminals. With exactly one, it's the one charged. */
     setTerminals: (terminals: Terminal[]) => void
     setTerminal: (terminal: Terminal) => void
@@ -139,11 +144,16 @@ export function createTerminalCheckoutStore<Subject, Config, Answers extends Che
 
         close: () => set(initialState),
 
-        init: ({ config, server, answers }) => {
+        init: ({ config, server, answers, steps: subjectSteps }) => {
             const { subject } = get()
             if (!subject) return
             const onTerminal = readCharge(chargeKey(subject))
-            set({ config, server, answers: { ...options.initialAnswers, ...answers } })
+            set({
+                config,
+                server,
+                answers: { ...options.initialAnswers, ...answers },
+                steps: subjectSteps ? [...subjectSteps, steps[steps.length - 1]] : steps,
+            })
             if (onTerminal) {
                 set({ onTerminal, stage: 'charging', step: REVIEW_STEP })
                 void pollCharge(onTerminal)
