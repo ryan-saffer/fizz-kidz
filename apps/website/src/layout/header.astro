@@ -4,8 +4,9 @@ import logoHorizontal from "@/assets/images/logo-horizontal.png";
 import NavigationMenu from "@/react-components/navigation/navigation-menu";
 import { createNavigationMenu } from "@/react-components/navigation/navigation-menu-data";
 import { Button } from "@/components/react/ui/button";
+import { birthdayPartyPackageNavigationLinks } from "@/data/birthday-party-catalogue";
 
-const menu = createNavigationMenu();
+const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
 ---
 
 <header
