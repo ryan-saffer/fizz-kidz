@@ -41,7 +41,7 @@ At Geelong and Werribee (`isStockedPartyOrder`), what parents can order comes fr
 
 - **Cake step**: `getStockedPartyFormCakeOptions` shows the designs the studio stocks (sold-out ones disabled), the medium size, and chocolate and vanilla as fixed flavours, which the form presets instead of asking. Paid serving and candle options are only offered where the studio stocks the cake supplies they use, so there are no waffle cones; free 'bring my own' options always are. With no designs stocked there is no cake step, and there is no message.
 - **Take-home options**: these carry `available`, and the goodies step caps quantities at it.
-- **Validation**: checks stock again before payment.
+- **Validation**: checks stock when the summary is prepared, and again right before the card is charged (`payCheckout`'s `revalidate`), so a page left open can't buy stock that sold since. A bag with no inventory item at the studio can't be ordered; unlinked kits stay unlimited.
 - **After payment**: `process-party-form.ts` reserves the stock against the booking, under the submission id so a replay doesn't reserve twice. Because availability was checked before payment, a paid order is always reserved, even if two parents took the last cake at once; going short emails the studio owners.
 - **Emails**: the studio gets the cake email instead of the supplier, and the supplier gets no take-home bag email.
 

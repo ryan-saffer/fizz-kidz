@@ -171,7 +171,7 @@ describe('party form take-home options from Square', () => {
         expect((await getPartyFormTakeHomeOptions('malvern')).takeHomeBags).toEqual([])
     })
 
-    it('limits bags linked to studio stock to what is available at Werribee and Geelong', async () => {
+    it('sells bags at Werribee and Geelong only from studio stock, while unlinked kits stay unlimited', async () => {
         getItemOptions.mockResolvedValue({
             name: 'Take Home Bags',
             description: null,
@@ -198,16 +198,30 @@ describe('party form take-home options from Square', () => {
                 },
             ],
         })
-        listItems.mockResolvedValue([])
+        listItems.mockResolvedValue([
+            {
+                id: 'bath-bomb-item',
+                variationId: catalog.products.bathBombKit,
+                name: 'Bath Bomb Kit',
+                description: null,
+                imageUrl: null,
+                priceCents: 1995,
+                locationIds: null,
+                absentAtLocationIds: [],
+                channels: [catalog.onlineStoreChannelId],
+            },
+        ])
         unitPrices.mockResolvedValue(new Map())
         orderableInventory.mockResolvedValue(new Map([[catalog.takeHomeBags.lollyBags, { available: 20 }]]))
 
         const result = await getPartyFormTakeHomeOptions('werribee')
 
         expect(orderableInventory).toHaveBeenCalledWith('werribee')
+        // a bag with no inventory item (archived, unused or never linked) can't be ordered, rather than being unlimited
         expect(result.takeHomeBags.map((bag) => [bag.key, bag.available])).toEqual([
             ['lollyBags', 20],
-            ['lollyToyMixBags', null],
+            ['lollyToyMixBags', 0],
         ])
+        expect(result.products.map((product) => [product.key, product.available])).toEqual([['bathBombKit', null]])
     })
 })

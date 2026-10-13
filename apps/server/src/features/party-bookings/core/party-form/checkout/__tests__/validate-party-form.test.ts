@@ -193,6 +193,18 @@ describe('validating party form answers', () => {
             )
             await expect(validatePartyForm({ ...payload, takeHomeBags: { lollyBags: 15 } })).resolves.toBeTruthy()
         })
+        it('refuses bags the studio has none of, or doesn’t offer, since only studio stock fulfils them', async () => {
+            mocks.takeHomeOptions.mockResolvedValue({
+                takeHomeBags: [{ key: 'lollyBags', name: 'Lolly Bags', available: 0 }],
+                products: [],
+            })
+            await expect(validatePartyForm({ ...payload, takeHomeBags: { lollyBags: 12 } })).rejects.toThrow(
+                'Lolly Bags are sold out'
+            )
+            await expect(validatePartyForm({ ...payload, takeHomeBags: { lollyToyMixBags: 12 } })).rejects.toThrow(
+                'no longer available'
+            )
+        })
     })
     it('requires 12 of a take-home item, unless the booking already has some', async () => {
         const order = (takeHomeBags: PartyForm['takeHomeBags']) =>

@@ -1,6 +1,6 @@
 import { CircleQuestionMark, EyeOff, History, Loader2, MinusCircle, MoreHorizontal, Pencil } from 'lucide-react'
 
-import { getInventoryAvailableQuantity, isOrderableInventoryItem } from '@fizz-kidz/core'
+import { getInventoryAvailableQuantity, isLinkedInventoryItem, isOrderableInventoryItem } from '@fizz-kidz/core'
 import type { InventoryUnit, Studio } from '@fizz-kidz/core'
 
 import { Badge } from '@shared/components/ui/badge'
@@ -107,6 +107,8 @@ export function InventoryItemsTable({
                         const hasUnknownQuantity =
                             stock?.measurement.$type === 'quantity' && stock.measurement.quantity === null
                         const isOrderable = isOrderableInventoryItem(item)
+                        // cakes, cake supplies and bags are sold from studio stock, so their count is never unknown
+                        const isLinked = isLinkedInventoryItem(item)
                         const canChangeStock = canUpdateStock && !isArchived && isStocked
 
                         return (
@@ -189,7 +191,7 @@ export function InventoryItemsTable({
                                                 ) : null}
                                                 {canChangeStock &&
                                                 item.$trackingMode === 'quantity' &&
-                                                !isOrderable &&
+                                                !isLinked &&
                                                 !hasUnknownQuantity ? (
                                                     <DropdownMenuItem
                                                         disabled={isStockChangePending}

@@ -59,7 +59,11 @@ export async function getPartyCheckoutCake(booking: Booking) {
     }
 }
 
-/** Kept on the order as one metadata entry, since Square allows ten. */
+/**
+ * Kept on the order as one metadata entry, since Square allows ten. With the booking id, children charged and discount
+ * reason that's four booking entries, which fits because the party checkout never takes a discount code (see
+ * `features/payments/README.md`).
+ */
 export function writeCakeUsage(usage: PartyCakeUsage) {
     return {
         [CAKE_USAGE_KEY]: [

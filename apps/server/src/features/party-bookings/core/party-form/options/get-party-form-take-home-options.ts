@@ -41,7 +41,8 @@ export type PartyFormTakeHomeOptions = {
  * Take-home bags are the variations of Square's take-home bag item; kits are the items in its Products category.
  * Only items on the 'Fizz Kidz Store' online channel are offered (the Dashboard's online store toggle), and only at
  * studios they're sold at. Square stock levels are ignored. Anything without a booking key is left out. At studios that
- * sell from studio stock, items linked to inventory are limited to what's available.
+ * sell from studio stock, bags are limited to what their inventory item has available (none without one), and linked
+ * kits likewise.
  */
 export async function getPartyFormTakeHomeOptions(studio: Studio): Promise<PartyFormTakeHomeOptions> {
     const { takeHomeBagItemId, productCategoryId, onlineStoreChannelId } = PARTY_TAKE_HOME_SQUARE_CATALOG[env]
@@ -94,10 +95,13 @@ export async function getPartyFormTakeHomeOptions(studio: Studio): Promise<Party
         [...bags, ...products].map((option) => option.variationId),
         MIN_TAKE_HOME_QUANTITY
     )
-    const available = (variationId: string) => orderable?.get(variationId)?.available ?? null
+    // At studios selling from studio stock, bags are only sold from inventory, so a bag with no item there (archived,
+    // unused or never linked) can't be ordered. Kits stay supplier-fulfilled unless linked.
+    const bagAvailable = (variationId: string) => (orderable ? (orderable.get(variationId)?.available ?? 0) : null)
+    const kitAvailable = (variationId: string) => orderable?.get(variationId)?.available ?? null
     return {
-        takeHomeBags: withUnitPrices(bags, unitPrices, available),
-        products: withUnitPrices(products, unitPrices, available),
+        takeHomeBags: withUnitPrices(bags, unitPrices, bagAvailable),
+        products: withUnitPrices(products, unitPrices, kitAvailable),
         minimumQuantity: MIN_TAKE_HOME_QUANTITY,
     }
 }

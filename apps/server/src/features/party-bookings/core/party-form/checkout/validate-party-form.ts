@@ -143,7 +143,10 @@ async function buildCakeLine(
     }
 }
 
-/** Studio stock can't be oversold: each linked bag or kit must have enough available. */
+/**
+ * Studio stock can't be oversold: each bag, and each linked kit, must have enough available. A bag the studio doesn't
+ * offer at all can't be sold, since only studio stock fulfils bags there.
+ */
 function assertTakeHomeInStock(
     options: PartyFormTakeHomeOptions,
     takeHomeBags: [string, number][],
@@ -151,17 +154,24 @@ function assertTakeHomeInStock(
 ) {
     const check = (
         offered: { key: string; name: string; available: number | null }[],
-        [key, quantity]: [string, number]
+        [key, quantity]: [string, number],
+        mustBeOffered: boolean
     ) => {
         const option = offered.find((item) => item.key === key)
-        if (option?.available != null && quantity > option.available)
-            throwTrpcError(
-                'BAD_REQUEST',
-                `Sorry, only ${option.available} ${option.name} are left. Please choose a smaller quantity.`
-            )
+        if (!option) {
+            if (mustBeOffered) throwTrpcError('BAD_REQUEST', NO_LONGER_AVAILABLE)
+            return
+        }
+        if (option.available === null || quantity <= option.available) return
+        throwTrpcError(
+            'BAD_REQUEST',
+            option.available === 0
+                ? `Sorry, ${option.name} are sold out.`
+                : `Sorry, only ${option.available} ${option.name} are left. Please choose a smaller quantity.`
+        )
     }
-    takeHomeBags.forEach((line) => check(options.takeHomeBags, line))
-    products.forEach((line) => check(options.products, line))
+    takeHomeBags.forEach((line) => check(options.takeHomeBags, line, true))
+    products.forEach((line) => check(options.products, line, false))
 }
 
 /**

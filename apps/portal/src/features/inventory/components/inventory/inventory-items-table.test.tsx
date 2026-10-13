@@ -128,6 +128,23 @@ describe('InventoryItemsTable', () => {
         expect(onOpenStockAction).toHaveBeenCalledWith('remove', baseItem, expect.any(Object))
     })
 
+    it('never offers Mark count unknown for cake supplies, which are always counted like cakes and bags', () => {
+        const cups: ClientInventoryItem = {
+            ...baseItem,
+            id: 'cups',
+            name: 'Ice-cream cups',
+            category: 'cake-supplies',
+            squareCatalogObjectId: 'square-cup',
+            usedPer: 'child',
+        }
+
+        renderTable({ items: [cups], stockByItemId: new Map([['cups', stock({ itemId: 'cups' })]]) })
+
+        // supplies aren't reserved, so they still receive and count like party food
+        expect(screen.getByRole('button', { name: 'Receive' })).toBeTruthy()
+        expect(screen.queryByRole('button', { name: /Mark count unknown/ })).toBeNull()
+    })
+
     it('shows on hand, reserved, and available stock for orderable items', async () => {
         const onOpenHistory = vi.fn()
         const onOpenStockAction = vi.fn()
