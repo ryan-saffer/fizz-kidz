@@ -3,6 +3,8 @@ export type MenuLink = {
     title: string
     path: string
     isNew: boolean
+    /** Shown as a nested submenu, e.g. the party themes under Birthday parties. */
+    items?: Readonly<MenuLink[]>
 }
 
 export type MenuItem =
@@ -34,14 +36,20 @@ export function createBirthdayPartyMenuLinks(packageLinks: Readonly<MenuLink[]>)
     return [atHomePartyLink, ...packageLinks] satisfies MenuLink[]
 }
 
-export function createNavigationMenu(): MenuItem[] {
+export function createNavigationMenu(packageLinks: Readonly<MenuLink[]>): MenuItem[] {
     return [
         {
             title: 'In studio',
             type: 'dropdown',
             clickable: false,
             items: [
-                { type: 'link', title: 'Birthday parties', path: '/birthday-parties/', isNew: false },
+                {
+                    type: 'link',
+                    title: 'Birthday parties',
+                    path: '/birthday-parties/',
+                    isNew: false,
+                    items: packageLinks,
+                },
                 { type: 'link', title: 'Holiday programs', path: '/holiday-programs/', isNew: false },
                 { type: 'link', title: 'Messy Play', path: '/messy-play/', isNew: false },
                 { type: 'link', title: 'Gift cards', path: '/gift-cards/', isNew: false },

@@ -1,4 +1,4 @@
-import { ArrowRight, ChevronDown } from 'lucide-react'
+import { ArrowRight, ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 
 import { cn } from '../lib/utils'
@@ -74,6 +74,31 @@ function NavigationMenuDropdown({
                     </Button>
                 )}
                 {submenus.map((menu, idx) => {
+                    if (menu.type === 'link' && menu.items) {
+                        return (
+                            <div key={idx} className="group/submenu relative">
+                                <a
+                                    href={menu.path}
+                                    className="flex items-center justify-between gap-4 p-3 font-gotham text-sm font-medium decoration-[#B14795] decoration-2 underline-offset-4 hover:underline"
+                                >
+                                    {menu.title}
+                                    <ChevronRight className="h-4 w-4" />
+                                </a>
+                                <div className="absolute left-full top-0 hidden pl-4 group-focus-within/submenu:block group-hover/submenu:block">
+                                    <div className="flex w-max flex-col rounded-md border bg-popover p-3 shadow-md">
+                                        {menu.items.map((item) => (
+                                            <NavigationMenuItemDesktop
+                                                path={item.path}
+                                                title={item.title}
+                                                isNew={item.isNew}
+                                                key={item.path}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    }
                     if (menu.type === 'link') {
                         return (
                             <NavigationMenuItemDesktop

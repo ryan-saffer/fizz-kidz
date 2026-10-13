@@ -127,15 +127,41 @@ function NavigationMenu({ menu }: { menu: Readonly<MenuItem[]> }) {
                                                         </a>
                                                     </Button>
                                                 )}
-                                                {menuItem.items.map((item) => (
-                                                    <NavigationMenuItemMobile
-                                                        key={item.title}
-                                                        title={item.title}
-                                                        path={item.path}
-                                                        isNew={item.isNew}
-                                                        nested
-                                                    />
-                                                ))}
+                                                {menuItem.items.map((item) =>
+                                                    item.items ? (
+                                                        <Accordion type="multiple" key={item.title}>
+                                                            <AccordionItem value={item.title} className="border-0 px-4">
+                                                                <AccordionTrigger className="py-4 font-medium hover:no-underline">
+                                                                    {item.title}
+                                                                </AccordionTrigger>
+                                                                <AccordionContent className="pl-4">
+                                                                    <NavigationMenuItemMobile
+                                                                        title={`All ${item.title.toLowerCase()}`}
+                                                                        path={item.path}
+                                                                        nested
+                                                                    />
+                                                                    {item.items.map((subItem) => (
+                                                                        <NavigationMenuItemMobile
+                                                                            key={subItem.title}
+                                                                            title={subItem.title}
+                                                                            path={subItem.path}
+                                                                            isNew={subItem.isNew}
+                                                                            nested
+                                                                        />
+                                                                    ))}
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+                                                        </Accordion>
+                                                    ) : (
+                                                        <NavigationMenuItemMobile
+                                                            key={item.title}
+                                                            title={item.title}
+                                                            path={item.path}
+                                                            isNew={item.isNew}
+                                                            nested
+                                                        />
+                                                    )
+                                                )}
                                             </AccordionContent>
                                         </AccordionItem>
                                     )

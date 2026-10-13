@@ -1,6 +1,6 @@
 ---
 import { ArrowRight } from "lucide-react";
-import CardWithImage from "@/components/card-with-image.astro";
+import Image from "@/components/image.astro";
 import {
   websitePagesPartiesAtHomePartiesJpg as atHomeParties,
   websitePagesPartiesEssendonStudioJpg as studio,
@@ -17,72 +17,92 @@ const {
   studioButtonText,
   studioButtonPath,
 } = Astro.props;
+
+// On mobile each choice is a compact row, so both fit on one screen.
+// From md up they become full cards with the longer description.
+const choices = [
+  {
+    title: "At our studio",
+    colour: "text-[#9044E2]",
+    path: studioButtonPath,
+    linkText: studioButtonText,
+    image: studio,
+    imageAlt: "A Fizz Kidz studio set up for a party",
+    summary: "1.5 or 2 hour parties at one of our 7 studios",
+    description:
+      "An exclusive party venue at one of our seven studios in Melbourne and Geelong, with two fantastic party hosts running the whole party.",
+    detail: "1.5 or 2 hour parties",
+  },
+  {
+    title: "We come to you",
+    colour: "text-[#42D4F3]",
+    path: "/birthday-parties/at-home-parties/",
+    linkText: "At home party details",
+    image: atHomeParties,
+    imageAlt: "Kids making creations at a Fizz Kidz at home party",
+    summary: "1 or 1.5 hour parties at your home or a venue near you",
+    description:
+      "A Fizz Kidz party host brings the party to your home or a venue near you, up to 30km from your closest studio.",
+    detail: "1 or 1.5 hour parties, travel fee applies",
+  },
+];
 ---
 
-<section class="my-16 md:my-32">
-  <h2 class="mb-4 text-center font-lilita text-4xl md:text-5xl">{title}</h2>
-  <p class="mx-auto mb-12 max-w-3xl text-center font-gotham text-lg font-medium">
+<section class="my-12 md:my-32">
+  <h2 class="mb-6 text-center font-lilita text-4xl md:mb-4 md:text-5xl">
+    {title}
+  </h2>
+  <p
+    class="mx-auto mb-12 hidden max-w-3xl text-center font-gotham text-lg font-medium md:block"
+  >
     Every Fizz Kidz party package can be hosted at one of our studios, or by a
     Fizz Kidz host at your home or a venue near you.
   </p>
-  <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-    <a href={studioButtonPath} class="group block">
-    <CardWithImage
-      className="transition-shadow group-hover:shadow-xl"
-      image={studio}
-      imageAlt="A Fizz Kidz studio set up for a party"
-      imageClassName="h-64"
-    >
-      <div slot="content" class="flex h-full flex-col gap-4 p-8">
-        <p class="font-lilita text-3xl text-[#9044E2]">At our studio</p>
-        <p class="font-gotham text-lg font-medium">
-          An exclusive party venue at one of our seven studios in Melbourne and
-          Geelong, with two fantastic party hosts running the whole party.
-        </p>
-        <p class="font-gotham font-medium text-gray-600">
-          1.5 or 2 hour parties
-        </p>
-        <p
-          class="mt-auto flex items-center gap-2 pt-4 font-lilita text-xl uppercase text-[#9044E2]"
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
+    {
+      choices.map((choice) => (
+        <a
+          href={choice.path}
+          class="group flex overflow-hidden rounded-xl bg-white shadow-md transition-shadow hover:shadow-xl md:flex-col"
         >
-          {studioButtonText}
-          <ArrowRight
-            size={20}
-            aria-hidden="true"
-            className="transition-transform group-hover:translate-x-1"
-          />
-        </p>
-      </div>
-    </CardWithImage>
-    </a>
-    <a href="/birthday-parties/at-home-parties/" class="group block">
-    <CardWithImage
-      className="transition-shadow group-hover:shadow-xl"
-      image={atHomeParties}
-      imageAlt="Kids making creations at a Fizz Kidz at home party"
-      imageClassName="h-64"
-    >
-      <div slot="content" class="flex h-full flex-col gap-4 p-8">
-        <p class="font-lilita text-3xl text-[#42D4F3]">We come to you</p>
-        <p class="font-gotham text-lg font-medium">
-          A Fizz Kidz party host brings the party to your home or a venue near
-          you, up to 30km from your closest studio.
-        </p>
-        <p class="font-gotham font-medium text-gray-600">
-          1 or 1.5 hour parties, travel fee applies
-        </p>
-        <p
-          class="mt-auto flex items-center gap-2 pt-4 font-lilita text-xl uppercase text-[#42D4F3]"
-        >
-          At home party details
-          <ArrowRight
-            size={20}
-            aria-hidden="true"
-            className="transition-transform group-hover:translate-x-1"
-          />
-        </p>
-      </div>
-    </CardWithImage>
-    </a>
+          <div class="w-28 shrink-0 overflow-hidden md:h-64 md:w-full">
+            <Image
+              src={choice.image}
+              alt={choice.imageAlt}
+              width={1000}
+              sizes="(min-width: 768px) 50vw, 112px"
+              loading="lazy"
+              class="h-full w-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
+            />
+          </div>
+          <div class="flex flex-1 items-center gap-2 p-4 md:flex-col md:items-start md:gap-4 md:p-8">
+            <div class="flex flex-1 flex-col gap-1 md:gap-4">
+              <p class={`font-lilita text-2xl md:text-3xl ${choice.colour}`}>
+                {choice.title}
+              </p>
+              <p class="font-gotham text-sm font-medium text-gray-600 md:hidden">
+                {choice.summary}
+              </p>
+              <p class="hidden font-gotham text-lg font-medium md:block">
+                {choice.description}
+              </p>
+              <p class="hidden font-gotham font-medium text-gray-600 md:block">
+                {choice.detail}
+              </p>
+            </div>
+            <p
+              class={`flex items-center gap-2 font-lilita text-xl uppercase md:mt-auto md:pt-4 ${choice.colour}`}
+            >
+              <span class="hidden md:inline">{choice.linkText}</span>
+              <ArrowRight
+                size={24}
+                aria-hidden="true"
+                className="shrink-0 transition-transform group-hover:translate-x-1"
+              />
+            </p>
+          </div>
+        </a>
+      ))
+    }
   </div>
 </section>
