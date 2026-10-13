@@ -60,6 +60,7 @@ vi.mock('react-square-web-payments-sdk', () => ({
 const config = {
     bookingId: 'booking',
     type: 'studio',
+    party: { date: 'Saturday 14 November', time: '10:00am – 11:30am', where: 'Fizz Kidz Malvern, 1 Test St' },
     cakeSource: 'supplier',
     cakeOptions: null,
     creationsRequired: 2,
