@@ -24,13 +24,15 @@ vi.mock('@tanstack/react-query', () => ({
             : { data: stockData, isPending: stockPending },
 }))
 
+const trpc = {
+    inventory: {
+        listItems: { queryOptions: listItemsQueryOptions },
+        listStock: { queryOptions: listStockQueryOptions },
+    },
+}
+
 vi.mock('@integrations/trpc', () => ({
-    useTRPC: () => ({
-        inventory: {
-            listItems: { queryOptions: listItemsQueryOptions },
-            listStock: { queryOptions: listStockQueryOptions },
-        },
-    }),
+    useTRPC: () => trpc,
 }))
 
 vi.mock('./use-inventory-location', () => ({
@@ -84,9 +86,9 @@ describe('useInventoryData', () => {
             quantityItem({ id: 'party', name: 'Party pies' }),
             quantityItem({ id: 'archived', name: 'Archived glitter', status: 'archived' }),
             {
-                id: 'paint',
+                id: 'cakes',
                 name: 'Paint pots',
-                category: 'paint',
+                category: 'cakes',
                 status: 'active',
                 $trackingMode: 'qualitative',
                 baseUnit: 'tub',
@@ -97,7 +99,7 @@ describe('useInventoryData', () => {
         stockData = [
             stock({ itemId: 'party', measurement: { $type: 'quantity', quantity: 4 } }),
             stock({ itemId: 'archived', stocked: false }),
-            stock({ itemId: 'paint', measurement: { $type: 'qualitative', level: 'low' } }),
+            stock({ itemId: 'cakes', measurement: { $type: 'qualitative', level: 'low' } }),
         ]
 
         const { rerender, result } = renderHook(() => useInventoryData())
@@ -108,9 +110,38 @@ describe('useInventoryData', () => {
         expect(result.current.activeTrackedCount).toBe(2)
         expect(result.current.runningLowItemCount).toBe(2)
         expect(result.current.notRunningLowItemCount).toBe(0)
-        expect(result.current.trackedItems.map((item) => item.name)).toEqual(['Paint pots', 'Party pies'])
+        expect(result.current.supplyItems.map((item) => item.name)).toEqual(['Paint pots', 'Party pies'])
+        expect(result.current.orderableItems).toEqual([])
         expect(result.current.hiddenItems.map((item) => item.name)).toEqual(['Archived glitter'])
-        expect(result.current.trackedStockCount).toBe(2)
+    })
+
+    it('splits orderable items from supplies and lists every receivable item regardless of filters', () => {
+        useInventoryStore.setState({ stockStatusFilter: 'running-low' })
+        itemsData = [
+            quantityItem({ id: 'unicorn', name: 'Unicorn cake', category: 'cakes', squareCatalogObjectId: 'sq-1' }),
+            quantityItem({
+                id: 'bags',
+                name: 'Lolly bags',
+                category: 'take-home-bags',
+                squareCatalogObjectId: 'sq-2',
+                runningLowThreshold: null,
+            }),
+            quantityItem({ id: 'boxes', name: 'Cake boxes', category: 'take-home-bags' }),
+            quantityItem({ id: 'old', name: 'Old cake', category: 'cakes', squareCatalogObjectId: 'sq-3' }),
+        ]
+        stockData = [
+            stock({ itemId: 'unicorn', reservedQuantity: 1 }),
+            stock({ itemId: 'bags' }),
+            stock({ itemId: 'boxes' }),
+            stock({ itemId: 'old', stocked: false }),
+        ]
+
+        const { rerender, result } = renderHook(() => useInventoryData())
+        rerender()
+
+        expect(result.current.orderableItems.map((item) => item.id)).toEqual(['unicorn'])
+        expect(result.current.supplyItems.map((item) => item.id)).toEqual(['boxes'])
+        expect(result.current.receivableItems.map((item) => item.id)).toEqual(['bags', 'unicorn'])
     })
 
     it('applies category, search, and stock-status filters', () => {
@@ -120,20 +151,23 @@ describe('useInventoryData', () => {
         itemsData = [
             quantityItem({ id: 'plates', name: 'Paper plates' }),
             quantityItem({ id: 'pies', name: 'Party pies' }),
+            quantityItem({ id: 'plate-glue', name: 'Plates glue', category: 'cakes' }),
         ]
         stockData = [
             stock({ itemId: 'plates', measurement: { $type: 'quantity', quantity: null } }),
             stock({ itemId: 'pies', measurement: { $type: 'quantity', quantity: 20 } }),
+            stock({ itemId: 'plate-glue', measurement: { $type: 'quantity', quantity: null } }),
         ]
 
         const { rerender, result } = renderHook(() => useInventoryData())
         rerender()
 
-        expect(listItemsQueryOptions).toHaveBeenCalledWith({ includeArchived: true, category: 'party-food' })
+        // every item is loaded so receiving a delivery isn't limited by the category filter
+        expect(listItemsQueryOptions).toHaveBeenCalledWith({ includeArchived: true })
         expect(result.current.isLoading).toBe(true)
         expect(result.current.shownItemCount).toBe(1)
         expect(result.current.needsCountItemCount).toBe(1)
-        expect(result.current.trackedItems[0].name).toBe('Paper plates')
+        expect(result.current.supplyItems[0].name).toBe('Paper plates')
     })
 
     it('falls back safely when queries have not returned data yet', () => {
@@ -142,8 +176,18 @@ describe('useInventoryData', () => {
 
         const { result } = renderHook(() => useInventoryData())
 
-        expect(result.current.itemCount).toBe(0)
-        expect(result.current.trackedStockCount).toBe(0)
         expect(result.current.stockByItemId.size).toBe(0)
+    })
+
+    it('reuses query options across re-renders', () => {
+        itemsData = []
+        stockData = []
+
+        const { rerender, result } = renderHook(() => useInventoryData())
+        rerender()
+
+        expect(listItemsQueryOptions).toHaveBeenCalledTimes(1)
+        expect(listStockQueryOptions).toHaveBeenCalledTimes(1)
+        expect(result.current.shownItemCount).toBe(0)
     })
 })

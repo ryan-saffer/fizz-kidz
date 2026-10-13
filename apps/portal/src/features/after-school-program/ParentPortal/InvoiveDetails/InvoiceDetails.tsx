@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Card, Typography } from 'antd'
 import React from 'react'
 
+import { assertNever } from '@fizz-kidz/core'
 import type { AfterSchoolEnrolment } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
@@ -57,7 +58,9 @@ const InvoiceDetails: React.FC<Props> = ({ appointment }) => {
                             return <InvoiceStatistic invoice={invoiceStatus} status="PAID" />
                         case 'UNPAID':
                             return <InvoiceStatistic invoice={invoiceStatus} status="UNPAID" />
-                        default:
+                        case 'VOID':
+                        case 'NOT_SENT':
+                        case 'UNSUPPORTED':
                             return (
                                 <>
                                     <p>Invoice not yet sent.</p>
@@ -67,6 +70,9 @@ const InvoiceDetails: React.FC<Props> = ({ appointment }) => {
                                     </p>
                                 </>
                             )
+                        default:
+                            assertNever(invoiceStatus)
+                            throw new Error(`Unhandled invoice status: ${JSON.stringify(invoiceStatus)}`)
                     }
                 }
             })()}

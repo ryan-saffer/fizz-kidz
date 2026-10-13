@@ -1,4 +1,4 @@
-import { ADDITIONS, getInventoryUsageRuleInventoryKey } from '@fizz-kidz/core'
+import { ADDITIONS, getInventoryUsageRuleInventoryKey, assertNever } from '@fizz-kidz/core'
 import type { InventoryUsageRule, InventoryUsageRuleQuantity } from '@fizz-kidz/core'
 
 import type { inventoryUsageRuleInputSchema } from './inventory.schemas'
@@ -49,5 +49,8 @@ export function formatInventoryUsageRuleQuantity(quantity: InventoryUsageRuleQua
             return `${quantity.quantityPerChild} per child`
         case 'fixed-plus-per-child':
             return `${quantity.fixedQuantity} per booking + ${quantity.quantityPerChild} per child`
+        default:
+            assertNever(quantity)
+            throw new Error(`Unhandled quantity.$operation: ${JSON.stringify(quantity)}`)
     }
 }

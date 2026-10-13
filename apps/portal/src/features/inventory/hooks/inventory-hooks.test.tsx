@@ -11,37 +11,38 @@ import { useInventoryUsageRules } from './use-inventory-usage-rules'
 const queryOptions = vi.fn((input: unknown, options?: unknown) => ({ input, options }))
 const useQuery = vi.fn()
 let currentOrg: 'master' | 'balwyn' | null = 'balwyn'
-let canWrite = true
+let canManageItems = true
 let canShoppingList = true
 
 vi.mock('@tanstack/react-query', () => ({
     useQuery: (options: unknown) => useQuery(options),
 }))
 
+function hasPermission(permission: string) {
+    if (permission === 'inventory:manage-items') return canManageItems
+    if (permission === 'inventory:shopping-list') return canShoppingList
+    return false
+}
+
 vi.mock('@session/use-org', () => ({
-    useOrg: () => ({
-        currentOrg,
-        hasPermission: (permission: string) => {
-            if (permission === 'inventory:write') return canWrite
-            if (permission === 'inventory:shopping-list') return canShoppingList
-            return false
-        },
-    }),
+    useOrg: () => ({ currentOrg, hasPermission }),
 }))
 
+const trpc = {
+    inventory: {
+        listUsageRules: { queryOptions },
+        generateShoppingList: { queryOptions },
+    },
+}
+
 vi.mock('@integrations/trpc', () => ({
-    useTRPC: () => ({
-        inventory: {
-            listUsageRules: { queryOptions },
-            generateShoppingList: { queryOptions },
-        },
-    }),
+    useTRPC: () => trpc,
 }))
 
 describe('inventory hooks', () => {
     beforeEach(() => {
         currentOrg = 'balwyn'
-        canWrite = true
+        canManageItems = true
         canShoppingList = true
         queryOptions.mockClear()
         useQuery.mockReset()
@@ -72,7 +73,7 @@ describe('inventory hooks', () => {
         expect(result.current.availableLocations.length).toBeGreaterThan(1)
     })
 
-    it('sorts usage rules and disables query without write permission', () => {
+    it('sorts usage rules and disables query without manage-items permission', () => {
         useQuery.mockReturnValue({
             data: [{ inventoryKey: 'z-key' }, { inventoryKey: 'a-key' }],
             isPending: false,
@@ -84,11 +85,11 @@ describe('inventory hooks', () => {
         expect(result.current.usageRules.map((rule) => rule.inventoryKey)).toEqual(['a-key', 'z-key'])
         expect(queryOptions).toHaveBeenCalledWith({ includeArchived: true }, { enabled: true })
 
-        canWrite = false
+        canManageItems = false
         renderHook(() => useInventoryUsageRules())
         expect(queryOptions).toHaveBeenLastCalledWith({ includeArchived: true }, { enabled: false })
 
-        canWrite = true
+        canManageItems = true
         useQuery.mockReturnValue({ data: undefined, isPending: true })
         const pendingResult = renderHook(() => useInventoryUsageRules()).result
         expect(pendingResult.current.isLoading).toBe(true)
@@ -122,5 +123,26 @@ describe('inventory hooks', () => {
         const invalidRangeResult = renderHook(() => useInventoryShoppingList()).result
         expect(invalidRangeResult.current.canGenerate).toBe(false)
         expect(invalidRangeResult.current.location).toBe('balwyn')
+    })
+
+    it('keeps hook results stable across re-renders with unchanged inputs', () => {
+        currentOrg = 'master'
+        const location = renderHook(() => useInventoryLocation())
+        const firstLocations = location.result.current.availableLocations
+        location.rerender()
+        expect(location.result.current.availableLocations).toBe(firstLocations)
+        expect(location.result.current.location).toBe(firstLocations[0])
+
+        const usageRulesData = [{ inventoryKey: 'b-key' }, { inventoryKey: 'a-key' }]
+        useQuery.mockReturnValue({ data: usageRulesData, isPending: false })
+        const usageRules = renderHook(() => useInventoryUsageRules())
+        const firstRules = usageRules.result.current.usageRules
+        usageRules.rerender()
+        expect(usageRules.result.current.usageRules).toBe(firstRules)
+        expect(firstRules.map((rule) => rule.inventoryKey)).toEqual(['a-key', 'b-key'])
+
+        const shoppingList = renderHook(() => useInventoryShoppingList())
+        shoppingList.rerender()
+        expect(shoppingList.result.current).toMatchObject({ canGenerate: true, location: 'master' })
     })
 })

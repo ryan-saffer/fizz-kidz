@@ -1,6 +1,7 @@
 import { Tag } from 'antd'
 import React from 'react'
 
+import { assertNever } from '@fizz-kidz/core'
 import type { AfterSchoolEnrolment, InvoiceStatusMap } from '@fizz-kidz/core'
 
 import Loader from '@shared/components/loader'
@@ -32,6 +33,13 @@ const InvoiceStatusCell: React.FC<Props> = ({ enrolment, invoiceStatusMap }) => 
                 colour = 'default'
                 text = 'VOID'
                 break
+            case 'UNSUPPORTED':
+                colour = 'default'
+                text = 'UNSUPPORTED'
+                break
+            default:
+                assertNever(result)
+                throw new Error(`Unhandled invoice status: ${JSON.stringify(result)}`)
         }
         return <Tag color={colour}>{text}</Tag>
     }

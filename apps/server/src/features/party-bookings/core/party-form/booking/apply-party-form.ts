@@ -14,6 +14,7 @@ import {
     getStudioContactEmail,
     getBookingCreationDisplayValues,
     getBookingAdditionDisplayValues,
+    isStockedPartyOrder,
 } from '@fizz-kidz/core'
 
 import { getPartyFormBookingUpdate } from './get-party-form-booking-update'
@@ -258,12 +259,20 @@ export async function applyPartyForm(payload: PartyForm, existingBooking: Bookin
         }
     }
 
+    // Werribee and Geelong sell cakes and take-home bags from studio stock, so the studio gets the order instead of
+    // the supplier (the stock was reserved when the party form was paid).
+    const isStockedOrder = isStockedPartyOrder(existingBooking.type, existingBooking.location)
+
     // email the cake company if a cake was chosen
     if (mappedBooking.cake) {
         try {
             await mailClient.sendEmail(
                 'cakeNotification',
-                env === 'prod' ? 'orders@birthdaycakeshop.com.au' : 'ryansaffer@gmail.com',
+                isStockedOrder
+                    ? studioContactEmail
+                    : env === 'prod'
+                      ? 'orders@birthdaycakeshop.com.au'
+                      : 'ryansaffer@gmail.com',
                 {
                     parentName: fullBooking.parentFirstName,
                     dateTime: DateTime.fromJSDate(existingBooking.dateTime, {
@@ -286,9 +295,11 @@ export async function applyPartyForm(payload: PartyForm, existingBooking: Bookin
                     cakeCandles: mappedBooking.cake.candles,
                     cakeMessage: mappedBooking.cake.message,
                 },
-                {
-                    bcc: [studioContactEmail],
-                }
+                isStockedOrder
+                    ? { subject: 'Cake reserved from studio stock' }
+                    : {
+                          bcc: [studioContactEmail],
+                      }
             )
         } catch (err) {
             logError(`error sending cake notification email for booking with id: ${bookingId}`, err, {
@@ -297,8 +308,8 @@ export async function applyPartyForm(payload: PartyForm, existingBooking: Bookin
         }
     }
 
-    // email birthday cake shop if new take home bags were ordered
-    if (mappedBooking.takeHomeBags && ObjectKeys(mappedBooking.takeHomeBags).length > 0) {
+    // email birthday cake shop if new take home bags were ordered (the studio already has them where they're stocked)
+    if (!isStockedOrder && mappedBooking.takeHomeBags && ObjectKeys(mappedBooking.takeHomeBags).length > 0) {
         try {
             await mailClient.sendEmail(
                 'takeHomeBagNotification',

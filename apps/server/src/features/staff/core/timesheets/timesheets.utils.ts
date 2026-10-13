@@ -1103,6 +1103,9 @@ export class TimesheetRow {
                     : this._isCOGSShift()
                       ? 'CGS OT - After 3 Hrs - Head Office'
                       : 'NON-CGS OT - After 3 Hrs - Head Office'
+            default:
+                assertNever(location)
+                throw new Error(`Unhandled location: ${JSON.stringify(location)}`)
         }
     }
 }

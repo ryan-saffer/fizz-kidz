@@ -32,6 +32,8 @@ export async function submitPartyForm({
         token,
         buyerVerificationToken,
         metadata: getCheckoutMetadata(payload),
+        // the summary may have been prepared a while ago, so check again (eg. the last cake sold since) before charging
+        revalidate: () => validatePartyForm(payload),
     })
     if (payment.status === 'processing') return payment
     try {

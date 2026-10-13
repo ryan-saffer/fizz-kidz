@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Button, Input, Popover, Typography } from 'antd'
 import { useState } from 'react'
 
+import { assertNever } from '@fizz-kidz/core'
 import type { DiscountCode } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
@@ -26,6 +27,9 @@ const DiscountInput = ({ numberOfKids, parentEmail }: { numberOfKids: number; pa
                 return total * (discount.discountAmount / 100)
             case 'price':
                 return discount.discountAmount
+            default:
+                assertNever(discount.discountType)
+                throw new Error(`Unhandled discount.discountType: ${JSON.stringify(discount.discountType)}`)
         }
     }
 

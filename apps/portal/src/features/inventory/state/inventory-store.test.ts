@@ -49,6 +49,8 @@ function resetInventoryStore() {
         editingItem: null,
         editingUsageRule: null,
         stockAction: null,
+        isReceiveDeliveryOpen: false,
+        historyItem: null,
         showHiddenItems: false,
     })
 }
@@ -81,21 +83,29 @@ describe('inventory store', () => {
         useInventoryStore.getState().setCreateUsageRuleDialogOpen(true)
         useInventoryStore.getState().openEditDialog(item)
         useInventoryStore.getState().openEditUsageRuleDialog(usageRule)
-        useInventoryStore.getState().openStockActionDialog('set', item, stock)
+        useInventoryStore.getState().openStockActionDialog('count', item, stock)
+        useInventoryStore.getState().setReceiveDeliveryOpen(true)
+        useInventoryStore.getState().openHistoryDialog(item)
 
         expect(useInventoryStore.getState().isCreateDialogOpen).toBe(true)
         expect(useInventoryStore.getState().isCreateUsageRuleDialogOpen).toBe(true)
         expect(useInventoryStore.getState().editingItem).toBe(item)
         expect(useInventoryStore.getState().editingUsageRule).toBe(usageRule)
-        expect(useInventoryStore.getState().stockAction).toEqual({ $type: 'set', item, stock })
+        expect(useInventoryStore.getState().stockAction).toEqual({ $type: 'count', item, stock })
+        expect(useInventoryStore.getState().isReceiveDeliveryOpen).toBe(true)
+        expect(useInventoryStore.getState().historyItem).toBe(item)
 
         useInventoryStore.getState().closeEditDialog()
         useInventoryStore.getState().closeEditUsageRuleDialog()
         useInventoryStore.getState().closeStockActionDialog()
+        useInventoryStore.getState().setReceiveDeliveryOpen(false)
+        useInventoryStore.getState().closeHistoryDialog()
 
         expect(useInventoryStore.getState().editingItem).toBeNull()
         expect(useInventoryStore.getState().editingUsageRule).toBeNull()
         expect(useInventoryStore.getState().stockAction).toBeNull()
+        expect(useInventoryStore.getState().isReceiveDeliveryOpen).toBe(false)
+        expect(useInventoryStore.getState().historyItem).toBeNull()
     })
 
     it('toggles hidden item visibility from boolean or updater', () => {

@@ -76,6 +76,18 @@ describe('paying a checkout', () => {
         )
         expect(mocks.updateDiscount).toHaveBeenCalledWith('SAVE', expect.anything())
     })
+    it('rechecks the booking flow just before charging an unpaid order, and stops the charge if it fails', async () => {
+        const revalidate = vi.fn().mockRejectedValue(new Error('Sorry, the Unicorn cake has just sold out.'))
+        await expect(payCheckout({ ...input, revalidate })).rejects.toThrow('just sold out')
+        expect(revalidate).toHaveBeenCalledOnce()
+        expect(mocks.take).not.toHaveBeenCalled()
+    })
+    it('doesn’t recheck an order that is already paid, so a replay still completes', async () => {
+        mocks.getOrder.mockResolvedValue(squareOrder({ state: 'COMPLETED', tenders: [{ paymentId: 'card-payment' }] }))
+        const revalidate = vi.fn().mockRejectedValue(new Error('sold out'))
+        expect(await payCheckout({ ...input, revalidate })).toMatchObject({ status: 'paid' })
+        expect(revalidate).not.toHaveBeenCalled()
+    })
     it('returns paid for an order that is already paid, without charging again', async () => {
         mocks.getOrder.mockResolvedValue(squareOrder({ state: 'COMPLETED', tenders: [{ paymentId: 'card-payment' }] }))
         expect(await payCheckout(input)).toEqual({ status: 'paid', receiptUrl: 'https://receipt.example.com' })

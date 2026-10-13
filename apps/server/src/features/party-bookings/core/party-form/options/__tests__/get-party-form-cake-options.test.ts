@@ -2,9 +2,15 @@ import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { getSquareLocationId, PARTY_CAKE_SQUARE_CATALOG } from '@fizz-kidz/core'
 
-import { getPartyFormCakeOptions } from '../get-party-form-cake-options'
+import { getPartyFormCakeOptions, getStockedPartyFormCakeOptions } from '../get-party-form-cake-options'
 
-const { getOptions } = vi.hoisted(() => ({ getOptions: vi.fn() }))
+const { getOptions, orderable, supplies } = vi.hoisted(() => ({
+    getOptions: vi.fn(),
+    orderable: vi.fn(),
+    supplies: vi.fn(),
+}))
+vi.mock('@/features/inventory/core/inventory.cake-supplies', () => ({ getCakeSuppliesByOption: supplies }))
+vi.mock('@/features/inventory/core/inventory.reservations', () => ({ getOrderableInventory: orderable }))
 vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
 vi.mock('@/integrations/square/core/get-catalog-item-options', async (importOriginal) => ({
     ...(await importOriginal<object>()),
@@ -76,5 +82,44 @@ describe('party form cake options from Square', () => {
     it('fails when a cake modifier list is missing from the cake item', async () => {
         getOptions.mockResolvedValue({ variations: [], modifierLists: new Map() })
         await expect(getPartyFormCakeOptions('malvern')).rejects.toThrow('not enabled on the cake item')
+    })
+
+    it('offers studio-stock cakes in medium only, chocolate and vanilla, showing stocked designs and which are sold out', async () => {
+        const medium = PARTY_CAKE_SQUARE_CATALOG.dev.mediumSizeVariationId
+        getOptions.mockResolvedValue({
+            variations: [option('small'), { ...option(medium), name: 'Medium' }],
+            modifierLists: new Map([
+                list(designListId, [option('rainbow'), option('unicorn'), option('dino')]),
+                list(flavourListId, [
+                    { ...option('choc'), name: 'Chocolate' },
+                    { ...option('van'), name: 'Vanilla' },
+                    option('mango'),
+                ]),
+                list(servingListId, [option('cup', 1900), option('waffle-cone', 1900), option('own-bowls')]),
+                list(candleListId, [option('candles', 1200), option('own-candles')]),
+            ]),
+        })
+        // the studio stocks cups and spoons but not waffle cones or candles
+        supplies.mockResolvedValue(new Map([['cup', [{ id: 'cups' }, { id: 'spoons' }]]]))
+        orderable.mockResolvedValue(
+            new Map([
+                ['unicorn', { available: 2 }],
+                ['dino', { available: 0 }],
+            ])
+        )
+
+        const result = await getStockedPartyFormCakeOptions('werribee')
+
+        expect(orderable).toHaveBeenCalledWith('werribee')
+        expect(result.sizes.map(({ id }) => id)).toEqual([medium])
+        // rainbow isn't stocked at the studio, so it isn't shown at all
+        expect(result.designs.map(({ id, soldOut }) => [id, soldOut])).toEqual([
+            ['unicorn', false],
+            ['dino', true],
+        ])
+        expect(result).toMatchObject({ minFlavours: 2, maxFlavours: 2, fixedFlavours: ['Chocolate', 'Vanilla'] })
+        // paid options are only offered where the studio stocks their supplies; 'bring my own' always is
+        expect(result.servingOptions.map(({ id }) => id)).toEqual(['cup', 'own-bowls'])
+        expect(result.candleOptions.map(({ id }) => id)).toEqual(['own-candles'])
     })
 })

@@ -1,12 +1,14 @@
 import { useMutation } from '@tanstack/react-query'
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 
+import { assertNever } from '@fizz-kidz/core'
 import type { PartyFormMode } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
 
 import { useCreatePartyForm } from '../state/form'
 import { usePartyFormApi, usePartyFormStore, type PartyFormConfig } from '../state/party-form-store'
+import { getConfigForMode } from '../state/steps'
 import { PartyNavigation } from './layout/navigation'
 import { PartyComplete } from './layout/party-complete'
 import { PartyProgress } from './layout/progress'
@@ -23,7 +25,8 @@ import { GoodiesStep } from './steps/goodies-step'
 import { PartyReview } from './steps/review-step'
 
 /** The guided party form: welcome, one step at a time, then review and payment. How it works is in the store. */
-export function PartyForm({ config, mode }: { config: PartyFormConfig; mode: PartyFormMode }) {
+export function PartyForm({ config: loadedConfig, mode }: { config: PartyFormConfig; mode: PartyFormMode }) {
+    const config = useMemo(() => getConfigForMode(loadedConfig, mode), [loadedConfig, mode])
     const trpc = useTRPC()
     const form = useCreatePartyForm(config)
     const { mutateAsync: prepare } = useMutation(trpc.parties.preparePartyForm.mutationOptions())
@@ -57,6 +60,9 @@ export function PartyForm({ config, mode }: { config: PartyFormConfig; mode: Par
             )
         case 'steps':
             return <PartySteps />
+        default:
+            assertNever(stage)
+            throw new Error(`Unhandled stage: ${JSON.stringify(stage)}`)
     }
 }
 
@@ -105,6 +111,9 @@ function PartySteps() {
                             return <AboutStep key={key} />
                         case 'review':
                             return null
+                        default:
+                            assertNever(key)
+                            throw new Error(`Unhandled key: ${JSON.stringify(key)}`)
                     }
                 })}
 

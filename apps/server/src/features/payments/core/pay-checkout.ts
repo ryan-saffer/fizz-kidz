@@ -22,6 +22,11 @@ export type PayCheckoutInput = {
     buyerVerificationToken: string
     /** Booking metadata the order must carry (as passed to `prepareCheckout`), so it can't pay for something else. */
     metadata?: Record<string, string>
+    /**
+     * Rechecks the booking flow's answers (e.g. stock still available) just before an unpaid order is charged, since
+     * time can pass between preparing and paying. Throw to stop the charge. Skipped for an order that's already paid.
+     */
+    revalidate?: () => Promise<unknown>
 }
 
 /**
@@ -58,6 +63,7 @@ export async function payCheckout(input: PayCheckoutInput): Promise<PayCheckoutR
         throwTrpcError('BAD_REQUEST', 'The payment order is no longer available. Please refresh the payment summary.')
 
     await revalidateDiscountCode(order, checkout)
+    await input.revalidate?.()
     const totalCents = Number(order.totalMoney?.amount ?? 0)
     if (totalCents > checkout.giftCardCents && !input.token)
         throwTrpcError('BAD_REQUEST', 'Please enter your card details.')

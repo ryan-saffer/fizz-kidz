@@ -14,6 +14,7 @@ export function QuantityCard({
     imageUrl,
     price,
     minimum,
+    maximum = MAX_QUANTITY,
     alreadyOrdered = 0,
     value,
     onChange,
@@ -23,11 +24,16 @@ export function QuantityCard({
     imageUrl: string | null
     price: string
     minimum: number
+    /** Most that can be ordered, eg. what's left in studio stock. Below `minimum`, it can't be ordered at all. */
+    maximum?: number
     /** Ordered earlier (e.g. with the cake form). New quantities are added on top. */
     alreadyOrdered?: number
     value: number
     onChange: (value: number) => void
 }) {
+    // stock left is only mentioned once it stops them: too few for a first order, or they've reached it
+    const soldOut = value === 0 && maximum < minimum
+    const atLimit = value > 0 && value >= maximum && maximum < MAX_QUANTITY
     const stepButton =
         'grid h-9 w-9 place-items-center rounded-full text-party-pink enabled:hover:bg-[#f3e8f5] disabled:opacity-30'
     return (
@@ -81,12 +87,20 @@ export function QuantityCard({
                             type="button"
                             className={stepButton}
                             aria-label={`Add one ${name}`}
-                            disabled={value >= MAX_QUANTITY}
+                            disabled={value >= Math.min(maximum, MAX_QUANTITY) || soldOut}
                             onClick={() => onChange(value === 0 ? minimum : value + 1)}
                         >
                             <Plus size={16} aria-hidden="true" />
                         </button>
                     </div>
+                    {soldOut || atLimit ? (
+                        <div className="text-xs leading-[1.45] text-party-muted">
+                            <p className="font-semibold text-party-pink">
+                                {soldOut ? 'Sold out.' : "That's all we have available."}
+                            </p>
+                            <p>{soldOut ? "If you'd like some" : 'To order more'}, please contact our team.</p>
+                        </div>
+                    ) : null}
                 </div>
             </div>
         </div>

@@ -1,5 +1,7 @@
 # Inventory System Implementation Plan
 
+> Superseded for go-live by [`feature-plans/stocked-cakes-and-inventory.md`](feature-plans/stocked-cakes-and-inventory.md). Kept as history of the original consumables design.
+
 ## Goal
 
 Build a first-party inventory system for Fizz Kidz, starting with party food and keeping the data model broad enough to later support consumables such as glue, slime containers, take-home bag supplies, and other operational stock.

@@ -31,7 +31,7 @@ npm run verify          # Fix checks + tests
 npm run verify:full     # Include Astro checks
 ```
 
-Scope tests with `vp test --run --project <name>` (`portal`, `server`, `website`, `core` or `ui`). Build Astro apps with `npm run build --workspace docs` or `npm run build --workspace website`.
+Scope tests with `vp test --run --project <name>` (`portal`, `server`, `website`, `core` or `ui`). Add `--coverage` for a coverage report: a table in the terminal, and one HTML report at `coverage/index.html` covering every source file in portal, server, website and core (untested files show as 0%). Build Astro apps with `npm run build --workspace docs` or `npm run build --workspace website`.
 
 ## Boundaries
 
@@ -58,5 +58,25 @@ Reviews (and new code) follow these rules:
 - Avoid Firestore unless it's absolutely necessary; the plan is to migrate off it. Don't add collections, documents or fields for edge cases like locks, claims or processing markers on an order or booking. If Firestore seems genuinely needed, ask first.
 - Follow the app's existing patterns. Don't add architecture for a single use case (e.g. a dedicated tRPC middleware or router changes for one feature). If something genuinely needs it, ask first; if the existing architecture has a real problem affecting the wider codebase, raise it as an issue instead of solving it for one feature.
 - Keep the website chat in sync with the website. When a change affects customer-facing website content (services, packages, prices, dates, policies, studios, links or page URLs), finish by updating Frankie's knowledge (see Skills).
+
+## TypeScript Conventions
+
+- Discriminated unions use a `$`-prefixed discriminant, e.g. `$type`, `$trackingMode`, `$operation`, so the tag is easy to spot and never clashes with a real field.
+- A `switch` over a finite set of values (a discriminated union, a string literal union or an enum) lists every value as a `case` and ends with a `default` that calls `assertNever` from `@fizz-kidz/core`. Adding a value to the type then fails to compile until every switch handles it. Don't use `default` to cover the remaining values.
+  - Pass the narrowed value: the whole object when switching on its discriminant (`switch (change.$type)` then `assertNever(change)`), otherwise the switched value itself.
+  - Follow `assertNever` with `throw new Error(...)`, so functions that return a value still type-check. For input from outside the system (e.g. a webhook), log and ignore instead.
+  - Switches over open types (plain `string`, `number`, `switch (true)`) don't need it.
+
+```ts
+switch (change.$type) {
+  case 'received':
+    return receive(change)
+  case 'removed':
+    return remove(change)
+  default:
+    assertNever(change)
+    throw new Error(`Unhandled stock change: ${JSON.stringify(change)}`)
+}
+```
 
 Do not touch unrelated worktree changes or commit credentials. Build the affected app after changing build configuration, and update the nearest README when an important boundary changes.

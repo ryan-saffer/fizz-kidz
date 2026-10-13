@@ -1,10 +1,11 @@
 import { FieldValue } from 'firebase-admin/firestore'
 import { z } from 'zod'
 
+import { assertSquareLinkAvailable } from './inventory.items.link'
 import {
+    inventoryCakeSupplyUseSchema,
     inventoryCategorySchema,
     inventoryKeySchema,
-    inventoryPurchaseOptionSchema,
     inventoryUnitSchema,
 } from './inventory.schemas'
 
@@ -21,8 +22,8 @@ export const updateInventoryItemInputSchema = z.object({
             status: z.enum(['active', 'archived']).optional(),
             baseUnit: inventoryUnitSchema,
             runningLowThreshold: z.number().nonnegative().nullable(),
-            minimumTargetQuantity: z.number().nonnegative().nullable().optional(),
-            purchaseOptions: z.array(inventoryPurchaseOptionSchema).optional(),
+            squareCatalogObjectId: z.string().trim().min(1).nullable().optional(),
+            usedPer: inventoryCakeSupplyUseSchema.nullable().optional(),
             notes: z.string().optional(),
         }),
         z.object({
@@ -32,7 +33,6 @@ export const updateInventoryItemInputSchema = z.object({
             category: inventoryCategorySchema.optional(),
             status: z.enum(['active', 'archived']).optional(),
             baseUnit: inventoryUnitSchema.optional(),
-            purchaseOptions: z.array(inventoryPurchaseOptionSchema).optional(),
             notes: z.string().optional(),
         }),
         z.object({
@@ -40,7 +40,6 @@ export const updateInventoryItemInputSchema = z.object({
             inventoryKey: inventoryKeySchema.nullable().optional(),
             category: inventoryCategorySchema.optional(),
             status: z.enum(['active', 'archived']).optional(),
-            purchaseOptions: z.array(inventoryPurchaseOptionSchema).optional(),
             notes: z.string().optional(),
         }),
     ]),
@@ -49,14 +48,21 @@ export const updateInventoryItemInputSchema = z.object({
 export type UpdateInventoryItemInput = z.infer<typeof updateInventoryItemInputSchema>
 
 export async function updateInventoryItem(input: UpdateInventoryItemInput) {
-    const itemUpdate = {
+    const { inventoryKey, squareCatalogObjectId, usedPer, ...item } = {
+        squareCatalogObjectId: undefined as string | null | undefined,
+        usedPer: undefined as 'party' | 'child' | null | undefined,
         ...input.item,
-        inventoryKey: input.item.inventoryKey === null ? FieldValue.delete() : input.item.inventoryKey,
-        updatedAt: new Date(),
     }
+    await assertSquareLinkAvailable({ squareCatalogObjectId, category: input.item.category, itemId: input.itemId })
 
     await DatabaseClient.updateInventoryItem(input.itemId, {
-        ...itemUpdate,
+        ...item,
+        inventoryKey: inventoryKey === null ? FieldValue.delete() : inventoryKey,
+        ...(squareCatalogObjectId !== undefined && {
+            squareCatalogObjectId: squareCatalogObjectId === null ? FieldValue.delete() : squareCatalogObjectId,
+        }),
+        ...(usedPer !== undefined && { usedPer: usedPer === null ? FieldValue.delete() : usedPer }),
+        updatedAt: new Date(),
     })
 
     return DatabaseClient.getInventoryItem(input.itemId)

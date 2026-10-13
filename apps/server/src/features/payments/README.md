@@ -55,11 +55,11 @@ Until the key is set the webhook refuses every event (and logs it), and payments
 
 ## How it works
 
-There is no database record of a checkout. The unpaid Square order is the checkout: it holds the priced items and the discount code's order discount, and its metadata holds the program, customer, discount code and gift-card share (`core/checkout-order.ts`). Square allows ten metadata entries; checkouts use up to seven and leave three for the booking flow (e.g. its booking id); Square rejects more.
+There is no database record of a checkout. The unpaid Square order is the checkout: it holds the priced items and the discount code's order discount, and its metadata holds the program, customer, discount code and gift-card share (`core/checkout-order.ts`). Square allows ten metadata entries; checkouts use up to seven and leave three for the booking flow (e.g. its booking id); Square rejects more. Two of the seven are the discount code's, so a flow that never takes a code (the party checkout) can use five.
 
 `core/take-checkout-payment.ts` authorises the gift-card share and the card or wallet for the rest (both with `autocomplete: false`), then pays the order with both, so the customer is charged all at once or not at all. A 4xx from Square is a definite failure (nothing was charged): any authorisation so far is released and the customer prepares a new checkout. Only transport failures and 5xx responses are unclear and return `processing`. Every Square call uses an idempotency key derived from the order id, so a replay returns the original payments instead of charging again. Wallet payments need no buyer verification token.
 
-Before charging, `payCheckout` re-checks the discount code (expired, used up, already redeemed by this customer, or changed amount). Once the order is paid it records the use in `discountCodeRedemptions` (keyed by order id, so a replay finds it and doesn't count it twice) and increments the code's use count. A fixed-amount code larger than the order covers all of it.
+Before charging, `payCheckout` re-checks the discount code (expired, used up, already redeemed by this customer, or changed amount). A booking flow can also pass `revalidate`, which runs at the same point, only while the order is unpaid, to check its own answers again (e.g. the party form rechecks studio stock, since time can pass between preparing and paying); throwing stops the charge, and an already-paid replay skips it. Once the order is paid it records the use in `discountCodeRedemptions` (keyed by order id, so a replay finds it and doesn't count it twice) and increments the code's use count. A fixed-amount code larger than the order covers all of it.
 
 ## Known trade-offs
 
