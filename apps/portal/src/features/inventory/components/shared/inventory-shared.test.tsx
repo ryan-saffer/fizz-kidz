@@ -3,7 +3,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { InventoryPageHeader } from './inventory-page-header'
+import { InventoryNotice } from './inventory-notice'
 import { InventorySectionHeading } from './inventory-section-heading'
 
 afterEach(() => {
@@ -21,15 +21,18 @@ describe('inventory shared components', () => {
         expect(screen.getByText('Current stock levels')).toBeTruthy()
     })
 
-    it('renders page header stats', () => {
-        const { rerender } = render(<InventoryPageHeader itemCount={12} trackedCount={8} />)
-        rerender(<InventoryPageHeader itemCount={12} trackedCount={8} />)
-        rerender(<InventoryPageHeader itemCount={13} trackedCount={9} />)
+    it('styles notices by tone and keeps content when re-rendered', () => {
+        const { container, rerender } = render(<InventoryNotice tone="info">Count everything</InventoryNotice>)
+        expect(container.firstElementChild?.className).toContain('bg-sky-50')
 
-        expect(screen.getByText('Consumables stock')).toBeTruthy()
-        expect(screen.getByText('Items')).toBeTruthy()
-        expect(screen.getByText('Tracked here')).toBeTruthy()
-        expect(screen.getByText('13')).toBeTruthy()
-        expect(screen.getByText('9')).toBeTruthy()
+        rerender(<InventoryNotice tone="info">Count everything</InventoryNotice>)
+        rerender(<InventoryNotice tone="info">Count again</InventoryNotice>)
+        expect(screen.getByText('Count again')).toBeTruthy()
+
+        rerender(<InventoryNotice tone="warning">Count again</InventoryNotice>)
+        expect(container.firstElementChild?.className).toContain('bg-amber-50')
+
+        rerender(<InventoryNotice tone="danger">Count again</InventoryNotice>)
+        expect(container.firstElementChild?.className).toContain('bg-red-50')
     })
 })

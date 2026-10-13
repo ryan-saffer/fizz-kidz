@@ -8,6 +8,7 @@ import type { TerminalCheckoutServer } from '@features/terminal-checkout/state/t
 
 import {
     estimateCharge,
+    getCheckoutSteps,
     getEstimateLines,
     useCheckoutStore,
     type CheckoutAnswers,
@@ -25,11 +26,20 @@ const config = {
         { partyLength: '1.5', includesFood: true, name: '1.5 Hour Party', priceCents: 4700, imageUrl: null },
         { partyLength: '2', includesFood: false, name: '2 Hour Party', priceCents: 5300, imageUrl: null },
     ],
+    cake: null,
     additions: [
         { key: 'fairyBread', name: 'Fairy Bread', description: null, imageUrl: null, priceCents: 3000 },
         { key: 'wedges', name: 'Wedges', description: null, imageUrl: null, priceCents: 3000 },
     ],
-    prefill: { partyLength: '1.5', includesFood: true, childrenCount: 14, additions: ['fairyBread'] },
+    prefill: {
+        partyLength: '1.5',
+        includesFood: true,
+        childrenCount: 14,
+        additions: ['fairyBread'],
+        cakeUsed: true,
+        cakeServingUsed: false,
+        cakeCandlesUsed: false,
+    },
 } as CheckoutConfig
 const store = () => useCheckoutStore.getState()
 
@@ -60,5 +70,23 @@ describe('the party checkout', () => {
         expect(store()).toMatchObject({ stage: 'charging', onTerminal: { checkoutId: 'order' } })
         expect(status).toHaveBeenCalledWith({ checkoutId: 'order', terminalCheckoutId: 'terminal' })
         localStorage.clear()
+    })
+
+    it('adds a cake step for a studio-stock cake, before review', () => {
+        expect(getCheckoutSteps(config).map((step) => step.key)).toEqual(['party', 'food'])
+        const withCake = {
+            ...config,
+            cake: { selection: 'Unicorn', serving: { supplies: ['Cups'], ordered: true }, candles: null },
+        } as CheckoutConfig
+        expect(getCheckoutSteps(withCake).map((step) => step.key)).toEqual(['party', 'food', 'cake'])
+
+        store().open(booking)
+        store().init({
+            config: withCake,
+            server: {} as TerminalCheckoutServer<CheckoutAnswers>,
+            steps: getCheckoutSteps(withCake),
+        })
+        expect(store().steps.map((step) => step.key)).toEqual(['party', 'food', 'cake', 'review'])
+        expect(store().answers).toMatchObject({ cakeUsed: true, cakeServingUsed: false, cakeCandlesUsed: false })
     })
 })

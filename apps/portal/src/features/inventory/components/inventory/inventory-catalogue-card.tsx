@@ -1,7 +1,7 @@
-import { PackagePlus, Search, X } from 'lucide-react'
+import { ClipboardList, PackageCheck, PackagePlus, Search, X } from 'lucide-react'
 import { startTransition } from 'react'
 
-import { INVENTORY_CATEGORIES } from '@fizz-kidz/core'
+import { INVENTORY_CATEGORIES, isOrderableInventoryCategory } from '@fizz-kidz/core'
 import type { InventoryCategory, Studio } from '@fizz-kidz/core'
 
 import { useOrg } from '@session/use-org'
@@ -24,7 +24,7 @@ import { cn } from '@shared/lib/tailwind'
 import { useInventoryActions } from '../../hooks/use-inventory-actions'
 import { useInventoryData } from '../../hooks/use-inventory-data'
 import { useInventoryStore } from '../../state/inventory-store'
-import { ALL_CATEGORIES, primaryButtonClass } from '../../utils/inventory.constants'
+import { ALL_CATEGORIES, primaryButtonClass, secondaryButtonClass } from '../../utils/inventory.constants'
 import { formatCategory, pluraliseItem } from '../../utils/inventory.utils'
 import { InventoryItemForm } from './inventory-item-form'
 import { InventoryItemsTable } from './inventory-items-table'
@@ -32,12 +32,34 @@ import { StockStatusFilters } from './stock-status-filters'
 
 import type { ReactNode } from 'react'
 
+const SECTION_DESCRIPTIONS: Record<InventoryCategory, string> = {
+    cakes: "Ordered on the party form. Each order reserves a cake until the party, so 'here' includes reserved cakes and only what's available can be ordered.",
+    'take-home-bags':
+        "Ordered on the party form. Each order reserves bags until the party, so 'here' includes reserved bags and only what's available can be ordered.",
+    'cake-supplies':
+        'Cups, spoons and candles for studio cakes. What a party used comes off when it is paid on the studio terminal.',
+    'party-food': 'Party food this studio currently uses and tracks.',
+}
+
 export function InventoryCatalogueCard() {
     const data = useInventoryData()
     const actions = useInventoryActions()
     const { hasPermission } = useOrg()
-    const canEdit = hasPermission('inventory:write')
+    const canManageItems = hasPermission('inventory:manage-items')
+    const canUpdateStock = hasPermission('inventory:update-stock')
     const categoryFilter = useInventoryStore((state) => state.categoryFilter)
+    // one section per category with items, following the category filter
+    const trackedItems = [...data.orderableItems, ...data.supplyItems]
+    const sections = INVENTORY_CATEGORIES.filter(
+        (category) => categoryFilter === ALL_CATEGORIES || categoryFilter === category
+    ).flatMap((category) => {
+        const items = trackedItems.filter((item) => item.category === category)
+        return items.length > 0 ? [{ category, items }] : []
+    })
+    // delivery and count buttons show wherever the studio stocks cakes or bags, even when a search matches none
+    const showStockActions =
+        canUpdateStock &&
+        data.receivableItems.some((item) => categoryFilter === ALL_CATEGORIES || item.category === categoryFilter)
     const stockStatusFilter = useInventoryStore((state) => state.stockStatusFilter)
     const search = useInventoryStore((state) => state.search)
     const isCreateDialogOpen = useInventoryStore((state) => state.isCreateDialogOpen)
@@ -49,6 +71,9 @@ export function InventoryCatalogueCard() {
     const setCreateDialogOpen = useInventoryStore((state) => state.setCreateDialogOpen)
     const openEditDialog = useInventoryStore((state) => state.openEditDialog)
     const openStockActionDialog = useInventoryStore((state) => state.openStockActionDialog)
+    const openHistoryDialog = useInventoryStore((state) => state.openHistoryDialog)
+    const setReceiveDeliveryOpen = useInventoryStore((state) => state.setReceiveDeliveryOpen)
+    const setCountAllOpen = useInventoryStore((state) => state.setCountAllOpen)
     const setShowHiddenItems = useInventoryStore((state) => state.setShowHiddenItems)
 
     return (
@@ -57,7 +82,7 @@ export function InventoryCatalogueCard() {
                 <CatalogueHeading
                     location={data.location}
                     shownItemCount={data.shownItemCount}
-                    canEdit={canEdit}
+                    canEdit={canManageItems}
                     createItemButton={
                         <Dialog open={isCreateDialogOpen} onOpenChange={setCreateDialogOpen}>
                             <DialogTrigger asChild>
@@ -69,8 +94,9 @@ export function InventoryCatalogueCard() {
                                 <DialogHeader>
                                     <DialogTitle>Create inventory item</DialogTitle>
                                     <DialogDescription>
-                                        Add consumable items only. Reusable equipment should stay out of inventory. New
-                                        items are created for every studio and can be marked unused where needed.
+                                        Inventory only tracks food: party food, plus cakes and take-home bags customers
+                                        order from studio stock. New items are created for every studio and can be
+                                        marked unused where needed.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <InventoryItemForm
@@ -103,23 +129,53 @@ export function InventoryCatalogueCard() {
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col gap-8">
-                    <InventoryItemsTable
-                        title="Tracked here"
-                        description="Items this studio currently uses and actively tracks."
-                        emptyTitle="No tracked inventory items found."
-                        emptyDescription="Create an item or mark an unused item as tracked here."
-                        isLoading={data.isLoading}
-                        items={data.trackedItems}
-                        location={data.location}
-                        canEdit={canEdit}
-                        isAdjustStockPending={actions.isAdjustStockPending}
-                        isSetStockedPending={actions.isSetStockedPending}
-                        onEditItem={openEditDialog}
-                        onMarkQuantityUnknown={actions.markQuantityUnknown}
-                        onOpenStockAction={openStockActionDialog}
-                        onSetStocked={actions.setItemStocked}
-                        stockByItemId={data.stockByItemId}
-                    />
+                    {showStockActions ? (
+                        <div className="flex flex-wrap gap-2">
+                            <Button className={primaryButtonClass} onClick={() => setReceiveDeliveryOpen(true)}>
+                                <PackageCheck className="mr-2 h-4 w-4" /> Receive delivery
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className={secondaryButtonClass}
+                                onClick={() => setCountAllOpen(true)}
+                            >
+                                <ClipboardList className="mr-2 h-4 w-4" /> Count stock
+                            </Button>
+                        </div>
+                    ) : null}
+                    {sections.map((section) => (
+                        <InventoryItemsTable
+                            key={section.category}
+                            title={formatCategory(section.category)}
+                            description={SECTION_DESCRIPTIONS[section.category]}
+                            emptyTitle={`No ${formatCategory(section.category).toLowerCase()} found.`}
+                            emptyDescription={
+                                isOrderableInventoryCategory(section.category)
+                                    ? 'Nothing matches the current filters.'
+                                    : 'Create an item or mark an unused item as tracked here.'
+                            }
+                            items={section.items}
+                            isLoading={data.isLoading}
+                            location={data.location}
+                            canManageItems={canManageItems}
+                            canUpdateStock={canUpdateStock}
+                            isStockChangePending={actions.isStockChangePending}
+                            isSetStockedPending={actions.isSetStockedPending}
+                            onEditItem={openEditDialog}
+                            onMarkQuantityUnknown={actions.markQuantityUnknown}
+                            onOpenStockAction={openStockActionDialog}
+                            onOpenHistory={openHistoryDialog}
+                            onSetStocked={actions.setItemStocked}
+                            stockByItemId={data.stockByItemId}
+                        />
+                    ))}
+                    {sections.length === 0 && !data.isLoading ? (
+                        <p className="m-0 rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-500">
+                            {categoryFilter === ALL_CATEGORIES
+                                ? 'No items found.'
+                                : `No ${formatCategory(categoryFilter).toLowerCase()} found.`}
+                        </p>
+                    ) : null}
                     {data.hiddenItems.length > 0 ? (
                         <Button
                             type="button"
@@ -138,15 +194,17 @@ export function InventoryCatalogueCard() {
                             description="Archived catalogue items and global items this studio does not currently use. This is not the same as being out of stock."
                             emptyTitle="No hidden items."
                             emptyDescription="Every matching item is active and currently tracked at this studio."
-                            isLoading={data.isLoading}
                             items={data.hiddenItems}
+                            isLoading={data.isLoading}
                             location={data.location}
-                            canEdit={canEdit}
-                            isAdjustStockPending={actions.isAdjustStockPending}
+                            canManageItems={canManageItems}
+                            canUpdateStock={canUpdateStock}
+                            isStockChangePending={actions.isStockChangePending}
                             isSetStockedPending={actions.isSetStockedPending}
                             onEditItem={openEditDialog}
                             onMarkQuantityUnknown={actions.markQuantityUnknown}
                             onOpenStockAction={openStockActionDialog}
+                            onOpenHistory={openHistoryDialog}
                             onSetStocked={actions.setItemStocked}
                             stockByItemId={data.stockByItemId}
                         />
@@ -171,7 +229,7 @@ function CatalogueHeading({
     return (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-                <CardTitle className="text-2xl">Inventory catalogue</CardTitle>
+                <CardTitle className="font-lilita text-3xl tracking-wide">Inventory</CardTitle>
                 <CardDescription>
                     Viewing stock for {location ? getOrgName(location) : 'selected studio'}.
                 </CardDescription>

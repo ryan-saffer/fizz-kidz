@@ -4,7 +4,11 @@ import type { Studio } from '../core/studio'
 import type { BirthdayPartyBookingCatalogue } from './birthday-party-catalogue'
 import type { BaseBooking, Booking } from './booking'
 
-const CAKE_ORDER_EXCLUDED_STUDIOS: Studio[] = ['geelong', 'werribee']
+/**
+ * Studios our cake supplier can't reach weekly. They get a monthly delivery instead, so cakes and
+ * take-home bags there are sold from studio stock tracked in inventory.
+ */
+export const STOCKED_PARTY_ORDER_STUDIOS: Studio[] = ['geelong', 'werribee']
 
 export function getBookingCreationDisplayValues(booking: BaseBooking, catalogue?: BirthdayPartyBookingCatalogue) {
     return [booking.creation1, booking.creation2, booking.creation3]
@@ -71,6 +75,21 @@ export function getPartyChildCapacityMessages(location: Studio) {
     return ['4 and 5 years old - max 24 kids', '6 years plus - max 30 kids']
 }
 
+/** Whether cakes and take-home bags for this party come from studio stock rather than the supplier. */
+export function isStockedPartyOrder(type: Booking['type'], studio: Studio) {
+    return type === 'studio' && STOCKED_PARTY_ORDER_STUDIOS.includes(studio)
+}
+
+/**
+ * Where a party's cake comes from. Supplier cakes can be ordered any time (including the cake form); studio-stock
+ * cakes only on the party form, from what the studio has available. `null` when cakes can't be ordered.
+ */
+export function getPartyCakeSource(type: Booking['type'], studio: Studio): 'supplier' | 'studio-stock' | null {
+    if (type !== 'studio') return null
+    return isStockedPartyOrder(type, studio) ? 'studio-stock' : 'supplier'
+}
+
+/** Whether a cake can be ordered from the supplier, including on the cake form sent weeks before the party. */
 export function canOrderCake(type: Booking['type'], studio: Studio) {
-    return type === 'studio' && !CAKE_ORDER_EXCLUDED_STUDIOS.includes(studio)
+    return getPartyCakeSource(type, studio) === 'supplier'
 }

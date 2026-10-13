@@ -29,3 +29,6 @@ mempalace.yaml
 
 # Claude Code personal settings (shared skills in .claude/skills are committed)
 .claude/settings.local.json
+
+# test coverage reports (vp test --run --coverage)
+/coverage

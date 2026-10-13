@@ -3,6 +3,8 @@ import { Divider, Result, Typography } from 'antd'
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { assertNever } from '@fizz-kidz/core'
+
 import useFetchAfterSchoolProgramEnrolment from '@features/after-school-program/hooks/use-fetch-enrolment'
 import useFirebase from '@integrations/firebase/use-firebase'
 import { MixpanelEvents } from '@integrations/mixpanel/Events'
@@ -74,6 +76,7 @@ const ParentPortal: React.FC = () => {
     }, [service.status])
 
     switch (service.status) {
+        case 'init':
         case 'loading':
             return <Loader />
 
@@ -96,7 +99,7 @@ const ParentPortal: React.FC = () => {
                 </Root>
             )
         }
-        default: // error
+        case 'error':
             return (
                 <div className={classes.error}>
                     <Result
@@ -106,6 +109,9 @@ const ParentPortal: React.FC = () => {
                     />
                 </div>
             )
+        default:
+            assertNever(service)
+            throw new Error(`Unhandled service status: ${JSON.stringify(service)}`)
     }
 }
 

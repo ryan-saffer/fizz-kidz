@@ -62,11 +62,13 @@ function renderTable(overrides: Partial<Parameters<typeof InventoryItemsTable>[0
         isLoading: false,
         items: [baseItem],
         location: 'balwyn' as const,
-        canEdit: true,
-        isAdjustStockPending: false,
+        canManageItems: true,
+        canUpdateStock: true,
+        isStockChangePending: false,
         isSetStockedPending: false,
         onEditItem: vi.fn(),
         onMarkQuantityUnknown: vi.fn(),
+        onOpenHistory: vi.fn(),
         onOpenStockAction: vi.fn(),
         onSetStocked: vi.fn(),
         stockByItemId: new Map([['item-1', stock()]]),
@@ -90,11 +92,13 @@ describe('InventoryItemsTable', () => {
             isLoading: false,
             items: [],
             location: 'balwyn' as const,
-            canEdit: false,
-            isAdjustStockPending: false,
+            canManageItems: false,
+            canUpdateStock: false,
+            isStockChangePending: false,
             isSetStockedPending: false,
             onEditItem: vi.fn(),
             onMarkQuantityUnknown: vi.fn(),
+            onOpenHistory: vi.fn(),
             onOpenStockAction: vi.fn(),
             onSetStocked: vi.fn(),
             stockByItemId: new Map(),
@@ -116,10 +120,58 @@ describe('InventoryItemsTable', () => {
         expect(screen.getByText('Frozen')).toBeTruthy()
 
         await user.click(screen.getByRole('button', { name: 'Receive' }))
-        await user.click(screen.getByRole('button', { name: 'Set stock' }))
+        await user.click(screen.getByRole('button', { name: 'Count' }))
+        await user.click(screen.getByRole('button', { name: /Remove \(thrown out\)/ }))
 
         expect(onOpenStockAction).toHaveBeenCalledWith('receive', baseItem, expect.any(Object))
-        expect(onOpenStockAction).toHaveBeenCalledWith('set', baseItem, expect.any(Object))
+        expect(onOpenStockAction).toHaveBeenCalledWith('count', baseItem, expect.any(Object))
+        expect(onOpenStockAction).toHaveBeenCalledWith('remove', baseItem, expect.any(Object))
+    })
+
+    it('shows on hand, reserved, and available stock for orderable items', async () => {
+        const onOpenHistory = vi.fn()
+        const onOpenStockAction = vi.fn()
+        const user = userEvent.setup()
+        const cake: ClientInventoryItem = {
+            ...baseItem,
+            id: 'cake',
+            name: 'Unicorn cake',
+            category: 'cakes',
+            notes: undefined,
+            runningLowThreshold: 1,
+            squareCatalogObjectId: 'square-unicorn',
+        }
+        const shortCake: ClientInventoryItem = { ...cake, id: 'short', name: 'Dinosaur cake' }
+
+        renderTable({
+            items: [cake, shortCake],
+            onOpenHistory,
+            onOpenStockAction,
+            stockByItemId: new Map([
+                ['cake', stock({ itemId: 'cake', reservedQuantity: 3 })],
+                [
+                    'short',
+                    stock({ itemId: 'short', measurement: { $type: 'quantity', quantity: 1 }, reservedQuantity: 2 }),
+                ],
+            ]),
+        })
+
+        expect(screen.getByText('4 here')).toBeTruthy()
+        expect(screen.getByText('3 reserved · 1 available to order')).toBeTruthy()
+        expect(screen.getByText('1 here')).toBeTruthy()
+        const shortfall = screen.getByText('2 reserved · -1 available to order')
+        expect(shortfall.className).toContain('text-red-700')
+        // running low compares available, not on hand
+        expect(screen.getAllByText('Running low')).toHaveLength(2)
+        // orderable stock only arrives through a delivery and is never marked unknown
+        expect(screen.queryByRole('button', { name: 'Receive' })).toBeNull()
+        expect(screen.queryByRole('button', { name: /Mark count unknown/ })).toBeNull()
+
+        await user.click(screen.getAllByRole('button', { name: 'Count' })[0])
+        await user.click(screen.getAllByRole('button', { name: /Stock history/ })[0])
+
+        expect(onOpenStockAction).toHaveBeenCalledWith('count', cake, expect.any(Object))
+        expect(onOpenHistory).toHaveBeenCalledWith(cake)
     })
 
     it('renders archived, unused, unknown, qualitative, and missing stock states', () => {
@@ -129,7 +181,7 @@ describe('InventoryItemsTable', () => {
         const qualitative: ClientInventoryItem = {
             id: 'qualitative',
             name: 'Glitter',
-            category: 'glitter',
+            category: 'party-food',
             status: 'active',
             $trackingMode: 'qualitative',
             baseUnit: 'tub',
@@ -180,7 +232,7 @@ describe('InventoryItemsTable', () => {
         const qualitative: ClientInventoryItem = {
             id: 'qualitative',
             name: 'Glitter',
-            category: 'glitter',
+            category: 'party-food',
             status: 'active',
             $trackingMode: 'qualitative',
             baseUnit: 'tub',
@@ -214,9 +266,17 @@ describe('InventoryItemsTable', () => {
         expect(onMarkQuantityUnknown).toHaveBeenCalledWith(baseItem)
     })
 
-    it('omits action controls when editing is not allowed', () => {
-        renderTable({ canEdit: false })
+    it('omits stock controls without update-stock permission and edit without manage-items', () => {
+        renderTable({ canManageItems: false, canUpdateStock: false })
 
         expect(screen.queryAllByRole('button', { name: 'Receive' })).toEqual([])
+        expect(screen.queryAllByRole('button', { name: 'Count' })).toEqual([])
+        expect(screen.queryByRole('button', { name: /Edit item/ })).toBeNull()
+        expect(screen.getByRole('button', { name: /Stock history/ })).toBeTruthy()
+
+        cleanup()
+        renderTable({ canManageItems: false, canUpdateStock: true })
+        expect(screen.getByRole('button', { name: 'Count' })).toBeTruthy()
+        expect(screen.queryByRole('button', { name: /Edit item/ })).toBeNull()
     })
 })

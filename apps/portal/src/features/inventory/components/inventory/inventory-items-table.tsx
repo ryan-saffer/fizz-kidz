@@ -1,5 +1,6 @@
-import { CircleQuestionMark, EyeOff, Loader2, MoreHorizontal, Pencil } from 'lucide-react'
+import { CircleQuestionMark, EyeOff, History, Loader2, MinusCircle, MoreHorizontal, Pencil } from 'lucide-react'
 
+import { getInventoryAvailableQuantity, isOrderableInventoryItem } from '@fizz-kidz/core'
 import type { InventoryUnit, Studio } from '@fizz-kidz/core'
 
 import { Badge } from '@shared/components/ui/badge'
@@ -33,12 +34,14 @@ export function InventoryItemsTable({
     isLoading,
     items,
     location,
-    canEdit,
-    isAdjustStockPending,
+    canManageItems,
+    canUpdateStock,
+    isStockChangePending,
     isSetStockedPending,
     onEditItem,
     onMarkQuantityUnknown,
     onOpenStockAction,
+    onOpenHistory,
     onSetStocked,
     stockByItemId,
 }: {
@@ -49,12 +52,14 @@ export function InventoryItemsTable({
     isLoading: boolean
     items: ClientInventoryItem[]
     location: Studio
-    canEdit: boolean
-    isAdjustStockPending: boolean
+    canManageItems: boolean
+    canUpdateStock: boolean
+    isStockChangePending: boolean
     isSetStockedPending: boolean
     onEditItem: (item: ClientInventoryItem) => void
     onMarkQuantityUnknown: (item: ClientInventoryItem) => void
     onOpenStockAction: ($type: StockActionType, item: ClientInventoryItem, stock?: ClientInventoryStockLevel) => void
+    onOpenHistory: (item: ClientInventoryItem) => void
     onSetStocked: (item: ClientInventoryItem, stocked: boolean) => void
     stockByItemId: Map<string, ClientInventoryStockLevel>
 }) {
@@ -90,7 +95,7 @@ export function InventoryItemsTable({
                         <TableHead>Item</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>{getOrgName(location)} stock</TableHead>
-                        {canEdit ? <TableHead className="text-right">Actions</TableHead> : null}
+                        <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -101,6 +106,8 @@ export function InventoryItemsTable({
                         const isRunningLow = item.status === 'active' && isStocked && getIsRunningLow(item, stock)
                         const hasUnknownQuantity =
                             stock?.measurement.$type === 'quantity' && stock.measurement.quantity === null
+                        const isOrderable = isOrderableInventoryItem(item)
+                        const canChangeStock = canUpdateStock && !isArchived && isStocked
 
                         return (
                             <TableRow key={item.id} className={isArchived || !isStocked ? 'bg-slate-50/70' : undefined}>
@@ -130,97 +137,85 @@ export function InventoryItemsTable({
                                     </div>
                                 </TableCell>
                                 <TableCell>{formatCategory(item.category)}</TableCell>
-                                <TableCell>{formatStockLevel(stock, item.baseUnit)}</TableCell>
-                                {canEdit ? (
-                                    <TableCell>
-                                        <div className="flex flex-wrap justify-end gap-2">
-                                            {!isArchived && isStocked ? (
-                                                <>
-                                                    {item.$trackingMode === 'quantity' ? (
-                                                        <>
-                                                            {!hasUnknownQuantity ? (
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className={secondaryButtonClass}
-                                                                    onClick={() =>
-                                                                        onOpenStockAction('receive', item, stock)
-                                                                    }
-                                                                >
-                                                                    Receive
-                                                                </Button>
-                                                            ) : null}
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                className={secondaryButtonClass}
-                                                                onClick={() => onOpenStockAction('set', item, stock)}
-                                                            >
-                                                                Set stock
-                                                            </Button>
-                                                        </>
-                                                    ) : (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className={secondaryButtonClass}
-                                                            onClick={() => onOpenStockAction('level', item, stock)}
-                                                        >
-                                                            Update level
-                                                        </Button>
-                                                    )}
-                                                </>
-                                            ) : !isArchived ? (
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className={secondaryButtonClass}
-                                                    disabled={isSetStockedPending}
-                                                    onClick={() => onSetStocked(item, true)}
-                                                >
-                                                    Track here
-                                                </Button>
-                                            ) : null}
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className={secondaryButtonClass}
+                                <TableCell>{formatStockLevel(stock, item.baseUnit, isOrderable)}</TableCell>
+                                <TableCell>
+                                    <div className="flex flex-wrap justify-end gap-2">
+                                        {canChangeStock && item.$trackingMode === 'quantity' ? (
+                                            <>
+                                                {!isOrderable && !hasUnknownQuantity ? (
+                                                    <ActionButton
+                                                        onClick={() => onOpenStockAction('receive', item, stock)}
                                                     >
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">More actions</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="twp">
+                                                        Receive
+                                                    </ActionButton>
+                                                ) : null}
+                                                <ActionButton onClick={() => onOpenStockAction('count', item, stock)}>
+                                                    Count
+                                                </ActionButton>
+                                            </>
+                                        ) : null}
+                                        {canChangeStock && item.$trackingMode === 'qualitative' ? (
+                                            <ActionButton onClick={() => onOpenStockAction('level', item, stock)}>
+                                                Update level
+                                            </ActionButton>
+                                        ) : null}
+                                        {canUpdateStock && !isArchived && !isStocked ? (
+                                            <ActionButton
+                                                disabled={isSetStockedPending}
+                                                onClick={() => onSetStocked(item, true)}
+                                            >
+                                                Track here
+                                            </ActionButton>
+                                        ) : null}
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="outline" size="sm" className={secondaryButtonClass}>
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <span className="sr-only">More actions</span>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="twp">
+                                                <DropdownMenuItem onClick={() => onOpenHistory(item)}>
+                                                    <History className="mr-2 h-4 w-4" /> Stock history
+                                                </DropdownMenuItem>
+                                                {canChangeStock &&
+                                                item.$trackingMode === 'quantity' &&
+                                                !hasUnknownQuantity ? (
+                                                    <DropdownMenuItem
+                                                        onClick={() => onOpenStockAction('remove', item, stock)}
+                                                    >
+                                                        <MinusCircle className="mr-2 h-4 w-4" /> Remove (thrown out)
+                                                    </DropdownMenuItem>
+                                                ) : null}
+                                                {canChangeStock &&
+                                                item.$trackingMode === 'quantity' &&
+                                                !isOrderable &&
+                                                !hasUnknownQuantity ? (
+                                                    <DropdownMenuItem
+                                                        disabled={isStockChangePending}
+                                                        onClick={() => onMarkQuantityUnknown(item)}
+                                                    >
+                                                        <CircleQuestionMark className="mr-2 h-4 w-4" /> Mark count
+                                                        unknown
+                                                    </DropdownMenuItem>
+                                                ) : null}
+                                                {canChangeStock ? (
+                                                    <DropdownMenuItem
+                                                        disabled={isSetStockedPending}
+                                                        onClick={() => onSetStocked(item, false)}
+                                                    >
+                                                        <EyeOff className="mr-2 h-4 w-4" /> Mark unused here
+                                                    </DropdownMenuItem>
+                                                ) : null}
+                                                {canManageItems ? (
                                                     <DropdownMenuItem onClick={() => onEditItem(item)}>
                                                         <Pencil className="mr-2 h-4 w-4" /> Edit item
                                                     </DropdownMenuItem>
-                                                    {!isArchived && isStocked ? (
-                                                        <DropdownMenuItem
-                                                            disabled={isSetStockedPending}
-                                                            onClick={() => onSetStocked(item, false)}
-                                                        >
-                                                            <EyeOff className="mr-2 h-4 w-4" /> Mark unused here
-                                                        </DropdownMenuItem>
-                                                    ) : null}
-                                                    {!isArchived &&
-                                                    isStocked &&
-                                                    item.$trackingMode === 'quantity' &&
-                                                    !hasUnknownQuantity ? (
-                                                        <DropdownMenuItem
-                                                            disabled={isAdjustStockPending}
-                                                            onClick={() => onMarkQuantityUnknown(item)}
-                                                        >
-                                                            <CircleQuestionMark className="mr-2 h-4 w-4" /> Mark count
-                                                            unknown
-                                                        </DropdownMenuItem>
-                                                    ) : null}
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
-                                    </TableCell>
-                                ) : null}
+                                                ) : null}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+                                </TableCell>
                             </TableRow>
                         )
                     })}
@@ -230,7 +225,19 @@ export function InventoryItemsTable({
     )
 }
 
-function formatStockLevel(stock: ClientInventoryStockLevel | undefined, unit?: InventoryUnit) {
+function ActionButton({ children, disabled, onClick }: { children: string; disabled?: boolean; onClick: () => void }) {
+    return (
+        <Button variant="outline" size="sm" className={secondaryButtonClass} disabled={disabled} onClick={onClick}>
+            {children}
+        </Button>
+    )
+}
+
+function formatStockLevel(
+    stock: ClientInventoryStockLevel | undefined,
+    unit: InventoryUnit | undefined,
+    isOrderable: boolean
+) {
     if (!stock) {
         return <span className="text-sm text-slate-500">No studio record</span>
     }
@@ -245,6 +252,18 @@ function formatStockLevel(stock: ClientInventoryStockLevel | undefined, unit?: I
                 <Badge className="w-fit rounded-full bg-slate-100 px-3 py-1 text-slate-600 hover:bg-slate-100">
                     Unknown
                 </Badge>
+            )
+        }
+
+        if (isOrderable) {
+            const available = getInventoryAvailableQuantity(stock) ?? 0
+            return (
+                <div className="flex flex-col">
+                    <span className="font-semibold text-slate-950">{stock.measurement.quantity} here</span>
+                    <span className={cn('text-xs', available < 0 ? 'font-bold text-red-700' : 'text-slate-500')}>
+                        {stock.reservedQuantity ?? 0} reserved · {available} available to order
+                    </span>
+                </div>
             )
         }
 

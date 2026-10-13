@@ -20,6 +20,18 @@ const mocks = vi.hoisted(() => ({
     sendReceipt: vi.fn(),
     syncToZoho: vi.fn(),
     logError: vi.fn(),
+    useInventory: vi.fn(),
+    useSupplies: vi.fn(),
+    supplies: vi.fn(),
+    cakeOptions: vi.fn(),
+}))
+vi.mock('@/features/inventory/core/inventory.reservations', () => ({ useInventoryForBooking: mocks.useInventory }))
+vi.mock('@/features/inventory/core/inventory.cake-supplies', () => ({
+    useCakeSuppliesForBooking: mocks.useSupplies,
+    getCakeSuppliesByOption: mocks.supplies,
+}))
+vi.mock('@/features/party-bookings/core/party-form/options/get-party-form-cake-options', () => ({
+    getPartyFormCakeOptions: mocks.cakeOptions,
 }))
 vi.mock('@/app/init/firebase', () => ({
     get env() {
@@ -71,6 +83,9 @@ const input: PreparePartyCheckout = {
     discountCents: 0,
     discountReason: '',
     giftCardNumber: '',
+    cakeUsed: true,
+    cakeServingUsed: true,
+    cakeCandlesUsed: true,
 }
 
 beforeEach(() => {
@@ -206,6 +221,21 @@ describe('preparing a charge', () => {
         )
     })
 
+    it('keeps what staff confirmed about a studio-stock cake on the order, without charging for it', async () => {
+        mocks.booking.location = 'werribee'
+        mocks.booking.cake = { selection: 'Unicorn', served: 'Ice-cream cup with spoon', candles: 'Include candles' }
+        await preparePartyCheckout({ ...input, cakeUsed: true, cakeServingUsed: true, cakeCandlesUsed: false }, 'staff')
+        const { lineItems, metadata } = mocks.prepareCheckout.mock.calls[0][0]
+        expect(lineItems).toHaveLength(2)
+        expect(metadata).toMatchObject({ cakeUsage: 'cake,serving,no-candles' })
+
+        // supplier cakes aren't tracked, so nothing is kept
+        mocks.prepareCheckout.mockClear()
+        mocks.booking.location = 'balwyn'
+        await preparePartyCheckout(input, 'staff')
+        expect(mocks.prepareCheckout.mock.calls[0][0].metadata).not.toHaveProperty('cakeUsage')
+    })
+
     it("uses the old price list for an old-price booking, and doesn't discount by default", async () => {
         mocks.booking.oldPrices = true
         await preparePartyCheckout({ ...input, childrenCount: 20, additions: [], includesFood: true }, 'staff')
@@ -230,6 +260,19 @@ describe('charging a party', () => {
     const charge = { bookingId: 'booking', checkoutId: 'order', terminalCheckoutId: 'terminal' }
 
     beforeEach(() => {
+        mocks.cakeOptions.mockResolvedValue({
+            servingOptions: [
+                { id: 'SQUARE_OWN_BOWLS', name: 'Bring my own bowls' },
+                { id: 'SQUARE_CUP', name: 'Ice-cream cup with spoon' },
+            ],
+            candleOptions: [{ id: 'SQUARE_CANDLES', name: 'Include candles' }],
+        })
+        mocks.supplies.mockResolvedValue(
+            new Map([
+                ['SQUARE_CUP', [{ name: 'Ice-cream cups' }, { name: 'Spoons' }]],
+                ['SQUARE_CANDLES', [{ name: 'Candles' }]],
+            ])
+        )
         mocks.getTerminalPayment.mockResolvedValue({ status: 'paid', receiptUrl: 'https://receipt' })
         mocks.order.mockResolvedValue({
             order: {
@@ -312,6 +355,57 @@ describe('charging a party', () => {
         expect(await getPartyCheckoutStatus(charge)).toMatchObject({ status: 'paid' })
         expect(mocks.logError).toHaveBeenCalledTimes(2)
         expect(mocks.syncToZoho).toHaveBeenCalledTimes(1)
+    })
+
+    it('takes the reserved cake and bags off studio stock once a Werribee or Geelong party is paid', async () => {
+        mocks.booking.location = 'geelong'
+        await getPartyCheckoutStatus(charge)
+        expect(mocks.useInventory).toHaveBeenCalledWith({ location: 'geelong', bookingId: 'booking', cakeUsed: true })
+
+        mocks.useInventory.mockClear()
+        mocks.booking.location = 'balwyn'
+        await getPartyCheckoutStatus(charge)
+        expect(mocks.useInventory).not.toHaveBeenCalled()
+    })
+
+    it('takes the cups, spoons and candles the cake was ordered with off stock, for the children charged', async () => {
+        mocks.booking.location = 'werribee'
+        mocks.booking.cake = { selection: 'Unicorn', served: 'Ice-cream cup with spoon', candles: 'Include candles' }
+
+        // an order prepared without the cake step counts what the parent chose
+        await getPartyCheckoutStatus(charge)
+
+        expect(mocks.useSupplies).toHaveBeenCalledWith({
+            location: 'werribee',
+            bookingId: 'booking',
+            optionIds: ['SQUARE_CUP', 'SQUARE_CANDLES'],
+            children: 14,
+        })
+    })
+
+    it('follows what staff confirmed the party used, kept on the order', async () => {
+        mocks.booking.location = 'werribee'
+        mocks.booking.cake = { selection: 'Unicorn', served: 'Ice-cream cup with spoon', candles: 'Include candles' }
+        const { order } = await mocks.order()
+        mocks.order.mockResolvedValue({
+            order: { ...order, metadata: { ...order.metadata, cakeUsage: 'no-cake,no-serving,candles' } },
+        })
+
+        await getPartyCheckoutStatus(charge)
+
+        expect(mocks.useInventory).toHaveBeenCalledWith({ location: 'werribee', bookingId: 'booking', cakeUsed: false })
+        expect(mocks.useSupplies).toHaveBeenCalledWith(expect.objectContaining({ optionIds: ['SQUARE_CANDLES'] }))
+    })
+
+    it('still reports the payment when stock can’t be updated', async () => {
+        mocks.booking.location = 'werribee'
+        mocks.useInventory.mockRejectedValue(new Error('Firestore down'))
+        expect(await getPartyCheckoutStatus(charge)).toMatchObject({ status: 'paid' })
+        expect(mocks.logError).toHaveBeenCalledWith(
+            'Party payment collected, but unable to take its cake and bags off stock',
+            expect.any(Error),
+            { bookingId: 'booking', checkoutId: 'order' }
+        )
     })
 
     it("records nothing for a charge that didn't go through", async () => {

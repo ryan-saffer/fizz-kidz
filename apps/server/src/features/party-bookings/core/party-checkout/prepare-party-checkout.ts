@@ -2,6 +2,7 @@ import {
     getPartyBirthdayChildDisplay,
     getPartyPriceList,
     getSquareLocationId,
+    isStockedPartyOrder,
     MIN_CHARGED_CHILDREN,
     type PartyCheckoutSummary,
     type PreparePartyCheckout,
@@ -9,6 +10,7 @@ import {
 
 import { getPartyFormAdditions } from '../party-form/options/get-party-form-additions'
 import { getBlockedReason } from './get-party-checkout'
+import { writeCakeUsage } from './party-checkout-cake'
 
 import type { Square } from 'square'
 
@@ -53,6 +55,7 @@ export async function preparePartyCheckout(input: PreparePartyCheckout, uid: str
         metadata: {
             ...getPartyCheckoutMetadata(input.bookingId, chargedChildren),
             ...(input.discountCents > 0 && { discountReason: input.discountReason }),
+            ...(booking.cake && isStockedPartyOrder(booking.type, booking.location) && writeCakeUsage(input)),
         },
         giftCardNumber: input.giftCardNumber,
     })

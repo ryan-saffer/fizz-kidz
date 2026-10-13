@@ -23,7 +23,7 @@ The mode is decided in a few places only: the portal's step list and some wordin
 
 Earlier orders carry over between forms. One cake per party: once the booking has a cake, the form shows it read-only and validation rejects another. Take-home bags and kits can be added to at any time; each card shows how many were already ordered, and new quantities are added on top.
 
-Cakes are only offered where `canOrderCake` allows (studio parties, not Geelong or Werribee), in either mode.
+Where a cake comes from is `getPartyCakeSource`. Most studios order cakes from the supplier, in either mode. Geelong and Werribee get a monthly delivery instead, so their cakes and take-home bags are sold from studio stock (see "Studio stock" below), and their cakes only on the party form, never the cake form.
 
 ## Options
 
@@ -34,6 +34,16 @@ Cakes are only offered where `canOrderCake` allows (studio parties, not Geelong 
 **Take-home goodies** (`options/get-party-form-take-home-options.ts`): bags are the variations of the take-home bag item and kits are the items in the Products category. We don't use Square Online, so an item's 'Fizz Kidz Store' sales channel (the Dashboard's online store toggle) decides whether the form offers it; the sandbox has no online store, so dev skips that check. 'Not sold at this location' hides an item at one studio. Stock counts are ignored: goodies are ordered from the supplier per party, so Square's automatic sold-out would hide them for no reason. Each is priced by asking Square to calculate an order of 12, so bulk pricing rules are included. Bags and kits are sold in lots of at least `MIN_TAKE_HOME_QUANTITY` (12); once an item is ordered, parents can top it up by any amount (e.g. late RSVPs). Square's kit bulk price ('Products Bulk Discount') needs 12 kits in one order, so a smaller kit top-up is discounted down to the bulk price the form showed. `square-party-take-home.ts` maps each booking key to its Square variation.
 
 If Square can't be reached, the form still loads: without additions, take-home goodies or the cake step.
+
+## Studio stock
+
+At Geelong and Werribee (`isStockedPartyOrder`), what parents can order comes from the studio's inventory (`features/inventory`). Inventory items are linked to the Square cake design or take-home bag variation customers order.
+
+- **Cake step**: `getStockedPartyFormCakeOptions` shows the designs the studio stocks (sold-out ones disabled), the medium size, and chocolate and vanilla as fixed flavours, which the form presets instead of asking. Paid serving and candle options are only offered where the studio stocks the cake supplies they use, so there are no waffle cones; free 'bring my own' options always are. With no designs stocked there is no cake step, and there is no message.
+- **Take-home options**: these carry `available`, and the goodies step caps quantities at it.
+- **Validation**: checks stock again before payment.
+- **After payment**: `process-party-form.ts` reserves the stock against the booking, under the submission id so a replay doesn't reserve twice. Because availability was checked before payment, a paid order is always reserved, even if two parents took the last cake at once; going short emails the studio owners.
+- **Emails**: the studio gets the cake email instead of the supplier, and the supplier gets no take-home bag email.
 
 ## Checkout
 

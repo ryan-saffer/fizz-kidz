@@ -31,6 +31,11 @@ export function CakeStep() {
     } = config.cakeOptions ?? {}
     const minFlavours = config.cakeOptions?.minFlavours ?? 1
     const maxFlavours = config.cakeOptions?.maxFlavours ?? 1
+    // studio-stock cakes come in one size and fixed flavours (preset in the form), so those questions are skipped
+    const fixedFlavours = config.cakeOptions?.fixedFlavours ?? null
+    const askSize = sizes.length !== 1
+    // studio-stock cakes (Geelong, Werribee) are made ahead, so there's one size and price, and no message
+    const isStocked = config.cakeSource === 'studio-stock'
     const purchased = config.alreadyPurchased.cake
 
     // one cake per party: once ordered, it can't be changed or ordered again here
@@ -47,17 +52,35 @@ export function CakeStep() {
     return (
         <StepBody step="cake">
             <Section title="Would you like to order an ice-cream cake directly through us?">
-                <Prose>
-                    <p>Your ice-cream cake will be ready for you at the studio when you arrive.</p>
-                    <p>You can even customise the cake with a message!</p>
-                    <ul>
-                        {sizes.map((size) => (
-                            <li key={size.id}>
-                                {size.name} {formatPrice(size.priceCents / 100)}
-                            </li>
-                        ))}
-                    </ul>
-                </Prose>
+                {isStocked && sizes[0] ? (
+                    <>
+                        <dl className="mb-5 grid gap-3 sm:grid-cols-3">
+                            {getStockedCakeFacts(sizes[0], fixedFlavours ?? []).map((fact) => (
+                                <div key={fact.label} className="rounded-2xl bg-party-tint px-4 py-3">
+                                    <dt className="text-xs font-semibold uppercase tracking-wide text-party-muted">
+                                        {fact.label}
+                                    </dt>
+                                    <dd className="m-0 text-lg font-semibold text-party-ink">{fact.value}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                        <Prose>
+                            <p>Your ice-cream cake will be ready for you at the studio when you arrive.</p>
+                        </Prose>
+                    </>
+                ) : (
+                    <Prose>
+                        <p>Your ice-cream cake will be ready for you at the studio when you arrive.</p>
+                        <p>You can even customise the cake with a message!</p>
+                        <ul>
+                            {sizes.map((size) => (
+                                <li key={size.id}>
+                                    {size.name} {formatPrice(size.priceCents / 100)}
+                                </li>
+                            ))}
+                        </ul>
+                    </Prose>
+                )}
                 <Note className="flex gap-3">
                     <Info size={18} className="mt-0.5 shrink-0 text-party-pink" aria-hidden="true" />
                     <div>
@@ -80,17 +103,26 @@ export function CakeStep() {
                                 {[
                                     ...designs,
                                     { id: BRING_OWN_CAKE, name: BRING_OWN_CAKE, imageUrl: BringOwnCakeImage },
-                                ].map((design) => (
-                                    <ImageCard
-                                        key={design.id}
-                                        name={design.name}
-                                        imageUrl={design.imageUrl}
-                                        square
-                                        control={
-                                            <RadioGroupItem value={design.name} className={imageCardControlClassName} />
-                                        }
-                                    />
-                                ))}
+                                ].map((design) => {
+                                    const soldOut = 'soldOut' in design && !!design.soldOut
+                                    return (
+                                        <ImageCard
+                                            key={design.id}
+                                            name={design.name}
+                                            imageUrl={design.imageUrl}
+                                            square
+                                            disabled={soldOut}
+                                            badge={soldOut ? 'Sold out' : undefined}
+                                            control={
+                                                <RadioGroupItem
+                                                    value={design.name}
+                                                    disabled={soldOut}
+                                                    className={imageCardControlClassName}
+                                                />
+                                            }
+                                        />
+                                    )
+                                })}
                             </RadioGroup>
                             <FieldError field={field} />
                         </>
@@ -101,84 +133,86 @@ export function CakeStep() {
                     {(cakeSelection) =>
                         cakeSelection && cakeSelection !== BRING_OWN_CAKE ? (
                             <div className="mt-6 flex flex-col gap-6">
-                                <CakeQuestion title="Which size would you like?">
-                                    <form.Field
-                                        name="cakeSize"
-                                        validators={{
-                                            onChangeListenTo: ['cakeSelection'],
-                                            onChange: requiredForCake('Please choose a cake size', Boolean),
-                                        }}
+                                {askSize ? (
+                                    <CakeQuestion title="Which size would you like?">
+                                        <form.Field
+                                            name="cakeSize"
+                                            validators={{
+                                                onChangeListenTo: ['cakeSelection'],
+                                                onChange: requiredForCake('Please choose a cake size', Boolean),
+                                            }}
+                                        >
+                                            {(field) => (
+                                                <>
+                                                    <CakeOptionGroup
+                                                        label="Cake size"
+                                                        options={sizes}
+                                                        value={field.state.value}
+                                                        onChange={field.handleChange}
+                                                    />
+                                                    <FieldError field={field} />
+                                                </>
+                                            )}
+                                        </form.Field>
+                                    </CakeQuestion>
+                                ) : null}
+                                {fixedFlavours ? null : (
+                                    <CakeQuestion
+                                        title="What flavours would you like?"
+                                        description={
+                                            maxFlavours === 1
+                                                ? 'Please select one flavour.'
+                                                : `You can select up to ${NUMBER_WORDS[maxFlavours] ?? maxFlavours} flavours.`
+                                        }
                                     >
-                                        {(field) => (
-                                            <>
-                                                <CakeOptionGroup
-                                                    label="Cake size"
-                                                    options={sizes}
-                                                    value={field.state.value}
-                                                    onChange={field.handleChange}
-                                                />
-                                                <FieldError field={field} />
-                                            </>
-                                        )}
-                                    </form.Field>
-                                </CakeQuestion>
-
-                                <CakeQuestion
-                                    title="What flavours would you like?"
-                                    description={
-                                        maxFlavours === 1
-                                            ? 'Please select one flavour.'
-                                            : `You can select up to ${NUMBER_WORDS[maxFlavours] ?? maxFlavours} flavours.`
-                                    }
-                                >
-                                    <form.Field
-                                        name="cakeFlavours"
-                                        validators={{
-                                            onChangeListenTo: ['cakeSelection'],
-                                            onChange: requiredForCake<string[]>(
-                                                minFlavours === 1
-                                                    ? 'Please choose at least one flavour'
-                                                    : `Please choose at least ${minFlavours} flavours`,
-                                                (value) => value.length >= minFlavours
-                                            ),
-                                        }}
-                                    >
-                                        {(field) => (
-                                            <>
-                                                <div className="grid gap-2 sm:grid-cols-2">
-                                                    {flavours.map(({ name: flavour }) => {
-                                                        const selected = field.state.value.includes(flavour)
-                                                        const disabled =
-                                                            !selected && field.state.value.length >= maxFlavours
-                                                        return (
-                                                            <OptionRow
-                                                                key={flavour}
-                                                                label={flavour}
-                                                                disabled={disabled}
-                                                            >
-                                                                <Checkbox
-                                                                    checked={selected}
+                                        <form.Field
+                                            name="cakeFlavours"
+                                            validators={{
+                                                onChangeListenTo: ['cakeSelection'],
+                                                onChange: requiredForCake<string[]>(
+                                                    minFlavours === 1
+                                                        ? 'Please choose at least one flavour'
+                                                        : `Please choose at least ${minFlavours} flavours`,
+                                                    (value) => value.length >= minFlavours
+                                                ),
+                                            }}
+                                        >
+                                            {(field) => (
+                                                <>
+                                                    <div className="grid gap-2 sm:grid-cols-2">
+                                                        {flavours.map(({ name: flavour }) => {
+                                                            const selected = field.state.value.includes(flavour)
+                                                            const disabled =
+                                                                !selected && field.state.value.length >= maxFlavours
+                                                            return (
+                                                                <OptionRow
+                                                                    key={flavour}
+                                                                    label={flavour}
                                                                     disabled={disabled}
-                                                                    onCheckedChange={(checked) =>
-                                                                        field.handleChange(
-                                                                            checked
-                                                                                ? [...field.state.value, flavour]
-                                                                                : field.state.value.filter(
-                                                                                      (name) => name !== flavour
-                                                                                  )
-                                                                        )
-                                                                    }
-                                                                />
-                                                            </OptionRow>
-                                                        )
-                                                    })}
-                                                </div>
-                                                <FieldError field={field} />
-                                            </>
-                                        )}
-                                    </form.Field>
-                                </CakeQuestion>
-
+                                                                >
+                                                                    <Checkbox
+                                                                        checked={selected}
+                                                                        disabled={disabled}
+                                                                        onCheckedChange={(checked) =>
+                                                                            field.handleChange(
+                                                                                checked
+                                                                                    ? [...field.state.value, flavour]
+                                                                                    : field.state.value.filter(
+                                                                                          (name) => name !== flavour
+                                                                                      )
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </OptionRow>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                    <FieldError field={field} />
+                                                </>
+                                            )}
+                                        </form.Field>
+                                    </CakeQuestion>
+                                )}
                                 <CakeQuestion title="How would you like your ice-cream cake to be served?">
                                     <form.Field
                                         name="cakeServed"
@@ -223,17 +257,19 @@ export function CakeStep() {
                                     </form.Field>
                                 </CakeQuestion>
 
-                                <form.Field name="cakeMessage">
-                                    {(field) => (
-                                        <TextField
-                                            field={field}
-                                            label="Add a personalised message to be written on your cake!"
-                                            description="This is optional. Maximum 30 characters."
-                                            placeholder={'"Happy 5th Birthday Amy!"'}
-                                            maxLength={30}
-                                        />
-                                    )}
-                                </form.Field>
+                                {isStocked ? null : (
+                                    <form.Field name="cakeMessage">
+                                        {(field) => (
+                                            <TextField
+                                                field={field}
+                                                label="Add a personalised message to be written on your cake!"
+                                                description="This is optional. Maximum 30 characters."
+                                                placeholder={'"Happy 5th Birthday Amy!"'}
+                                                maxLength={30}
+                                            />
+                                        )}
+                                    </form.Field>
+                                )}
                             </div>
                         ) : null
                     }
@@ -241,6 +277,18 @@ export function CakeStep() {
             </Section>
         </StepBody>
     )
+}
+
+/** The fixed facts about a studio-stock cake, eg. Flavour: Chocolate & vanilla, Serves: 15-25, Price: $119. */
+function getStockedCakeFacts(size: CakeOption, flavours: string[]) {
+    // Square names sizes like 'Medium (15-25 serves)'
+    const serves = size.name.match(/\(([^)]*?)\s*serves?\)/i)?.[1]
+    const flavour = flavours.map((name, idx) => (idx === 0 ? name : name.toLowerCase())).join(' & ')
+    return [
+        ...(flavour ? [{ label: 'Flavour', value: flavour }] : []),
+        ...(serves ? [{ label: 'Serves', value: serves }] : []),
+        { label: 'Price', value: formatPrice(size.priceCents / 100) },
+    ]
 }
 
 function CakeQuestion({

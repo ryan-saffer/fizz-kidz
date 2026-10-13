@@ -7,6 +7,7 @@ import { validatePartyForm } from '../validate-party-form'
 const mocks = vi.hoisted(() => ({
     booking: vi.fn(),
     cakeOptions: vi.fn(),
+    stockedCakeOptions: vi.fn(),
     takeHomeOptions: vi.fn(),
 }))
 vi.mock('@/app/init/firebase', () => ({ env: 'dev' }))
@@ -31,7 +32,10 @@ vi.mock('@/integrations/sanity/sanity.client', () => ({
         }),
     },
 }))
-vi.mock('../../options/get-party-form-cake-options', () => ({ getPartyFormCakeOptions: mocks.cakeOptions }))
+vi.mock('../../options/get-party-form-cake-options', () => ({
+    getPartyFormCakeOptions: mocks.cakeOptions,
+    getStockedPartyFormCakeOptions: mocks.stockedCakeOptions,
+}))
 vi.mock('../../options/get-party-form-take-home-options', () => ({
     getPartyFormTakeHomeOptions: mocks.takeHomeOptions,
 }))
@@ -109,10 +113,86 @@ describe('validating party form answers', () => {
         ).rejects.toThrow('already been ordered')
     })
     it('refuses a cake where cakes cannot be ordered', async () => {
-        mocks.booking.mockResolvedValue({ type: 'studio', location: 'geelong' })
+        mocks.booking.mockResolvedValue({ type: 'mobile', location: 'malvern' })
         await expect(
             validatePartyForm({ mode: 'cake', bookingId: 'booking', cake, takeHomeBags: {}, products: {} })
         ).rejects.toThrow('not available for this party')
+    })
+    describe('at studios selling from studio stock', () => {
+        const stockedCake: NonNullable<PartyForm['cake']> = {
+            ...cake,
+            size: 'Medium (20-25 serves)',
+            flavours: ['Chocolate', 'Vanilla'],
+        }
+        beforeEach(() => {
+            mocks.booking.mockResolvedValue({ type: 'studio', location: 'werribee', partyLength: '1.5' })
+            mocks.stockedCakeOptions.mockResolvedValue({
+                sizes: [{ id: 'size-medium', name: 'Medium (20-25 serves)', priceCents: 11900, imageUrl: null }],
+                designs: [{ id: 'design-rainbow', name: 'Rainbow Ice-Cream Cake', priceCents: 0, imageUrl: null }],
+                flavours: [
+                    { id: 'flavour-chocolate', name: 'Chocolate', priceCents: 0, imageUrl: null },
+                    { id: 'flavour-vanilla', name: 'Vanilla', priceCents: 0, imageUrl: null },
+                ],
+                servingOptions: [
+                    { id: 'serving-cup', name: 'Ice-cream cup with spoon', priceCents: 1900, imageUrl: null },
+                ],
+                candleOptions: [{ id: 'candles-include', name: 'Include candles', priceCents: 1200, imageUrl: null }],
+                minFlavours: 2,
+                maxFlavours: 2,
+                fixedFlavours: ['Chocolate', 'Vanilla'],
+            })
+            mocks.takeHomeOptions.mockResolvedValue({
+                takeHomeBags: [{ key: 'lollyBags', name: 'Lolly Bags', available: 15 }],
+                products: [],
+            })
+        })
+        it('sells an available cake on the party form, from the stocked options', async () => {
+            const { lineItems } = await validatePartyForm({ ...payload, takeHomeBags: {}, cake: stockedCake })
+            expect(mocks.cakeOptions).not.toHaveBeenCalled()
+            expect(lineItems).toEqual([expect.objectContaining({ catalogObjectId: 'size-medium' })])
+        })
+        it('only sells studio-stock cakes on the party form, not the cake form', async () => {
+            await expect(
+                validatePartyForm({
+                    mode: 'cake',
+                    bookingId: 'booking',
+                    cake: stockedCake,
+                    takeHomeBags: {},
+                    products: {},
+                })
+            ).rejects.toThrow('not available for this party')
+        })
+        it('refuses a design that has just sold out', async () => {
+            mocks.stockedCakeOptions.mockResolvedValue({
+                ...(await mocks.stockedCakeOptions()),
+                designs: [
+                    {
+                        id: 'design-rainbow',
+                        name: 'Rainbow Ice-Cream Cake',
+                        priceCents: 0,
+                        imageUrl: null,
+                        soldOut: true,
+                    },
+                ],
+            })
+            await expect(validatePartyForm({ ...payload, takeHomeBags: {}, cake: stockedCake })).rejects.toThrow(
+                'has just sold out'
+            )
+
+            await expect(
+                validatePartyForm({
+                    ...payload,
+                    takeHomeBags: {},
+                    cake: { ...stockedCake, selection: 'Unicorn Ice-Cream Cake' },
+                })
+            ).rejects.toThrow('has just sold out')
+        })
+        it('refuses more take-home bags than the studio has available', async () => {
+            await expect(validatePartyForm({ ...payload, takeHomeBags: { lollyBags: 16 } })).rejects.toThrow(
+                'only 15 Lolly Bags are left'
+            )
+            await expect(validatePartyForm({ ...payload, takeHomeBags: { lollyBags: 15 } })).resolves.toBeTruthy()
+        })
     })
     it('requires 12 of a take-home item, unless the booking already has some', async () => {
         const order = (takeHomeBags: PartyForm['takeHomeBags']) =>

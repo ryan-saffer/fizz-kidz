@@ -22,7 +22,11 @@ vi.mock('@shared/components/ui/dialog', () => {
 })
 
 vi.mock('./usage-rule-form', () => ({
-    UsageRuleForm: ({ submitLabel }: { submitLabel: string }) => <div>{submitLabel} form</div>,
+    UsageRuleForm: ({ isPending, submitLabel }: { isPending: boolean; submitLabel: string }) => (
+        <div>
+            {submitLabel} form{isPending ? ' (saving)' : ''}
+        </div>
+    ),
 }))
 
 const usageRulesState: { canEdit: boolean; isLoading: boolean; usageRules: ClientInventoryUsageRule[] } = {
@@ -35,8 +39,11 @@ vi.mock('../../hooks/use-inventory-usage-rules', () => ({
     useInventoryUsageRules: () => usageRulesState,
 }))
 
+const createUsageRule = vi.fn()
+let actions = { isCreatingUsageRule: false, createUsageRule }
+
 vi.mock('../../hooks/use-inventory-actions', () => ({
-    useInventoryActions: () => ({ isCreatingUsageRule: false, createUsageRule: vi.fn() }),
+    useInventoryActions: () => actions,
 }))
 
 const now = new Date('2026-05-01T00:00:00.000Z')
@@ -78,6 +85,7 @@ describe('InventoryUsageRulesCard', () => {
         usageRulesState.canEdit = true
         usageRulesState.isLoading = false
         usageRulesState.usageRules = []
+        actions = { isCreatingUsageRule: false, createUsageRule }
         useInventoryStore.setState({ editingUsageRule: null, isCreateUsageRuleDialogOpen: false })
     })
 
@@ -125,5 +133,29 @@ describe('InventoryUsageRulesCard', () => {
         await user.click(screen.getAllByRole('button', { name: 'Edit' })[0])
 
         expect(useInventoryStore.getState().editingUsageRule?.id).toBe('rule-1')
+    })
+
+    it('shows the create form saving without redrawing the rules', () => {
+        usageRulesState.usageRules = rules
+        const { rerender } = render(<InventoryUsageRulesCard />)
+
+        actions = { ...actions, isCreatingUsageRule: true }
+        rerender(<InventoryUsageRulesCard />)
+        expect(screen.getByText('Create rule form (saving)')).toBeTruthy()
+
+        actions = { ...actions, isCreatingUsageRule: false }
+        usageRulesState.isLoading = true
+        rerender(<InventoryUsageRulesCard />)
+        expect(screen.getByText('Create rule form')).toBeTruthy()
+        expect(screen.getByText('Loading usage rules')).toBeTruthy()
+        expect(screen.queryByText('Party pies')).toBeNull()
+    })
+
+    it('throws on an unknown quantity operation', () => {
+        vi.spyOn(console, 'error').mockImplementation(() => undefined)
+        usageRulesState.usageRules = [{ ...rules[0], quantity: { $operation: 'mystery' } as never }]
+
+        expect(() => render(<InventoryUsageRulesCard />)).toThrow('Unhandled quantity.$operation')
+        vi.mocked(console.error).mockRestore()
     })
 })

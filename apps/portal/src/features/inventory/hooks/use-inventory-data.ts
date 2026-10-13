@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useDeferredValue } from 'react'
 
+import { isLinkedInventoryItem, isOrderableInventoryItem } from '@fizz-kidz/core'
+
 import { useTRPC } from '@integrations/trpc'
 
 import { useInventoryStore } from '../state/inventory-store'
@@ -24,19 +26,19 @@ export function useInventoryData() {
     const deferredSearch = useDeferredValue(search)
     const searchQuery = deferredSearch.trim()
 
-    const itemsQuery = useQuery(
-        trpc.inventory.listItems.queryOptions({
-            includeArchived: true,
-            category: categoryFilter === ALL_CATEGORIES ? undefined : categoryFilter,
-        })
-    )
+    // every item is loaded and the category filtered here, so receiving a delivery always lists every orderable item
+    const itemsQuery = useQuery(trpc.inventory.listItems.queryOptions({ includeArchived: true }))
     const stockQuery = useQuery(trpc.inventory.listStock.queryOptions({ location }))
 
     const stockByItemId = new Map<string, ClientInventoryStockLevel>(
         (stockQuery.data ?? []).map((stock) => [stock.itemId, stock])
     )
     const inventoryItems = (itemsQuery.data ?? []).sort((a, b) => a.name.localeCompare(b.name))
-    const searchedItems = getVisibleInventoryItems(inventoryItems, searchQuery)
+    const categoryItems =
+        categoryFilter === ALL_CATEGORIES
+            ? inventoryItems
+            : inventoryItems.filter((item) => item.category === categoryFilter)
+    const searchedItems = getVisibleInventoryItems(categoryItems, searchQuery)
     const activeTrackedItems = searchedItems.filter((item) => {
         const stock = stockByItemId.get(item.id)
         return item.status === 'active' && stock?.stocked
@@ -52,6 +54,7 @@ export function useInventoryData() {
         return !getIsRunningLow(item, stock) && !getNeedsCount(item, stock)
     }).length
     const items = getStockStatusFilteredItems(searchedItems, stockByItemId, stockStatusFilter)
+    const trackedItems = items.filter((item) => item.status === 'active' && stockByItemId.get(item.id)?.stocked)
 
     return {
         activeTrackedCount: activeTrackedItems.length,
@@ -59,14 +62,18 @@ export function useInventoryData() {
         canChooseLocation,
         hiddenItems: items.filter((item) => item.status === 'archived' || !stockByItemId.get(item.id)?.stocked),
         isLoading: itemsQuery.isPending || stockQuery.isPending,
-        itemCount: itemsQuery.data?.length ?? 0,
         location,
         needsCountItemCount,
         notRunningLowItemCount,
         runningLowItemCount,
         shownItemCount: items.length,
         stockByItemId,
-        trackedItems: items.filter((item) => item.status === 'active' && stockByItemId.get(item.id)?.stocked),
-        trackedStockCount: (stockQuery.data ?? []).filter((stock) => stock.stocked).length,
+        /** Cakes and take-home bags customers order from this studio's stock. */
+        orderableItems: trackedItems.filter((item) => isOrderableInventoryItem(item)),
+        supplyItems: trackedItems.filter((item) => !isOrderableInventoryItem(item)),
+        /** Every cake, cake supply and bag tracked here, ignoring filters, for receiving a delivery or a count. */
+        receivableItems: inventoryItems.filter(
+            (item) => isLinkedInventoryItem(item) && item.status === 'active' && stockByItemId.get(item.id)?.stocked
+        ),
     }
 }

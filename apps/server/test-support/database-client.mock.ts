@@ -1,6 +1,7 @@
 import { vi } from 'vite-plus/test'
 
 import type {
+    AuthUser,
     Booking,
     FirestoreBooking,
     InventoryCategory,
@@ -19,19 +20,16 @@ type SetInventoryDocumentsInput = {
     stockMovements?: InventoryStockMovement[]
     usageRules?: InventoryUsageRule[]
 }
-type RunInventoryStockMovementTransactionInput = {
-    itemId: string
+type RunInventoryStockTransactionInput = {
     location: Studio
-    buildWrite: (input: {
-        item: InventoryItem
-        stockLevel: InventoryStockLevel | undefined
-        stockLevelId: string
-        movementId: string
+    itemIds: string[]
+    idempotencyKey?: string
+    buildWrites: (input: {
+        items: Map<string, InventoryItem>
+        stockLevels: Map<string, InventoryStockLevel>
+        createMovementId: (itemId: string) => string
         now: Date
-    }) => {
-        stockLevel: InventoryStockLevel
-        movement: InventoryStockMovement
-    }
+    }) => { stockLevel: InventoryStockLevel; movement: InventoryStockMovement }[]
 }
 
 type MockDatabaseClient = {
@@ -66,13 +64,15 @@ type MockDatabaseClient = {
         itemId?: string
         limit?: number
     }) => Promise<InventoryStockMovement[]>
-    runInventoryStockMovementTransaction: (
-        input: RunInventoryStockMovementTransactionInput
-    ) => Promise<{ stockLevel: InventoryStockLevel; movement: InventoryStockMovement }>
+    listInventoryStockMovementsForBooking: (bookingId: string) => Promise<InventoryStockMovement[]>
+    runInventoryStockTransaction: (
+        input: RunInventoryStockTransactionInput
+    ) => Promise<{ stockLevel: InventoryStockLevel; movement: InventoryStockMovement }[]>
     listInventoryUsageRules: (input?: { includeArchived?: boolean }) => Promise<InventoryUsageRule[]>
     createInventoryUsageRuleId: () => Promise<string>
     getInventoryUsageRule: (ruleId: string) => Promise<InventoryUsageRule>
     deleteInventoryUsageRule: (ruleId: string) => Promise<void>
+    getUser: (uid: string) => Promise<AuthUser | undefined>
 }
 
 const databaseClientMocks = vi.hoisted(() => {
@@ -93,11 +93,13 @@ const databaseClientMocks = vi.hoisted(() => {
         updateInventoryStockLevel: unmockedMethod('updateInventoryStockLevel'),
         listInventoryStockLevels: unmockedMethod('listInventoryStockLevels'),
         listInventoryStockMovements: unmockedMethod('listInventoryStockMovements'),
-        runInventoryStockMovementTransaction: unmockedMethod('runInventoryStockMovementTransaction'),
+        listInventoryStockMovementsForBooking: unmockedMethod('listInventoryStockMovementsForBooking'),
+        runInventoryStockTransaction: unmockedMethod('runInventoryStockTransaction'),
         listInventoryUsageRules: unmockedMethod('listInventoryUsageRules'),
         createInventoryUsageRuleId: unmockedMethod('createInventoryUsageRuleId'),
         getInventoryUsageRule: unmockedMethod('getInventoryUsageRule'),
         deleteInventoryUsageRule: unmockedMethod('deleteInventoryUsageRule'),
+        getUser: unmockedMethod('getUser'),
     }
 
     return { mockDatabaseClient, unmockedMethod }
@@ -123,9 +125,11 @@ export function resetDatabaseClientMock() {
     mockDatabaseClient.updateInventoryStockLevel = unmockedMethod('updateInventoryStockLevel')
     mockDatabaseClient.listInventoryStockLevels = unmockedMethod('listInventoryStockLevels')
     mockDatabaseClient.listInventoryStockMovements = unmockedMethod('listInventoryStockMovements')
-    mockDatabaseClient.runInventoryStockMovementTransaction = unmockedMethod('runInventoryStockMovementTransaction')
+    mockDatabaseClient.listInventoryStockMovementsForBooking = unmockedMethod('listInventoryStockMovementsForBooking')
+    mockDatabaseClient.runInventoryStockTransaction = unmockedMethod('runInventoryStockTransaction')
     mockDatabaseClient.listInventoryUsageRules = unmockedMethod('listInventoryUsageRules')
     mockDatabaseClient.createInventoryUsageRuleId = unmockedMethod('createInventoryUsageRuleId')
     mockDatabaseClient.getInventoryUsageRule = unmockedMethod('getInventoryUsageRule')
     mockDatabaseClient.deleteInventoryUsageRule = unmockedMethod('deleteInventoryUsageRule')
+    mockDatabaseClient.getUser = unmockedMethod('getUser')
 }

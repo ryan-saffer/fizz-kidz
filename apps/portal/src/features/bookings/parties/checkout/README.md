@@ -10,7 +10,8 @@ The checkout is built on the shared terminal checkout (`features/terminal-checko
 
 1. **Party**: length, food package and the children who came (charged for at least 12).
 2. **Food**: the food additions, prefilled from the party form.
-3. **Review & charge**: the shared review step.
+3. **Cake**: only for a studio-stock cake (Geelong, Werribee; the config's `cake`). Staff confirm the cake and its cups, spoons and candles were used. It isn't charged; the answers decide what comes off inventory once the party is paid. The shared store's `init` takes these per-booking steps.
+4. **Review & charge**: the shared review step.
 
 The order summary beside the steps is an estimate from Square's prices (`getEstimateLines`) until the review step, where it shows Square's priced order. Once paid, the booking shows **Paid** with a link to the receipt, and the parent is emailed a receipt.
 

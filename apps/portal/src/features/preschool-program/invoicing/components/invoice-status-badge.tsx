@@ -1,3 +1,4 @@
+import { assertNever } from '@fizz-kidz/core'
 import type { InvoiceStatus } from '@fizz-kidz/core'
 
 import { Badge } from '@shared/components/ui/badge'
@@ -16,5 +17,8 @@ export function InvoiceStatusBadge({ status }: { status: InvoiceStatus | undefin
             return <Badge variant="outline">Void</Badge>
         case 'UNSUPPORTED':
             return <Badge variant="outline">Unsupported</Badge>
+        default:
+            assertNever(status)
+            throw new Error(`Unhandled invoice status: ${JSON.stringify(status)}`)
     }
 }

@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Button, Dropdown, Space, Table, Tag } from 'antd'
 import React, { useMemo, useState } from 'react'
 
+import { assertNever } from '@fizz-kidz/core'
 import type { AcuityTypes, AfterSchoolEnrolment } from '@fizz-kidz/core'
 
 import { useTRPC } from '@integrations/trpc'
@@ -193,7 +194,11 @@ const InnerEnrolmentsTable: React.FC<Props> = ({
                     }
                     setIsProcessing(false)
                 }
+                break
             }
+            default:
+                assertNever(key)
+                throw new Error(`Unhandled key: ${JSON.stringify(key)}`)
         }
     }
 
@@ -320,6 +325,13 @@ const InnerEnrolmentsTable: React.FC<Props> = ({
                             colour = 'error'
                             status = 'NO'
                             break
+                        case '':
+                            break
+                        default:
+                            assertNever(enrolment.continuingWithTerm)
+                            throw new Error(
+                                `Unhandled enrolment.continuingWithTerm: ${JSON.stringify(enrolment.continuingWithTerm)}`
+                            )
                     }
                     return (
                         <Tag

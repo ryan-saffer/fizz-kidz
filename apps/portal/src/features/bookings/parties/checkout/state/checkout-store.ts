@@ -24,13 +24,15 @@ export type CheckoutAnswers = Omit<PreparePartyCheckout, 'bookingId'>
  * studio's terminal and wait for the customer to pay. The subject is the booking. How a charge is sent and checked is
  * the shared terminal checkout's (`features/terminal-checkout`); this adds the party's steps and answers.
  */
+const PARTY_CHECKOUT_STEPS = [
+    { key: 'party', label: 'Party' },
+    { key: 'food', label: 'Food' },
+]
+
 export const useCheckoutStore = createTerminalCheckoutStore<WithId<FirestoreBooking>, CheckoutConfig, CheckoutAnswers>({
     storageKey: 'party-checkout-charge',
     getSubjectId: (booking) => booking.id,
-    steps: [
-        { key: 'party', label: 'Party' },
-        { key: 'food', label: 'Food' },
-    ],
+    steps: PARTY_CHECKOUT_STEPS,
     initialAnswers: {
         partyLength: '1.5',
         includesFood: true,
@@ -39,8 +41,16 @@ export const useCheckoutStore = createTerminalCheckoutStore<WithId<FirestoreBook
         discountCents: 0,
         discountReason: '',
         giftCardNumber: '',
+        cakeUsed: true,
+        cakeServingUsed: false,
+        cakeCandlesUsed: false,
     },
 })
+
+/** The party's steps before review, plus confirming the cake when it was sold from studio stock. */
+export function getCheckoutSteps(config: CheckoutConfig) {
+    return config.cake ? [...PARTY_CHECKOUT_STEPS, { key: 'cake', label: 'Cake' }] : PARTY_CHECKOUT_STEPS
+}
 
 /** The party price per child and the additions for the answers, before Square prices them on the review step. */
 export function estimateCharge(config: CheckoutConfig, answers: CheckoutAnswers) {

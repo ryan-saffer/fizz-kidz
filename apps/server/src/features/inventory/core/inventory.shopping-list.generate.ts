@@ -1,4 +1,4 @@
-import { ADDITIONS, STUDIOS } from '@fizz-kidz/core'
+import { ADDITIONS, STUDIOS, assertNever } from '@fizz-kidz/core'
 import type {
     Booking,
     InventoryItem,
@@ -192,7 +192,6 @@ function generateStudioReport(input: {
                 : null
 
         const roundedRequiredQuantity = roundRequiredQuantity(required.requiredQuantity)
-        const minimumTargetQuantity = item.minimumTargetQuantity ?? 0
 
         lines.push({
             itemId: item.id,
@@ -203,11 +202,8 @@ function generateStudioReport(input: {
             location: input.location,
             requiredQuantity: roundedRequiredQuantity,
             quantityOnHand,
-            minimumTargetQuantity,
             suggestedPurchaseQuantity:
-                quantityOnHand === null
-                    ? null
-                    : Math.max(roundedRequiredQuantity + minimumTargetQuantity - quantityOnHand, 0),
+                quantityOnHand === null ? null : Math.max(roundedRequiredQuantity - quantityOnHand, 0),
             stocked: stockLevel.stocked,
             sourceBreakdown: required.sourceBreakdown,
         })
@@ -266,6 +262,9 @@ function doesRuleApplyToBooking(rule: InventoryUsageRule, booking: Booking) {
             return booking.includesFood
         case 'party-addition':
             return booking[rule.addition]
+        default:
+            assertNever(rule)
+            throw new Error(`Unhandled rule.$type: ${JSON.stringify(rule)}`)
     }
 }
 
@@ -277,6 +276,9 @@ function calculateRequiredQuantity(quantity: InventoryUsageRuleQuantity, childCo
             return childCount === null ? 0 : quantity.quantityPerChild * childCount
         case 'fixed-plus-per-child':
             return quantity.fixedQuantity + (childCount === null ? 0 : quantity.quantityPerChild * childCount)
+        default:
+            assertNever(quantity)
+            throw new Error(`Unhandled quantity.$operation: ${JSON.stringify(quantity)}`)
     }
 }
 

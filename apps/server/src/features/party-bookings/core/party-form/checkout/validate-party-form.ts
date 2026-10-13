@@ -1,6 +1,6 @@
 import {
-    canOrderCake,
     getActiveBirthdayPartyBookingPackages,
+    getPartyCakeSource,
     getPartyCreationCount,
     getTakeHomeMinimum,
     mapProductToSquareVariation,
@@ -15,9 +15,10 @@ import {
     type ProductType,
 } from '@fizz-kidz/core'
 
-import { getPartyFormCakeOptions } from '../options/get-party-form-cake-options'
+import { getPartyFormCakeOptions, getStockedPartyFormCakeOptions } from '../options/get-party-form-cake-options'
 import { getPartyFormTakeHomeOptions } from '../options/get-party-form-take-home-options'
 
+import type { PartyFormTakeHomeOptions } from '../options/get-party-form-take-home-options'
 import type { Square } from 'square'
 
 import { env } from '@/app/init/firebase'
@@ -36,7 +37,8 @@ export async function validatePartyForm(payload: PartyForm) {
     const booking = await DatabaseClient.getPartyBooking(payload.bookingId)
     if (payload.mode === 'party') await validatePartyAnswers(payload, booking)
 
-    if (payload.cake && !canOrderCake(booking.type, booking.location))
+    const cakeSource = getPartyCakeSource(booking.type, booking.location)
+    if (payload.cake && (!cakeSource || (cakeSource === 'studio-stock' && payload.mode !== 'party')))
         throwTrpcError('BAD_REQUEST', 'Cakes are not available for this party.')
     if (payload.cake && booking.cake) throwTrpcError('BAD_REQUEST', 'A cake has already been ordered for this party.')
     const takeHomeBags = orderedQuantities(payload.takeHomeBags)
@@ -46,10 +48,12 @@ export async function validatePartyForm(payload: PartyForm) {
         products.some(([key, quantity]) => quantity < getTakeHomeMinimum(booking.products?.[key]))
     )
         throwTrpcError('BAD_REQUEST', `Take-home items have a minimum of ${MIN_TAKE_HOME_QUANTITY}.`)
+    if (cakeSource === 'studio-stock' && (takeHomeBags.length > 0 || products.length > 0))
+        assertTakeHomeInStock(await getPartyFormTakeHomeOptions(booking.location), takeHomeBags, products)
 
     const discounts = await getKitTopUpDiscounts(products, booking)
     const lineItems: Square.OrderLineItem[] = [
-        ...(payload.cake ? [await buildCakeLine(payload.cake, booking)] : []),
+        ...(payload.cake ? [await buildCakeLine(payload.cake, booking, cakeSource === 'studio-stock')] : []),
         ...takeHomeBags.map(([key, quantity]) => ({
             quantity: String(quantity),
             catalogObjectId: mapTakeHomeBagToSquareVariation(env, key),
@@ -92,10 +96,21 @@ async function validatePartyAnswers(payload: PartyFormPartyAnswers, booking: Boo
         throwTrpcError('BAD_REQUEST', NO_LONGER_AVAILABLE)
 }
 
-/** The cake as one line: its size variation plus serving, candle, design and flavour modifiers from Square. */
-async function buildCakeLine(cake: NonNullable<PartyForm['cake']>, booking: Booking): Promise<Square.OrderLineItem> {
+/**
+ * The cake as one line: its size variation plus serving, candle, design and flavour modifiers from Square. Studio-stock
+ * cakes must be a design the studio still has available, in the stocked size and flavours.
+ */
+async function buildCakeLine(
+    cake: NonNullable<PartyForm['cake']>,
+    booking: Booking,
+    isStocked: boolean
+): Promise<Square.OrderLineItem> {
     const { selection, size, flavours, served, candles } = cake
-    const options = await getPartyFormCakeOptions(booking.location)
+    const options = isStocked
+        ? await getStockedPartyFormCakeOptions(booking.location)
+        : await getPartyFormCakeOptions(booking.location)
+    if (isStocked && !options.designs.some((design) => design.name === selection && !design.soldOut))
+        throwTrpcError('BAD_REQUEST', `Sorry, the ${selection} cake has just sold out. Please choose another.`)
     const find = (list: { id: string; name: string }[], name: string) => list.find((option) => option.name === name)
     const chosen = {
         size: find(options.sizes, size),
@@ -126,6 +141,27 @@ async function buildCakeLine(cake: NonNullable<PartyForm['cake']>, booking: Book
             item ? [{ catalogObjectId: item.id, quantity: '1' }] : []
         ),
     }
+}
+
+/** Studio stock can't be oversold: each linked bag or kit must have enough available. */
+function assertTakeHomeInStock(
+    options: PartyFormTakeHomeOptions,
+    takeHomeBags: [string, number][],
+    products: [string, number][]
+) {
+    const check = (
+        offered: { key: string; name: string; available: number | null }[],
+        [key, quantity]: [string, number]
+    ) => {
+        const option = offered.find((item) => item.key === key)
+        if (option?.available != null && quantity > option.available)
+            throwTrpcError(
+                'BAD_REQUEST',
+                `Sorry, only ${option.available} ${option.name} are left. Please choose a smaller quantity.`
+            )
+    }
+    takeHomeBags.forEach((line) => check(options.takeHomeBags, line))
+    products.forEach((line) => check(options.products, line))
 }
 
 /**
