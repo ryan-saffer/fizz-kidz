@@ -10,7 +10,7 @@ import {
     PRESCHOOL_PROGRAM_POLICY,
     studioNameAndAddress,
 } from '@fizz-kidz/core'
-import type { AcuityTypes, DiscountCode } from '@fizz-kidz/core'
+import type { AcuityTypes, DiscountCode, StudioOrTest } from '@fizz-kidz/core'
 
 import { getTermClassesForClass, TERM_LOOKBACK_MONTHS } from './preschool-program-v2-terms'
 import { processPreschoolProgramV2Payment } from './process-preschool-program-v2-payment'
@@ -81,14 +81,24 @@ export type PreschoolProgramV2LineItem = {
     isFullTermDiscount: boolean
 }
 
+/** What the Portal sends to Google Tag Manager as the `preschool_program_booking` conversion. */
+export type PreschoolProgramV2BookingResult = {
+    transactionId: string
+    value: number
+    currency: 'AUD'
+    studio: StudioOrTest
+}
+
 /** Validates, charges, schedules, records, and confirms one preschool-v2 checkout. */
-export async function bookPreschoolProgramV2(input: BookPreschoolProgramV2Props) {
+export async function bookPreschoolProgramV2(
+    input: BookPreschoolProgramV2Props
+): Promise<PreschoolProgramV2BookingResult> {
     try {
         await DatabaseClient.createPaymentIdempotencyKey(input.idempotencyKey)
     } catch (e: any) {
         if (e.code === Status.ALREADY_EXISTS) {
             logger.warn('duplicate idempotency key during preschool-v2 booking', { input })
-            return
+            return getPreschoolProgramV2BookingResult(input)
         }
 
         throwTrpcError('INTERNAL_SERVER_ERROR', 'unable to create payment idempotency key for preschool-v2', e, {
@@ -296,10 +306,15 @@ export async function bookPreschoolProgramV2(input: BookPreschoolProgramV2Props)
         ...(discount && { discountCode: discount.code }),
     })
 
+    return getPreschoolProgramV2BookingResult(input)
+}
+
+function getPreschoolProgramV2BookingResult(input: BookPreschoolProgramV2Props): PreschoolProgramV2BookingResult {
     return {
-        orderId: order.id || '',
-        receiptUrl: paymentReceipt,
-        appointmentIds: appointments.map((appointment) => appointment.id),
+        transactionId: input.idempotencyKey,
+        value: input.payment.amount / 100,
+        currency: 'AUD',
+        studio: AcuityUtilities.getStudioByCalendarId(input.payment.lineItems[0].calendarID),
     }
 }
 

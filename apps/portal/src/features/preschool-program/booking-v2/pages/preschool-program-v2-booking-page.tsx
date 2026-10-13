@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { loadGoogleTagManager } from '@integrations/google-tag-manager'
 import Root from '@shared/components/public-page-shell'
 import { Alert, AlertDescription, AlertTitle } from '@shared/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
@@ -20,6 +22,10 @@ export function PreschoolProgramV2BookingPage() {
         resolver: zodResolver(formSchema),
         defaultValues,
     })
+
+    useEffect(() => {
+        loadGoogleTagManager()
+    }, [])
 
     return (
         <Root logoSize="sm">

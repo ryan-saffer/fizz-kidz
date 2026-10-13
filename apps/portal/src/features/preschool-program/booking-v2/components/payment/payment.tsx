@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 
 import { getSquareLocationId } from '@fizz-kidz/core'
 
+import { pushBookingConversion } from '@integrations/google-tag-manager'
 import { SQUARE_APPLICATION_ID } from '@integrations/square'
 import { useTRPC } from '@integrations/trpc'
 import Loader from '@shared/components/loader'
@@ -62,7 +63,7 @@ export function Payment() {
             idempotencyKey.current = crypto.randomUUID()
         }
 
-        await mutateAsync({
+        const bookingResult = await mutateAsync({
             idempotencyKey: idempotencyKey.current,
             parentFirstName: form.getValues().parentFirstName,
             parentLastName: form.getValues().parentLastName,
@@ -91,6 +92,12 @@ export function Payment() {
                 lineItems: buildLineItems(),
                 discount: discountCode,
             },
+        })
+        pushBookingConversion({
+            event: 'preschool_program_booking',
+            ...bookingResult,
+            parentEmail: form.getValues().parentEmailAddress,
+            parentPhone: form.getValues().parentPhone,
         })
         nextStage()
     }

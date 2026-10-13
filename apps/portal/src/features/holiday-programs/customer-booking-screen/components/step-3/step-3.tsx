@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { getSquareLocationId } from '@fizz-kidz/core'
 import type { DiscountCode } from '@fizz-kidz/core'
 
+import { pushBookingConversion } from '@integrations/google-tag-manager'
 import { SQUARE_APPLICATION_ID } from '@integrations/square'
 import { useTRPC } from '@integrations/trpc'
 import Loader from '@shared/components/loader'
@@ -75,19 +76,17 @@ const Step3: React.FC<Props> = ({ form, handleBookingSuccess }) => {
         if (isSuccess) {
             if (bookingResult && !conversionEventPushed.current) {
                 conversionEventPushed.current = true
-                window.dataLayer = window.dataLayer || []
-                window.dataLayer.push({
+                pushBookingConversion({
                     event: 'holiday_program_booking',
-                    value: bookingResult.value,
-                    currency: bookingResult.currency,
-                    transaction_id: bookingResult.transactionId,
-                    studio: bookingResult.studio,
+                    ...bookingResult,
+                    parentEmail: form.parentEmail,
+                    parentPhone: form.phone,
                 })
             }
 
             handleBookingSuccess()
         }
-    }, [bookingResult, isSuccess, handleBookingSuccess])
+    }, [bookingResult, isSuccess, handleBookingSuccess, form.parentEmail, form.phone])
 
     // MARK: functions
     function handleBooking({ token, buyerVerificationToken }: { token?: string; buyerVerificationToken?: string }) {
