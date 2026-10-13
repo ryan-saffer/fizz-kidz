@@ -1,8 +1,4 @@
-import fs from 'fs'
-import os from 'os'
-import path from 'path'
 import { Readable } from 'stream'
-import { finished } from 'stream/promises'
 
 import { getOAuth2Client } from './google-oauth'
 
@@ -43,14 +39,8 @@ export class DriveClient {
     }
 
     async uploadFileFromUrl(url: string, filename: string, mimeType: string, folderId: string) {
-        // download
-        const tempFilePath = path.join(os.tmpdir(), filename)
-        const tfnFileStream = fs.createWriteStream(tempFilePath)
-
-        const tfnFileResult = await fetch(url)
-        await finished(Readable.fromWeb(tfnFileResult.body as ReadableStream<any>).pipe(tfnFileStream))
-
-        // upload
+        // stream straight to Drive; /tmp is held in memory on Cloud Functions, so temp files would leak memory
+        const response = await fetch(url)
         await this.#drive.files.create({
             supportsAllDrives: true,
             requestBody: {
@@ -59,7 +49,7 @@ export class DriveClient {
             },
             media: {
                 mimeType,
-                body: fs.createReadStream(tempFilePath),
+                body: Readable.fromWeb(response.body as ReadableStream<any>),
             },
         })
     }
