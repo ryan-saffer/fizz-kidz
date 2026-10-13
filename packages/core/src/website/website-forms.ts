@@ -33,6 +33,13 @@ export const ContactFormLocationOptions = [
     { value: 'other', label: 'Other' },
 ] as const satisfies SelectOptionTuple
 
+// At home is listed first on party enquiries so families see we can come to them.
+export const PartyFormLocationOptions = [
+    { value: 'at-home', label: 'At home (we come to you)' },
+    ...WebsiteStudioOptions,
+    { value: 'other', label: 'Other' },
+] as const satisfies SelectOptionTuple
+
 export const PartyThemeOptions = [
     { value: 'glam', label: 'Glam Party' },
     { value: 'fluid-bears', label: 'Fluid Bears Party' },

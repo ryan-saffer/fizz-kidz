@@ -12,12 +12,12 @@ import Step from "@/components/step.astro";
 import PrimaryButton from "@/components/primary-button.astro";
 
 import { websitePagesPartiesEssendonStudioJpg as essendonStudio } from "@/data/website-images";
-import { websitePagesPartiesAtHomePartiesPng as atHomeParties } from "@/data/website-images";
 import Pricing from "@/components/pricing.astro";
 import PartyInformation from "@/components/party-information.astro";
 import MixAndMatchParties from "@/components/mix-and-match-parties.astro";
 // import PartyPacks from "@/components/party-packs.astro";
 import PartyThemes from "@/components/party-themes.astro";
+import PartyLocationChoice from "@/components/party-location-choice.astro";
 import PartyFaq from "@/components/party-faq.astro";
 import Values from "@/components/values.astro";
 import PartyPerks from "@/components/party-perks.astro";
@@ -110,12 +110,17 @@ const { default: purpleDrop } = await import(
           <span slot="content"
             >Fizz Kidz' Kids Birthday Parties are the perfect and stress-free
             party for all boys and girls (aged 4 - 12) that your child and all
-            their friends will love!
+            their friends will love! Celebrate at one of our studios, or we can
+            bring the party to you.
           </span>
         </PageIntro>
       </section>
+      <PartyLocationChoice
+        studioButtonText="Studio party details"
+        studioButtonPath="#how-it-works"
+      />
       <PartyThemes />
-      <section class="mt-16 md:mt-40">
+      <section id="how-it-works" class="mt-16 scroll-mt-24 md:mt-40">
         <h2 class="mb-12 text-center font-lilita text-4xl md:mb-28 md:text-6xl">
           How it works
         </h2>
@@ -255,36 +260,6 @@ const { default: purpleDrop } = await import(
       />
     </section>
     <div class="mx-auto block max-w-[1200px] px-5 py-8">
-      <section class="my-12 flex flex-col gap-16 lg:flex-row lg:gap-8">
-        <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
-          <p class="text-center font-lilita text-4xl lg:text-start">
-            Fizz Kidz At Home Parties
-          </p>
-          <p
-            class="text-center font-lilita text-2xl text-[#8DC54B] lg:text-start"
-          >
-            Sit back, relax and we will take care of everything!
-          </p>
-          <p class="text-center font-gotham font-medium lg:text-start">
-            Our fabulous Fizz Kidz hosts will come to your home or a party venue
-            near you, and run a fantastic stress-free party that we know your
-            child, and their friends will love!
-          </p>
-          <div
-            class="mt-8 flex flex-wrap justify-center gap-x-12 gap-y-6 lg:justify-start"
-          >
-            <PrimaryButton
-              text="At Home Party Details"
-              path="/birthday-parties/at-home-parties/"
-            />
-          </div>
-        </div>
-        <Image
-          src={atHomeParties}
-          alt="Fizz Kids running activities at someones home"
-          class="object-fit w-full lg:w-[60%]"
-        />
-      </section>
       <Values />
     </div>
   </main>

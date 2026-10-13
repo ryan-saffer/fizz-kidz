@@ -1,7 +1,9 @@
 ---
 import FeatureSection from "@/components/birthday-party-catalogue/feature-section.astro";
 import PackageCreations from "@/components/birthday-party-catalogue/package-creations.astro";
+import Container from "@/components/container.astro";
 import PageIntro from "@/components/page-intro.astro";
+import PartyLocationChoice from "@/components/party-location-choice.astro";
 import Layout from "@/layout/Layout.astro";
 import PartyLayout from "@/layout/party-layout.astro";
 import { createPartySchemas } from "@/utils/seo";
@@ -50,5 +52,12 @@ const page = partyPackage.websitePage;
         <FeatureSection feature={feature} />
       ))
     }
+    <Container>
+      <PartyLocationChoice
+        title="Love this party? Have it at our studio or at home!"
+        studioButtonText="Book a studio party"
+        studioButtonPath="/birthday-parties/book-a-party/#book"
+      />
+    </Container>
   </PartyLayout>
 </Layout>
