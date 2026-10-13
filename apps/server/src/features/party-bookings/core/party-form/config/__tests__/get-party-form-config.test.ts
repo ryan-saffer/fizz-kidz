@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
+import { getStudioAddress } from '@fizz-kidz/core'
 import type { BirthdayPartyBookingCatalogue } from '@fizz-kidz/core'
 
 import { getPartyFormConfig } from '../get-party-form-config'
@@ -41,6 +42,9 @@ vi.mock('@/integrations/sanity/sanity.client', () => ({
         }),
     },
 }))
+
+// 10:00am Saturday 14 November in Melbourne (AEDT)
+const partyDate = new Date('2026-11-13T23:00:00.000Z')
 
 const catalogue: BirthdayPartyBookingCatalogue = {
     creations: [
@@ -93,6 +97,7 @@ describe('party form configuration with creation-owned availability', () => {
         ['mobile', ['mobileSlime', 'sharedSlime'], ['slime', 'science']],
     ] as const)('returns %s choices and their photos in Website card order', async (type, choices, packages) => {
         getPartyBooking.mockResolvedValue({
+            dateTime: partyDate,
             type,
             location: 'malvern',
             partyLength: '1.5',
@@ -132,7 +137,13 @@ describe('party form configuration with creation-owned availability', () => {
         getImages.mockResolvedValue([])
         getAdditions.mockResolvedValue(additions)
 
-        getPartyBooking.mockResolvedValue({ type: 'studio', location: 'malvern', partyLength: '1.5', childAge: 7 })
+        getPartyBooking.mockResolvedValue({
+            dateTime: partyDate,
+            type: 'studio',
+            location: 'malvern',
+            partyLength: '1.5',
+            childAge: 7,
+        })
         expect((await getPartyFormConfig('booking-id')).additions).toEqual(additions)
         expect(getAdditions).toHaveBeenCalledWith('malvern')
 
@@ -140,7 +151,13 @@ describe('party form configuration with creation-owned availability', () => {
         expect((await getPartyFormConfig('booking-id')).additions).toEqual([])
 
         getAdditions.mockClear()
-        getPartyBooking.mockResolvedValue({ type: 'mobile', location: 'malvern', partyLength: '1', childAge: 7 })
+        getPartyBooking.mockResolvedValue({
+            dateTime: partyDate,
+            type: 'mobile',
+            location: 'malvern',
+            partyLength: '1',
+            childAge: 7,
+        })
         expect((await getPartyFormConfig('booking-id')).additions).toEqual([])
         expect(getAdditions).not.toHaveBeenCalled()
     })
@@ -148,7 +165,13 @@ describe('party form configuration with creation-owned availability', () => {
     it('offers cakes with Square designs and flavours, and turns cake ordering off when Square fails', async () => {
         getCatalogue.mockResolvedValue(catalogue)
         getImages.mockResolvedValue([])
-        getPartyBooking.mockResolvedValue({ type: 'studio', location: 'malvern', partyLength: '1.5', childAge: 7 })
+        getPartyBooking.mockResolvedValue({
+            dateTime: partyDate,
+            type: 'studio',
+            location: 'malvern',
+            partyLength: '1.5',
+            childAge: 7,
+        })
 
         expect(await getPartyFormConfig('booking-id')).toMatchObject({ cakeOptions })
         expect(getCakeOptions).toHaveBeenCalledWith('malvern')
@@ -160,7 +183,13 @@ describe('party form configuration with creation-owned availability', () => {
     it('offers studio-stock cakes at Werribee and Geelong, and no cake step when none are in stock', async () => {
         getCatalogue.mockResolvedValue(catalogue)
         getImages.mockResolvedValue([])
-        getPartyBooking.mockResolvedValue({ type: 'studio', location: 'werribee', partyLength: '1.5', childAge: 7 })
+        getPartyBooking.mockResolvedValue({
+            dateTime: partyDate,
+            type: 'studio',
+            location: 'werribee',
+            partyLength: '1.5',
+            childAge: 7,
+        })
         getStockedCakeOptions.mockResolvedValue(cakeOptions)
 
         expect(await getPartyFormConfig('booking-id')).toMatchObject({ cakeSource: 'studio-stock', cakeOptions })
@@ -169,6 +198,37 @@ describe('party form configuration with creation-owned availability', () => {
 
         getStockedCakeOptions.mockResolvedValue({ ...cakeOptions, designs: [] })
         expect(await getPartyFormConfig('booking-id')).toMatchObject({ cakeOptions: null })
+    })
+
+    it('says where and when the party is, in Melbourne time, for parents to check', async () => {
+        getCatalogue.mockResolvedValue(catalogue)
+        getImages.mockResolvedValue([])
+        getPartyBooking.mockResolvedValue({
+            dateTime: partyDate,
+            type: 'studio',
+            location: 'werribee',
+            partyLength: '1.5',
+            childAge: 7,
+        })
+        expect((await getPartyFormConfig('booking-id')).party).toEqual({
+            date: 'Saturday 14 November',
+            time: '10:00am – 11:30am',
+            where: 'Fizz Kidz Werribee, ' + getStudioAddress('werribee'),
+        })
+
+        getPartyBooking.mockResolvedValue({
+            dateTime: partyDate,
+            type: 'mobile',
+            location: 'malvern',
+            partyLength: '1',
+            childAge: 7,
+            address: '12 Party Lane, Malvern',
+        })
+        expect((await getPartyFormConfig('booking-id')).party).toEqual({
+            date: 'Saturday 14 November',
+            time: '10:00am – 11:00am',
+            where: '12 Party Lane, Malvern',
+        })
     })
 
     it('reports a booking that no longer exists as not found rather than a server error', async () => {
@@ -183,7 +243,13 @@ describe('party form configuration with creation-owned availability', () => {
     it('offers take-home goodies from Square, and loads without them when Square fails', async () => {
         getCatalogue.mockResolvedValue(catalogue)
         getImages.mockResolvedValue([])
-        getPartyBooking.mockResolvedValue({ type: 'mobile', location: 'malvern', partyLength: '1', childAge: 7 })
+        getPartyBooking.mockResolvedValue({
+            dateTime: partyDate,
+            type: 'mobile',
+            location: 'malvern',
+            partyLength: '1',
+            childAge: 7,
+        })
 
         expect((await getPartyFormConfig('booking-id')).takeHomeOptions).toEqual(takeHomeOptions)
         expect(getTakeHomeOptions).toHaveBeenCalledWith('malvern')

@@ -49,6 +49,7 @@ vi.mock('react-square-web-payments-sdk', () => ({
 const config: PartyFormConfig = {
     bookingId: 'test-party',
     type: 'studio',
+    party: { date: 'Saturday 14 November', time: '10:00am – 11:30am', where: 'Fizz Kidz Malvern, 1 Test St' },
     cakeSource: 'supplier',
     cakeOptions: {
         sizes: [
@@ -264,6 +265,15 @@ describe('Party form guided journey', () => {
         expect((screen.getByLabelText('Your First Name') as HTMLInputElement).value).toBe('Jamie')
         await user.click(screen.getByRole('button', { name: 'Next' }))
         expect(screen.getByRole('status').textContent).toContain('You have selected exactly 2 creations.')
+    })
+
+    it('shows where and when the party is on the first step, for parents to check', async () => {
+        const user = setup()
+        await user.click(screen.getByRole('button', { name: 'Next' }))
+        // the time sits on its own line below the date
+        expect(screen.getByText('Saturday 14 November').tagName).toBe('DD')
+        expect(screen.getByText('10:00am – 11:30am').tagName).toBe('DD')
+        expect(screen.getByText('Fizz Kidz Malvern, 1 Test St')).toBeTruthy()
     })
 
     it('summarises the booked food package on the first step without letting it change there', async () => {

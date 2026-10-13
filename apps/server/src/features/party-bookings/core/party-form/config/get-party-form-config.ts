@@ -1,4 +1,14 @@
-import { getActiveBirthdayPartyBookingPackages, getPartyCakeSource, getPartyCreationCount } from '@fizz-kidz/core'
+import { DateTime } from 'luxon'
+
+import {
+    capitalise,
+    getActiveBirthdayPartyBookingPackages,
+    getPartyCakeSource,
+    getPartyCreationCount,
+    getPartyEndDate,
+    getStudioAddress,
+} from '@fizz-kidz/core'
+import type { Booking } from '@fizz-kidz/core'
 
 import { getPartyFormAdditions } from '../options/get-party-form-additions'
 import { getPartyFormCakeOptions, getStockedPartyFormCakeOptions } from '../options/get-party-form-cake-options'
@@ -73,6 +83,7 @@ export async function getPartyFormConfig(bookingId: string) {
         type: booking.type,
         cakeSource,
         cakeOptions,
+        party: getPartySummary(booking),
         creationsRequired: getPartyCreationCount(booking),
         prefill: {
             parentFirstName: booking.parentFirstName,
@@ -89,6 +100,24 @@ export async function getPartyFormConfig(bookingId: string) {
         packages,
         additions,
         takeHomeOptions,
+    }
+}
+
+/**
+ * Where and when the party is, for parents to check on the form. Formatted here in Melbourne time, so it reads the same
+ * whatever the parent's timezone, eg. 'Saturday 14 November' and '10:00am – 11:30am'.
+ */
+function getPartySummary(booking: Booking) {
+    const time = (date: Date) =>
+        DateTime.fromJSDate(date, { zone: 'Australia/Melbourne' }).toFormat('h:mma').toLowerCase()
+    const start = DateTime.fromJSDate(booking.dateTime, { zone: 'Australia/Melbourne' })
+    return {
+        date: start.toFormat('cccc d LLLL'),
+        time: `${time(booking.dateTime)} – ${time(getPartyEndDate(booking.dateTime, booking.partyLength))}`,
+        where:
+            booking.type === 'studio'
+                ? `Fizz Kidz ${capitalise(booking.location)}, ${getStudioAddress(booking.location)}`
+                : booking.address,
     }
 }
 

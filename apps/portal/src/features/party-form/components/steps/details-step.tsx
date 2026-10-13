@@ -1,4 +1,4 @@
-import { Info, ShoppingBasket, UtensilsCrossed } from 'lucide-react'
+import { CalendarClock, Info, MapPin, ShoppingBasket, UtensilsCrossed } from 'lucide-react'
 
 import { NUMBER_OF_CHILDREN_MOBILE, NUMBER_OF_CHILDREN_STUDIO } from '@fizz-kidz/core'
 
@@ -17,6 +17,20 @@ export function DetailsStep() {
     const isStudio = config.type === 'studio'
     return (
         <StepBody step="details">
+            <Section title="Your party">
+                <dl className="grid gap-3 sm:grid-cols-2">
+                    <PartyFact
+                        icon={<CalendarClock size={18} aria-hidden="true" />}
+                        label="When"
+                        value={[config.party.date, config.party.time]}
+                    />
+                    <PartyFact
+                        icon={<MapPin size={18} aria-hidden="true" />}
+                        label="Where"
+                        value={[config.party.where]}
+                    />
+                </dl>
+            </Section>
             <Section title="Your Details">
                 <div className="grid gap-4 sm:grid-cols-2">
                     <form.Field
@@ -155,6 +169,24 @@ function FoodPackageSummary({ value }: { value: FormValues['foodPackage'] }) {
             <div>
                 <p className="font-semibold">{title}</p>
                 <p className="text-[13px] leading-normal text-party-muted">{description}</p>
+            </div>
+        </div>
+    )
+}
+
+/** A read-only detail of the booked party, for parents to check. */
+function PartyFact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string[] }) {
+    return (
+        <div className="flex gap-3 rounded-2xl bg-party-tint px-4 py-3">
+            <span className="mt-0.5 shrink-0 text-party-pink">{icon}</span>
+            <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-party-muted">{label}</dt>
+                {/* each part on its own line, eg. the date and then the time */}
+                {value.map((line) => (
+                    <dd key={line} className="m-0 font-semibold text-party-ink">
+                        {line}
+                    </dd>
+                ))}
             </div>
         </div>
     )
