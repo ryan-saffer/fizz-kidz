@@ -8,6 +8,7 @@ import { useSearchParams } from 'react-router-dom'
 import type { AcuityTypes } from '@fizz-kidz/core'
 import { AcuityConstants } from '@fizz-kidz/core'
 
+import { loadGoogleTagManager } from '@integrations/google-tag-manager'
 import { useTRPC } from '@integrations/trpc'
 import Loader from '@shared/components/loader'
 import Root from '@shared/components/public-page-shell'
@@ -18,24 +19,6 @@ import Step3 from '../components/step-3/step-3'
 import { useCart } from '../state/cart-store'
 
 import type dayjs from 'dayjs'
-
-const GOOGLE_TAG_MANAGER_ID = 'GTM-NBCZ5XHQ'
-
-function loadGoogleTagManager(containerId: string) {
-    const scriptId = `gtm-script-${containerId}`
-    if (document.getElementById(scriptId)) {
-        return
-    }
-
-    window.dataLayer = window.dataLayer || []
-    window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' })
-
-    const script = document.createElement('script')
-    script.id = scriptId
-    script.async = true
-    script.src = `https://www.googletagmanager.com/gtm.js?id=${containerId}`
-    document.head.appendChild(script)
-}
 
 export type Form = {
     parentFirstName: string
@@ -100,7 +83,7 @@ export const CustomerBookingPage = () => {
     const [showNoChildrenModal, setShowNoChildrenModal] = useState(false)
 
     useEffect(() => {
-        loadGoogleTagManager(GOOGLE_TAG_MANAGER_ID)
+        loadGoogleTagManager()
     }, [])
 
     const { data, isPending, isSuccess, isError } = useQuery(

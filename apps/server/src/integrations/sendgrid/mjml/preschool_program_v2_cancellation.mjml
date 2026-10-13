@@ -24,7 +24,7 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    Preschool Program cancellation
+                    Messy Play cancellation
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -36,7 +36,7 @@
         <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px" padding-top="0">
             <mj-column width="100%">
                 <mj-text font-size="16px"> Hi {{ parentName }}, </mj-text>
-                <mj-text font-size="16px"> Your Preschool Program session has been cancelled. </mj-text>
+                <mj-text font-size="16px"> Your Messy Play session has been cancelled. </mj-text>
             </mj-column>
             <mj-column width="100%">
                 <mj-text

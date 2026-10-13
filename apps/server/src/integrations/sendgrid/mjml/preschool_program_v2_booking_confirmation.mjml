@@ -29,7 +29,7 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    Preschool Program booking confirmation
+                    Messy Play booking confirmation
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -43,8 +43,8 @@
                 <mj-column width="100%">
                     <mj-text font-size="16px"> Hi {{ parentName }}, </mj-text>
                     <mj-text font-size="16px">
-                        Yay! Your Fizz Kidz Preschool Program booking is confirmed and paid. We can't wait to welcome
-                        your child into the studio.
+                        Yay! Your Fizz Kidz Messy Play booking is confirmed and paid. We can't wait to welcome your
+                        child into the studio.
                     </mj-text>
                     <mj-text font-size="16px">
                         Below are the sessions you have booked. You can use the Change / Cancel link beside each session
@@ -86,9 +86,9 @@
                 </mj-column>
                 <mj-column width="100%">
                     <mj-text font-size="16px">
-                        The Preschool Program is a 2-hour session for children aged 2.5 to 5 years. Each week brings a
-                        new hands-on science, art and sensory adventure, with a consistent session structure that builds
-                        confidence, independence and school-readiness through intentional play.
+                        Fizz Kidz Messy Play is our weekly science, art &amp; sensory class for ages 2.5–5. Each 2-hour
+                        session brings a new hands-on science, art and sensory adventure, with a consistent structure
+                        that builds confidence, independence and school-readiness through intentional play.
                     </mj-text>
                     <mj-text font-size="16px">
                         Children enjoy creative projects, sensory exploration, science experiments, movement, music and

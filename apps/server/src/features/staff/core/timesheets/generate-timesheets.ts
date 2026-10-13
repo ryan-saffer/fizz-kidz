@@ -255,18 +255,22 @@ export async function generateTimesheets({ startDateInput, endDateInput, studio 
         // if running locally, signing a url isn't possible, so use a download token instead
         const downloadToken = isUsingEmulator() ? randomUUID() : null
 
-        const [file] = await storage.bucket(bucketName).upload(tempFilePath, {
-            destination,
-            ...(downloadToken
-                ? {
-                      metadata: {
+        // /tmp is held in memory on Cloud Functions, so remove the csv once it's uploaded
+        const [file] = await storage
+            .bucket(bucketName)
+            .upload(tempFilePath, {
+                destination,
+                ...(downloadToken
+                    ? {
                           metadata: {
-                              firebaseStorageDownloadTokens: downloadToken,
+                              metadata: {
+                                  firebaseStorageDownloadTokens: downloadToken,
+                              },
                           },
-                      },
-                  }
-                : {}),
-        })
+                      }
+                    : {}),
+            })
+            .finally(() => fs.unlinkSync(tempFilePath))
 
         let downloadUrl: string
         if (downloadToken) {

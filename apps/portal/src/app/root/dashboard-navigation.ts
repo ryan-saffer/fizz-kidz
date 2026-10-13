@@ -96,7 +96,7 @@ const dashboardNavigationSections: DashboardNavigationSection[] = [
                 accentSoft: 'rgba(246, 186, 52, 0.18)',
             },
             {
-                label: 'Preschool Program',
+                label: 'Messy Play',
                 description: 'View session bookings and manage child attendance.',
                 to: 'preschool-program',
                 icon: Sparkles,

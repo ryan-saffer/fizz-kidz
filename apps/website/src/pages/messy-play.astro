@@ -45,19 +45,19 @@ import { websitePagesPartiesFaqPng as faq } from "@/data/website-images";
 import { createBreadcrumbSchema, createServiceSchema } from "@/utils/seo";
 
 const description =
-  "A weekly two-hour preschool program for children aged 2.5 to 5, building confidence and school readiness through guided art, science, sensory play and movement.";
+  "Messy Play: weekly 2-hour science, art and sensory classes for ages 2.5 to 5 in Essendon, Geelong and Werribee. Builds confidence and school readiness.";
 
 const schema = [
   createServiceSchema({
-    name: "Fizz Kidz Preschool Program",
+    name: "Fizz Kidz Messy Play",
     description,
-    path: "/preschool-program/",
-    serviceType: "Preschool program",
+    path: "/messy-play/",
+    serviceType: "Toddler science and art classes",
     areaServed: ["Victoria"],
   }),
-  createBreadcrumbSchema("/preschool-program/", [
+  createBreadcrumbSchema("/messy-play/", [
     { name: "Home", path: "/" },
-    { name: "Preschool Program", path: "/preschool-program/" },
+    { name: "Messy Play", path: "/messy-play/" },
   ]),
 ];
 
@@ -114,7 +114,7 @@ const sessionSlots = [
 ---
 
 <Layout
-  title="Preschool Program & School Readiness | Fizz Kidz"
+  title="Messy Play Classes for Toddlers: Science & Art | Fizz Kidz"
   description={description}
   schema={schema}
 >
@@ -125,7 +125,7 @@ const sessionSlots = [
       items={[
         {
           type: "dropdown",
-          title: "Preschool Program",
+          title: "Messy Play",
           items: [
             {
               type: "link",
@@ -141,8 +141,8 @@ const sessionSlots = [
             },
             {
               type: "link",
-              title: "Preschool Program",
-              path: "/preschool-program/",
+              title: "Messy Play",
+              path: "/messy-play/",
               isNew: false,
             },
           ],
@@ -150,15 +150,15 @@ const sessionSlots = [
       ]}
     />
     <PageIntro
-      subtitle="A weekly 2-hour science, art and sensory adventure for children aged 2.5 to 5 years."
+      subtitle="Weekly 2-hour science, art and sensory classes for ages 2.5 to 5."
       color="purple"
       actionButtonText="Book sessions"
       actionButtonPath="https://bookings.fizzkidz.com.au/preschool-program-v2-booking"
       type="image"
       image={hero}
-      imageAlt="Holiday Programs"
+      imageAlt="Child exploring a hands-on Messy Play activity"
     >
-      <span slot="title">Fizz Kidz Preschool Program</span>
+      <span slot="title">Fizz Kidz Messy Play</span>
       <span slot="content"
         >Build confidence, independence and school readiness through intentional
         play, with a new hands-on <strong>art and science</strong> adventure every
@@ -200,7 +200,7 @@ const sessionSlots = [
       <p
         class="mx-auto mt-6 max-w-4xl text-center font-gotham text-lg text-[#5F5F5F] md:text-2xl"
       >
-        Fizz Kidz Preschool Program runs throughout the school term, with the
+        Messy Play runs throughout the school term, with the
         flexibility to book for the full term or join us casually, whatever
         works best for your family!
       </p>
@@ -213,7 +213,7 @@ const sessionSlots = [
               alt: "Child wearing science goggles during a Fizz Kidz activity",
               title: "Choose your sessions",
               points: [
-                "<strong>Each 2-hour session is $39.00, filled with art, science and sensory fun.</strong>",
+                "<strong>Each 2-hour session is $39.00, filled with art, science and messy play fun.</strong>",
                 "Choose from Tuesday or Friday sessions at our Essendon, Geelong or Werribee studios, or enjoy a mix of both days.",
                 "Every week brings a brand-new adventure for your little one to explore.",
               ],
@@ -344,7 +344,7 @@ const sessionSlots = [
               <div class="relative overflow-hidden rounded-[2rem] bg-white">
                 <Image
                   src={wednesday}
-                  alt="Child painting during a Preschool Program activity"
+                  alt="Child painting during a Messy Play session"
                   class="w-full rounded-[1.6rem] object-cover"
                   width={900}
                 />
@@ -489,7 +489,7 @@ const sessionSlots = [
           <Image
             slot="image5"
             src={playLabImage}
-            alt="Child participating in a Preschool Program activity"
+            alt="Child taking part in a Messy Play session"
             class="h-60 w-60 rounded-md object-cover"
             width={240}
             height={240}
@@ -679,7 +679,7 @@ const sessionSlots = [
           <div class="w-full lg:w-1/2">
             <h2 class="font-lilita text-4xl uppercase leading-none md:text-6xl">
               Why parents love<br /><span class="text-[#45D3F3]"
-                >Preschool Program</span
+                >Messy Play</span
               >
               <span class="ml-3 text-[#F24DA2]">&#9829;</span>
             </h2>
@@ -729,7 +729,7 @@ const sessionSlots = [
               >
                 <Image
                   src={step3}
-                  alt="Children enjoying a Preschool Program craft activity"
+                  alt="Children enjoying a Messy Play craft activity"
                   class="h-full w-full object-cover"
                   width={900}
                 />
@@ -967,19 +967,34 @@ const sessionSlots = [
                     "Choose your studio, then as many Tuesday and Friday sessions as you like and pay online when you book. You can include both days in the same checkout.",
                 },
                 {
-                  question: "Where is the Preschool Program held?",
+                  question: "Where is Messy Play held?",
                   answer:
-                    "The Preschool Program runs at our Essendon, Geelong and Werribee studios, every Tuesday and Friday during the school term.",
+                    "Messy Play runs at our Essendon, Geelong and Werribee studios, every Tuesday and Friday during the school term.",
                 },
                 {
-                  question: "What age group is the Preschool Program for?",
+                  question: "Is Messy Play just free play?",
                   answer:
-                    "The Preschool Program is designed for children aged 2.5 to 5 years old. Activities are thoughtfully adapted to suit each developmental stage, so children can build confidence, creativity, and school readiness in every session.",
+                    "No. Each session is a structured 2-hour class led by qualified Early Childhood educators, with hands-on science, creative craft, sensory play, movement, music and story time.",
+                },
+                {
+                  question: "What age group is Messy Play for?",
+                  answer:
+                    "Messy Play is designed for children aged 2.5 to 5 years old. Activities are thoughtfully adapted to suit each developmental stage, so children can build confidence, creativity, and school readiness in every session.",
                 },
                 {
                   question: "Do I stay with my child during the session?",
                   answer:
                     "It's up to you! You're welcome to drop your child off, or stay and enjoy the session with them. Either way, our facilitators provide gentle guidance and support throughout.",
+                },
+                {
+                  question: "Is Messy Play a kinder or childcare program?",
+                  answer:
+                    "No. Messy Play is a weekly 2-hour class you book by the session or by the term. It isn't funded kinder or childcare.",
+                },
+                {
+                  question: "Is Messy Play the same as the Fizz Kidz Preschool Program?",
+                  answer:
+                    "Yes. The Preschool Program is now called Messy Play. It's the same sessions, studios, times and prices.",
                 },
                 {
                   question: "What types of activities do you run?",
@@ -989,10 +1004,10 @@ const sessionSlots = [
                 {
                   question: "How long is each session?",
                   answer:
-                    "Each Preschool Program session runs from 9:30 AM to 11:30 AM.",
+                    "Each Messy Play session runs from 9:30 AM to 11:30 AM.",
                 },
                 {
-                  question: "How much does the Preschool Program cost?",
+                  question: "How much does Messy Play cost?",
                   answer:
                     "Sessions are $39 per child. Book every Tuesday or Friday session in the term before the term starts to receive 20% off, bringing the price to $31.20 per session, per child.",
                 },
@@ -1003,9 +1018,9 @@ const sessionSlots = [
                 },
                 {
                   question:
-                    "My child has special needs. Is this program appropriate?",
+                    "My child has special needs. Is Messy Play appropriate?",
                   answer:
-                    "Absolutely. We welcome all children and are passionate about creating an inclusive, supportive environment for every child. We encourage you to call us so we can chat about how best to support your child in the Preschool Program.",
+                    "Absolutely. We welcome all children and are passionate about creating an inclusive, supportive environment for every child. We encourage you to call us so we can chat about how best to support your child in Messy Play.",
                 },
               ]}
             />

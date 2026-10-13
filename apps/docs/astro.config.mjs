@@ -83,23 +83,23 @@ export default defineConfig({
                             ],
                         },
                         {
-                            label: 'Preschool Programs',
+                            label: 'Messy Play',
                             items: [
                                 {
                                     label: 'How Bookings Work',
-                                    link: 'services/preschool-programs/how-bookings-work',
+                                    link: 'services/messy-play/how-bookings-work',
                                 },
                                 {
                                     label: 'Whole-term Bookings',
-                                    link: 'services/preschool-programs/whole-term-bookings',
+                                    link: 'services/messy-play/whole-term-bookings',
                                 },
                                 {
                                     label: 'Attendance',
-                                    link: 'services/preschool-programs/attendance',
+                                    link: 'services/messy-play/attendance',
                                 },
                                 {
                                     label: 'Changes and Refunds',
-                                    link: 'services/preschool-programs/changes-and-refunds',
+                                    link: 'services/messy-play/changes-and-refunds',
                                 },
                             ],
                         },
