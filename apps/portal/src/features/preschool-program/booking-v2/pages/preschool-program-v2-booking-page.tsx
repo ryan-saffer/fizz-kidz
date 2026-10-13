@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { loadGoogleTagManager } from '@integrations/google-tag-manager'
 import Root from '@shared/components/public-page-shell'
 import { Alert, AlertDescription, AlertTitle } from '@shared/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
@@ -21,12 +23,16 @@ export function PreschoolProgramV2BookingPage() {
         defaultValues,
     })
 
+    useEffect(() => {
+        loadGoogleTagManager()
+    }, [])
+
     return (
         <Root logoSize="sm">
             <div className="w-full">
-                <h1 className="text-center font-lilita text-2xl font-extralight">Preschool Program Booking</h1>
+                <h1 className="text-center font-lilita text-2xl font-extralight">Messy Play Booking</h1>
                 <p className="mt-2 text-center text-sm text-muted-foreground">
-                    Book and pay for preschool sessions in advance.
+                    Book and pay for Messy Play sessions in advance.
                 </p>
                 <Separator className="my-4" />
                 <Form {...form}>
@@ -49,7 +55,7 @@ function Success() {
             </CardHeader>
             <CardContent>
                 <Alert variant="success">
-                    <AlertTitle>Your preschool sessions are booked</AlertTitle>
+                    <AlertTitle>Your Messy Play sessions are booked</AlertTitle>
                     <AlertDescription>
                         You should receive your Square receipt shortly. Keep your Acuity confirmation links handy if you
                         need to reschedule a session.

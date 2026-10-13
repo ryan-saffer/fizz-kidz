@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import {
-    ContactFormLocationOptions,
+    PartyFormLocationOptions,
     PartyThemeOptions,
     PartyWebsiteFormSchema,
     ReferenceOptions,
@@ -134,14 +134,14 @@ function BookAPartyForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <SelectForm
-                                    label="Which location are you interested in?"
+                                    label="Where would you like the party?"
                                     onValueChange={field.onChange}
                                     defaultValue={field.value}
                                     value={field.value}
                                 >
                                     <SelectValue />
                                     <SelectContent>
-                                        {ContactFormLocationOptions.map(({ value, label }) => (
+                                        {PartyFormLocationOptions.map(({ value, label }) => (
                                             <SelectItem key={value} value={value}>
                                                 {label}
                                             </SelectItem>

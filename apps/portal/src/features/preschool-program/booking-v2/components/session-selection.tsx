@@ -74,7 +74,7 @@ export function SessionSelection() {
             <Alert variant="destructive">
                 <AlertTitle>Unable to load sessions</AlertTitle>
                 <AlertDescription>
-                    There was a problem retrieving preschool sessions. Please try again.
+                    There was a problem retrieving Messy Play sessions. Please try again.
                 </AlertDescription>
             </Alert>
         )
@@ -87,7 +87,7 @@ export function SessionSelection() {
             <Alert>
                 <MessageCircleWarning className="h-4 w-4" />
                 <AlertTitle>No sessions available</AlertTitle>
-                <AlertDescription>There are no preschool sessions available to book at the moment.</AlertDescription>
+                <AlertDescription>There are no Messy Play sessions available to book at the moment.</AlertDescription>
             </Alert>
         )
     }

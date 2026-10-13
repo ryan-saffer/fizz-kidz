@@ -119,7 +119,7 @@ export function PreschoolProgramSessionAttendancePage() {
                     >
                         <ArrowLeft className="mr-2 size-4" /> Sessions
                     </Button>
-                    <h1 className="text-2xl font-bold">Preschool attendance</h1>
+                    <h1 className="text-2xl font-bold">Messy Play attendance</h1>
                     {classesQuery.isError ? (
                         <p className="text-sm text-muted-foreground">
                             {DateTime.fromISO(validParams.classTime, { setZone: true }).toFormat('cccc d LLLL, h:mm a')}

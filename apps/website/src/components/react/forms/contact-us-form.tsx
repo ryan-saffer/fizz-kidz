@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 
 import {
     ContactFormLocationOptions,
+    PartyFormLocationOptions,
     ContactFormServiceOptions,
     ContactWebsiteFormSchema,
     IncursionFormModuleOptions,
@@ -169,13 +170,20 @@ function ContactUsForm() {
                             render={({ field }) => (
                                 <FormItem>
                                     <SelectForm
-                                        label="Which location are you interested in?"
+                                        label={
+                                            form.watch('service') === 'party'
+                                                ? 'Where would you like the party?'
+                                                : 'Which location are you interested in?'
+                                        }
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
                                     >
                                         <SelectValue />
                                         <SelectContent>
-                                            {ContactFormLocationOptions.map(({ value, label }) => (
+                                            {(form.watch('service') === 'party'
+                                                ? PartyFormLocationOptions
+                                                : ContactFormLocationOptions
+                                            ).map(({ value, label }) => (
                                                 <SelectItem key={value} value={value}>
                                                     {label}
                                                 </SelectItem>
