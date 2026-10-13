@@ -1,3 +1,4 @@
+import { toE164AustralianPhone } from '@fizz-kidz/core'
 import type { StudioOrTest } from '@fizz-kidz/core'
 
 /** The website's container. Its tags forward booking events to GA4 and the Google Ads manager account. */
@@ -47,14 +48,4 @@ export function pushBookingConversion(conversion: BookingConversion) {
             phone_number: toE164AustralianPhone(conversion.parentPhone),
         },
     })
-}
-
-/** Google matches phone numbers in E.164, e.g. "0412 345 678" becomes "+61412345678". */
-export function toE164AustralianPhone(phone: string) {
-    const digits = phone.replace(/\D/g, '')
-    if (!digits) return undefined
-    if (phone.trim().startsWith('+')) return `+${digits}`
-    if (digits.startsWith('61')) return `+${digits}`
-    if (digits.startsWith('0')) return `+61${digits.slice(1)}`
-    return `+61${digits}`
 }

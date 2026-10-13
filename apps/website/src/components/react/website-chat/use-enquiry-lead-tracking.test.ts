@@ -16,7 +16,7 @@ function enquiryMessage(id: string, toolCallId: string, success = true, state = 
                 type: 'tool-submit_enquiry',
                 toolCallId,
                 state,
-                input: { location: 'essendon' },
+                input: { location: 'essendon', email: 'Parent@Example.com', contactNumber: '0412 345 678' },
                 output: { success },
             } as UIMessage['parts'][number],
         ],
@@ -31,9 +31,18 @@ describe('getSentEnquiries', () => {
             enquiryMessage('3', 'sent'),
         ]
 
-        expect(getSentEnquiries(messages)).toEqual([{ toolCallId: 'sent', studio: 'essendon' }])
+        expect(getSentEnquiries(messages)).toEqual([
+            { toolCallId: 'sent', studio: 'essendon', email: 'Parent@Example.com', contactNumber: '0412 345 678' },
+        ])
     })
 })
+
+const chatLead = {
+    event: 'lead_submit',
+    studio: 'essendon',
+    source: 'website-chat',
+    user_data: { email: 'parent@example.com', phone_number: '+61412345678' },
+}
 
 describe('useEnquiryLeadTracking', () => {
     beforeEach(() => {
@@ -48,7 +57,7 @@ describe('useEnquiryLeadTracking', () => {
         rerender({ messages: [enquiryMessage('1', 'call-1')] })
         rerender({ messages: [enquiryMessage('1', 'call-1')] })
 
-        expect(window.dataLayer).toEqual([{ event: 'lead_submit', studio: 'essendon', source: 'website-chat' }])
+        expect(window.dataLayer).toEqual([chatLead])
     })
 
     it("doesn't count enquiries a restored chat already sent", () => {
@@ -59,6 +68,6 @@ describe('useEnquiryLeadTracking', () => {
 
         rerender({ messages: [...restored, enquiryMessage('2', 'call-new')] })
 
-        expect(window.dataLayer).toEqual([{ event: 'lead_submit', studio: 'essendon', source: 'website-chat' }])
+        expect(window.dataLayer).toEqual([chatLead])
     })
 })

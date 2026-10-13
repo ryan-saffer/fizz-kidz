@@ -19,6 +19,7 @@ import { SelectContent, SelectForm, SelectItem, SelectValue } from '../ui/select
 import { Toaster } from '../ui/sonner'
 import { Textarea } from '../ui/textarea'
 
+import { pushLeadSubmit } from '@/utils/lead-tracking'
 import { submitWebsiteForm } from '@/utils/website-forms'
 
 function BookAPartyForm() {
@@ -45,11 +46,7 @@ function BookAPartyForm() {
         try {
             await submitWebsiteForm('party', values)
 
-            window.dataLayer = window.dataLayer || []
-            window.dataLayer.push({
-                event: 'lead_submit',
-                studio: values.location,
-            })
+            pushLeadSubmit({ studio: values.location, email: values.email, contactNumber: values.contactNumber })
         } catch (err) {
             console.error({ err })
             toast.error(
