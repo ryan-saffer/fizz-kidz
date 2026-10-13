@@ -40,7 +40,7 @@ const PROGRAMS = {
         }),
     },
     'preschool-program': {
-        name: 'Preschool Program',
+        name: 'Messy Play',
         // any later session at the same studio in the same term, on any day
         async getReplacementSessions(acuity: AcuityClient, appointment: Appointment): Promise<ReplacementSession[]> {
             const classes = await acuity.getClasses(

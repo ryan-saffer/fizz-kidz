@@ -32,7 +32,8 @@ export default defineConfig({
         }),
     ],
     redirects: {
-        'play-lab': '/preschool-program',
+        'play-lab': '/messy-play/',
+        'preschool-program': '/messy-play/',
         // TEMPORARY WHILE WE NO LONGER OFFER IN STUDIO SCIENCE
         'after-school-programs': '/in-schools/after-school-programs',
         // FROM OLD WEBSITE

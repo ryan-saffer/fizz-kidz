@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 
 import { getSquareLocationId } from '@fizz-kidz/core'
 
+import { pushBookingConversion } from '@integrations/google-tag-manager'
 import { SQUARE_APPLICATION_ID } from '@integrations/square'
 import { useTRPC } from '@integrations/trpc'
 import Loader from '@shared/components/loader'
@@ -62,7 +63,7 @@ export function Payment() {
             idempotencyKey.current = crypto.randomUUID()
         }
 
-        await mutateAsync({
+        const bookingResult = await mutateAsync({
             idempotencyKey: idempotencyKey.current,
             parentFirstName: form.getValues().parentFirstName,
             parentLastName: form.getValues().parentLastName,
@@ -92,13 +93,19 @@ export function Payment() {
                 discount: discountCode,
             },
         })
+        pushBookingConversion({
+            event: 'preschool_program_booking',
+            ...bookingResult,
+            parentEmail: form.getValues().parentEmailAddress,
+            parentPhone: form.getValues().parentPhone,
+        })
         nextStage()
     }
 
     function buildLineItems() {
         return Object.values(selectedClasses).flatMap((klass) => {
             return children.map((child) => ({
-                name: `${child.firstName} - Preschool Program - ${formatClassDateTime(klass.time)}`,
+                name: `${child.firstName} - Messy Play - ${formatClassDateTime(klass.time)}`,
                 amount: Math.round(Number.parseFloat(klass.price) * 100),
                 classId: klass.id,
                 lineItemIdentifier: crypto.randomUUID(),
@@ -123,7 +130,7 @@ export function Payment() {
 
         let errorTitle = 'Something went wrong'
         let errorMessage =
-            'There was an error booking your preschool sessions. Please try again later or contact us at bookings@fizzkidz.com.au'
+            'There was an error booking your Messy Play sessions. Please try again later or contact us at bookings@fizzkidz.com.au'
 
         if (error.data?.code === 'CLASS_FULL') {
             errorTitle = 'One or more sessions are full'
@@ -309,7 +316,7 @@ export function Payment() {
                     lineItems: Object.values(selectedClasses).flatMap((klass) =>
                         children.map((child) => ({
                             amount: klass.price,
-                            label: `${child.firstName} - Preschool Program - ${formatClassDateTime(klass.time)}`,
+                            label: `${child.firstName} - Messy Play - ${formatClassDateTime(klass.time)}`,
                         }))
                     ),
                     // Apple/Google Pay sheets only expose "discounts" for reductions before the wallet charge.

@@ -52,8 +52,8 @@ export function createNavigationMenu(packageLinks: Readonly<MenuLink[]>): MenuIt
         },
         {
             type: 'link',
-            title: 'Preschool program',
-            path: '/preschool-program',
+            title: 'Messy Play',
+            path: '/messy-play/',
             isNew: false,
         },
         {
