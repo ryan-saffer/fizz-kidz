@@ -1,0 +1,88 @@
+---
+import { ArrowRight } from "lucide-react";
+import CardWithImage from "@/components/card-with-image.astro";
+import {
+  websitePagesPartiesAtHomePartiesJpg as atHomeParties,
+  websitePagesPartiesEssendonStudioJpg as studio,
+} from "@/data/website-images";
+
+type Props = {
+  title?: string;
+  studioButtonText: string;
+  studioButtonPath: string;
+};
+
+const {
+  title = "Party at our studio, or we come to you!",
+  studioButtonText,
+  studioButtonPath,
+} = Astro.props;
+---
+
+<section class="my-16 md:my-32">
+  <h2 class="mb-4 text-center font-lilita text-4xl md:text-5xl">{title}</h2>
+  <p class="mx-auto mb-12 max-w-3xl text-center font-gotham text-lg font-medium">
+    Every Fizz Kidz party package can be hosted at one of our studios, or by a
+    Fizz Kidz host at your home or a venue near you.
+  </p>
+  <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+    <a href={studioButtonPath} class="group block">
+    <CardWithImage
+      className="transition-shadow group-hover:shadow-xl"
+      image={studio}
+      imageAlt="A Fizz Kidz studio set up for a party"
+      imageClassName="h-64"
+    >
+      <div slot="content" class="flex h-full flex-col gap-4 p-8">
+        <p class="font-lilita text-3xl text-[#9044E2]">At our studio</p>
+        <p class="font-gotham text-lg font-medium">
+          An exclusive party venue at one of our seven studios in Melbourne and
+          Geelong, with two fantastic party hosts running the whole party.
+        </p>
+        <p class="font-gotham font-medium text-gray-600">
+          1.5 or 2 hour parties
+        </p>
+        <p
+          class="mt-auto flex items-center gap-2 pt-4 font-lilita text-xl uppercase text-[#9044E2]"
+        >
+          {studioButtonText}
+          <ArrowRight
+            size={20}
+            aria-hidden="true"
+            className="transition-transform group-hover:translate-x-1"
+          />
+        </p>
+      </div>
+    </CardWithImage>
+    </a>
+    <a href="/birthday-parties/at-home-parties/" class="group block">
+    <CardWithImage
+      className="transition-shadow group-hover:shadow-xl"
+      image={atHomeParties}
+      imageAlt="Kids making creations at a Fizz Kidz at home party"
+      imageClassName="h-64"
+    >
+      <div slot="content" class="flex h-full flex-col gap-4 p-8">
+        <p class="font-lilita text-3xl text-[#42D4F3]">We come to you</p>
+        <p class="font-gotham text-lg font-medium">
+          A Fizz Kidz party host brings the party to your home or a venue near
+          you, up to 30km from your closest studio.
+        </p>
+        <p class="font-gotham font-medium text-gray-600">
+          1 or 1.5 hour parties, travel fee applies
+        </p>
+        <p
+          class="mt-auto flex items-center gap-2 pt-4 font-lilita text-xl uppercase text-[#42D4F3]"
+        >
+          At home party details
+          <ArrowRight
+            size={20}
+            aria-hidden="true"
+            className="transition-transform group-hover:translate-x-1"
+          />
+        </p>
+      </div>
+    </CardWithImage>
+    </a>
+  </div>
+</section>

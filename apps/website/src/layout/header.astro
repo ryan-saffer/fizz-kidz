@@ -4,9 +4,8 @@ import logoHorizontal from "@/assets/images/logo-horizontal.png";
 import NavigationMenu from "@/react-components/navigation/navigation-menu";
 import { createNavigationMenu } from "@/react-components/navigation/navigation-menu-data";
 import { Button } from "@/components/react/ui/button";
-import { birthdayPartyPackageNavigationLinks } from "@/data/birthday-party-catalogue";
 
-const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
+const menu = createNavigationMenu();
 ---
 
 <header
@@ -18,11 +17,11 @@ const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
     <div
       class="absolute right-2 flex gap-2 min-[1280px]:right-8 min-[1280px]:hidden"
     >
-      <a href="/franchising">
+      <a href="/birthday-parties/book-a-party/#book">
         <Button
           className="bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg"
         >
-          Own a studio
+          Book a party
         </Button>
       </a>
       <a href="/contact-us/#contact">
@@ -46,11 +45,11 @@ const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
     <div class="flex items-center">
       <NavigationMenu menu={menu} client:load />
       <div class="flex gap-2">
-        <a class="hidden min-[1440px]:inline-flex" href="/franchising">
+        <a class="hidden min-[1440px]:inline-flex" href="/birthday-parties/book-a-party/#book">
           <Button
             className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]"
           >
-            Own a studio
+            Book a party
           </Button>
         </a>
         <a class="hidden min-[1440px]:inline-flex" href="/contact-us/#contact">

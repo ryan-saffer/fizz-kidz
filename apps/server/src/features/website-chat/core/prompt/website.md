@@ -56,7 +56,7 @@ Page: https://www.fizzkidz.com.au/birthday-parties/
 ## How to book
 
 - Party bookings start with an enquiry. The "Book a party" buttons go to the enquiry form at https://www.fizzkidz.com.au/birthday-parties/book-a-party/ (form anchor: https://www.fizzkidz.com.au/birthday-parties/book-a-party/#book). There is no instant online checkout for parties on the website.
-- The form asks for: name, email, best contact number, which location (any of the 7 studios, "At Home" or "Other"; At Home also asks which suburb you live in), preferred date and time, which party theme, your enquiry, and how you heard about Fizz Kidz.
+- The form asks for: name, email, best contact number, where you would like the party ("At home (we come to you)", any of the 7 studios, or "Other"; at home also asks which suburb you live in), preferred date and time, which party theme, your enquiry, and how you heard about Fizz Kidz.
 - "Feel free to call us or fill in the form and we will be in touch within 24 hours!" After submitting: "We aim to get back to every enquiry within the same business day."
 - "Our party times book up quickly. We suggest getting in touch at least 6 weeks before your child's birthday."
 - Phone: (03) 9059 8144.
@@ -190,7 +190,7 @@ The enquiry form's theme list has: Glam, Fluid Bears, Kpop Power, Fairy, Jungle 
 # At-home (mobile) birthday parties
 
 Page: https://www.fizzkidz.com.au/birthday-parties/at-home-parties/
-Book (enquiry form): https://www.fizzkidz.com.au/birthday-parties/book-a-party/ (choose "At Home" as the location and enter your suburb).
+Book (enquiry form): https://www.fizzkidz.com.au/birthday-parties/book-a-party/ (choose "At home (we come to you)" and enter your suburb).
 
 "Sit back, relax and we will take care of everything! Our fabulous Fizz Kidz party host will come to your home or a party venue near you, and run a fantastic, stress-free party." All party themes are available.
 

@@ -14,7 +14,7 @@ export type MenuItem =
       } & ({ clickable: true; path: string; subTitle: string } | { clickable: false }))
 
 const atHomePartyLink = {
-    title: 'At Home Parties',
+    title: 'At Home Parties (we come to you)',
     path: '/birthday-parties/at-home-parties/',
     type: 'link',
     isNew: false,
@@ -31,33 +31,30 @@ export const locationMenuLinks = [
 ] as const satisfies Readonly<MenuLink[]>
 
 export function createBirthdayPartyMenuLinks(packageLinks: Readonly<MenuLink[]>) {
-    return [...packageLinks, atHomePartyLink] satisfies MenuLink[]
+    return [atHomePartyLink, ...packageLinks] satisfies MenuLink[]
 }
 
-export function createNavigationMenu(packageLinks: Readonly<MenuLink[]>): MenuItem[] {
+export function createNavigationMenu(): MenuItem[] {
     return [
         {
-            title: 'Birthday parties',
-            clickable: true,
-            path: '/birthday-parties/',
-            subTitle: 'See All Packages',
+            title: 'In studio',
             type: 'dropdown',
-            items: createBirthdayPartyMenuLinks(packageLinks),
+            clickable: false,
+            items: [
+                { type: 'link', title: 'Birthday parties', path: '/birthday-parties/', isNew: false },
+                { type: 'link', title: 'Holiday programs', path: '/holiday-programs/', isNew: false },
+                { type: 'link', title: 'Messy Play', path: '/messy-play/', isNew: false },
+                { type: 'link', title: 'Gift cards', path: '/gift-cards/', isNew: false },
+            ],
         },
         {
             type: 'link',
-            title: 'Holiday programs',
-            path: '/holiday-programs/',
+            title: 'We come to you',
+            path: '/birthday-parties/at-home-parties/',
             isNew: false,
         },
         {
-            type: 'link',
-            title: 'Messy Play',
-            path: '/messy-play/',
-            isNew: false,
-        },
-        {
-            title: 'In schools',
+            title: 'In schools/ELC',
             type: 'dropdown',
             clickable: false,
             items: [
@@ -69,17 +66,24 @@ export function createNavigationMenu(packageLinks: Readonly<MenuLink[]>): MenuIt
                 },
                 {
                     type: 'link',
-                    title: 'Incursions',
+                    title: 'School science incursions',
                     path: '/in-schools/incursions/',
                     isNew: false,
                 },
             ],
         },
         {
-            title: 'Activations and events',
-            type: 'link',
-            path: '/activations-and-events/',
-            isNew: false,
+            title: 'For businesses',
+            type: 'dropdown',
+            clickable: false,
+            items: [
+                {
+                    type: 'link',
+                    title: 'Shopping centre activations',
+                    path: '/activations-and-events/',
+                    isNew: false,
+                },
+            ],
         },
         {
             title: 'Locations',
@@ -97,6 +101,7 @@ export function createNavigationMenu(packageLinks: Readonly<MenuLink[]>): MenuIt
                 { type: 'link', title: 'Contact Us', path: '/contact-us/', isNew: false },
                 { type: 'link', title: 'Gift Cards', path: '/gift-cards/', isNew: true },
                 { type: 'link', title: 'Careers', path: '/careers/', isNew: false },
+                { type: 'link', title: 'Franchising', path: '/franchising/', isNew: false },
                 { type: 'link', title: 'Policies', path: '/policies/', isNew: false },
             ],
         },
