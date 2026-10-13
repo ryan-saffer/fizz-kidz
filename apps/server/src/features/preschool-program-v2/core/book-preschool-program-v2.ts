@@ -112,7 +112,7 @@ export async function bookPreschoolProgramV2(input: BookPreschoolProgramV2Props)
         }
 
         if (matchingClass.slotsAvailable < input.children.length) {
-            throwCustomTrpcError(new ClassFullError('One of the selected preschool sessions is full'))
+            throwCustomTrpcError(new ClassFullError('One of the selected Messy Play sessions is full'))
         }
 
         const amount = Math.round(Number.parseFloat(matchingClass.price) * 100)
@@ -121,7 +121,7 @@ export async function bookPreschoolProgramV2(input: BookPreschoolProgramV2Props)
 
         return {
             ...line,
-            name: `${childName} - Preschool Program - ${startTime.toFormat('cccc d LLLL, h:mm a')}`,
+            name: `${childName} - Messy Play - ${startTime.toFormat('cccc d LLLL, h:mm a')}`,
             amount,
             appointmentTypeID: matchingClass.appointmentTypeID,
             time: matchingClass.time,

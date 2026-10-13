@@ -173,7 +173,7 @@ describe('preschool program appointment management', () => {
         await rescheduleManagedAppointment({ ...access(), classId: 6 })
         expect(mocks.rescheduleAppointment).toHaveBeenCalledWith(123, classes[5].time, 55)
         expect(mocks.sendRescheduledEmail).toHaveBeenCalledWith({
-            programName: 'Preschool Program',
+            programName: 'Messy Play',
             previous: expect.objectContaining({ datetime: classes[2].time }),
             updated: expect.objectContaining({ datetime: classes[5].time }),
         })
