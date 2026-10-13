@@ -1,6 +1,6 @@
 # Party checkout
 
-Collecting a party's payment on a studio iPad. Staff press **Collect payment** on a studio party, confirm what's being charged, and the charge goes to the studio's Square Terminal. Only studio iPads and super-admins can (the `bookings:collect-payment` permission, checked in the portal only), and in prod only at the studios trialling terminal checkout (`TERMINAL_CHECKOUT_TRIAL_STUDIOS` in `packages/core`, which starts empty; add a studio there to turn it on). Super-admins can collect at every studio, and dev offers it everywhere. The server side, including what's charged and why, is in `apps/server/src/features/party-bookings/core/party-checkout`.
+Collecting a party's payment on a studio iPad. Staff press **Collect payment** on a studio party, confirm what's being charged, and the charge goes to the studio's Square Terminal. Only studio iPads and super-admins can (the `bookings:collect-payment` permission, checked in the portal only), and in prod only at the studios trialling terminal checkout (`TERMINAL_CHECKOUT_TRIAL_STUDIOS` in `packages/core`, currently Geelong and Werribee; add a studio there to turn it on). Super-admins can collect at every studio, and dev offers it everywhere. The server side, including what's charged and why, is in `apps/server/src/features/party-bookings/core/party-checkout`.
 
 ## How it works
 

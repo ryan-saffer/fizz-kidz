@@ -90,7 +90,7 @@ The terminal checkout has a **Cake** step for parties with a studio-stock cake. 
 
 ## Before go-live
 
-- [ ] Werribee is added to terminal checkout (`TERMINAL_CHECKOUT_TRIAL_STUDIOS`). That's planned before cakes go live, and stock is only used when a party is paid on the terminal.
+- [x] Werribee added to terminal checkout (`TERMINAL_CHECKOUT_TRIAL_STUDIOS`), so its party stock is used when parties are paid on the terminal. This also turns on product sales on the terminal there.
 - [x] Firestore index for stock history (`inventoryStockMovements` location, itemId, createdAt desc) already exists in `firestore.indexes.json`.
 - [ ] Square, at the Geelong and Werribee locations:
   - the cake designs, the Medium size, and the Chocolate and Vanilla flavours must be sold there;
