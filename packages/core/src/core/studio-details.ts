@@ -41,7 +41,7 @@ const STUDIO_DETAILS: Record<Studio, StudioDetails> = {
     },
     werribee: {
         address: 'T5, Harpley Town Center, Bradfield St, Werribee VIC 3030',
-        pictureUrl: 'https://www.fizzkidz.com.au/images/studios/kingsville.jpg',
+        pictureUrl: 'https://www.fizzkidz.com.au/images/studios/werribee.jpg',
         reviewUrl: 'https://g.page/r/CcK7-JoL8nVIEBM/review',
     },
 }
