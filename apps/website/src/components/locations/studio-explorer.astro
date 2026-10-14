@@ -12,7 +12,7 @@ import {
   websitePagesLocationsKingsvilleJpg as kingsville,
   websitePagesLocationsMalvernJpg as malvern,
   websitePagesHomeStudioPng as geelong,
-  websitePagesHomeEnergyJpg as werribee,
+  websitePagesLocationsWerribeeWerribee1Png as werribee,
 } from "@/data/website-images";
 
 const images = { balwyn, cheltenham, essendon, geelong, kingsville, malvern, werribee };
@@ -51,8 +51,8 @@ const studios = PUBLIC_STUDIOS;
       {studios.map((studio, index) => (
         <article data-studio-preview={studio.slug} class="studio-preview-content" hidden={index !== 0}>
           <div class="studio-preview-photo">
-            <Image src={images[studio.slug]} alt={studio.slug === "geelong" || studio.slug === "werribee" ? "A taste of the creative fun at Fizz Kidz" : `Take a peek inside our ${studio.name} studio`} width={700} sizes="(max-width: 700px) 90vw, 35vw" loading="lazy" />
-            <span>{studio.slug === "geelong" || studio.slug === "werribee" ? "A little taste of Fizz Kidz" : "Take a peek inside"}</span>
+            <Image src={images[studio.slug]} alt={studio.slug === "geelong" ? "A taste of the creative fun at Fizz Kidz" : `Take a peek inside our ${studio.name} studio`} width={700} sizes="(max-width: 700px) 90vw, 35vw" loading="lazy" />
+            <span>{studio.slug === "geelong" ? "A little taste of Fizz Kidz" : "Take a peek inside"}</span>
           </div>
           <div class="studio-preview-copy">
             <p class="locations-eyebrow">YOUR NEXT ADVENTURE STARTS HERE</p>

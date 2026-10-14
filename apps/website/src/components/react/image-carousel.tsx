@@ -10,7 +10,7 @@ type Props = {
 
 function ImageCarousel({ imageSlots, loop = false, ...imageSlotProps }: Props) {
     return (
-        <Carousel className="m-12" opts={{ loop }}>
+        <Carousel className="m-12" opts={{ loop, align: 'start' }}>
             <CarouselContent>
                 {imageSlots.map((imageSlot) => (
                     <CarouselItem key={imageSlot} className="flex basis-full justify-center sm:basis-1/3 lg:basis-1/5">
