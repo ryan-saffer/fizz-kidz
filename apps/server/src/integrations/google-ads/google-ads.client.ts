@@ -1,68 +1,55 @@
 /**
  * The Fizz Kidz Google Ads manager account. Its conversion actions are shared with every studio's Ads account through
- * cross-account conversion tracking, so conversions are uploaded here once.
+ * cross-account conversion tracking, so conversions are sent here once.
  */
 export const GOOGLE_ADS_MANAGER_CUSTOMER_ID = '8391382546'
 
-const API_URL = 'https://googleads.googleapis.com/v25'
+/** Manager-account conversion actions the server reports to. */
+export const GOOGLE_ADS_CONVERSION_ACTIONS = {
+    partyBooking: '7842224284',
+} as const
 
-/** A conversion matched to its ad click by the parent's hashed contact details (enhanced conversions for leads). */
-export type ClickConversion = {
-    conversionAction: string
-    conversionDateTime: string
+/** A conversion matched to its ad click by the customer's hashed contact details (enhanced conversions for leads). */
+export type OfflineConversion = {
+    transactionId: string
+    eventTimestamp: string
     conversionValue: number
-    currencyCode: 'AUD'
-    orderId: string
-    userIdentifiers: ({ hashedEmail: string } | { hashedPhoneNumber: string })[]
+    currency: 'AUD'
+    /** SHA-256 hashes, hex encoded. */
+    userIdentifiers: ({ emailAddress: string } | { phoneNumber: string })[]
 }
 
 /**
- * Calls the Google Ads API as the server's runtime service account, which must be a user on the manager account.
- * Access is granted to the bookings-prod Cloud project, so no developer token is needed.
+ * Sends offline conversions through the Data Manager API, which Google requires for new conversion uploads. Runs as the
+ * functions' runtime service account: it must be a user on the manager account and able to use the Data Manager API
+ * in the bookings-prod Cloud project.
  */
-async function post<T>(path: string, body: unknown): Promise<T> {
+export async function sendOfflineConversions(conversionActionId: string, conversions: OfflineConversion[]) {
     const { google } = await import('googleapis')
-    const auth = new google.auth.GoogleAuth({ scopes: ['https://www.googleapis.com/auth/adwords'] })
+    const auth = new google.auth.GoogleAuth({
+        scopes: ['https://www.googleapis.com/auth/datamanager', 'https://www.googleapis.com/auth/cloud-platform'],
+    })
     const { token } = await (await auth.getClient()).getAccessToken()
+    const account = { accountType: 'GOOGLE_ADS', accountId: GOOGLE_ADS_MANAGER_CUSTOMER_ID }
 
-    const response = await fetch(`${API_URL}/${path}`, {
+    const response = await fetch('https://datamanager.googleapis.com/v1/events:ingest', {
         method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'login-customer-id': GOOGLE_ADS_MANAGER_CUSTOMER_ID,
-        },
-        body: JSON.stringify(body),
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            destinations: [
+                { operatingAccount: account, loginAccount: account, productDestinationId: conversionActionId },
+            ],
+            encoding: 'HEX',
+            // Google Ads requires a source. WEB: these conversions trace back to a website enquiry.
+            events: conversions.map(({ userIdentifiers, ...event }) => ({
+                ...event,
+                eventSource: 'WEB',
+                userData: { userIdentifiers },
+            })),
+        }),
     })
     if (!response.ok) {
-        throw new Error(`Google Ads API ${path} failed with ${response.status}: ${await response.text()}`)
+        throw new Error(`Data Manager API events:ingest failed with ${response.status}: ${await response.text()}`)
     }
-    return (await response.json()) as T
-}
-
-const conversionActions = new Map<string, string>()
-
-/** The resource name of a manager-account conversion action, looked up by its name once per instance. */
-export async function getConversionAction(name: string) {
-    const cached = conversionActions.get(name)
-    if (cached) return cached
-
-    const { results = [] } = await post<{ results?: { conversionAction: { resourceName: string } }[] }>(
-        `customers/${GOOGLE_ADS_MANAGER_CUSTOMER_ID}/googleAds:search`,
-        {
-            query: `SELECT conversion_action.resource_name FROM conversion_action WHERE conversion_action.name = '${name}' AND conversion_action.status = 'ENABLED'`,
-        }
-    )
-    const resourceName = results[0]?.conversionAction.resourceName
-    if (!resourceName) throw new Error(`No enabled Google Ads conversion action named '${name}'`)
-
-    conversionActions.set(name, resourceName)
-    return resourceName
-}
-
-export async function uploadClickConversions(conversions: ClickConversion[]) {
-    return post<{ partialFailureError?: { message: string } }>(
-        `customers/${GOOGLE_ADS_MANAGER_CUSTOMER_ID}:uploadClickConversions`,
-        { conversions, partialFailure: true }
-    )
+    return (await response.json()) as { requestId: string }
 }

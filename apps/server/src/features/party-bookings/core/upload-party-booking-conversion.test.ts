@@ -35,22 +35,16 @@ describe('normaliseEmail', () => {
 
 describe('buildPartyBookingConversion', () => {
     it('hashes the parent contact details and dates the booking in Melbourne time', () => {
-        const conversion = buildPartyBookingConversion(
-            'booking-1',
-            booking,
-            'customers/8391382546/conversionActions/1',
-            DateTime.fromISO('2026-10-13T05:00:00Z')
-        )
+        const conversion = buildPartyBookingConversion('booking-1', booking, DateTime.fromISO('2026-10-13T05:00:00Z'))
 
         expect(conversion).toEqual({
-            conversionAction: 'customers/8391382546/conversionActions/1',
-            conversionDateTime: '2026-10-13 16:00:00+11:00',
+            transactionId: 'booking-1',
+            eventTimestamp: '2026-10-13T16:00:00+11:00',
             conversionValue: 480 + 3 * 40,
-            currencyCode: 'AUD',
-            orderId: 'booking-1',
+            currency: 'AUD',
             userIdentifiers: [
-                { hashedEmail: sha256('janecitizen@gmail.com') },
-                { hashedPhoneNumber: sha256('+61412345678') },
+                { emailAddress: sha256('janecitizen@gmail.com') },
+                { phoneNumber: sha256('+61412345678') },
             ],
         })
     })
