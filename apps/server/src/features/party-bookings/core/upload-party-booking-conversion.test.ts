@@ -10,6 +10,7 @@ const sha256 = (value: string) => createHash('sha256').update(value).digest('hex
 const booking = {
     parentEmail: ' Jane.Citizen@Gmail.com ',
     parentMobile: '0412 345 678',
+    location: 'kingsville' as const,
     type: 'studio' as const,
     partyLength: '1.5' as const,
     numberOfChildren: '15',
@@ -34,7 +35,7 @@ describe('normaliseEmail', () => {
 })
 
 describe('buildPartyBookingConversion', () => {
-    it('hashes the parent contact details and dates the booking in Melbourne time', () => {
+    it('hashes the parent contact details, dates the booking in Melbourne time and tags the studio', () => {
         const conversion = buildPartyBookingConversion('booking-1', booking, DateTime.fromISO('2026-10-13T05:00:00Z'))
 
         expect(conversion).toEqual({
@@ -42,6 +43,7 @@ describe('buildPartyBookingConversion', () => {
             eventTimestamp: '2026-10-13T16:00:00+11:00',
             conversionValue: 480 + 3 * 40,
             currency: 'AUD',
+            customVariables: [{ variable: '28986586', value: 'kingsville' }],
             userIdentifiers: [
                 { emailAddress: sha256('janecitizen@gmail.com') },
                 { phoneNumber: sha256('+61412345678') },
