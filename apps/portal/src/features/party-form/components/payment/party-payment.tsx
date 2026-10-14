@@ -9,7 +9,7 @@ import { Input } from '@shared/components/ui/input'
 import { Label } from '@shared/components/ui/label'
 import { cn } from '@shared/lib/tailwind'
 
-import { usePartyFormApi, usePartyFormStore } from '../../state/party-form-store'
+import { isEmptyOrder, usePartyFormApi, usePartyFormStore } from '../../state/party-form-store'
 import { LoadingState } from '../common/loading-state'
 import { PrimaryButton } from '../common/primary-button'
 import { Section } from '../common/section'
@@ -32,6 +32,12 @@ export function PartyPayment() {
     const [giftCardNumber, setGiftCardNumber] = useState('')
 
     if (processing) return <PaymentStatus />
+    if (payload && isEmptyOrder(payload))
+        return (
+            <p role="alert" className="text-red-600">
+                Choose a cake or some goodies to order.
+            </p>
+        )
     if (payload && !partyFormRequiresPayment(payload))
         // nothing to pay now (food is paid at the end of the party), so there's no payment section
         return (

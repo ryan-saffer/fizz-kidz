@@ -207,6 +207,7 @@ export const usePartyFormStore = create<State & Actions>((set, get) => ({
     pay: async (token = '', buyerVerificationToken = '') => {
         const { config, payload, checkout, preparing, attempt, needsRefresh } = get()
         if (!config || !payload || preparing || attempt) return
+        if (isEmptyOrder(payload)) return
         if (partyFormRequiresPayment(payload) && (!checkout || needsRefresh)) return
         const request = { payload, checkoutId: checkout?.checkoutId ?? null, token, buyerVerificationToken }
         savePaymentAttempt(config.bookingId, request)
@@ -260,6 +261,11 @@ export const useIsCurrentStep = (key: PartyStepKey) =>
     usePartyFormStore((state) => state.stage === 'steps' && state.steps[state.currentStep]?.key === key)
 /** While a payment is being made or confirmed, the answers can't change. */
 export const useIsCheckoutLocked = () => usePartyFormStore((state) => state.attempt !== null)
+
+/** The cake form only orders things, so it can't be submitted without a cake or some goodies. */
+export function isEmptyOrder(payload: PartyForm) {
+    return payload.mode === 'cake' && !partyFormRequiresPayment(payload)
+}
 
 function getErrorMessage(error: unknown) {
     return (error as { message?: string }).message || 'Something went wrong. Please try again.'
