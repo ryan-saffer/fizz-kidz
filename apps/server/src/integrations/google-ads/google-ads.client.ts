@@ -9,12 +9,19 @@ export const GOOGLE_ADS_CONVERSION_ACTIONS = {
     partyBooking: '7842224284',
 } as const
 
+/** Manager-account conversion custom variables, which let Google Ads reports segment conversions. */
+export const GOOGLE_ADS_CUSTOM_VARIABLES = {
+    /** The studio a conversion was for. GTM sends the same `studio` tag with website conversions. */
+    studio: '28986586',
+} as const
+
 /** A conversion matched to its ad click by the customer's hashed contact details (enhanced conversions for leads). */
 export type OfflineConversion = {
     transactionId: string
     eventTimestamp: string
     conversionValue: number
     currency: 'AUD'
+    customVariables?: { variable: string; value: string }[]
     /** SHA-256 hashes, hex encoded. */
     userIdentifiers: ({ emailAddress: string } | { phoneNumber: string })[]
 }

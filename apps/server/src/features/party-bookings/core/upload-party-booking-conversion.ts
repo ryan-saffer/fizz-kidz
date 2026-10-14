@@ -7,11 +7,15 @@ import type { BaseBooking } from '@fizz-kidz/core'
 
 import type { OfflineConversion } from '@/integrations/google-ads/google-ads.client'
 
-import { GOOGLE_ADS_CONVERSION_ACTIONS, sendOfflineConversions } from '@/integrations/google-ads/google-ads.client'
+import {
+    GOOGLE_ADS_CONVERSION_ACTIONS,
+    GOOGLE_ADS_CUSTOM_VARIABLES,
+    sendOfflineConversions,
+} from '@/integrations/google-ads/google-ads.client'
 
 type PartyBookingDetails = Pick<
     BaseBooking,
-    'parentEmail' | 'parentMobile' | 'type' | 'partyLength' | 'numberOfChildren'
+    'parentEmail' | 'parentMobile' | 'location' | 'type' | 'partyLength' | 'numberOfChildren'
 >
 
 /**
@@ -50,6 +54,7 @@ export function buildPartyBookingConversion(
         eventTimestamp: bookedAt.setZone('Australia/Melbourne').toISO({ suppressMilliseconds: true }),
         conversionValue: estimatePartyValue(booking),
         currency: 'AUD',
+        customVariables: [{ variable: GOOGLE_ADS_CUSTOM_VARIABLES.studio, value: booking.location }],
         userIdentifiers: [
             { emailAddress: sha256(normaliseEmail(booking.parentEmail)) },
             ...(phone ? [{ phoneNumber: sha256(phone) }] : []),
