@@ -104,27 +104,36 @@ beforeEach(() => {
 afterEach(cleanup)
 
 /** Sets up the store as `PartyForm` does, with 12 lolly bags on the cake form, and opens the review step's payment. */
-function Checkout() {
+function Checkout({ lollyBags = 12 }: { lollyBags?: number }) {
     const form = useCreatePartyForm(config)
     const ready = usePartyFormStore((state) => state.form === form)
     const stage = usePartyFormStore((state) => state.stage)
     useLayoutEffect(() => {
-        form.setFieldValue('takeHomeBags.lollyBags', 12)
+        form.setFieldValue('takeHomeBags.lollyBags', lollyBags)
         usePartyFormStore
             .getState()
             .init({ config, mode: 'cake', form, server: { prepare: mocks.prepare, submit: mocks.submit } })
         const { stage, steps, goTo } = usePartyFormStore.getState()
         if (stage === 'welcome') goTo(steps.length - 1)
-    }, [form])
+    }, [form, lollyBags])
     if (!ready) return null
     return stage === 'recovery' ? <PaymentStatus /> : <PartyPayment />
 }
-function setup() {
-    render(<Checkout />)
+function setup(lollyBags?: number) {
+    render(<Checkout lollyBags={lollyBags} />)
     return userEvent.setup()
 }
 
 describe('embedded party checkout', () => {
+    it("doesn't let an empty cake form order be submitted", async () => {
+        setup(0)
+        expect((await screen.findByRole('alert')).textContent).toBe('Choose a cake or some goodies to order.')
+        expect(screen.queryByRole('button', { name: 'Submit' })).toBeNull()
+        await usePartyFormStore.getState().pay()
+        expect(mocks.prepare).not.toHaveBeenCalled()
+        expect(mocks.submit).not.toHaveBeenCalled()
+    })
+
     it('offers Apple Pay and Google Pay for the server-priced card amount, without buyer verification', async () => {
         mocks.prepare.mockResolvedValue({
             ...quote,

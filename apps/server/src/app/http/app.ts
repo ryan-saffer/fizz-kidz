@@ -23,6 +23,8 @@ export type App = typeof app
 const apiRouter = express.Router()
 
 const ERRORS_TO_IGNORE: AppErrorCode[] = [
+    // a customer's input we rejected, eg. an empty party form order
+    'BAD_REQUEST',
     'PRECONDITION_FAILED',
     'UNAUTHORIZED',
     'CLASS_FULL',
