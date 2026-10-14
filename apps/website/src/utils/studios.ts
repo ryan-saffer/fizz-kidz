@@ -63,6 +63,7 @@ export const PUBLIC_STUDIOS = [
         addressLocality: 'Werribee',
         postalCode: '3030',
         coordinates: [-37.9114232, 144.6149075],
+        image: '/images/studios/werribee.jpg',
     },
 ] as const
 
