@@ -5,13 +5,9 @@ import { DateTime } from 'luxon'
 import { toE164AustralianPhone } from '@fizz-kidz/core'
 import type { BaseBooking } from '@fizz-kidz/core'
 
-import type { ClickConversion } from '@/integrations/google-ads/google-ads.client'
+import type { OfflineConversion } from '@/integrations/google-ads/google-ads.client'
 
-import { getConversionAction, uploadClickConversions } from '@/integrations/google-ads/google-ads.client'
-import { logError } from '@/integrations/observability/log-error'
-
-/** The manager-account conversion party bookings are reported as. */
-export const PARTY_BOOKING_CONVERSION = 'Party Booking'
+import { GOOGLE_ADS_CONVERSION_ACTIONS, sendOfflineConversions } from '@/integrations/google-ads/google-ads.client'
 
 type PartyBookingDetails = Pick<
     BaseBooking,
@@ -46,19 +42,17 @@ const sha256 = (value: string) => createHash('sha256').update(value).digest('hex
 export function buildPartyBookingConversion(
     bookingId: string,
     booking: PartyBookingDetails,
-    conversionAction: string,
     bookedAt: DateTime
-): ClickConversion {
+): OfflineConversion {
     const phone = toE164AustralianPhone(booking.parentMobile)
     return {
-        conversionAction,
-        conversionDateTime: bookedAt.setZone('Australia/Melbourne').toFormat('yyyy-MM-dd HH:mm:ssZZ'),
+        transactionId: bookingId,
+        eventTimestamp: bookedAt.setZone('Australia/Melbourne').toISO({ suppressMilliseconds: true }),
         conversionValue: estimatePartyValue(booking),
-        currencyCode: 'AUD',
-        orderId: bookingId,
+        currency: 'AUD',
         userIdentifiers: [
-            { hashedEmail: sha256(normaliseEmail(booking.parentEmail)) },
-            ...(phone ? [{ hashedPhoneNumber: sha256(phone) }] : []),
+            { emailAddress: sha256(normaliseEmail(booking.parentEmail)) },
+            ...(phone ? [{ phoneNumber: sha256(phone) }] : []),
         ],
     }
 }
@@ -68,13 +62,7 @@ export function buildPartyBookingConversion(
  * carried the same details, and credits the ad click behind it. Bookings without an ad click are ignored by Google.
  */
 export async function uploadPartyBookingConversion(bookingId: string, booking: PartyBookingDetails) {
-    const conversionAction = await getConversionAction(PARTY_BOOKING_CONVERSION)
-    const conversion = buildPartyBookingConversion(bookingId, booking, conversionAction, DateTime.now())
-    const { partialFailureError } = await uploadClickConversions([conversion])
-    if (partialFailureError) {
-        logError('Google Ads rejected a party booking conversion', undefined, {
-            bookingId,
-            error: partialFailureError.message,
-        })
-    }
+    await sendOfflineConversions(GOOGLE_ADS_CONVERSION_ACTIONS.partyBooking, [
+        buildPartyBookingConversion(bookingId, booking, DateTime.now()),
+    ])
 }
