@@ -35,7 +35,7 @@ const PROGRAMS = {
         scheduleUrl: 'https://www.fizzkidz.com.au/holiday-programs/',
     },
     'preschool-program': {
-        name: 'Messy Play',
+        name: 'Messy Play Lab',
         policy: PRESCHOOL_PROGRAM_POLICY,
         sessionScope: 'this term at',
         scheduleUrl: undefined,

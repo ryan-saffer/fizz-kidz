@@ -51,7 +51,7 @@ export function createNavigationMenu(packageLinks: Readonly<MenuLink[]>): MenuIt
                     items: packageLinks,
                 },
                 { type: 'link', title: 'Holiday programs', path: '/holiday-programs/', isNew: false },
-                { type: 'link', title: 'Messy Play', path: '/messy-play/', isNew: false },
+                { type: 'link', title: 'Messy Play Lab', path: '/messy-play-lab/', isNew: false },
                 { type: 'link', title: 'Gift cards', path: '/gift-cards/', isNew: false },
             ],
         },

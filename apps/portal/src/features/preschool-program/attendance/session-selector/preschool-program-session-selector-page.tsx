@@ -186,7 +186,7 @@ function PageCard({ children }: { children: React.ReactNode }) {
                             <CalendarDays className="size-5" />
                         </div>
                         <div>
-                            <CardTitle>Messy Play attendance</CardTitle>
+                            <CardTitle>Messy Play Lab attendance</CardTitle>
                             <CardDescription className="mt-1">
                                 Choose a studio and session to sign children in and out.
                             </CardDescription>

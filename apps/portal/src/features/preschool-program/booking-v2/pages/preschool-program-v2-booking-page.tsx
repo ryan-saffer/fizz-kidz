@@ -30,9 +30,9 @@ export function PreschoolProgramV2BookingPage() {
     return (
         <Root logoSize="sm">
             <div className="w-full">
-                <h1 className="text-center font-lilita text-2xl font-extralight">Messy Play Booking</h1>
+                <h1 className="text-center font-lilita text-2xl font-extralight">Messy Play Lab Booking</h1>
                 <p className="mt-2 text-center text-sm text-muted-foreground">
-                    Book and pay for Messy Play sessions in advance.
+                    Book and pay for Messy Play Lab sessions in advance.
                 </p>
                 <Separator className="my-4" />
                 <Form {...form}>
@@ -55,7 +55,7 @@ function Success() {
             </CardHeader>
             <CardContent>
                 <Alert variant="success">
-                    <AlertTitle>Your Messy Play sessions are booked</AlertTitle>
+                    <AlertTitle>Your Messy Play Lab sessions are booked</AlertTitle>
                     <AlertDescription>
                         You should receive your Square receipt shortly. Keep your Acuity confirmation links handy if you
                         need to reschedule a session.

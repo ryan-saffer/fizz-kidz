@@ -1,6 +1,6 @@
 # Fizz Kidz
 
-> Fizz Kidz is an Australian children's entertainment provider offering hosted birthday parties, school holiday programs, Messy Play classes for ages 2.5 to 5, school programs and event activations. Its seven public studios are in Balwyn, Cheltenham, Essendon, Geelong, Kingsville, Malvern and Werribee, Victoria.
+> Fizz Kidz is an Australian children's entertainment provider offering hosted birthday parties, school holiday programs, Messy Play Lab classes for ages 2.5 to 5, school programs and event activations. Its seven public studios are in Balwyn, Cheltenham, Essendon, Geelong, Kingsville, Malvern and Werribee, Victoria.
 
 Fizz Kidz runs hands-on activities for children, including slime, science, art, craft, tie dye and take-home creations. Birthday parties and holiday programs are generally designed for children aged 4 to 12. Current availability, pricing and booking details should be confirmed on the official pages linked below.
 
@@ -9,7 +9,7 @@ Fizz Kidz runs hands-on activities for children, including slime, science, art, 
 - [Kids birthday parties](https://www.fizzkidz.com.au/birthday-parties/): Hosted themed parties at Fizz Kidz studios.
 - [At-home birthday parties](https://www.fizzkidz.com.au/birthday-parties/at-home-parties/): Mobile parties at a customer's home or venue.
 - [School holiday programs](https://www.fizzkidz.com.au/holiday-programs/): Creative programs during Victorian school holidays.
-- [Messy Play](https://www.fizzkidz.com.au/messy-play/): Weekly science, art and sensory classes for children aged 2.5 to 5 (formerly the Preschool Program), on Tuesdays and Fridays during the school term at the Essendon, Geelong and Werribee studios.
+- [Messy Play Lab](https://www.fizzkidz.com.au/messy-play-lab/): Weekly science, art and sensory classes for children aged 2.5 to 5 (formerly the Preschool Program), on Tuesdays and Fridays during the school term at the Essendon, Geelong and Werribee studios.
 - [School science incursions](https://www.fizzkidz.com.au/in-schools/incursions/): Hands-on science sessions delivered at schools.
 - [Event activations](https://www.fizzkidz.com.au/activations-and-events/): Children's activities for community, shopping centre and corporate events.
 

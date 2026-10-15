@@ -1,4 +1,4 @@
-Last updated: 13 October 2026. Built only from the public website, so it can be regenerated from scratch at any time.
+Last updated: 15 October 2026. Built only from the public website, so it can be regenerated from scratch at any time.
 
 All URLs below are on the live site https://www.fizzkidz.com.au (booking links are on https://bookings.fizzkidz.com.au). Prices are quoted exactly as the website shows them. If a price or detail isn't here, follow "When you don't know" in the instructions.
 
@@ -7,8 +7,8 @@ All URLs below are on the live site https://www.fizzkidz.com.au (booking links a
 - Tagline: "Let's fizz! Creative parties, programs and events for kids."
 - "Squishies, Slime, Kawaii creations. Science experiments. Big explosions. Lots of fun!"
 - Fizz Kidz runs hands-on activities for kids, including slime, science, art, craft, tie dye and take-home creations.
-- Services: birthday parties (in studio and at home), school holiday programs, Messy Play (weekly classes for ages 2.5 to 5, formerly the Preschool Program), after school science programs in schools, school science incursions, activations and events, gift cards, and franchising ("Own a studio").
-- Ages: birthday parties and holiday programs are for kids aged 4 to 12. Messy Play is for children aged 2.5 to 5.
+- Services: birthday parties (in studio and at home), school holiday programs, Messy Play Lab (weekly classes for ages 2.5 to 5, formerly the Preschool Program), after school science programs in schools, school science incursions, activations and events, gift cards, and franchising ("Own a studio").
+- Ages: birthday parties and holiday programs are for kids aged 4 to 12. Messy Play Lab is for children aged 2.5 to 5.
 - 7 studios across Melbourne and Geelong (see Studios).
 - "We've hosted over 50,000 parties and events and are incredibly good at what we do." "Thousands of 5 Star Reviews" on Google.
 - Values: We foster wonderment and excitability. We are passionate about kids' happiness and joy. We believe in the power of hands-on learning. We go above and beyond.
@@ -249,11 +249,11 @@ The website lists one schedule for all studios. Availability per studio and sess
 - How much fun are they? "BUZZING with energy! You will walk in the doors to find an abundance of crafts on the table, facilitators with huge smiles and music playing!"
 - Holiday programs include dancing games and competitions, and children are encouraged to make new friends.
 
-# Messy Play (formerly the Preschool Program and Play Lab)
+# Messy Play Lab (formerly the Preschool Program and Play Lab)
 
-Page: https://www.fizzkidz.com.au/messy-play/
+Page: https://www.fizzkidz.com.au/messy-play-lab/
 Book sessions: https://bookings.fizzkidz.com.au/preschool-program-v2-booking (online booking and payment).
-The Preschool Program is now called Messy Play: same sessions, studios, times and prices. The old pages (https://www.fizzkidz.com.au/preschool-program/ and https://www.fizzkidz.com.au/play-lab/) redirect to the Messy Play page. Gift cards can be used for Messy Play sessions.
+The Preschool Program is now called Messy Play Lab: same sessions, studios, times and prices. It was briefly called Messy Play in October 2026. The old pages (https://www.fizzkidz.com.au/preschool-program/, https://www.fizzkidz.com.au/play-lab/ and https://www.fizzkidz.com.au/messy-play/) redirect to the Messy Play Lab page. Gift cards can be used for Messy Play Lab sessions.
 
 "Weekly 2-hour science, art and sensory classes for ages 2.5 to 5." It builds confidence, independence and school readiness through intentional play, with a new hands-on art and science adventure every week.
 
@@ -275,15 +275,15 @@ Daily session structure: 9:30 welcome and free play; 9:45 science and sensory pr
 
 What happens in each session: creative craft activity, science and sensory play, movement and dance breaks, imagination and sensory play, and a take-home creation.
 
-Messy Play FAQs:
+Messy Play Lab FAQs:
 
 - How do I book? Choose your studio, then as many Tuesday and Friday sessions as you like and pay online when you book. You can include both days in the same checkout.
 - Where is it held? At our Essendon, Geelong and Werribee studios, every Tuesday and Friday during the school term.
-- Is Messy Play just free play? No. Each session is a structured 2-hour class led by qualified Early Childhood educators, with hands-on science, creative craft, sensory play, movement, music and story time.
+- Is Messy Play Lab just free play? No. Each session is a structured 2-hour class led by qualified Early Childhood educators, with hands-on science, creative craft, sensory play, movement, music and story time.
 - What age group? Children aged 2.5 to 5 years old. Activities are adapted to each developmental stage.
 - Do I stay with my child? It's up to you: drop your child off, or stay and enjoy the session with them. Either way, facilitators provide gentle guidance and support throughout.
-- Is Messy Play a kinder or childcare program? No. It's a weekly 2-hour class you book by the session or by the term. It isn't funded kinder or childcare.
-- Is Messy Play the same as the Fizz Kidz Preschool Program? Yes. The Preschool Program is now called Messy Play, with the same sessions, studios, times and prices.
+- Is Messy Play Lab a kinder or childcare program? No. It's a weekly 2-hour class you book by the session or by the term. It isn't funded kinder or childcare.
+- Is Messy Play Lab the same as the Fizz Kidz Preschool Program? Yes. The Preschool Program is now called Messy Play Lab, with the same sessions, studios, times and prices.
 - What activities? Creative projects, sensory exploration, science experiments, movement, music and story time. Children take home their creations each week.
 - How long is each session? 9:30am to 11:30am.
 - Cost? $39 per child per session. Book every Tuesday or Friday session in the term before the term starts for 20% off, which brings it to $31.20 per session, per child.
@@ -348,7 +348,7 @@ For shopping centres, councils, community groups and businesses.
 Page: https://www.fizzkidz.com.au/gift-cards/
 Buy: https://app.squareup.com/gift/3BYCWGK2H0SXV/order (the "Grab a gift card", "Individual E-Gift Card" and "Group E-Gift Card" buttons all go here).
 
-- Can be used at any Fizz Kidz experience (birthday parties, holiday programs, Messy Play sessions and more) at any location.
+- Can be used at any Fizz Kidz experience (birthday parties, holiday programs, Messy Play Lab sessions and more) at any location.
 - Valid forever, with no expiry date.
 - The parent can book for the recipient, add siblings or invite friends.
 - Individual e-gift card: buy it yourself and email or print it. Group e-gift card: share the link so everyone can add funds. You can specify the day it is received.
@@ -360,7 +360,7 @@ Buy: https://app.squareup.com/gift/3BYCWGK2H0SXV/order (the "Grab a gift card", 
 Page: https://www.fizzkidz.com.au/franchising/ (enquiry form at https://www.fizzkidz.com.au/franchising/#contact)
 
 - "A proven successful business model with a team that works with you!"
-- Services a franchise runs: birthday parties, Messy Play, holiday programs, after school programs, activations and events, school and kindergarten incursions.
+- Services a franchise runs: birthday parties, Messy Play Lab, holiday programs, after school programs, activations and events, school and kindergarten incursions.
 - Stats shown: 5,000+ birthday parties; 120,000+ children attended Fizz Kidz studios; 850+ 5-star reviews.
 - Why Fizz Kidz: proven track record, low capital investment, room for further growth, the support office manages customer enquiries, no full-time staff required, flexible work-life balance, custom-built in-house technology.
 - Support: sales and marketing strategies and assets; an in-house team that manages enquiries and secures bookings; training on all services and staff training; a high-ranking website and 850+ Google reviews; the Fizz Kidz Portal (bookings, attendance, invoicing, payroll); full-time operational support.
@@ -389,9 +389,9 @@ Page: https://www.fizzkidz.com.au/policies/ (privacy section: https://www.fizzki
   - Less than 48 hours to go? You can still cancel before the session starts, but refunds and rescheduling aren't available.
   - Use Change / Cancel in your confirmation email. Each link manages one child's session, so morning and afternoon bookings need to be changed separately.
   - This policy may change at Fizz Kidz's discretion.
-- Messy Play payment: sessions are paid for online when you book. Book every session in a term before it starts to receive 20% off.
-- Messy Play cancellation and rescheduling policy (https://www.fizzkidz.com.au/policies/#preschool-program):
-  - Plans changed? If your session is at least 48 hours away, you can move to another available Messy Play session in the same term at the same studio, on any day, or cancel for an automatic refund.
+- Messy Play Lab payment: sessions are paid for online when you book. Book every session in a term before it starts to receive 20% off.
+- Messy Play Lab cancellation and rescheduling policy (https://www.fizzkidz.com.au/policies/#preschool-program):
+  - Plans changed? If your session is at least 48 hours away, you can move to another available Messy Play Lab session in the same term at the same studio, on any day, or cancel for an automatic refund.
   - Full-term bookings receive 20% off because every session in the term is booked. Rescheduling keeps the discount. Cancelling a session means the booking no longer covers the full term, so the discount is removed from the remaining sessions and taken out of your refund. This can make the refund small, or nothing at all.
   - Less than 48 hours to go? You can still cancel before the session starts, but refunds and rescheduling aren't available.
   - Use Change / Cancel in your confirmation email. Each link manages one child's session.
@@ -410,7 +410,7 @@ Page: https://www.fizzkidz.com.au/policies/ (privacy section: https://www.fizzki
 
 - Birthday party (studio or at home): https://www.fizzkidz.com.au/birthday-parties/book-a-party/
 - Holiday program booking: https://bookings.fizzkidz.com.au/programs?id=11036399
-- Messy Play booking: https://bookings.fizzkidz.com.au/preschool-program-v2-booking
+- Messy Play Lab booking: https://bookings.fizzkidz.com.au/preschool-program-v2-booking
 - After school program free trial / enrolment: https://bookings.fizzkidz.com.au/after-school-program-enrolment-form
 - School incursion enquiry: https://www.fizzkidz.com.au/in-schools/incursions/#contact
 - Activation or event enquiry: https://www.fizzkidz.com.au/activations-and-events/#contact
