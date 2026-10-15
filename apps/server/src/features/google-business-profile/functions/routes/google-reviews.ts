@@ -6,6 +6,7 @@ import {
     getGoogleBusinessProfileLocationIdForStudio,
     getGoogleBusinessProfileMapsUrlForStudio,
 } from '../../core/google-business-profile-studios'
+import { orderGoogleReviews } from '../../core/order-google-reviews'
 
 import { DatabaseClient } from '@/integrations/firebase/database.client'
 
@@ -31,11 +32,11 @@ googleReviewsRoute.get('/reviews/google', async (req, res) => {
     const studio = getStudioQueryParam(req.query.location)
     const locationId = studio ? getGoogleBusinessProfileLocationIdForStudio(studio) : undefined
 
-    const reviews = (await DatabaseClient.getGoogleBusinessProfileReviews({ limit, studio, locationId }))
+    const publishableReviews = (await DatabaseClient.getGoogleBusinessProfileReviews({ limit, studio, locationId }))
         .filter((review) => !!review.comment)
         .filter((review) => (review.starRatingValue ?? 0) >= 4)
-        .slice(0, limit)
-        .map(mapReview)
+
+    const reviews = orderGoogleReviews(publishableReviews).slice(0, limit).map(mapReview)
 
     res.set('Cache-Control', 'public, max-age=300, s-maxage=3600')
     res.json({ reviews })
