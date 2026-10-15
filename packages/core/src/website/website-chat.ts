@@ -36,6 +36,10 @@ export const WEBSITE_CHAT_CHANGE_SOMETHING_REASON = 'The customer tapped Change 
 export const WEBSITE_CHAT_DONT_SEND_REASON =
     "The customer tapped Don't send. Nothing was sent, and they don't want the team to follow up."
 
+// How the visitor opened the chat: the launcher button, or Frankie's speech bubble.
+export const WebsiteChatOpenedFromSchema = z.enum(['button', 'bubble'])
+export type WebsiteChatOpenedFrom = z.infer<typeof WebsiteChatOpenedFromSchema>
+
 export const WebsiteChatIdSchema = z
     .string()
     .min(8)
@@ -54,6 +58,8 @@ export type WebsiteChat = {
     status: 'active' | 'finished'
     model: WebsiteChatModel
     entryPage: string | null
+    /** Chats saved before this was recorded don't have it. */
+    openedFrom?: WebsiteChatOpenedFrom | null
     startedAt: Date
     lastMessageAt: Date
     /** When it last finished. Kept when a finished chat resumes, until it finishes again. */

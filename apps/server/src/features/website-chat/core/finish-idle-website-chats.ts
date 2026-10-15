@@ -37,6 +37,7 @@ export async function finishIdleWebsiteChats(now = new Date()) {
                 outcome: chat.enquirySubmitted ? 'enquiry' : isUnconfirmedEnquirySent ? 'auto-enquiry' : 'none',
                 model: chat.model,
                 entryPage: chat.entryPage,
+                openedFrom: chat.openedFrom ?? null,
                 // A resumed chat is reported again with its latest outcome; count conversations by unique chatId.
                 resumed: chat.finishedAt !== undefined,
                 ...getTimeOfWeekProperties(chat.startedAt),

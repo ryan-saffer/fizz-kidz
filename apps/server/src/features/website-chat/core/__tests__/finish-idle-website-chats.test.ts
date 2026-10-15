@@ -23,6 +23,7 @@ function chat(overrides: Partial<WebsiteChat>): WebsiteChat {
         status: 'active',
         model: 'openai/gpt-5.4-nano',
         entryPage: '/birthday-parties/',
+        openedFrom: 'bubble',
         startedAt: minutesAgo(50),
         lastMessageAt: minutesAgo(40),
         messageCount: 4,
@@ -54,6 +55,7 @@ describe('finishIdleWebsiteChats', () => {
             outcome: 'enquiry',
             model: 'openai/gpt-5.4-nano',
             entryPage: '/birthday-parties/',
+            openedFrom: 'bubble',
             resumed: false,
             // Started at 9:10am on a Tuesday, Melbourne time.
             hourOfDay: 9,

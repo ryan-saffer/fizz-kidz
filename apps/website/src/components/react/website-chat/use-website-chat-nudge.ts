@@ -60,16 +60,15 @@ export function useWebsiteChatNudge({ isChatActive }: { isChatActive: boolean })
                 timer = setTimeout(tryShow, RETRY_MS)
                 return
             }
-            const next = getWebsiteChatNudge({
-                path: window.location.pathname,
-                partyPackageName:
-                    document.querySelector('meta[name="fizz-chat-party-package"]')?.getAttribute('content') ??
-                    undefined,
-            })
-            // Pages where people are already enquiring return nothing; try again on the next page.
-            if (!next) return
             markVisitDone()
-            setNudge(next)
+            setNudge(
+                getWebsiteChatNudge({
+                    path: window.location.pathname,
+                    partyPackageName:
+                        document.querySelector('meta[name="fizz-chat-party-package"]')?.getAttribute('content') ??
+                        undefined,
+                })
+            )
         }
 
         function schedule() {
