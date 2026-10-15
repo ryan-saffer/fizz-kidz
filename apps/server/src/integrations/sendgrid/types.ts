@@ -30,14 +30,7 @@ export type Emails = {
         policy: ProgramBookingPolicy
     }
 
-    werribeeOpeningConfirmation: {
-        parentName: string
-        location: string
-        address: string
-        bookings: { datetime: string; confirmationPage: string }[]
-    }
-
-    malvernAnniversaryConfirmation: {
+    halloweenSpookfestConfirmation: {
         parentName: string
         location: string
         address: string

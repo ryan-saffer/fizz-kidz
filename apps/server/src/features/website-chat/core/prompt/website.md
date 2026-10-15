@@ -42,8 +42,13 @@ Studio notes (from each location page):
 - Essendon: big, colourful and bright with lots of natural light. Four-hour parking right outside. Next door to PEGS Junior College. Accommodates up to 30 children at birthday parties. Cafes: Pizza By D'Asporto right next door; Assembly Ground two minutes' walk down Napier Street.
 - Geelong: on Pakington Street in Newtown. A space for birthday parties, holiday programs, workshops and creative activities.
 - Kingsville: on Somerville Road. A large, open space for kids to dance, create and explore. A cafe just metres away. Ample parking nearby.
-- Malvern: on Glenferrie Road with lots of cafes and shops nearby. Accommodates up to 28 children at birthday parties. Cafe for parents: Green Goose, right around the corner. Malvern celebrated its 10th birthday with an event on Saturday 26 September (past).
-- Werribee: the newest studio, in Harpley Town Center on Bradfield St. It opened on Saturday 19 September 2026 with an open day (past). Hosts birthday parties, holiday programs and creative activities.
+- Malvern: on Glenferrie Road with lots of cafes and shops nearby. Accommodates up to 28 children at birthday parties. Cafe for parents: Green Goose, right around the corner.
+- Werribee: the newest studio, in Harpley Town Center on Bradfield St. Hosts birthday parties, holiday programs and creative activities.
+  - Halloween Spookfest at Werribee, Friday 30th October. Just $20 per child. Limited spots available. Details: https://www.fizzkidz.com.au/locations/werribee/#halloween. Book: https://bookings.fizzkidz.com.au/programs?id=75381458
+    - Session 1, 4:00pm - 5:00pm: Cauldron Spider Explosions; Spooky Jelly Soap.
+    - Session 2, 5:30pm - 6:30pm: Ghost Glow Slime (glow-in-the-dark slime); Bat Attack Bath Bombs (hide a bat inside your bath bomb).
+    - Spookfest Tween Disco Night, 7:00pm - 8:00pm, for ages 9 to 12: Glow Squishies; Glow Crowns (made with glow-in-the-dark beads).
+    - Activities are for kids aged 4 to 12; the Tween Disco Night is for ages 9 to 12.
 
 Each location page offers birthday parties and holiday programs and has a "Get in touch" link to https://www.fizzkidz.com.au/contact-us/.
 

@@ -34,7 +34,7 @@ vi.mock('@/integrations/sendgrid/sendgrid.client', () => ({
     MailClient: { getInstance: async () => ({ sendEmail: mocks.sendEmail }) },
 }))
 
-function makeBookingInput(eventStudio: 'werribee' | 'malvern', giftCardId: string): HolidayProgramBookingProps {
+function makeBookingInput(eventStudio: 'werribee', giftCardId: string): HolidayProgramBookingProps {
     const calendarId = AcuityConstants.StoreCalendars[eventStudio]
     const studio = AcuityUtilities.getStudioByCalendarId(calendarId)
 
@@ -83,19 +83,12 @@ describe.each([
         studio: 'werribee',
         location: 'Fizz Kidz Werribee Studio',
         squareLocationId: 'L5Z6AWAMMZY4V',
-        email: 'werribeeOpeningConfirmation',
+        email: 'halloweenSpookfestConfirmation',
         address: 'T5, Harpley Town Center, Bradfield St, Werribee VIC 3030',
-        date: '2026-09-19',
+        date: '2026-10-30',
+        dateLabel: 'Friday, Oct 30',
     },
-    {
-        studio: 'malvern',
-        location: 'Fizz Kidz Malvern Studio',
-        squareLocationId: 'NSS38M5PEET6N',
-        email: 'malvernAnniversaryConfirmation',
-        address: '20 Glenferrie Rd, Malvern VIC 3144',
-        date: '2026-09-26',
-    },
-] as const)('$studio event booking', ({ studio, location, squareLocationId, email, address, date }) => {
+] as const)('$studio event booking', ({ studio, location, squareLocationId, email, address, date, dateLabel }) => {
     beforeEach(() => {
         vi.clearAllMocks()
         mocks.createOrder.mockResolvedValue({ order: { id: 'order-id', totalMoney: { amount: 1500n } } })
@@ -139,7 +132,7 @@ describe.each([
             phone: '0400000000',
             appointmentTypeID: AcuityConstants.AppointmentTypes.OPEN_DAY,
             classID: 120414493,
-            type: 'Fizz Kidz Werribee Opening Day',
+            type: 'Halloween Spookfest',
             price: '15.00',
             forms: [],
             notes: '',
@@ -161,7 +154,7 @@ describe.each([
             address,
             bookings: [
                 {
-                    datetime: expect.stringContaining(`Saturday, Sep ${date.slice(-2)}, 10:00`),
+                    datetime: expect.stringContaining(`${dateLabel}, 10:00`),
                     confirmationPage: 'https://example.com/confirmation',
                 },
             ],

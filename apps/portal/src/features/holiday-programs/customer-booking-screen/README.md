@@ -21,9 +21,9 @@ Payment supports Apple Pay, Google Pay, card, Square gift card, split gift-card/
 
 > **Payment happens first.** If Acuity scheduling fails after Square succeeds, there is no automatic compensation. Use the logged order ID to reconcile it manually.
 
-## Open Days and Anniversaries
+## One-off events
 
-Werribee Open Day and **Malvern's 10th Birthday Party!** share `AcuityConstants.AppointmentTypes.OPEN_DAY` (`75381458`). The appointment's `calendarID` selects the confirmation email and canonical studio address: Werribee uses `14046878`, and Malvern uses `3163508`. Dates and times come from the booked appointments. The selected studio determines the Square location for checkout.
+One-off studio events (currently the Werribee **Halloween Spookfest**, previously open days and Malvern's 10th birthday) reuse `AcuityConstants.AppointmentTypes.OPEN_DAY` (`75381458`). The appointment's `calendarID` selects the confirmation email and canonical studio address; only Werribee (`14046878`) is configured. Dates, times, session names and prices come from Acuity. The selected studio determines the Square location for checkout. Families can book several sessions, and events never get the holiday program `allday` certificate.
 
 ## Medical plans
 

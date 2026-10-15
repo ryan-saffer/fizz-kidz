@@ -16,9 +16,7 @@ type ConfirmationAppointmentType =
 function getOpenDayConfirmation(calendarId: number) {
     switch (calendarId) {
         case AcuityConstants.StoreCalendars.werribee:
-            return { email: 'werribeeOpeningConfirmation', studio: 'werribee' } as const
-        case AcuityConstants.StoreCalendars.malvern:
-            return { email: 'malvernAnniversaryConfirmation', studio: 'malvern' } as const
+            return { email: 'halloweenSpookfestConfirmation', studio: 'werribee' } as const
         default:
             throw new Error(`No Open Day confirmation configured for calendar: ${calendarId}`)
     }
