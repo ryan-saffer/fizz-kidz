@@ -83,23 +83,23 @@ export default defineConfig({
                             ],
                         },
                         {
-                            label: 'Messy Play',
+                            label: 'Messy Play Lab',
                             items: [
                                 {
                                     label: 'How Bookings Work',
-                                    link: 'services/messy-play/how-bookings-work',
+                                    link: 'services/messy-play-lab/how-bookings-work',
                                 },
                                 {
                                     label: 'Whole-term Bookings',
-                                    link: 'services/messy-play/whole-term-bookings',
+                                    link: 'services/messy-play-lab/whole-term-bookings',
                                 },
                                 {
                                     label: 'Attendance',
-                                    link: 'services/messy-play/attendance',
+                                    link: 'services/messy-play-lab/attendance',
                                 },
                                 {
                                     label: 'Changes and Refunds',
-                                    link: 'services/messy-play/changes-and-refunds',
+                                    link: 'services/messy-play-lab/changes-and-refunds',
                                 },
                             ],
                         },

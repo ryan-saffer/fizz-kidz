@@ -180,7 +180,7 @@ async function refundAcrossTenders(
             idempotencyKey: `${data.id}-preschool-v2-refund-${tender.id!}`,
             amountMoney: { amount: refundThisTender, currency: tender.amountMoney?.currency || 'AUD' },
             paymentId: tender.paymentId,
-            reason: 'Cancelled more than 48 hours before Messy Play session - automatic refund',
+            reason: 'Cancelled more than 48 hours before Messy Play Lab session - automatic refund',
         })
 
         lastRefundPaymentId = tender.paymentId
