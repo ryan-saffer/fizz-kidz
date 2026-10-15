@@ -69,4 +69,26 @@ describe('saveWebsiteChat', () => {
         expect(saved[0].sentAt).toBe('2026-10-02T08:59:30.000Z')
         expect(saved[1]).toMatchObject({ role: 'frankie', sentAt: expect.any(String) })
     })
+
+    it('keeps how the chat was first opened', async () => {
+        mocks.getWebsiteChat.mockResolvedValueOnce(undefined)
+        await saveWebsiteChat({
+            id: 'chat-12345678',
+            messages,
+            model: 'openai/gpt-6-luna',
+            openedFrom: 'bubble',
+            receivedAt,
+        })
+        expect(mocks.setWebsiteChat).toHaveBeenLastCalledWith(expect.objectContaining({ openedFrom: 'bubble' }))
+
+        mocks.getWebsiteChat.mockResolvedValueOnce(mocks.setWebsiteChat.mock.calls[0][0])
+        await saveWebsiteChat({
+            id: 'chat-12345678',
+            messages,
+            model: 'openai/gpt-6-luna',
+            openedFrom: 'button',
+            receivedAt,
+        })
+        expect(mocks.setWebsiteChat).toHaveBeenLastCalledWith(expect.objectContaining({ openedFrom: 'bubble' }))
+    })
 })

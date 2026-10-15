@@ -5,6 +5,7 @@ import type {
     ContactFormServiceOption,
     Invitations,
     ReferenceOption,
+    WebsiteChatOpenedFrom,
     WebsiteFormId,
 } from '@fizz-kidz/core'
 import { type ScienceModule, type Studio, type StudioOrTest } from '@fizz-kidz/core'
@@ -135,6 +136,8 @@ export type MixpanelEvent = {
         outcome: 'enquiry' | 'auto-enquiry' | 'none'
         model: string
         entryPage: string | null
+        // How the visitor opened the chat. Null for chats from before this was recorded.
+        openedFrom: WebsiteChatOpenedFrom | null
         resumed: boolean
     }
     'google-business-profile-review': {

@@ -1,7 +1,7 @@
 import { convertToModelMessages, isStepCount, streamText, toUIMessageStream, type UIMessage } from 'ai'
 import { logger } from 'firebase-functions/v2'
 
-import type { WebsiteChatModel } from '@fizz-kidz/core'
+import type { WebsiteChatModel, WebsiteChatOpenedFrom } from '@fizz-kidz/core'
 
 import { saveWebsiteChat } from './save-website-chat'
 import { submitEnquiryTool } from './submit-enquiry-tool'
@@ -23,12 +23,14 @@ export async function streamWebsiteChat({
     model,
     pagePath,
     greeting,
+    openedFrom,
 }: {
     chatId: string
     messages: UIMessage[]
     model: WebsiteChatModel
     pagePath?: string
     greeting?: string
+    openedFrom?: WebsiteChatOpenedFrom
 }) {
     const tools = websiteChatTools
     const receivedAt = new Date()
@@ -60,7 +62,7 @@ export async function streamWebsiteChat({
         tools,
         originalMessages: messages,
         onEnd: ({ messages: updatedMessages }) =>
-            saveWebsiteChat({ id: chatId, messages: updatedMessages, model, pagePath, receivedAt }),
+            saveWebsiteChat({ id: chatId, messages: updatedMessages, model, pagePath, openedFrom, receivedAt }),
         onError: (error) => {
             logError('Website chat stream failed', error, { model, pagePath })
             return 'Oops, my fizz has gone a little flat! 🫧 Give me a moment and try again, or call the team on (03) 9059 8144.'

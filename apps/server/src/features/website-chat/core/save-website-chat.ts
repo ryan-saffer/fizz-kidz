@@ -1,4 +1,4 @@
-import type { WebsiteChatModel, WebsiteChatTranscriptMessage } from '@fizz-kidz/core'
+import type { WebsiteChatModel, WebsiteChatOpenedFrom, WebsiteChatTranscriptMessage } from '@fizz-kidz/core'
 
 import { getTranscriptFromUIMessages } from './website-chat-transcript'
 
@@ -13,12 +13,14 @@ export async function saveWebsiteChat({
     messages,
     model,
     pagePath,
+    openedFrom,
     receivedAt,
 }: {
     id: string
     messages: UIMessage[]
     model: WebsiteChatModel
     pagePath?: string
+    openedFrom?: WebsiteChatOpenedFrom
     /** When the server received the customer's latest message. */
     receivedAt: Date
 }) {
@@ -33,6 +35,7 @@ export async function saveWebsiteChat({
             status: 'active',
             model,
             entryPage: existing?.entryPage ?? pagePath ?? null,
+            openedFrom: existing?.openedFrom ?? openedFrom ?? null,
             startedAt: existing?.startedAt ?? now,
             lastMessageAt: now,
             ...(existing?.finishedAt && { finishedAt: existing.finishedAt }),

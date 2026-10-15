@@ -4,10 +4,7 @@ import { WebsiteStudioOptions } from '@fizz-kidz/core'
 // The widget sends whichever greeting it showed with each message, so the server only ever sees it as text.
 
 // After this much browsing in a visit, Frankie offers help in a speech bubble (once per visit).
-export const WEBSITE_CHAT_NUDGE_DELAY_SECONDS = 40
-
-// Pages where people are already enquiring, so Frankie doesn't interrupt.
-const WEBSITE_CHAT_NUDGE_EXCLUDED_PATHS = ['/contact-us/', '/birthday-parties/book-a-party/']
+export const WEBSITE_CHAT_NUDGE_DELAY_SECONDS = 15
 
 export type WebsiteChatGreeting = {
     /** Shown one after another, each in its own bubble. */
@@ -34,9 +31,8 @@ export function getWebsiteChatNudge({
 }: {
     path: string
     partyPackageName?: string
-}): WebsiteChatGreeting | undefined {
+}): WebsiteChatGreeting {
     const normalisedPath = path.endsWith('/') ? path : `${path}/`
-    if (WEBSITE_CHAT_NUDGE_EXCLUDED_PATHS.includes(normalisedPath)) return undefined
 
     if (partyPackageName) {
         return {

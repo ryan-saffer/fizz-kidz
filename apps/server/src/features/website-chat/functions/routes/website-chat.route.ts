@@ -9,6 +9,7 @@ import {
     WEBSITE_CHAT_MAX_MESSAGES,
     WebsiteChatIdSchema,
     WebsiteChatModelSchema,
+    WebsiteChatOpenedFromSchema,
 } from '@fizz-kidz/core'
 
 import { streamWebsiteChat, websiteChatTools } from '../../core/stream-website-chat'
@@ -22,6 +23,7 @@ const WebsiteChatRequestSchema = z.object({
     model: WebsiteChatModelSchema.default(DEFAULT_WEBSITE_CHAT_MODEL),
     pagePath: z.string().max(300).optional(),
     greeting: z.string().max(300).optional(),
+    openedFrom: WebsiteChatOpenedFromSchema.optional(),
 })
 
 export const websiteChatRoute = express.Router()
@@ -64,6 +66,7 @@ websiteChatRoute.post('/chat', async (req, res) => {
             model: env === 'prod' ? DEFAULT_WEBSITE_CHAT_MODEL : body.data.model,
             pagePath: body.data.pagePath,
             greeting: body.data.greeting,
+            openedFrom: body.data.openedFrom,
         })
         await pipeUIMessageStreamToResponse({ response: res, stream })
     } catch (err) {

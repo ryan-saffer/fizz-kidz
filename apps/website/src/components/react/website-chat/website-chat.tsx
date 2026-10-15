@@ -24,6 +24,7 @@ import {
     WEBSITE_CHAT_MAX_MESSAGE_LENGTH,
     WebsiteChatModelOptions,
     type WebsiteChatModel,
+    type WebsiteChatOpenedFrom,
 } from '@fizz-kidz/core'
 
 import { EnquiryConfirmation } from './enquiry-confirmation'
@@ -56,9 +57,9 @@ const LAUNCHER_DELAY_MS = 4000
 // expanded) ending at 2.8s.
 const LAUNCHER_INTRO_MS = 3000
 // The launcher arrives as an icon, then its "Chat with us" label expands in before the icon waves. The label stays
-// on wider screens; on phones it collapses back to the icon after a few seconds.
+// on wider screens; on phones it collapses back to the icon after a while, so it doesn't cover the page for long.
 const LAUNCHER_LABEL_DELAY_MS = 900
-const LAUNCHER_MOBILE_LABEL_MS = 3900
+const LAUNCHER_MOBILE_LABEL_MS = 20000
 
 // Opening a new chat: for each greeting message Frankie types, then writes it out word by word.
 // Once the last one is written, the quick replies enter one by one.
@@ -219,6 +220,8 @@ export function WebsiteChat() {
     modelRef.current = model
     const greetingRef = useRef(greeting)
     greetingRef.current = greeting
+    // How they last opened the chat. The server keeps the first value it sees, so it's how the conversation started.
+    const openedFromRef = useRef<WebsiteChatOpenedFrom>('button')
     const lastActivityAtRef = useRef(storedChat?.lastActivityAt ?? Date.now())
 
     const [transport] = useState(
@@ -229,6 +232,7 @@ export function WebsiteChat() {
                     ...(IS_MODEL_PICKER_ENABLED && { model: modelRef.current }),
                     pagePath: window.location.pathname,
                     greeting: greetingRef.current.messages.join(' '),
+                    openedFrom: openedFromRef.current,
                 }),
             })
     )
@@ -258,6 +262,7 @@ export function WebsiteChat() {
         // They've just read the bubble, so the greeting appears without typing first.
         setGreetingPhase('shown')
         setIsGreetingAnimating(true)
+        openedFromRef.current = 'bubble'
         openChat()
     }
 
@@ -596,7 +601,7 @@ export function WebsiteChat() {
             )}
 
             {nudge && !isOpen && (
-                <div className="fixed bottom-20 right-4 z-50 w-[min(280px,calc(100vw-2rem))] duration-300 animate-in fade-in slide-in-from-bottom-2 sm:bottom-24 sm:right-6">
+                <div className="fixed bottom-[5.5rem] right-4 z-50 w-[min(280px,calc(100vw-2rem))] duration-300 animate-in fade-in slide-in-from-bottom-2 sm:bottom-24 sm:right-6">
                     <button
                         type="button"
                         onClick={openFromNudge}
@@ -618,12 +623,16 @@ export function WebsiteChat() {
             {isLauncherShown && (
                 <button
                     type="button"
-                    onClick={() => (isOpen ? closeChat() : openChat())}
+                    onClick={() => {
+                        if (isOpen) return closeChat()
+                        openedFromRef.current = 'button'
+                        openChat()
+                    }}
                     className={cn(
                         // A round icon, with the "Chat with us" label expanding beside it (see isLauncherLabelShown).
-                        'fixed bottom-4 right-4 z-50 flex h-12 items-center justify-center rounded-full bg-[#9044E2] px-3.5 font-lilita text-lg text-white shadow-lg transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#7732BE] sm:bottom-6 sm:right-6 sm:h-14',
+                        'fixed bottom-4 right-4 z-50 flex h-14 items-center justify-center rounded-full bg-[#9044E2] px-4 font-lilita text-xl text-white shadow-lg transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#7732BE] sm:bottom-6 sm:right-6 sm:text-lg',
                         // A pill with the label when closed; a circle around the close icon when open.
-                        isOpen ? 'hidden sm:flex sm:w-14 sm:px-0' : 'sm:px-4',
+                        isOpen && 'hidden sm:flex sm:w-14 sm:px-0',
                         playLauncherIntro && 'chat-launcher-enter'
                     )}
                     aria-expanded={isOpen}
@@ -632,9 +641,7 @@ export function WebsiteChat() {
                     {isOpen ? (
                         <X className="h-6 w-6" />
                     ) : (
-                        <MessageCircle
-                            className={cn('h-5 w-5 sm:h-6 sm:w-6', playLauncherIntro && 'chat-launcher-wave')}
-                        />
+                        <MessageCircle className={cn('h-6 w-6', playLauncherIntro && 'chat-launcher-wave')} />
                     )}
                     {!isOpen && (
                         <span
