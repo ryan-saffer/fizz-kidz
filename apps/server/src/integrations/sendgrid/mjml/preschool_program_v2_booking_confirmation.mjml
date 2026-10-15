@@ -29,7 +29,7 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    Messy Play booking confirmation
+                    Messy Play Lab booking confirmation
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -43,7 +43,7 @@
                 <mj-column width="100%">
                     <mj-text font-size="16px"> Hi {{ parentName }}, </mj-text>
                     <mj-text font-size="16px">
-                        Yay! Your Fizz Kidz Messy Play booking is confirmed and paid. We can't wait to welcome your
+                        Yay! Your Fizz Kidz Messy Play Lab booking is confirmed and paid. We can't wait to welcome your
                         child into the studio.
                     </mj-text>
                     <mj-text font-size="16px">
@@ -86,9 +86,9 @@
                 </mj-column>
                 <mj-column width="100%">
                     <mj-text font-size="16px">
-                        Fizz Kidz Messy Play is our weekly science, art &amp; sensory class for ages 2.5–5. Each 2-hour
-                        session brings a new hands-on science, art and sensory adventure, with a consistent structure
-                        that builds confidence, independence and school-readiness through intentional play.
+                        Fizz Kidz Messy Play Lab is our weekly science, art &amp; sensory class for ages 2.5–5. Each
+                        2-hour session brings a new hands-on science, art and sensory adventure, with a consistent
+                        structure that builds confidence, independence and school-readiness through intentional play.
                     </mj-text>
                     <mj-text font-size="16px">
                         Children enjoy creative projects, sensory exploration, science experiments, movement, music and
