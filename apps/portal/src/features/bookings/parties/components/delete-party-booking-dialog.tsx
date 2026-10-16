@@ -55,7 +55,8 @@ function DeleteForm() {
             <DialogHeader>
                 <DialogTitle>Delete booking</DialogTitle>
                 <DialogDescription>
-                    This also deletes the party’s invitation and RSVPs, and can’t be undone.
+                    This also deletes the party’s invitation and RSVPs, and can’t be undone. The parent is emailed to
+                    confirm the cancellation.
                 </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-3">

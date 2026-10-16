@@ -168,7 +168,7 @@ function PartyFields({ form, editing }: { form: PartyBookingFormApi; editing: bo
     return (
         <FormSection title="Party">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                {/* the calendar event lives with the studio and type, so they're fixed once booked */}
+                {/* a studio party can't become a mobile one (or the reverse) once booked, but it can change studio */}
                 <form.Field
                     name="type"
                     listeners={{
@@ -183,9 +183,7 @@ function PartyFields({ form, editing }: { form: PartyBookingFormApi; editing: bo
                     )}
                 </form.Field>
                 <form.Field name="location">
-                    {(field) => (
-                        <SelectField field={field} label="Studio" options={STUDIO_OPTIONS} disabled={editing} />
-                    )}
+                    {(field) => <SelectField field={field} label="Studio" options={STUDIO_OPTIONS} />}
                 </form.Field>
                 <form.Field name="partyLength">
                     {(field) => (

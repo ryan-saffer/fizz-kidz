@@ -156,10 +156,21 @@
             <mj-column width="100%">
                 <mj-text font-weight="bold" padding-bottom="0"> Invitation & RSVP Tracking </mj-text>
 
+                {{#hasInvitationToUpdate}}
+                <mj-text>
+                    <strong
+                        >You've already created an invitation for this party, and it still shows the old
+                        details.</strong
+                    >
+                    Be sure to update it with the new details above and share it with your guests again.
+                </mj-text>
+                {{/hasInvitationToUpdate}}
+                {{^hasInvitationToUpdate}}
                 <mj-text
                     >Fizz Kidz parties are special, and your guests should know that too! Use our invitation and RSVP
                     tracking tool to create a personalised invitation to share with {{ childName }}'s friends.</mj-text
                 >
+                {{/hasInvitationToUpdate}}
 
                 <mj-button
                     css-class="btn-block"
@@ -173,7 +184,8 @@
                     css-class="btn-block"
                     border="1px #4BC5D9 solid"
                 >
-                    Create my personalised invitation ↗️
+                    {{#hasInvitationToUpdate}}Update my invitation ↗️{{/hasInvitationToUpdate}}
+                    {{^hasInvitationToUpdate}}Create my personalised invitation ↗️{{/hasInvitationToUpdate}}
                 </mj-button>
             </mj-column>
             {{^isMobile}}

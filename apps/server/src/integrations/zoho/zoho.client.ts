@@ -1276,7 +1276,8 @@ export class ZohoClient {
         )
     }
 
-    updatePartyDetailEventDate(zohoDealId: string, partyDateISO: string) {
+    /** Keeps a party deal's date and studio in line with its booking. */
+    updatePartyDeal(zohoDealId: string, { partyDateISO, studio }: { partyDateISO: string; studio: Studio }) {
         return this.#request({
             endpoint: 'Deals',
             method: 'PUT',
@@ -1284,6 +1285,7 @@ export class ZohoClient {
                 {
                     id: zohoDealId,
                     Actual_Party_Date: this.#toDateTimeISO(partyDateISO),
+                    Branch: capitalise(studio),
                 },
             ],
         })

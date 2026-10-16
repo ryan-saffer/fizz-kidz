@@ -22,7 +22,7 @@ Studio parties are charged at the studio once they're over, from the booking's *
 
 A new booking collects each birthday child (name, birthday, and the age they're turning, filled in from the birthday); the booking's `childName` and `childAge` are joined from them. Creations, food additions, questions and fun facts come later from the parent's party form, so they're only in the edit form.
 
-Editing saves the whole booking with the answers over the existing one, so fields the form doesn't show (event id, cake, invitation…) are kept. Type and studio can't change once booked, because the calendar event belongs to them. A cleared creation is saved as `''`, because the server updates the booking field by field. Existing bookings only need a mobile number, since older bookings hold other formats; new ones need 10 digits.
+Editing saves the whole booking with the answers over the existing one, so fields the form doesn't show (event id, cake, invitation…) are kept. The type can't change once booked. The studio can: the server moves the calendar event, the cake and take-home order, and tells the parent, studios and supplier (see the server's `party-bookings/core/studio-move/README.md`). A cleared creation is saved as `''`, because the server updates the booking field by field. Existing bookings only need a mobile number, since older bookings hold other formats; new ones need 10 digits.
 
 Cake, take-home bags and products are bought through the party form and are read-only here.
 

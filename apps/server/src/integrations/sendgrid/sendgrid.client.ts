@@ -376,6 +376,20 @@ export class MailClient {
                     template: 'party_booking_confirmation.mjml',
                     useMjml: true,
                 }
+            case 'partyBookingCancellation':
+                return {
+                    emailInfo: {
+                        to,
+                        from: {
+                            name: 'Fizz Kidz',
+                            email: 'bookings@fizzkidz.com.au',
+                        },
+                        subject: subject || 'Party Booking Cancelled',
+                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
+                    },
+                    template: 'party_booking_cancellation.mjml',
+                    useMjml: true,
+                }
             case 'cakeForm':
                 return {
                     emailInfo: {
@@ -808,6 +822,34 @@ export class MailClient {
                         replyTo: replyTo || 'noreply@fizzkidz.com.au',
                     },
                     template: 'cake_notification.html',
+                    useMjml: false,
+                }
+            case 'partySupplierOrderChange':
+                return {
+                    emailInfo: {
+                        to,
+                        from: {
+                            name: 'Fizz Kidz',
+                            email: 'noreply@fizzkidz.com.au',
+                        },
+                        subject: subject || 'Fizz Kidz Order Changed',
+                        replyTo: replyTo || 'noreply@fizzkidz.com.au',
+                    },
+                    template: 'party_supplier_order_change.html',
+                    useMjml: false,
+                }
+            case 'partyStudioMoveStockAlert':
+                return {
+                    emailInfo: {
+                        to,
+                        from: {
+                            name: 'Fizz Kidz',
+                            email: 'noreply@fizzkidz.com.au',
+                        },
+                        subject: subject || 'Party moved to your studio: stock needs attention',
+                        replyTo: replyTo || 'noreply@fizzkidz.com.au',
+                    },
+                    template: 'party_studio_move_stock_alert.html',
                     useMjml: false,
                 }
             case 'inventoryAlert':
