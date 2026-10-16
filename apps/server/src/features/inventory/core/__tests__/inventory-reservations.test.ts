@@ -160,6 +160,22 @@ describe('inventory reservations', () => {
         )
     })
 
+    it('only releases what is reserved at the studio, with the key a studio move gives it', async () => {
+        const atGeelong = { ...movement('reserved', 1), id: 'geelong-reserved', location: 'geelong' as const }
+        const releasedAtGeelong = { ...movement('released', 1), id: 'geelong-released', location: 'geelong' as const }
+        mockDatabaseClient.listInventoryStockMovementsForBooking = async () =>
+            [atGeelong, releasedAtGeelong, movement('reserved', 2)] as InventoryStockMovement[]
+        const calls = mockTransaction([stock('unicorn', 3, 2)])
+
+        await releaseInventoryForBooking({ location: 'werribee', bookingId: 'booking-1', idempotencyKey: 'move-1' })
+
+        strictEqual(calls[0].idempotencyKey, 'move-1')
+        deepStrictEqual(
+            calls[0].movements.map((m) => m.$type === 'released' && m.quantity),
+            [2]
+        )
+    })
+
     it('does nothing for a booking with nothing reserved', async () => {
         mockDatabaseClient.listInventoryStockMovementsForBooking = async () => []
         const calls = mockTransaction([])

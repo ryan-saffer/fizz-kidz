@@ -1,6 +1,8 @@
-import { STOCKED_PARTY_ORDER_STUDIOS } from '@fizz-kidz/core'
+import { capitalise, isStockedPartyOrder } from '@fizz-kidz/core'
 
 import { deleteInvitation } from './rsvp/delete-invitation'
+import { sendPartyCancellationEmail } from './send-party-cancellation-email'
+import { sendSupplierOrderChangeEmail } from './send-supplier-order-change-email'
 
 import type { DeletePartyBooking } from '../functions/trpc/parties.trpc'
 
@@ -40,14 +42,31 @@ export async function deletePartyBooking(props: DeletePartyBooking) {
         await deleteInvitation(existingBooking.invitationId)
     }
 
-    // give back any cake or take-home bags reserved from studio stock
-    if (existingBooking.type === 'studio' && STOCKED_PARTY_ORDER_STUDIOS.includes(existingBooking.location)) {
+    // give back any cake or take-home bags reserved from studio stock, or cancel them with the supplier
+    if (isStockedPartyOrder(existingBooking.type, existingBooking.location)) {
         try {
             await releaseInventoryForBooking({ location: existingBooking.location, bookingId })
         } catch (err) {
             logError('Error releasing inventory reserved for a deleted party booking', err, props)
         }
+    } else {
+        try {
+            await sendSupplierOrderChangeEmail({
+                booking: existingBooking,
+                orderStudio: existingBooking.location,
+                heading: 'Order cancelled',
+                summary: `This party at ${capitalise(existingBooking.location)} has been cancelled. Please cancel the order below.`,
+            })
+        } catch (err) {
+            logError('party booking deleted, but unable to email the supplier to cancel its order', err, props)
+        }
     }
 
     await DatabaseClient.deletePartyBooking(bookingId)
+
+    try {
+        await sendPartyCancellationEmail(existingBooking)
+    } catch (err) {
+        logError('party booking deleted, but unable to send the cancellation email', err, props)
+    }
 }

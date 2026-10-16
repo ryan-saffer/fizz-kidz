@@ -175,7 +175,8 @@ export function toNewBooking(values: PartyBookingFormValues): Booking {
 
 /**
  * The whole booking the server saves, with the edited answers over the existing booking so fields the form doesn't
- * show (event id, cake, invitation...) are kept. Type and location can't change once booked.
+ * show (event id, cake, invitation...) are kept. The type can't change once booked, but the studio can: the server moves
+ * the calendar event and the cake and take-home order with it.
  */
 export function toUpdatedBooking(values: PartyBookingFormValues, existing: WithId<FirestoreBooking>): Booking {
     const booking: Booking & { id?: string } = {
@@ -188,6 +189,7 @@ export function toUpdatedBooking(values: PartyBookingFormValues, existing: WithI
         childName: values.childName.trim(),
         childAge: values.childAge.trim(),
         dateTime: toDateTime(values.date, values.time),
+        location: values.location as Studio,
         partyLength: values.partyLength as Booking['partyLength'],
         address: existing.type === 'mobile' ? values.address.trim() : '',
         includesFood: existing.type === 'studio' && values.foodPackage === 'include',
