@@ -6,12 +6,14 @@ import { toE164AustralianPhone } from '@fizz-kidz/core'
 import type { BaseBooking } from '@fizz-kidz/core'
 
 import type { OfflineConversion } from '@/integrations/google-ads/google-ads.client'
+import type { MetaServerEvent } from '@/integrations/meta/meta.client'
 
 import {
     GOOGLE_ADS_CONVERSION_ACTIONS,
     GOOGLE_ADS_CUSTOM_VARIABLES,
     sendOfflineConversions,
 } from '@/integrations/google-ads/google-ads.client'
+import { sendMetaEvents } from '@/integrations/meta/meta.client'
 
 type PartyBookingDetails = Pick<
     BaseBooking,
@@ -70,4 +72,41 @@ export async function uploadPartyBookingConversion(bookingId: string, booking: P
     await sendOfflineConversions(GOOGLE_ADS_CONVERSION_ACTIONS.partyBooking, [
         buildPartyBookingConversion(bookingId, booking, DateTime.now()),
     ])
+}
+
+/** Meta normalises emails by trimming and lowercasing only, unlike Google it keeps Gmail dots. */
+export function buildPartyBookingMetaEvent(
+    bookingId: string,
+    booking: PartyBookingDetails,
+    bookedAt: DateTime
+): MetaServerEvent {
+    const phone = toE164AustralianPhone(booking.parentMobile)
+    return {
+        event_name: 'Purchase',
+        event_time: Math.floor(bookedAt.toSeconds()),
+        event_id: bookingId,
+        // Staff book the party after the enquiry, so it comes from our system rather than the website.
+        action_source: 'system_generated',
+        user_data: {
+            em: [sha256(booking.parentEmail.trim().toLowerCase())],
+            // Meta wants digits only, with the country code.
+            ...(phone && { ph: [sha256(phone.replace('+', ''))] }),
+            country: [sha256('au')],
+        },
+        custom_data: {
+            value: estimatePartyValue(booking),
+            currency: 'AUD',
+            content_category: 'party',
+            order_id: bookingId,
+            studio: booking.location,
+        },
+    }
+}
+
+/**
+ * Tells Meta a party was booked, as a Purchase on the website dataset. Meta matches the parent's hashed email and phone
+ * to the people its ads reached, the same way it matches the website enquiry's Lead.
+ */
+export async function sendPartyBookingToMeta(bookingId: string, booking: PartyBookingDetails) {
+    await sendMetaEvents([buildPartyBookingMetaEvent(bookingId, booking, DateTime.now())])
 }

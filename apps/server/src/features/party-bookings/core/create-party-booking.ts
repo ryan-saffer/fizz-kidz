@@ -4,7 +4,7 @@ import type { FirestoreBooking } from '@fizz-kidz/core'
 import { getApplicationDomain, getStudioAddress, getPartyEndDate, getPartyBirthdayChildDisplay } from '@fizz-kidz/core'
 
 import { sendPartyBookingConfirmationEmail } from './send-party-booking-confirmation-email'
-import { uploadPartyBookingConversion } from './upload-party-booking-conversion'
+import { sendPartyBookingToMeta, uploadPartyBookingConversion } from './upload-party-booking-conversion'
 import { validateBookingCreations } from './validate-booking-creations'
 
 import type { CreatePartyBooking } from '../functions/trpc/parties.trpc'
@@ -104,6 +104,11 @@ export async function createPartyBooking(_booking: CreatePartyBooking) {
             await uploadPartyBookingConversion(bookingId, booking)
         } catch (err) {
             logError('party booked successfully, but unable to upload the Google Ads conversion', err, { bookingId })
+        }
+        try {
+            await sendPartyBookingToMeta(bookingId, booking)
+        } catch (err) {
+            logError('party booked successfully, but unable to send the Meta conversion', err, { bookingId })
         }
     }
 

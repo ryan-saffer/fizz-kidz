@@ -3,7 +3,12 @@ import { createHash } from 'crypto'
 import { DateTime } from 'luxon'
 import { describe, expect, it } from 'vitest'
 
-import { buildPartyBookingConversion, estimatePartyValue, normaliseEmail } from './upload-party-booking-conversion'
+import {
+    buildPartyBookingConversion,
+    buildPartyBookingMetaEvent,
+    estimatePartyValue,
+    normaliseEmail,
+} from './upload-party-booking-conversion'
 
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex')
 
@@ -48,6 +53,31 @@ describe('buildPartyBookingConversion', () => {
                 { emailAddress: sha256('janecitizen@gmail.com') },
                 { phoneNumber: sha256('+61412345678') },
             ],
+        })
+    })
+})
+
+describe('buildPartyBookingMetaEvent', () => {
+    it('hashes the parent contact details the way Meta normalises them and tags the studio', () => {
+        const event = buildPartyBookingMetaEvent('booking-1', booking, DateTime.fromISO('2026-10-13T05:00:00Z'))
+
+        expect(event).toEqual({
+            event_name: 'Purchase',
+            event_time: 1791867600,
+            event_id: 'booking-1',
+            action_source: 'system_generated',
+            user_data: {
+                em: [sha256('jane.citizen@gmail.com')],
+                ph: [sha256('61412345678')],
+                country: [sha256('au')],
+            },
+            custom_data: {
+                value: 480 + 3 * 40,
+                currency: 'AUD',
+                content_category: 'party',
+                order_id: 'booking-1',
+                studio: 'kingsville',
+            },
         })
     })
 })
