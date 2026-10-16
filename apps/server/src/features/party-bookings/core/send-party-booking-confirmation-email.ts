@@ -26,6 +26,9 @@ type SendPartyBookingConfirmationEmailInput = {
     header?: string
     openingLine?: string
     subject?: string
+    bcc?: string[]
+    /** For an update: the parent made an invitation, which still shows the old details. */
+    hasInvitationToUpdate?: boolean
 }
 
 export async function sendPartyBookingConfirmationEmail({
@@ -34,6 +37,8 @@ export async function sendPartyBookingConfirmationEmail({
     header,
     openingLine,
     subject,
+    bcc,
+    hasInvitationToUpdate = false,
 }: SendPartyBookingConfirmationEmailInput) {
     const end = getPartyEndDate(booking.dateTime, booking.partyLength)
     const bookingDateTime = DateTime.fromJSDate(booking.dateTime, { zone: 'Australia/Melbourne' })
@@ -71,7 +76,8 @@ export async function sendPartyBookingConfirmationEmail({
             includesFood: booking.includesFood,
             canOrderCake: canOrderCake(booking.type, booking.location),
             cakeFormUrl: getCakeFormUrl(bookingId),
+            hasInvitationToUpdate,
         },
-        { subject, replyTo: studioContactEmail }
+        { subject, replyTo: studioContactEmail, ...(bcc && { bcc }) }
     )
 }

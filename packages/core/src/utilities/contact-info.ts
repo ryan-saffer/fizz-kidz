@@ -21,6 +21,7 @@ export function getPartyCustomerContactInfo(location: Studio) {
                 phoneDisplay: '0452 020 191',
                 contactName: 'Swetha',
                 contactSignoff: 'Swetha and the Fizz Kidz team',
+                ownerEmail: 'swetha.d@fizzkidz.com.au',
             }
         case 'kingsville':
             return {
@@ -28,6 +29,7 @@ export function getPartyCustomerContactInfo(location: Studio) {
                 phoneDisplay: '0403 057 999',
                 contactName: 'Kate',
                 contactSignoff: 'Kate and the Fizz Kidz team',
+                ownerEmail: 'kate.p@fizzkidz.com.au',
             }
         case 'werribee':
             return {
@@ -35,18 +37,31 @@ export function getPartyCustomerContactInfo(location: Studio) {
                 phoneDisplay: '0433 522 071',
                 contactName: 'Paris',
                 contactSignoff: 'Paris and the Fizz Kidz team',
+                ownerEmail: 'paris.c@fizzkidz.com.au',
             }
         case 'master':
             return {
                 email: genericContact.email,
                 phoneDisplay: genericContact.mainPhoneDisplay,
                 contactSignoff: genericContact.teamName,
+                ownerEmail: undefined,
             }
         default: {
             assertNever(studio)
             throw new Error(`Unknown location during getPartyCustomerContactInfo: '${studio}'`)
         }
     }
+}
+
+/**
+ * Who hears about changes to a studio's parties (cancelled, moved away): the studio inbox, plus the owner when the
+ * studio is a franchise.
+ */
+export function getStudioNotificationEmails(location: Studio, env: 'dev' | 'prod' = 'prod'): string[] {
+    const { ownerEmail } = getPartyCustomerContactInfo(location)
+    const studioEmail = getStudioContactEmail(location, env)
+    if (env === 'dev') return [studioEmail]
+    return ownerEmail ? [studioEmail, ownerEmail] : [studioEmail]
 }
 
 export function getStudioContactEmail(location: Studio, env: 'dev' | 'prod' = 'prod'): string {

@@ -47,11 +47,19 @@ export async function reserveInventoryForBooking(input: {
     })
 }
 
-/** Gives back everything still reserved for a booking, eg. when it's cancelled. */
-export async function releaseInventoryForBooking(input: { location: Studio; bookingId: string }) {
+/**
+ * Gives back everything still reserved for a booking at a studio, eg. when it's cancelled. Moving a party to another
+ * studio passes its own `idempotencyKey`, so a later cancellation still releases what was reserved at the new studio.
+ */
+export async function releaseInventoryForBooking(input: {
+    location: Studio
+    bookingId: string
+    idempotencyKey?: string
+}) {
     await settleBookingReservations({
-        ...input,
-        idempotencyKey: `${input.bookingId}-released`,
+        location: input.location,
+        bookingId: input.bookingId,
+        idempotencyKey: input.idempotencyKey ?? `${input.bookingId}-released`,
         settle: () => 'released',
     })
 }
@@ -71,7 +79,7 @@ export async function useInventoryForBooking(input: { location: Studio; bookingI
     })
 }
 
-/** Releases or uses whatever is still reserved for a booking. Repeating it does nothing. */
+/** Releases or uses whatever is still reserved for a booking at the studio. Repeating it does nothing. */
 async function settleBookingReservations(input: {
     location: Studio
     bookingId: string
@@ -79,7 +87,9 @@ async function settleBookingReservations(input: {
     settle: (itemId: string) => 'released' | 'used'
 }) {
     const movements = await DatabaseClient.listInventoryStockMovementsForBooking(input.bookingId)
-    const changes = [...getOutstandingReservations(movements)].map(([itemId, quantity]) => ({
+    // a party moved between stocked studios has reservations at both
+    const atStudio = movements.filter((movement) => movement.location === input.location)
+    const changes = [...getOutstandingReservations(atStudio)].map(([itemId, quantity]) => ({
         itemId,
         change: { $type: input.settle(itemId), bookingId: input.bookingId, quantity },
     }))
