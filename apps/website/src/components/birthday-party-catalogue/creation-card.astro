@@ -1,20 +1,14 @@
 ---
-import FlipCreation from "@/components/flip-creation.astro";
+import FlipCreation from '@/components/flip-creation.astro'
 
-import type { BirthdayPartyCreationCard } from "@fizz-kidz/core";
+import type { BirthdayPartyCreationCard } from '@fizz-kidz/core'
 
 type Props = {
-  card: BirthdayPartyCreationCard;
-  flippable?: boolean;
-};
+    card: BirthdayPartyCreationCard
+    flippable?: boolean
+}
 
-const { card, flippable = true } = Astro.props;
+const { card, flippable = true } = Astro.props
 ---
 
-<FlipCreation
-  color={card.colour}
-  flippable={flippable}
-  image={card.image}
-  imageAlt={card.alt}
-  text={card.label}
-/>
+<FlipCreation color={card.colour} flippable={flippable} image={card.image} imageAlt={card.alt} text={card.label} />

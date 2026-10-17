@@ -1,815 +1,701 @@
 ---
-import Image from "@/components/image.astro";
+import Image from '@/components/image.astro'
 
-import { websitePagesFranchisingPurpleWavePng as purpleWave } from "@/data/website-images";
-import { websitePagesFranchisingBlueWavePng as blueWave } from "@/data/website-images";
-import { websitePagesFranchisingStaffPng as staff } from "@/data/website-images";
-import { websitePagesFranchisingFranchiseChildJpg as franchiseChild } from "@/data/website-images";
-import { websitePagesFranchisingPinkCirclePng as pinkCircle } from "@/data/website-images";
-import { websitePagesFranchisingYellowCirclePng as yellowCircle } from "@/data/website-images";
-import { websitePagesFranchisingGreenCirclePng as greenCircle } from "@/data/website-images";
-import { websitePagesFranchisingPurpleCurvePng as purpleCurve } from "@/data/website-images";
-import { websitePagesFranchisingAllStaffJpg as team } from "@/data/website-images";
-import { websitePagesFranchisingCloudsPng as clouds } from "@/data/website-images";
-import check from "@/assets/images/pages/franchising/check.png";
-import { websitePagesFranchisingYellowWaveTopPng as yellowWaveTop } from "@/data/website-images";
-import { websitePagesFranchisingYellowWaveBottomPng as yellowWaveBottom } from "@/data/website-images";
-import { websitePagesPartiesFaqPng as faq } from "@/data/website-images";
-import graphic1 from "@/assets/images/pages/franchising/graphics/graphic1.png";
-import graphic2 from "@/assets/images/pages/franchising/graphics/graphic2.png";
-import graphic3 from "@/assets/images/pages/franchising/graphics/graphic3.png";
-import graphic4 from "@/assets/images/pages/franchising/graphics/graphic4.png";
-import graphic5 from "@/assets/images/pages/franchising/graphics/graphic5.png";
-import graphic6 from "@/assets/images/pages/franchising/graphics/graphic6.png";
-import graphic7 from "@/assets/images/pages/franchising/graphics/graphic7.png";
-import graphic8 from "@/assets/images/pages/franchising/graphics/graphic8.png";
-import graphic9 from "@/assets/images/pages/franchising/graphics/graphic9.png";
-import graphic10 from "@/assets/images/pages/franchising/graphics/graphic10.png";
-import graphic11 from "@/assets/images/pages/franchising/graphics/graphic11.png";
-import graphic12 from "@/assets/images/pages/franchising/graphics/graphic12.png";
-import graphic13 from "@/assets/images/pages/franchising/graphics/graphic13.png";
-import graphic14 from "@/assets/images/pages/franchising/graphics/graphic14.png";
-import graphic15 from "@/assets/images/pages/franchising/graphics/graphic15.png";
-import { websitePagesFranchisingBirthdayPartiesJpg as birthdayParties } from "@/data/website-images";
-import { websitePagesFranchisingHolidayProgramsJpg as holidayPrograms } from "@/data/website-images";
-import { websitePagesFranchisingPlayLabJpg as playLab } from "@/data/website-images";
-import { websitePagesFranchisingAfterSchoolJpg as afterSchool } from "@/data/website-images";
-import { websitePagesFranchisingActivationsJpg as activations } from "@/data/website-images";
-import { websitePagesFranchisingSchoolsJpg as schools } from "@/data/website-images";
-import { websitePagesFranchisingTopBubbleJpg as topBubble } from "@/data/website-images";
-import { websitePagesFranchisingStep1Jpg as step1 } from "@/data/website-images";
-import { websitePagesFranchisingStep2Jpg as step2 } from "@/data/website-images";
-import { websitePagesFranchisingStep3Jpg as step3 } from "@/data/website-images";
-import { websitePagesFranchisingStep4Jpg as step4 } from "@/data/website-images";
-import { websitePagesFranchisingStep5Jpg as step5 } from "@/data/website-images";
-import { websitePagesFranchisingStep6Jpg as step6 } from "@/data/website-images";
-import { websitePagesFranchisingStep7Jpg as step7 } from "@/data/website-images";
-import { websitePagesFranchisingStep8Jpg as step8 } from "@/data/website-images";
-import { websitePagesFranchisingStudio1Jpg as studio1 } from "@/data/website-images";
-import { websitePagesFranchisingStudio2Jpg as studio2 } from "@/data/website-images";
-import { websitePagesFranchisingStudio3Jpg as studio3 } from "@/data/website-images";
-import { websitePagesFranchisingStudio4Jpg as studio4 } from "@/data/website-images";
-import { websitePagesFranchisingStudio5Png as studio5 } from "@/data/website-images";
-import whiteSlime from "@/assets/images/pages/franchising/white-slime.svg";
+import { websitePagesFranchisingPurpleWavePng as purpleWave } from '@/data/website-images'
+import { websitePagesFranchisingBlueWavePng as blueWave } from '@/data/website-images'
+import { websitePagesFranchisingStaffPng as staff } from '@/data/website-images'
+import { websitePagesFranchisingFranchiseChildJpg as franchiseChild } from '@/data/website-images'
+import { websitePagesFranchisingPinkCirclePng as pinkCircle } from '@/data/website-images'
+import { websitePagesFranchisingYellowCirclePng as yellowCircle } from '@/data/website-images'
+import { websitePagesFranchisingGreenCirclePng as greenCircle } from '@/data/website-images'
+import { websitePagesFranchisingPurpleCurvePng as purpleCurve } from '@/data/website-images'
+import { websitePagesFranchisingAllStaffJpg as team } from '@/data/website-images'
+import { websitePagesFranchisingCloudsPng as clouds } from '@/data/website-images'
+import check from '@/assets/images/pages/franchising/check.png'
+import { websitePagesFranchisingYellowWaveTopPng as yellowWaveTop } from '@/data/website-images'
+import { websitePagesFranchisingYellowWaveBottomPng as yellowWaveBottom } from '@/data/website-images'
+import { websitePagesPartiesFaqPng as faq } from '@/data/website-images'
+import graphic1 from '@/assets/images/pages/franchising/graphics/graphic1.png'
+import graphic2 from '@/assets/images/pages/franchising/graphics/graphic2.png'
+import graphic3 from '@/assets/images/pages/franchising/graphics/graphic3.png'
+import graphic4 from '@/assets/images/pages/franchising/graphics/graphic4.png'
+import graphic5 from '@/assets/images/pages/franchising/graphics/graphic5.png'
+import graphic6 from '@/assets/images/pages/franchising/graphics/graphic6.png'
+import graphic7 from '@/assets/images/pages/franchising/graphics/graphic7.png'
+import graphic8 from '@/assets/images/pages/franchising/graphics/graphic8.png'
+import graphic9 from '@/assets/images/pages/franchising/graphics/graphic9.png'
+import graphic10 from '@/assets/images/pages/franchising/graphics/graphic10.png'
+import graphic11 from '@/assets/images/pages/franchising/graphics/graphic11.png'
+import graphic12 from '@/assets/images/pages/franchising/graphics/graphic12.png'
+import graphic13 from '@/assets/images/pages/franchising/graphics/graphic13.png'
+import graphic14 from '@/assets/images/pages/franchising/graphics/graphic14.png'
+import graphic15 from '@/assets/images/pages/franchising/graphics/graphic15.png'
+import { websitePagesFranchisingBirthdayPartiesJpg as birthdayParties } from '@/data/website-images'
+import { websitePagesFranchisingHolidayProgramsJpg as holidayPrograms } from '@/data/website-images'
+import { websitePagesFranchisingPlayLabJpg as playLab } from '@/data/website-images'
+import { websitePagesFranchisingAfterSchoolJpg as afterSchool } from '@/data/website-images'
+import { websitePagesFranchisingActivationsJpg as activations } from '@/data/website-images'
+import { websitePagesFranchisingSchoolsJpg as schools } from '@/data/website-images'
+import { websitePagesFranchisingTopBubbleJpg as topBubble } from '@/data/website-images'
+import { websitePagesFranchisingStep1Jpg as step1 } from '@/data/website-images'
+import { websitePagesFranchisingStep2Jpg as step2 } from '@/data/website-images'
+import { websitePagesFranchisingStep3Jpg as step3 } from '@/data/website-images'
+import { websitePagesFranchisingStep4Jpg as step4 } from '@/data/website-images'
+import { websitePagesFranchisingStep5Jpg as step5 } from '@/data/website-images'
+import { websitePagesFranchisingStep6Jpg as step6 } from '@/data/website-images'
+import { websitePagesFranchisingStep7Jpg as step7 } from '@/data/website-images'
+import { websitePagesFranchisingStep8Jpg as step8 } from '@/data/website-images'
+import { websitePagesFranchisingStudio1Jpg as studio1 } from '@/data/website-images'
+import { websitePagesFranchisingStudio2Jpg as studio2 } from '@/data/website-images'
+import { websitePagesFranchisingStudio3Jpg as studio3 } from '@/data/website-images'
+import { websitePagesFranchisingStudio4Jpg as studio4 } from '@/data/website-images'
+import { websitePagesFranchisingStudio5Png as studio5 } from '@/data/website-images'
+import whiteSlime from '@/assets/images/pages/franchising/white-slime.svg'
 
-import Layout from "@/layout/Layout.astro";
-import FranchisingHero from "@/components/image-clips/franchising-hero.astro";
-import StackedBubbles from "@/components/image-clips/stacked-bubbles.astro";
-import FaqAccordion from "@/components/react/faq-accordion";
-import { Button } from "@/components/react/ui/button";
-import FranchisingForm from "@/components/react/forms/franchising-form";
+import Layout from '@/layout/Layout.astro'
+import FranchisingHero from '@/components/image-clips/franchising-hero.astro'
+import StackedBubbles from '@/components/image-clips/stacked-bubbles.astro'
+import FaqAccordion from '@/components/react/faq-accordion'
+import { Button } from '@/components/react/ui/button'
+import FranchisingForm from '@/components/react/forms/franchising-form'
 ---
 
 <!--This is to hide the header box shadow so the slime looks good, but re-enable it after scrolling down -->
 <style lang="css">
-  :global(header) {
-    box-shadow: none !important;
-    transition: box-shadow 150ms ease;
-  }
-  :global(body.scrolled header) {
-    box-shadow:
-      0 10px 15px -3px rgba(0, 0, 0, 0.1),
-      0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
-  }
+    :global(header) {
+        box-shadow: none !important;
+        transition: box-shadow 150ms ease;
+    }
+    :global(body.scrolled header) {
+        box-shadow:
+            0 10px 15px -3px rgba(0, 0, 0, 0.1),
+            0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+    }
 </style>
 <Layout
-  title="Kids Party & Event Franchise Opportunities in Melbourne"
-  description="Run your own Fizz Kidz studio, and become a part of the Fizz Family!"
+    title="Kids Party & Event Franchise Opportunities in Melbourne"
+    description="Run your own Fizz Kidz studio, and become a part of the Fizz Family!"
 >
-  <main>
-  <div class="relative bg-[#45D3F3]">
-    <Image
-      class="absolute w-full"
-      src={whiteSlime}
-      alt=""
-      loading="eager"
-      width={80}
-      aria-hidden="true"
-    />
-    <Image
-      class="absolute left-[7%] top-[20%] hidden min-[1700px]:block"
-      src={graphic12}
-      alt=""
-      loading="eager"
-      width={80}
-      aria-hidden="true"
-    />
-    <Image
-      class="absolute right-[7%] top-[20%] hidden min-[1700px]:block"
-      src={graphic14}
-      alt=""
-      loading="eager"
-      width={80}
-      aria-hidden="true"
-    />
-    <Image
-      class="absolute bottom-[20%] right-[22%] hidden min-[1700px]:block"
-      src={graphic11}
-      alt=""
-      loading="eager"
-      width={100}
-      aria-hidden="true"
-    />
-    <Image
-      class="absolute bottom-0 right-[50%] hidden min-[1700px]:block"
-      src={graphic15}
-      alt=""
-      loading="eager"
-      width={100}
-      aria-hidden="true"
-    />
-    <div class="m-auto flex max-w-[1400px] gap-12 px-8 py-24">
-      <div class="flex flex-col justify-center gap-4">
-        <p class="font-lilita text-5xl uppercase text-white md:text-7xl">
-          <span>Lead with fun</span><br /><span>Become a</span><br /><span
-            class="text-6xl md:text-8xl">Fizz owner</span
-          >
-        </p>
-        <a href="#contact">
-          <Button
-            className="mt-8 w-fit bg-[#8F44E1] p-8 font-lilita text-xl uppercase tracking-wider hover:bg-[#F6BA33]"
-            >Enquire Today</Button
-          >
-        </a>
-      </div>
-      <div class="hidden w-full lg:block lg:w-1/2">
-        <FranchisingHero img={staff} alt="two staff smiling" />
-      </div>
-    </div>
-  </div>
-  <div class="relative overflow-hidden">
-    <Image
-      src={purpleWave}
-      alt=""
-      class="block w-full"
-      aria-hidden="true"
-      loading="eager"
-    />
-    <Image
-      src={blueWave}
-      alt=""
-      class="absolute inset-x-0 -top-0.5 w-full"
-      aria-hidden="true"
-      loading="eager"
-    />
-  </div>
-  <div class="relative">
-    <div class="m-auto block max-w-[1380px] px-5">
-      <Image
-        class="absolute left-[7%] top-[7%] hidden min-[1700px]:block"
-        src={graphic12}
-        alt=""
-        loading="eager"
-        width={80}
-        aria-hidden="true"
-      />
-      <Image
-        class="absolute bottom-[7%] right-[7%] hidden min-[1700px]:block"
-        src={graphic1}
-        alt=""
-        loading="eager"
-        width={80}
-        aria-hidden="true"
-      />
-      <div
-        class="flex flex-col items-center gap-16 py-8 md:gap-24 md:py-16 lg:flex-row"
-      >
-        <div class="w-full lg:w-1/2">
-          <Image
-            src={franchiseChild}
-            alt="Child holding bath bomb and laughing"
-            class="w-full rounded-3xl object-contain"
-            loading="eager"
-            width={800}
-          />
-        </div>
-        <div class="w-full lg:w-1/2">
-          <p class="mb-6 font-lilita text-3xl uppercase md:text-5xl">
-            Fizz Kidz <span class="text-[#F24DA2]">Franchise</span>
-          </p>
-          <p class="mb-4 font-lilita text-2xl text-[#8F44E1] md:text-4xl">
-            A proven successful business model with a team that works <u
-              >with you!</u
-            >
-          </p>
-          <p class="font-gotham text-lg leading-8 md:text-xl">
-            A Fizz Kidz franchise is an <span class="font-bold"
-              >exciting powerful opportunity</span
-            > to combine your love of working with children and your entrepreneurial
-            spirit. Build a business that brings smiles, joy, and unforgettable memories
-            to your local community.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="relative">
-    <Image
-      class="absolute left-[7%] top-[7%] hidden min-[1700px]:block"
-      src={graphic10}
-      alt=""
-      width={80}
-      aria-hidden="true"
-    />
-    <Image
-      class="absolute right-[7%] top-0 hidden min-[1700px]:block"
-      src={graphic11}
-      alt=""
-      width={80}
-      aria-hidden="true"
-    />
-    <section class="bg-gradient-to-t from-[#EAD6F0] to-white py-12 md:py-24">
-      <div class="m-auto block max-w-[1380px] px-5 pt-4">
-        <p class="text-center font-lilita text-3xl uppercase md:text-5xl">
-          What <span class="text-[#8F44E1]">we do?</span>
-        </p>
-        <div class="my-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-          {
-            [
-              {
-                content: (
-                  <Fragment>
-                    Birthday
-                    <>
-                      <br />
-                      <span class="text-[#45D3F3]">Parties</span>
-                    </>
-                  </Fragment>
-                ),
-                image: birthdayParties,
-                alt: "Kids smiling around a birthday cake",
-              },
-              {
-                content: (
-                  <Fragment>
-                    Messy
-                    <>
-                      <br />
-                      <span class="text-[#F6BA34]">Science</span>
-                    </>
-                  </Fragment>
-                ),
-                image: playLab,
-                alt: "A toddler with messy hands lost in wonderment",
-              },
-              {
-                content: (
-                  <Fragment>
-                    Holiday
-                    <>
-                      <br />
-                      <span class="text-[#F24DA2]">Programs</span>
-                    </>
-                  </Fragment>
-                ),
-                image: holidayPrograms,
-                alt: "Kids arm in arm smiling",
-              },
-              {
-                content: (
-                  <Fragment>
-                    After School
-                    <>
-                      <br />
-                      <span class="text-[#4FE16D]">Programs</span>
-                    </>
-                  </Fragment>
-                ),
-                image: afterSchool,
-                alt: "A child in school pouring into a volcano and smiling",
-              },
-              {
-                content: (
-                  <Fragment>
-                    Activations &
-                    <>
-                      <br />
-                      <span class="text-[#8F44E1]">Events</span>
-                    </>
-                  </Fragment>
-                ),
-                image: activations,
-                alt: "Kids in a shopping mall smiling with a Fizz Kidz staff member",
-              },
-              {
-                content: (
-                  <Fragment>
-                    School & Kindergarten
-                    <>
-                      <br />
-                      <span class="text-[#45D3F3]">Incursions</span>
-                    </>
-                  </Fragment>
-                ),
-                image: schools,
-                alt: "Two kids in aprons showing off their messy hands",
-              },
-            ].map((item) => (
-              <div class="flex flex-col rounded-lg bg-white p-4 shadow-lg">
-                <Image
-                  src={item.image}
-                  alt={item.alt}
-                  class="max-h-[350px] flex-grow rounded-lg object-cover"
-                  width={700}
-                />
-                <p class="mt-4 text-center font-lilita text-xl uppercase tracking-wide">
-                  {item.content}
-                </p>
-              </div>
-            ))
-          }
-        </div>
-      </div>
-    </section>
-  </div>
-  <div class="relative">
-    <Image
-      class="absolute left-[7%] top-[7%] hidden min-[1700px]:block"
-      src={graphic11}
-      alt=""
-      width={80}
-      aria-hidden="true"
-    />
-    <Image
-      class="absolute right-[7%] top-0 hidden min-[1700px]:block"
-      src={graphic12}
-      alt=""
-      width={80}
-      aria-hidden="true"
-    />
-    <section class="m-auto my-12 block max-w-[1380px] px-5 md:my-24">
-      <p
-        class="m-auto mb-16 max-w-[550px] text-center font-lilita text-3xl uppercase leading-9 tracking-wide md:text-5xl md:leading-[3.5rem]"
-      >
-        And the <span class="text-[#45D3F3]">numbers</span> just go up and up!
-      </p>
-      <div
-        class="grid grid-cols-1 justify-items-center overflow-clip md:grid-cols-3"
-      >
-        {
-          [
-            {
-              heading: <span class="text-[#F24DA2]">5,000+</span>,
-              content: "Birthday parties",
-              image: pinkCircle,
-            },
-            {
-              heading: <span class="text-[#4EE16D]">120,000+</span>,
-              content: "Children attended Fizz Kidz studios",
-              image: greenCircle,
-            },
-            {
-              heading: <span class="text-[#F6BA33]">850+</span>,
-              content: "5 Star reviews",
-              image: yellowCircle,
-            },
-          ].map((item) => (
-            <div class="relative flex min-h-80 min-w-80 flex-col items-center justify-center gap-2 overflow-hidden">
-              <Image
-                src={item.image}
-                alt=""
-                aria-hidden="true"
-                width={320}
-                height={320}
-                widths={[320, 640]}
-                sizes="320px"
-                fit="contain"
-                class="absolute inset-0 h-full w-full object-contain"
-              />
-              <p class="relative text-center font-lilita text-4xl">
-                {item.heading}
-              </p>
-              <p class="relative max-w-48 text-center">{item.content}</p>
-            </div>
-          ))
-        }
-      </div>
-    </section>
-  </div>
-  <Image src={purpleCurve} alt="" layout="full-width" class="w-full" />
-  <div class="bg-[#8F44E1]">
-    <div class="relative">
-      <Image
-        class="absolute left-[7%] top-[7%] hidden min-[1700px]:block"
-        src={graphic12}
-        alt=""
-        width={80}
-        aria-hidden="true"
-      />
-      <Image
-        class="absolute right-[7%] top-0 hidden min-[1700px]:block"
-        src={graphic5}
-        alt=""
-        width={80}
-        aria-hidden="true"
-      />
-      <Image
-        class="absolute left-0 top-[50%] hidden min-[1700px]:block"
-        src={graphic3}
-        alt=""
-        width={60}
-        aria-hidden="true"
-      />
-      <div class="m-auto block max-w-[1380px] px-5">
-        <p
-          class="text-center font-lilita text-3xl uppercase leading-9 text-white md:text-5xl md:leading-[3.5rem]"
-        >
-          Why <span class="text-[#F6BA34]">Fizz</span> Kidz ?<br />
-          <span class="text-[#F6BA34]">Because we're fizzing fantastic</span>
-        </p>
-
-        <div class="flex gap-24 py-12 lg:py-24">
-          <div class="flex w-full flex-col gap-4 lg:w-1/2">
-            {
-              [
-                "Proven and clear track record of roaring success",
-                "Low capital investment",
-                "Large opportunity for further growth",
-                "Support office manages customer enquiries",
-                "No full time staff required",
-                "A model that can offer flexible work-life balance",
-                "Custom-built in-house technology that makes running your studio seamless",
-                "We are wholeheartedly committed to your success",
-              ].map((item) => (
-                <div class="rounded-xl bg-[#B17CEA] px-12 py-4 shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-                  <p class="font-gotham font-medium text-white">{item}</p>
-                </div>
-              ))
-            }
-          </div>
-          <div class="hidden w-1/2 items-center justify-center lg:flex">
-            <div class="relative h-full w-full p-6">
-              <Image
-                class="absolute left-0 top-0 hidden min-[1700px]:block"
-                src={graphic7}
-                alt=""
-                width={50}
-                aria-hidden="true"
-              />
-              <Image
-                class="absolute right-[40%] top-0 hidden min-[1700px]:block"
-                src={graphic8}
-                alt=""
-                width={80}
-                aria-hidden="true"
-              />
-              <Image
-                class="absolute right-0 top-[50%] hidden min-[1700px]:block"
-                src={graphic6}
-                alt=""
-                width={60}
-                aria-hidden="true"
-              />
-              <Image
-                class="absolute bottom-0 right-0 hidden min-[1700px]:block"
-                src={graphic4}
-                alt=""
-                width={80}
-                aria-hidden="true"
-              />
-              <Image
-                class="absolute bottom-0 left-0 hidden min-[1700px]:block"
-                src={graphic2}
-                alt=""
-                width={120}
-                aria-hidden="true"
-              />
-              <StackedBubbles
-                imgTop={topBubble}
-                altTop="Fizz Kidz staff pouring soap into moulds as kids excitedly watch"
-                imgBottom={staff}
-                altBottom="Two Fizz Kids staff smiling"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="relative">
-    <Image src={purpleCurve} alt="" layout="full-width" class="absolute w-full rotate-180" />
-    <Image
-      src={team}
-      alt=""
-      class="z-0 max-h-[800px] w-full object-cover object-top"
-    />
-    <Image src={clouds} alt="" layout="full-width" class="absolute bottom-0 w-full" />
-  </div>
-  <div class="relative">
-    <Image
-      class="absolute left-[7%] top-0 hidden min-[1700px]:block"
-      src={graphic9}
-      alt=""
-      width={80}
-      aria-hidden="true"
-    />
-    <Image
-      class="absolute right-[7%] top-0 hidden min-[1700px]:block"
-      src={graphic12}
-      alt=""
-      width={80}
-      aria-hidden="true"
-    />
-    <div class="m-auto block max-w-[1380px] px-5">
-      <p
-        class="mt-12 text-center font-lilita text-3xl uppercase tracking-wide md:text-5xl"
-      >
-        Together we are <span class="text-[#45D3F3]">stronger</span>
-      </p>
-      <div class="my-12 flex flex-col gap-6 md:my-24 md:flex-row">
-        <div
-          class="flex w-full flex-col gap-2 rounded-xl bg-[#45D3F3] p-8 md:w-1/2"
-        >
-          {
-            [
-              "Proven sales and marketing strategies supported by ready to use assets that drive results",
-              "In house team manages enquiries and secures bookings on your behalf, handing over confirmed parties and programs ready to deliver",
-              "We teach you everything you need to know about all our services and how to train your staff",
-              "Skip the start up pain with our high-ranking website and over 850 Google reviews",
-            ].map((item) => (
-              <div class="flex items-center gap-4">
-                <Image
-                  src={check}
-                  alt="check"
-                  class="w-10 md:w-16"
-                  width={200}
-                />
-                <p class="font-gotham font-medium text-white">{item}</p>
-              </div>
-            ))
-          }
-        </div>
-        <div
-          class="flex w-full flex-col gap-2 rounded-xl bg-[#8F44E1] p-8 md:w-1/2"
-        >
-          {
-            [
-              "A recognised brand with a ready-to-reach customer database — you're never on your own!",
-              "The Fizz Kidz Portal. Custom-built platform that streamlines bookings, attendance, invoicing, and payroll — all in one seamless system.",
-              "Full-time operational support to guide you through every aspect of running your business — from recruitment and training to day-to-day operations and studio setup.",
-              "A dedicated, caring team, passionate about your success.",
-            ].map((item) => (
-              <div class="flex items-center gap-4">
-                <Image
-                  src={check}
-                  alt="check"
-                  class="w-10 md:w-16"
-                  width={200}
-                />
-                <p class="font-gotham font-medium text-white">{item}</p>
-              </div>
-            ))
-          }
-        </div>
-      </div>
-    </div>
-  </div>
-  <section>
-    <Image src={yellowWaveTop} alt="" layout="full-width" class="w-full" />
-    <div class="bg-[#F6BA33]">
-      <div class="m-auto block max-w-[1380px] px-5 py-24">
-        <p
-          class="m-auto max-w-[600px] text-center font-lilita text-3xl uppercase md:text-5xl"
-        >
-          Fizz Kidz studios - the heart of <span class="text-[#8F44E1]"
-            >Fizz Kidz</span
-          >
-        </p>
-        <div class="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-          {
-            [
-              { image: studio1, alt: "A Fizz kids studio from the street" },
-              { image: studio3, alt: "The inside of a Fizz Kids studio" },
-              { image: studio2, alt: "Looking into a Fizz Kidz studio" },
-              { image: studio4, alt: "The wall of a Fizz Kidz studio" },
-              { image: studio5, alt: "The wall of a Fizz Kidz studio" },
-            ].map((item) => (
-              <div class="col-span-1 h-64 w-full overflow-hidden rounded-xl last:md:col-span-2">
-                <Image
-                  src={item.image}
-                  alt={item.alt}
-                  width={800}
-                  class="h-full w-full object-cover"
-                />
-              </div>
-            ))
-          }
-        </div>
-      </div>
-    </div>
-    <Image src={yellowWaveBottom} alt="" layout="full-width" class="w-full" />
-  </section>
-  <section class="bg-gradient-to-t from-[#DAF1D7] to-white">
-    <div class="m-auto block max-w-[1380px] px-5 py-24">
-      <p
-        class="m-auto mb-12 max-w-[800px] text-center font-lilita text-3xl uppercase leading-9 md:text-5xl md:leading-[3.5rem]"
-      >
-        Fizz Kidz franchisee <span class="text-[#4FE16D]">onboarding</span> journey
-      </p>
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
-        {
-          [
-            {
-              number: "01",
-              title: <>Enquiry</>,
-              content: "Fill in the form below",
-              image: step1,
-              alt: "Lip balms in a bowl of bath crystals",
-              color: "#8F44E1",
-            },
-            {
-              number: "02",
-              title: (
-                <>
-                  Phone <span class="text-[#45D3F3]">interview</span>
-                </>
-              ),
-              content: "We will contact you for an initial chat",
-              image: step2,
-              alt: "Bath bombs being made in a bowl",
-              color: "#45D3F3",
-            },
-            {
-              number: "03",
-              title: (
-                <>
-                  Application <span class="text-[#8F44E1]">form</span>
-                </>
-              ),
-              content:
-                "Complete our franchise application form and non-disclosure agreement.",
-              image: step3,
-              alt: "Rainbow slime in messy hands",
-              color: "#8F44E1",
-            },
-            {
-              number: "04",
-              title: (
-                <>
-                  Let's get to know{" "}
-                  <span class="text-[#F6BA34]">each other</span>
-                </>
-              ),
-              content:
-                "Meet either online or in a Fizz Kidz studio with our CEO and COO.",
-              image: step4,
-              alt: "Kids making bubbling volcanos",
-              color: "#F6BA34",
-            },
-            {
-              number: "05",
-              title: (
-                <>
-                  Discover the
-                  <span class="text-[#F24DA2]">Fizz Kidz way</span>
-                </>
-              ),
-              content:
-                "Spend a day in a Fizz Kidz studio and see what we are all about!",
-              image: step5,
-              alt: "A frog in a bath bomb",
-              color: "#F24DA2",
-            },
-            {
-              number: "06",
-              title: (
-                <>
-                  Application on
-                  <span class="text-[#4FE16D]">approval</span>
-                </>
-              ),
-              content: "Gain final approval to become a Fizz Kidz franchisee",
-              image: step6,
-              alt: "Unicorn soaps",
-              color: "#4FE16D",
-            },
-            {
-              number: "07",
-              title: (
-                <>
-                  Site selection and
-                  <span class="text-[#8F44E1]">training</span>
-                </>
-              ),
-              content:
-                "Together we will find an appropriate site and get you up and running!",
-              image: step7,
-              alt: "Two Fizz kids staff smiling",
-              color: "#8F44E1",
-            },
-            {
-              number: "08",
-              title: (
-                <>
-                  You're ready to
-                  <span class="text-[#45D3F3]">open</span>
-                </>
-              ),
-              content: "Doors open - let the fun begin!",
-              image: step8,
-              alt: "Two girls with beads laughing",
-              color: "#45D3F3",
-            },
-          ].map((item) => (
-            <div class="flex flex-col rounded-xl bg-white shadow-md">
-              <div class="h-60 w-full overflow-hidden rounded-t-xl">
-                <Image
-                  src={item.image}
-                  alt={item.alt}
-                  width={500}
-                  class="h-full w-full object-cover"
-                />
-              </div>
-              <div class="relative">
-                <div
-                  class="absolute -top-6 left-1/2 flex h-12 w-12 -translate-x-1/2 transform items-center justify-center rounded-full border-2 bg-white"
-                  style={{ borderColor: item.color }}
-                >
-                  <span class="font-lilita">{item.number}</span>
-                </div>
-                <div class="p-8">
-                  <p class="mb-2 text-center font-lilita text-xl uppercase">
-                    {item.title}
-                  </p>
-                  <p class="text-center font-gotham">{item.content}</p>
-                </div>
-              </div>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-  <div class="m-auto block max-w-[1380px] px-5">
-    <section class="mt-12 md:mt-20">
-      <div class="flex w-full flex-col items-center gap-8 md:flex-row">
-        <Image
-          class="hidden w-2/5 md:block"
-          src={faq}
-          alt="Three girls smiling"
-        />
-        <div class="w-full md:w-3/5">
-          <div class="relative">
+    <main>
+        <div class="relative bg-[#45D3F3]">
+            <Image class="absolute w-full" src={whiteSlime} alt="" loading="eager" width={80} aria-hidden="true" />
             <Image
-              class="absolute right-[7%] top-0 hidden min-[1700px]:block"
-              src={graphic13}
-              alt=""
-              width={80}
-              aria-hidden="true"
+                class="absolute left-[7%] top-[20%] hidden min-[1700px]:block"
+                src={graphic12}
+                alt=""
+                loading="eager"
+                width={80}
+                aria-hidden="true"
             />
-            <p class="mb-12 font-lilita text-5xl uppercase leading-[3.5rem]">
-              Frequently Asked<br />
-              <span class="text-[#F24DA2]">Questions</span>
-            </p>
-          </div>
-          <FaqAccordion
-            client:visible={{ rootMargin: "300px" }}
-            items={[
-              {
-                question: "Can I find and suggest my own Franchise location?",
-                answer:
-                  "Yes, want your business to work for you and your community and you know your community best! To support the decision making, Fizz Kidz will provide demographic intelligence around each location.",
-              },
-              {
-                question: "What support will I receive?",
-                answer:
-                  "We're with you every step of the way. From the moment you join the Fizz tribe, you'll receive comprehensive support - from in-depth training and site selection to hiring your team and setting up your fabulous studio. Once you're operational, our head office becomes your centralised bookings team, handling customer bookings so you can focus on building and growing your business!",
-              },
-              {
-                question:
-                  "Can I see financial information? How much can I expect to make?",
-                answer:
-                  "Yes of course, once an NDA is signed, we will share current financial documentation with you. The success of your Fizz Kidz studio is shaped by the energy and heart you put in - from running fun-filled sessions to building connections in your local community and delivering quality experiences.",
-              },
-              {
-                question: "Who will I be able to contact on a daily basis?",
-                answer:
-                  "Fizz Kidz have a dedicated team to support and guide you through the start-up and ongoing daily operations of your business. We got your back!",
-              },
-            ]}
-          />
+            <Image
+                class="absolute right-[7%] top-[20%] hidden min-[1700px]:block"
+                src={graphic14}
+                alt=""
+                loading="eager"
+                width={80}
+                aria-hidden="true"
+            />
+            <Image
+                class="absolute bottom-[20%] right-[22%] hidden min-[1700px]:block"
+                src={graphic11}
+                alt=""
+                loading="eager"
+                width={100}
+                aria-hidden="true"
+            />
+            <Image
+                class="absolute bottom-0 right-[50%] hidden min-[1700px]:block"
+                src={graphic15}
+                alt=""
+                loading="eager"
+                width={100}
+                aria-hidden="true"
+            />
+            <div class="m-auto flex max-w-[1400px] gap-12 px-8 py-24">
+                <div class="flex flex-col justify-center gap-4">
+                    <p class="font-lilita text-5xl uppercase text-white md:text-7xl">
+                        <span>Lead with fun</span><br /><span>Become a</span
+                        ><br /><span class="text-6xl md:text-8xl">Fizz owner</span>
+                    </p>
+                    <a href="#contact">
+                        <Button
+                            className="mt-8 w-fit bg-[#8F44E1] p-8 font-lilita text-xl uppercase tracking-wider hover:bg-[#F6BA33]"
+                            >Enquire Today</Button
+                        >
+                    </a>
+                </div>
+                <div class="hidden w-full lg:block lg:w-1/2">
+                    <FranchisingHero img={staff} alt="two staff smiling" />
+                </div>
+            </div>
         </div>
-      </div>
-    </section>
-    <section class="py-12 md:py-24">
-      <div id="contact" class="scroll-mt-16 md:scroll-mt-24"></div>
-      <p
-        class="mb-12 text-center font-lilita text-3xl leading-9 md:text-5xl md:leading-[3.5rem]"
-      >
-        Fill in the form to register your interest,<br /><span
-          class="text-[#8F44E1]">and we will be in touch!</span
-        >
-      </p>
-      <FranchisingForm client:visible={{ rootMargin: "300px" }} />
-    </section>
-  </div>
-  </main>
-  <script>
-    const toggleHeaderShadow = () => {
-      document.body.classList.toggle("scrolled", window.scrollY > 10);
-    };
-    window.addEventListener("scroll", toggleHeaderShadow, { passive: true });
-    toggleHeaderShadow();
-    document.addEventListener("astro:page-load", toggleHeaderShadow);
-  </script>
+        <div class="relative overflow-hidden">
+            <Image src={purpleWave} alt="" class="block w-full" aria-hidden="true" loading="eager" />
+            <Image
+                src={blueWave}
+                alt=""
+                class="absolute inset-x-0 -top-0.5 w-full"
+                aria-hidden="true"
+                loading="eager"
+            />
+        </div>
+        <div class="relative">
+            <div class="m-auto block max-w-[1380px] px-5">
+                <Image
+                    class="absolute left-[7%] top-[7%] hidden min-[1700px]:block"
+                    src={graphic12}
+                    alt=""
+                    loading="eager"
+                    width={80}
+                    aria-hidden="true"
+                />
+                <Image
+                    class="absolute bottom-[7%] right-[7%] hidden min-[1700px]:block"
+                    src={graphic1}
+                    alt=""
+                    loading="eager"
+                    width={80}
+                    aria-hidden="true"
+                />
+                <div class="flex flex-col items-center gap-16 py-8 md:gap-24 md:py-16 lg:flex-row">
+                    <div class="w-full lg:w-1/2">
+                        <Image
+                            src={franchiseChild}
+                            alt="Child holding bath bomb and laughing"
+                            class="w-full rounded-3xl object-contain"
+                            loading="eager"
+                            width={800}
+                        />
+                    </div>
+                    <div class="w-full lg:w-1/2">
+                        <p class="mb-6 font-lilita text-3xl uppercase md:text-5xl">
+                            Fizz Kidz <span class="text-[#F24DA2]">Franchise</span>
+                        </p>
+                        <p class="mb-4 font-lilita text-2xl text-[#8F44E1] md:text-4xl">
+                            A proven successful business model with a team that works <u>with you!</u>
+                        </p>
+                        <p class="font-gotham text-lg leading-8 md:text-xl">
+                            A Fizz Kidz franchise is an <span class="font-bold">exciting powerful opportunity</span> to
+                            combine your love of working with children and your entrepreneurial spirit. Build a business
+                            that brings smiles, joy, and unforgettable memories to your local community.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="relative">
+            <Image
+                class="absolute left-[7%] top-[7%] hidden min-[1700px]:block"
+                src={graphic10}
+                alt=""
+                width={80}
+                aria-hidden="true"
+            />
+            <Image
+                class="absolute right-[7%] top-0 hidden min-[1700px]:block"
+                src={graphic11}
+                alt=""
+                width={80}
+                aria-hidden="true"
+            />
+            <section class="bg-gradient-to-t from-[#EAD6F0] to-white py-12 md:py-24">
+                <div class="m-auto block max-w-[1380px] px-5 pt-4">
+                    <p class="text-center font-lilita text-3xl uppercase md:text-5xl">
+                        What <span class="text-[#8F44E1]">we do?</span>
+                    </p>
+                    <div class="my-12 grid grid-cols-1 gap-4 md:grid-cols-3">
+                        {[
+                            {
+                                content: <Fragment>
+                                    Birthday
+                                    <>
+                                        <br />
+                                        <span class="text-[#45D3F3]">Parties</span>
+                                    </>
+                                </Fragment>,
+                                image: birthdayParties,
+                                alt: 'Kids smiling around a birthday cake',
+                            },
+                            {
+                                content: <Fragment>
+                                    Messy
+                                    <>
+                                        <br />
+                                        <span class="text-[#F6BA34]">Science</span>
+                                    </>
+                                </Fragment>,
+                                image: playLab,
+                                alt: 'A toddler with messy hands lost in wonderment',
+                            },
+                            {
+                                content: <Fragment>
+                                    Holiday
+                                    <>
+                                        <br />
+                                        <span class="text-[#F24DA2]">Programs</span>
+                                    </>
+                                </Fragment>,
+                                image: holidayPrograms,
+                                alt: 'Kids arm in arm smiling',
+                            },
+                            {
+                                content: <Fragment>
+                                    After School
+                                    <>
+                                        <br />
+                                        <span class="text-[#4FE16D]">Programs</span>
+                                    </>
+                                </Fragment>,
+                                image: afterSchool,
+                                alt: 'A child in school pouring into a volcano and smiling',
+                            },
+                            {
+                                content: <Fragment>
+                                    Activations &
+                                    <>
+                                        <br />
+                                        <span class="text-[#8F44E1]">Events</span>
+                                    </>
+                                </Fragment>,
+                                image: activations,
+                                alt: 'Kids in a shopping mall smiling with a Fizz Kidz staff member',
+                            },
+                            {
+                                content: <Fragment>
+                                    School & Kindergarten
+                                    <>
+                                        <br />
+                                        <span class="text-[#45D3F3]">Incursions</span>
+                                    </>
+                                </Fragment>,
+                                image: schools,
+                                alt: 'Two kids in aprons showing off their messy hands',
+                            },
+                        ].map((item) => <div class="flex flex-col rounded-lg bg-white p-4 shadow-lg">
+                            <Image
+                                src={item.image}
+                                alt={item.alt}
+                                class="max-h-[350px] flex-grow rounded-lg object-cover"
+                                width={700}
+                            />
+                            <p class="mt-4 text-center font-lilita text-xl uppercase tracking-wide">
+                                {item.content}
+                            </p>
+                        </div>)}
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="relative">
+            <Image
+                class="absolute left-[7%] top-[7%] hidden min-[1700px]:block"
+                src={graphic11}
+                alt=""
+                width={80}
+                aria-hidden="true"
+            />
+            <Image
+                class="absolute right-[7%] top-0 hidden min-[1700px]:block"
+                src={graphic12}
+                alt=""
+                width={80}
+                aria-hidden="true"
+            />
+            <section class="m-auto my-12 block max-w-[1380px] px-5 md:my-24">
+                <p
+                    class="m-auto mb-16 max-w-[550px] text-center font-lilita text-3xl uppercase leading-9 tracking-wide md:text-5xl md:leading-[3.5rem]"
+                >
+                    And the <span class="text-[#45D3F3]">numbers</span> just go up and up!
+                </p>
+                <div class="grid grid-cols-1 justify-items-center overflow-clip md:grid-cols-3">
+                    {[
+                        {
+                            heading: <span class="text-[#F24DA2]">5,000+</span>,
+                            content: 'Birthday parties',
+                            image: pinkCircle,
+                        },
+                        {
+                            heading: <span class="text-[#4EE16D]">120,000+</span>,
+                            content: 'Children attended Fizz Kidz studios',
+                            image: greenCircle,
+                        },
+                        {
+                            heading: <span class="text-[#F6BA33]">850+</span>,
+                            content: '5 Star reviews',
+                            image: yellowCircle,
+                        },
+                    ].map((item) => <div
+                        class="relative flex min-h-80 min-w-80 flex-col items-center justify-center gap-2 overflow-hidden"
+                    >
+                        <Image
+                            src={item.image}
+                            alt=""
+                            aria-hidden="true"
+                            width={320}
+                            height={320}
+                            widths={[320, 640]}
+                            sizes="320px"
+                            fit="contain"
+                            class="absolute inset-0 h-full w-full object-contain"
+                        />
+                        <p class="relative text-center font-lilita text-4xl">
+                            {item.heading}
+                        </p>
+                        <p class="relative max-w-48 text-center">{item.content}</p>
+                    </div>)}
+                </div>
+            </section>
+        </div>
+        <Image src={purpleCurve} alt="" layout="full-width" class="w-full" />
+        <div class="bg-[#8F44E1]">
+            <div class="relative">
+                <Image
+                    class="absolute left-[7%] top-[7%] hidden min-[1700px]:block"
+                    src={graphic12}
+                    alt=""
+                    width={80}
+                    aria-hidden="true"
+                />
+                <Image
+                    class="absolute right-[7%] top-0 hidden min-[1700px]:block"
+                    src={graphic5}
+                    alt=""
+                    width={80}
+                    aria-hidden="true"
+                />
+                <Image
+                    class="absolute left-0 top-[50%] hidden min-[1700px]:block"
+                    src={graphic3}
+                    alt=""
+                    width={60}
+                    aria-hidden="true"
+                />
+                <div class="m-auto block max-w-[1380px] px-5">
+                    <p
+                        class="text-center font-lilita text-3xl uppercase leading-9 text-white md:text-5xl md:leading-[3.5rem]"
+                    >
+                        Why <span class="text-[#F6BA34]">Fizz</span> Kidz ?<br />
+                        <span class="text-[#F6BA34]">Because we're fizzing fantastic</span>
+                    </p>
+
+                    <div class="flex gap-24 py-12 lg:py-24">
+                        <div class="flex w-full flex-col gap-4 lg:w-1/2">
+                            {[
+                                'Proven and clear track record of roaring success',
+                                'Low capital investment',
+                                'Large opportunity for further growth',
+                                'Support office manages customer enquiries',
+                                'No full time staff required',
+                                'A model that can offer flexible work-life balance',
+                                'Custom-built in-house technology that makes running your studio seamless',
+                                'We are wholeheartedly committed to your success',
+                            ].map((item) => <div
+                                class="rounded-xl bg-[#B17CEA] px-12 py-4 shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                            >
+                                <p class="font-gotham font-medium text-white">{item}</p>
+                            </div>)}
+                        </div>
+                        <div class="hidden w-1/2 items-center justify-center lg:flex">
+                            <div class="relative h-full w-full p-6">
+                                <Image
+                                    class="absolute left-0 top-0 hidden min-[1700px]:block"
+                                    src={graphic7}
+                                    alt=""
+                                    width={50}
+                                    aria-hidden="true"
+                                />
+                                <Image
+                                    class="absolute right-[40%] top-0 hidden min-[1700px]:block"
+                                    src={graphic8}
+                                    alt=""
+                                    width={80}
+                                    aria-hidden="true"
+                                />
+                                <Image
+                                    class="absolute right-0 top-[50%] hidden min-[1700px]:block"
+                                    src={graphic6}
+                                    alt=""
+                                    width={60}
+                                    aria-hidden="true"
+                                />
+                                <Image
+                                    class="absolute bottom-0 right-0 hidden min-[1700px]:block"
+                                    src={graphic4}
+                                    alt=""
+                                    width={80}
+                                    aria-hidden="true"
+                                />
+                                <Image
+                                    class="absolute bottom-0 left-0 hidden min-[1700px]:block"
+                                    src={graphic2}
+                                    alt=""
+                                    width={120}
+                                    aria-hidden="true"
+                                />
+                                <StackedBubbles
+                                    imgTop={topBubble}
+                                    altTop="Fizz Kidz staff pouring soap into moulds as kids excitedly watch"
+                                    imgBottom={staff}
+                                    altBottom="Two Fizz Kids staff smiling"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="relative">
+            <Image src={purpleCurve} alt="" layout="full-width" class="absolute w-full rotate-180" />
+            <Image src={team} alt="" class="z-0 max-h-[800px] w-full object-cover object-top" />
+            <Image src={clouds} alt="" layout="full-width" class="absolute bottom-0 w-full" />
+        </div>
+        <div class="relative">
+            <Image
+                class="absolute left-[7%] top-0 hidden min-[1700px]:block"
+                src={graphic9}
+                alt=""
+                width={80}
+                aria-hidden="true"
+            />
+            <Image
+                class="absolute right-[7%] top-0 hidden min-[1700px]:block"
+                src={graphic12}
+                alt=""
+                width={80}
+                aria-hidden="true"
+            />
+            <div class="m-auto block max-w-[1380px] px-5">
+                <p class="mt-12 text-center font-lilita text-3xl uppercase tracking-wide md:text-5xl">
+                    Together we are <span class="text-[#45D3F3]">stronger</span>
+                </p>
+                <div class="my-12 flex flex-col gap-6 md:my-24 md:flex-row">
+                    <div class="flex w-full flex-col gap-2 rounded-xl bg-[#45D3F3] p-8 md:w-1/2">
+                        {[
+                            'Proven sales and marketing strategies supported by ready to use assets that drive results',
+                            'In house team manages enquiries and secures bookings on your behalf, handing over confirmed parties and programs ready to deliver',
+                            'We teach you everything you need to know about all our services and how to train your staff',
+                            'Skip the start up pain with our high-ranking website and over 850 Google reviews',
+                        ].map((item) => <div class="flex items-center gap-4">
+                            <Image src={check} alt="check" class="w-10 md:w-16" width={200} />
+                            <p class="font-gotham font-medium text-white">{item}</p>
+                        </div>)}
+                    </div>
+                    <div class="flex w-full flex-col gap-2 rounded-xl bg-[#8F44E1] p-8 md:w-1/2">
+                        {[
+                            "A recognised brand with a ready-to-reach customer database — you're never on your own!",
+                            'The Fizz Kidz Portal. Custom-built platform that streamlines bookings, attendance, invoicing, and payroll — all in one seamless system.',
+                            'Full-time operational support to guide you through every aspect of running your business — from recruitment and training to day-to-day operations and studio setup.',
+                            'A dedicated, caring team, passionate about your success.',
+                        ].map((item) => <div class="flex items-center gap-4">
+                            <Image src={check} alt="check" class="w-10 md:w-16" width={200} />
+                            <p class="font-gotham font-medium text-white">{item}</p>
+                        </div>)}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section>
+            <Image src={yellowWaveTop} alt="" layout="full-width" class="w-full" />
+            <div class="bg-[#F6BA33]">
+                <div class="m-auto block max-w-[1380px] px-5 py-24">
+                    <p class="m-auto max-w-[600px] text-center font-lilita text-3xl uppercase md:text-5xl">
+                        Fizz Kidz studios - the heart of <span class="text-[#8F44E1]">Fizz Kidz</span>
+                    </p>
+                    <div class="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
+                        {[
+                            { image: studio1, alt: 'A Fizz kids studio from the street' },
+                            { image: studio3, alt: 'The inside of a Fizz Kids studio' },
+                            { image: studio2, alt: 'Looking into a Fizz Kidz studio' },
+                            { image: studio4, alt: 'The wall of a Fizz Kidz studio' },
+                            { image: studio5, alt: 'The wall of a Fizz Kidz studio' },
+                        ].map((item) => <div
+                            class="col-span-1 h-64 w-full overflow-hidden rounded-xl last:md:col-span-2"
+                        >
+                            <Image src={item.image} alt={item.alt} width={800} class="h-full w-full object-cover" />
+                        </div>)}
+                    </div>
+                </div>
+            </div>
+            <Image src={yellowWaveBottom} alt="" layout="full-width" class="w-full" />
+        </section>
+        <section class="bg-gradient-to-t from-[#DAF1D7] to-white">
+            <div class="m-auto block max-w-[1380px] px-5 py-24">
+                <p
+                    class="m-auto mb-12 max-w-[800px] text-center font-lilita text-3xl uppercase leading-9 md:text-5xl md:leading-[3.5rem]"
+                >
+                    Fizz Kidz franchisee <span class="text-[#4FE16D]">onboarding</span> journey
+                </p>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
+                    {[
+                        {
+                            number: '01',
+                            title: <>Enquiry</>,
+                            content: 'Fill in the form below',
+                            image: step1,
+                            alt: 'Lip balms in a bowl of bath crystals',
+                            color: '#8F44E1',
+                        },
+                        {
+                            number: '02',
+                            title: <> Phone <span class="text-[#45D3F3]">interview</span> </>,
+                            content: 'We will contact you for an initial chat',
+                            image: step2,
+                            alt: 'Bath bombs being made in a bowl',
+                            color: '#45D3F3',
+                        },
+                        {
+                            number: '03',
+                            title: <> Application <span class="text-[#8F44E1]">form</span> </>,
+                            content: 'Complete our franchise application form and non-disclosure agreement.',
+                            image: step3,
+                            alt: 'Rainbow slime in messy hands',
+                            color: '#8F44E1',
+                        },
+                        {
+                            number: '04',
+                            title: (
+                                <>
+                                    Let's get to know{' '}
+                                    <span class="text-[#F6BA34]">each other</span>
+                                </>
+                            ),
+                            content: 'Meet either online or in a Fizz Kidz studio with our CEO and COO.',
+                            image: step4,
+                            alt: 'Kids making bubbling volcanos',
+                            color: '#F6BA34',
+                        },
+                        {
+                            number: '05',
+                            title: (
+                                <>
+                                    Discover the
+                                    <span class="text-[#F24DA2]">Fizz Kidz way</span>
+                                </>
+                            ),
+                            content: 'Spend a day in a Fizz Kidz studio and see what we are all about!',
+                            image: step5,
+                            alt: 'A frog in a bath bomb',
+                            color: '#F24DA2',
+                        },
+                        {
+                            number: '06',
+                            title: (
+                                <>
+                                    Application on
+                                    <span class="text-[#4FE16D]">approval</span>
+                                </>
+                            ),
+                            content: 'Gain final approval to become a Fizz Kidz franchisee',
+                            image: step6,
+                            alt: 'Unicorn soaps',
+                            color: '#4FE16D',
+                        },
+                        {
+                            number: '07',
+                            title: (
+                                <>
+                                    Site selection and
+                                    <span class="text-[#8F44E1]">training</span>
+                                </>
+                            ),
+                            content: 'Together we will find an appropriate site and get you up and running!',
+                            image: step7,
+                            alt: 'Two Fizz kids staff smiling',
+                            color: '#8F44E1',
+                        },
+                        {
+                            number: '08',
+                            title: (
+                                <>
+                                    You're ready to
+                                    <span class="text-[#45D3F3]">open</span>
+                                </>
+                            ),
+                            content: 'Doors open - let the fun begin!',
+                            image: step8,
+                            alt: 'Two girls with beads laughing',
+                            color: '#45D3F3',
+                        },
+                    ].map((item) => <div class="flex flex-col rounded-xl bg-white shadow-md">
+                        <div class="h-60 w-full overflow-hidden rounded-t-xl">
+                            <Image src={item.image} alt={item.alt} width={500} class="h-full w-full object-cover" />
+                        </div>
+                        <div class="relative">
+                            <div
+                                class="absolute -top-6 left-1/2 flex h-12 w-12 -translate-x-1/2 transform items-center justify-center rounded-full border-2 bg-white"
+                                style={{ borderColor: item.color }}
+                            >
+                                <span class="font-lilita">{item.number}</span>
+                            </div>
+                            <div class="p-8">
+                                <p class="mb-2 text-center font-lilita text-xl uppercase">
+                                    {item.title}
+                                </p>
+                                <p class="text-center font-gotham">{item.content}</p>
+                            </div>
+                        </div>
+                    </div>)}
+                </div>
+            </div>
+        </section>
+        <div class="m-auto block max-w-[1380px] px-5">
+            <section class="mt-12 md:mt-20">
+                <div class="flex w-full flex-col items-center gap-8 md:flex-row">
+                    <Image class="hidden w-2/5 md:block" src={faq} alt="Three girls smiling" />
+                    <div class="w-full md:w-3/5">
+                        <div class="relative">
+                            <Image
+                                class="absolute right-[7%] top-0 hidden min-[1700px]:block"
+                                src={graphic13}
+                                alt=""
+                                width={80}
+                                aria-hidden="true"
+                            />
+                            <p class="mb-12 font-lilita text-5xl uppercase leading-[3.5rem]">
+                                Frequently Asked<br />
+                                <span class="text-[#F24DA2]">Questions</span>
+                            </p>
+                        </div>
+                        <FaqAccordion
+                            client:visible={{ rootMargin: '300px' }}
+                            items={[
+                                {
+                                    question: 'Can I find and suggest my own Franchise location?',
+                                    answer: 'Yes, want your business to work for you and your community and you know your community best! To support the decision making, Fizz Kidz will provide demographic intelligence around each location.',
+                                },
+                                {
+                                    question: 'What support will I receive?',
+                                    answer: "We're with you every step of the way. From the moment you join the Fizz tribe, you'll receive comprehensive support - from in-depth training and site selection to hiring your team and setting up your fabulous studio. Once you're operational, our head office becomes your centralised bookings team, handling customer bookings so you can focus on building and growing your business!",
+                                },
+                                {
+                                    question: 'Can I see financial information? How much can I expect to make?',
+                                    answer: 'Yes of course, once an NDA is signed, we will share current financial documentation with you. The success of your Fizz Kidz studio is shaped by the energy and heart you put in - from running fun-filled sessions to building connections in your local community and delivering quality experiences.',
+                                },
+                                {
+                                    question: 'Who will I be able to contact on a daily basis?',
+                                    answer: 'Fizz Kidz have a dedicated team to support and guide you through the start-up and ongoing daily operations of your business. We got your back!',
+                                },
+                            ]}
+                        />
+                    </div>
+                </div>
+            </section>
+            <section class="py-12 md:py-24">
+                <div id="contact" class="scroll-mt-16 md:scroll-mt-24"></div>
+                <p class="mb-12 text-center font-lilita text-3xl leading-9 md:text-5xl md:leading-[3.5rem]">
+                    Fill in the form to register your
+                    interest,<br /><span class="text-[#8F44E1]">and we will be in touch!</span>
+                </p>
+                <FranchisingForm client:visible={{ rootMargin: '300px' }} />
+            </section>
+        </div>
+    </main>
+    <script>
+        const toggleHeaderShadow = () => {
+            document.body.classList.toggle('scrolled', window.scrollY > 10)
+        }
+        window.addEventListener('scroll', toggleHeaderShadow, { passive: true })
+        toggleHeaderShadow()
+        document.addEventListener('astro:page-load', toggleHeaderShadow)
+    </script>
 </Layout>

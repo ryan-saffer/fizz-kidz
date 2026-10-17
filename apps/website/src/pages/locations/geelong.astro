@@ -1,176 +1,164 @@
 ---
-import HalloweenSpookfestSection from "@/components/halloween-spookfest-section.astro";
-import PageIntro from "@/components/page-intro.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Layout from "@/layout/Layout.astro";
-import { websitePagesHomeStudioPng as geelong } from "@/data/website-images";
-import { websitePagesHomePartiesJpg as birthday } from "@/data/website-images";
-import { websitePagesHomeHolidayProgramsJpg as holidayPrograms } from "@/data/website-images";
-import { websitePagesHomeEnergyJpg as contact } from "@/data/website-images";
-import { websitePagesPartiesSlimePartyJpg as slime } from "@/data/website-images";
-import Image from "@/components/image.astro";
-import CardWithImage from "@/components/card-with-image.astro";
-import GoogleReviews from "@/components/google-reviews.astro";
-import LocationDetails from "@/components/location-details.astro";
-import Container from "@/components/container.astro";
+import HalloweenSpookfestSection from '@/components/halloween-spookfest-section.astro'
+import PageIntro from '@/components/page-intro.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import Layout from '@/layout/Layout.astro'
+import { websitePagesHomeStudioPng as geelong } from '@/data/website-images'
+import { websitePagesHomePartiesJpg as birthday } from '@/data/website-images'
+import { websitePagesHomeHolidayProgramsJpg as holidayPrograms } from '@/data/website-images'
+import { websitePagesHomeEnergyJpg as contact } from '@/data/website-images'
+import { websitePagesPartiesSlimePartyJpg as slime } from '@/data/website-images'
+import Image from '@/components/image.astro'
+import CardWithImage from '@/components/card-with-image.astro'
+import GoogleReviews from '@/components/google-reviews.astro'
+import LocationDetails from '@/components/location-details.astro'
+import Container from '@/components/container.astro'
 
-import { locationMenuLinks } from "@/react-components/navigation/navigation-menu-data";
-import { createLocationSchemas } from "@/utils/seo";
+import { locationMenuLinks } from '@/react-components/navigation/navigation-menu-data'
+import { createLocationSchemas } from '@/utils/seo'
 
 const description =
-  "Visit Fizz Kidz Geelong in Newtown for hosted kids birthday parties, school holiday programs and hands-on slime, science, art and craft activities.";
+    'Visit Fizz Kidz Geelong in Newtown for hosted kids birthday parties, school holiday programs and hands-on slime, science, art and craft activities.'
 ---
 
 <Layout
-  title="Kids Parties & Holiday Programs in Geelong | Fizz Kidz"
-  description={description}
-  schema={createLocationSchemas("geelong")}
+    title="Kids Parties & Holiday Programs in Geelong | Fizz Kidz"
+    description={description}
+    schema={createLocationSchemas('geelong')}
 >
-  <main>
-  <div class="m-auto block max-w-[1380px] px-5 pt-4">
-    <BreadcrumbWrapper
-      client:idle
-      items={[
-        {
-          type: "link",
-          title: "Locations",
-          path: "/locations",
-        },
-        {
-          type: "dropdown",
-          title: "Geelong",
-          items: locationMenuLinks,
-        },
-      ]}
-    />
-    <PageIntro
-      type="image"
-      image={geelong}
-      imageAlt="Children enjoying activities at a Fizz Kidz studio"
-      subtitle="A creative kids destination in Geelong"
-      color="purple"
-      actionButtonPath="/contact-us"
-      actionButtonText="Get in touch"
-    >
-      <span slot="title">Fizz Kidz Geelong Studio</span>
-      <span slot="content"
-        >Fizz Kidz Geelong is a bright, hands-on space where kids can create,
-        celebrate, and have loads of fun!
-      </span>
-    </PageIntro>
-  </div>
-  <HalloweenSpookfestSection studio="geelong" />
-  <Container>
-    <p class="mt-36 text-center font-lilita text-5xl">
-      Creativity & fun in the heart of Geelong!
-    </p>
-    <section
-      class="my-12 flex flex-col-reverse gap-8 md:pb-12 md:pt-16 lg:flex-row"
-    >
-      <div class="px-0 sm:px-12 lg:w-1/2">
-        <Image
-          class="rounded-2xl object-contain shadow-green-sm sm:shadow-green-md"
-          src={slime}
-          alt="A child holding a long stretch of slime and smiling"
-        />
-      </div>
-      <div class="flex flex-col justify-center lg:w-1/2">
-        <p class="font-bold">Fizz Kidz Geelong Studio</p>
-        <p>352 Pakington St, Newtown VIC 3220</p>
-        <p class="mt-4 font-bold">Phone</p>
-        <p><a href="tel:0390598144">(03) 9059 8144</a></p>
-        <p class="mt-4 font-bold">Email</p>
-        <p>
-          <a href="mailto:bookings@fizzkidz.com.au">bookings@fizzkidz.com.au</a>
-        </p>
-        <p class="mt-4 font-bold">About Fizz Kidz Geelong</p>
-        <p>
-          Our Geelong studio is the perfect place for kids to unleash their
-          creativity, have fun, and get messy!
-          <ul class="mb-4 list-disc pl-4">
-            <li>Conveniently located on Pakington Street in Newtown.</li>
-            <li>
-              A colourful, engaging space for birthday parties, holiday
-              programs, workshops, and creative activities.
-            </li>
-            <li>
-              Perfect for kids to explore hands-on activities, make awesome
-              creations, and celebrate special moments.
-            </li>
-          </ul>
-        </p>
-      </div>
-    </section>
-    <section class="mb-12 md:mb-20">
-      <iframe
-        title="Map of Fizz Kidz Geelong"
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3137.2252370536266!2d144.3451842!3d-38.1582046!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad41348b1dc25cf%3A0xce44841096193190!2sFizz%20Kidz%20Geelong!5e0!3m2!1sen!2sau!4v1778162429411!5m2!1sen!2sau"
-        width="100%"
-        height="450"
-        style="border:0;border-radius:12px"
-        allowfullscreen=""
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </section>
-    <section class="grid grid-cols-1 gap-8 md:grid-cols-3">
-      <a href="/birthday-parties">
-        <CardWithImage
-          className="group h-full w-full cursor-pointer hover:bg-gray-50"
-          image={birthday}
-          imageAlt="A child celebrating at a Fizz Kidz birthday party"
-        >
-          <div slot="content" class="p-8 group-hover:cursor-pointer">
-            <p class="mb-4 font-lilita text-2xl text-[#9044E2]">
-              Birthday Parties
-            </p>
-            <p class="font-gotham text-lg">
-              Host a memorable, action-packed birthday at Fizz Kidz Geelong,
-              where kids make and take home their very own awesome creations!
-            </p>
-          </div>
-        </CardWithImage>
-      </a>
-      <a href="/holiday-programs">
-        <CardWithImage
-          className="group h-full w-full cursor-pointer hover:bg-gray-50"
-          image={holidayPrograms}
-          imageAlt="A child holding a Fizz Kidz creation"
-        >
-          <div slot="content" class="p-8">
-            <p class="mb-4 font-lilita text-2xl text-[#9044E2]">
-              Holiday Programs
-            </p>
-            <p class="font-gotham text-lg">
-              Keep your kids engaged and having fun during the holidays at Fizz
-              Kidz Geelong! Come and enjoy exciting hands-on activities that
-              spark your kids imagination!
-            </p>
-          </div>
-        </CardWithImage>
-      </a>
-      <a href="/contact-us">
-        <CardWithImage
-          className="group h-full w-full cursor-pointer hover:bg-gray-50"
-          image={contact}
-          imageAlt="Fizz Kidz staff leading a room full of children"
-        >
-          <div slot="content" class="p-8">
-            <p class="mb-4 font-lilita text-2xl text-[#9044E2]">Contact Us</p>
-            <p class="font-gotham text-lg">
-              Have questions or would like to chat? Get in touch with our
-              Geelong team, we would love to help!
-            </p>
-          </div>
-        </CardWithImage>
-      </a>
-    </section>
-    <section>
-      <GoogleReviews
-        title="Hear what our parents have to say!"
-        location="geelong"
-      />
-    </section>
-  </Container>
-  <LocationDetails studio="geelong" />
-  </main>
+    <main>
+        <div class="m-auto block max-w-[1380px] px-5 pt-4">
+            <BreadcrumbWrapper
+                client:idle
+                items={[
+                    {
+                        type: 'link',
+                        title: 'Locations',
+                        path: '/locations',
+                    },
+                    {
+                        type: 'dropdown',
+                        title: 'Geelong',
+                        items: locationMenuLinks,
+                    },
+                ]}
+            />
+            <PageIntro
+                type="image"
+                image={geelong}
+                imageAlt="Children enjoying activities at a Fizz Kidz studio"
+                subtitle="A creative kids destination in Geelong"
+                color="purple"
+                actionButtonPath="/contact-us"
+                actionButtonText="Get in touch"
+            >
+                <span slot="title">Fizz Kidz Geelong Studio</span>
+                <span slot="content">Fizz Kidz Geelong is a bright, hands-on space where kids can create, celebrate, and
+                    have loads of fun!
+                </span>
+            </PageIntro>
+        </div>
+        <HalloweenSpookfestSection studio="geelong" />
+        <Container>
+            <p class="mt-36 text-center font-lilita text-5xl">Creativity & fun in the heart of Geelong!</p>
+            <section class="my-12 flex flex-col-reverse gap-8 md:pb-12 md:pt-16 lg:flex-row">
+                <div class="px-0 sm:px-12 lg:w-1/2">
+                    <Image
+                        class="rounded-2xl object-contain shadow-green-sm sm:shadow-green-md"
+                        src={slime}
+                        alt="A child holding a long stretch of slime and smiling"
+                    />
+                </div>
+                <div class="flex flex-col justify-center lg:w-1/2">
+                    <p class="font-bold">Fizz Kidz Geelong Studio</p>
+                    <p>352 Pakington St, Newtown VIC 3220</p>
+                    <p class="mt-4 font-bold">Phone</p>
+                    <p><a href="tel:0390598144">(03) 9059 8144</a></p>
+                    <p class="mt-4 font-bold">Email</p>
+                    <p>
+                        <a href="mailto:bookings@fizzkidz.com.au">bookings@fizzkidz.com.au</a>
+                    </p>
+                    <p class="mt-4 font-bold">About Fizz Kidz Geelong</p>
+                    <p>
+                        Our Geelong studio is the perfect place for kids to unleash their creativity, have fun, and get
+                        messy!
+                        <ul class="mb-4 list-disc pl-4">
+                            <li>Conveniently located on Pakington Street in Newtown.</li>
+                            <li>
+                                A colourful, engaging space for birthday parties, holiday programs, workshops, and
+                                creative activities.
+                            </li>
+                            <li>
+                                Perfect for kids to explore hands-on activities, make awesome creations, and celebrate
+                                special moments.
+                            </li>
+                        </ul>
+                    </p>
+                </div>
+            </section>
+            <section class="mb-12 md:mb-20">
+                <iframe
+                    title="Map of Fizz Kidz Geelong"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3137.2252370536266!2d144.3451842!3d-38.1582046!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad41348b1dc25cf%3A0xce44841096193190!2sFizz%20Kidz%20Geelong!5e0!3m2!1sen!2sau!4v1778162429411!5m2!1sen!2sau"
+                    width="100%"
+                    height="450"
+                    style="border: 0; border-radius: 12px"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                ></iframe>
+            </section>
+            <section class="grid grid-cols-1 gap-8 md:grid-cols-3">
+                <a href="/birthday-parties">
+                    <CardWithImage
+                        className="group h-full w-full cursor-pointer hover:bg-gray-50"
+                        image={birthday}
+                        imageAlt="A child celebrating at a Fizz Kidz birthday party"
+                    >
+                        <div slot="content" class="p-8 group-hover:cursor-pointer">
+                            <p class="mb-4 font-lilita text-2xl text-[#9044E2]">Birthday Parties</p>
+                            <p class="font-gotham text-lg">
+                                Host a memorable, action-packed birthday at Fizz Kidz Geelong, where kids make and take
+                                home their very own awesome creations!
+                            </p>
+                        </div>
+                    </CardWithImage>
+                </a>
+                <a href="/holiday-programs">
+                    <CardWithImage
+                        className="group h-full w-full cursor-pointer hover:bg-gray-50"
+                        image={holidayPrograms}
+                        imageAlt="A child holding a Fizz Kidz creation"
+                    >
+                        <div slot="content" class="p-8">
+                            <p class="mb-4 font-lilita text-2xl text-[#9044E2]">Holiday Programs</p>
+                            <p class="font-gotham text-lg">
+                                Keep your kids engaged and having fun during the holidays at Fizz Kidz Geelong! Come and
+                                enjoy exciting hands-on activities that spark your kids imagination!
+                            </p>
+                        </div>
+                    </CardWithImage>
+                </a>
+                <a href="/contact-us">
+                    <CardWithImage
+                        className="group h-full w-full cursor-pointer hover:bg-gray-50"
+                        image={contact}
+                        imageAlt="Fizz Kidz staff leading a room full of children"
+                    >
+                        <div slot="content" class="p-8">
+                            <p class="mb-4 font-lilita text-2xl text-[#9044E2]">Contact Us</p>
+                            <p class="font-gotham text-lg">
+                                Have questions or would like to chat? Get in touch with our Geelong team, we would love
+                                to help!
+                            </p>
+                        </div>
+                    </CardWithImage>
+                </a>
+            </section>
+            <section>
+                <GoogleReviews title="Hear what our parents have to say!" location="geelong" />
+            </section>
+        </Container>
+        <LocationDetails studio="geelong" />
+    </main>
 </Layout>

@@ -1,531 +1,485 @@
 ---
-import PageIntro from "@/components/page-intro.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Layout from "@/layout/Layout.astro";
-import WideImageCard from "@/components/wide-image-card.astro";
-import Image from "@/components/image.astro";
+import PageIntro from '@/components/page-intro.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import Layout from '@/layout/Layout.astro'
+import WideImageCard from '@/components/wide-image-card.astro'
+import Image from '@/components/image.astro'
 
-import CardCarousel from "@/react-components/activations/card-carousel";
+import CardCarousel from '@/react-components/activations/card-carousel'
 
-import { websitePagesActivationsAndEventsHeroJpg as hero } from "@/data/website-images";
-import { websitePagesActivationsAndEventsMCityJpg as mCity } from "@/data/website-images";
-import { websitePagesActivationsAndEventsKidsMorningsJpg as kidsMornings } from "@/data/website-images";
-import { websitePagesActivationsAndEventsMothersDayClassicJpg as mothersDayClassic } from "@/data/website-images";
-import { websitePagesActivationsAndEventsMothersDayJpg as mothersDay } from "@/data/website-images";
-import { websitePagesActivationsAndEventsEasterPng as easter } from "@/data/website-images";
-import { websitePagesActivationsAndEventsChristmasJpeg as christmas } from "@/data/website-images";
-import { websitePagesActivationsAndEventsHalloweenJpeg as halloween } from "@/data/website-images";
-import { websitePagesActivationsAndEventsBackToSchoolJpg as backToSchool } from "@/data/website-images";
-import { websitePagesActivationsAndEventsScienceWeekJpg as scienceWeek } from "@/data/website-images";
-import { websitePagesActivationsAndEventsScientistJpg as scientist } from "@/data/website-images";
-import { websitePagesActivationsAndEventsWinterWonderlandJpg as winterWonderland } from "@/data/website-images";
-import { websitePagesActivationsAndEventsRoaringRainbowsJpeg as rainbows } from "@/data/website-images";
-import { websitePagesActivationsAndEventsEngineersJpg as engineers } from "@/data/website-images";
-import { websitePagesActivationsAndEventsAnimalsJpg as animals } from "@/data/website-images";
+import { websitePagesActivationsAndEventsHeroJpg as hero } from '@/data/website-images'
+import { websitePagesActivationsAndEventsMCityJpg as mCity } from '@/data/website-images'
+import { websitePagesActivationsAndEventsKidsMorningsJpg as kidsMornings } from '@/data/website-images'
+import { websitePagesActivationsAndEventsMothersDayClassicJpg as mothersDayClassic } from '@/data/website-images'
+import { websitePagesActivationsAndEventsMothersDayJpg as mothersDay } from '@/data/website-images'
+import { websitePagesActivationsAndEventsEasterPng as easter } from '@/data/website-images'
+import { websitePagesActivationsAndEventsChristmasJpeg as christmas } from '@/data/website-images'
+import { websitePagesActivationsAndEventsHalloweenJpeg as halloween } from '@/data/website-images'
+import { websitePagesActivationsAndEventsBackToSchoolJpg as backToSchool } from '@/data/website-images'
+import { websitePagesActivationsAndEventsScienceWeekJpg as scienceWeek } from '@/data/website-images'
+import { websitePagesActivationsAndEventsScientistJpg as scientist } from '@/data/website-images'
+import { websitePagesActivationsAndEventsWinterWonderlandJpg as winterWonderland } from '@/data/website-images'
+import { websitePagesActivationsAndEventsRoaringRainbowsJpeg as rainbows } from '@/data/website-images'
+import { websitePagesActivationsAndEventsEngineersJpg as engineers } from '@/data/website-images'
+import { websitePagesActivationsAndEventsAnimalsJpg as animals } from '@/data/website-images'
 
-import aflLogo from "@/assets/images/pages/activations-and-events/logos/afl.png";
-import brimbankLogo from "@/assets/images/pages/activations-and-events/logos/brimbank.jpeg";
-import caseyCentralLogo from "@/assets/images/pages/activations-and-events/logos/casey-central.png";
-import cbusLogo from "@/assets/images/pages/activations-and-events/logos/cbus.png";
-import croydonCentralLogo from "@/assets/images/pages/activations-and-events/logos/croydon-central.jpeg";
-import dandenongPlazaLogo from "@/assets/images/pages/activations-and-events/logos/dandenong-plaza.jpeg";
-import goodFridayAppealLogo from "@/assets/images/pages/activations-and-events/logos/good-friday-appeal.png";
-import mCityLogo from "@/assets/images/pages/activations-and-events/logos/m-city.png";
-import mooneePondsCentralLogo from "@/assets/images/pages/activations-and-events/logos/moonee-ponds-central.jpeg";
-import mothersDayClassicLogo from "@/assets/images/pages/activations-and-events/logos/mothers-day-classic.jpeg";
-import stocklandLogo from "@/assets/images/pages/activations-and-events/logos/stockland.png";
-import sumerhillLogo from "@/assets/images/pages/activations-and-events/logos/sumerhill.png";
-import thePinesLogo from "@/assets/images/pages/activations-and-events/logos/the-pines.jpeg";
-import waggaWaggaLogo from "@/assets/images/pages/activations-and-events/logos/wagga-wagga.jpeg";
-import westfieldLogo from "@/assets/images/pages/activations-and-events/logos/westfield.jpg";
-import LogoGrid from "@/components/logo-grid.astro";
-import { websitePagesActivationsAndEventsStaffArchwayJpg as staffArchway } from "@/data/website-images";
+import aflLogo from '@/assets/images/pages/activations-and-events/logos/afl.png'
+import brimbankLogo from '@/assets/images/pages/activations-and-events/logos/brimbank.jpeg'
+import caseyCentralLogo from '@/assets/images/pages/activations-and-events/logos/casey-central.png'
+import cbusLogo from '@/assets/images/pages/activations-and-events/logos/cbus.png'
+import croydonCentralLogo from '@/assets/images/pages/activations-and-events/logos/croydon-central.jpeg'
+import dandenongPlazaLogo from '@/assets/images/pages/activations-and-events/logos/dandenong-plaza.jpeg'
+import goodFridayAppealLogo from '@/assets/images/pages/activations-and-events/logos/good-friday-appeal.png'
+import mCityLogo from '@/assets/images/pages/activations-and-events/logos/m-city.png'
+import mooneePondsCentralLogo from '@/assets/images/pages/activations-and-events/logos/moonee-ponds-central.jpeg'
+import mothersDayClassicLogo from '@/assets/images/pages/activations-and-events/logos/mothers-day-classic.jpeg'
+import stocklandLogo from '@/assets/images/pages/activations-and-events/logos/stockland.png'
+import sumerhillLogo from '@/assets/images/pages/activations-and-events/logos/sumerhill.png'
+import thePinesLogo from '@/assets/images/pages/activations-and-events/logos/the-pines.jpeg'
+import waggaWaggaLogo from '@/assets/images/pages/activations-and-events/logos/wagga-wagga.jpeg'
+import westfieldLogo from '@/assets/images/pages/activations-and-events/logos/westfield.jpg'
+import LogoGrid from '@/components/logo-grid.astro'
+import { websitePagesActivationsAndEventsStaffArchwayJpg as staffArchway } from '@/data/website-images'
 
-import { websitePagesActivationsAndEventsStaffPng as staff } from "@/data/website-images";
-import PrimaryButton from "@/components/primary-button.astro";
-import ActivationsForm from "@/components/react/forms/activations-form";
-import Reviews from "@/components/reviews.astro";
-import Values from "@/components/values.astro";
-import { createBreadcrumbSchema, createServiceSchema } from "@/utils/seo";
+import { websitePagesActivationsAndEventsStaffPng as staff } from '@/data/website-images'
+import PrimaryButton from '@/components/primary-button.astro'
+import ActivationsForm from '@/components/react/forms/activations-form'
+import Reviews from '@/components/reviews.astro'
+import Values from '@/components/values.astro'
+import { createBreadcrumbSchema, createServiceSchema } from '@/utils/seo'
 
 const description =
-  "Fizz Kidz delivers hands-on children's activations across Australia for shopping centres, community programs and corporate events, with trained staff and custom activities.";
+    "Fizz Kidz delivers hands-on children's activations across Australia for shopping centres, community programs and corporate events, with trained staff and custom activities."
 
 const schema = [
-  createServiceSchema({
-    name: "Kids Event Activations",
-    description,
-    path: "/activations-and-events/",
-    serviceType: "Children's event activation",
-    areaServed: ["Australia"],
-  }),
-  createBreadcrumbSchema("/activations-and-events/", [
-    { name: "Home", path: "/" },
-    {
-      name: "Activations and Events",
-      path: "/activations-and-events/",
-    },
-  ]),
-];
+    createServiceSchema({
+        name: 'Kids Event Activations',
+        description,
+        path: '/activations-and-events/',
+        serviceType: "Children's event activation",
+        areaServed: ['Australia'],
+    }),
+    createBreadcrumbSchema('/activations-and-events/', [
+        { name: 'Home', path: '/' },
+        {
+            name: 'Activations and Events',
+            path: '/activations-and-events/',
+        },
+    ]),
+]
 
 const logos = [
-  { src: aflLogo, alt: "afl logo" },
-  { src: brimbankLogo, alt: "brimbank logo" },
-  { src: caseyCentralLogo, alt: "casey central logo" },
-  { src: cbusLogo, alt: "cbus logo" },
-  { src: croydonCentralLogo, alt: "croydon central logo" },
-  { src: dandenongPlazaLogo, alt: "dandenong plaza logo" },
-  { src: goodFridayAppealLogo, alt: "good friday appeal logo" },
-  { src: mCityLogo, alt: "m-city logo" },
-  { src: mooneePondsCentralLogo, alt: "moonee ponds central logo" },
-  { src: mothersDayClassicLogo, alt: "mothers day classic logo" },
-  { src: stocklandLogo, alt: "stockland logo" },
-  { src: sumerhillLogo, alt: "sumerhill logo" },
-  { src: thePinesLogo, alt: "the pines logo" },
-  { src: waggaWaggaLogo, alt: "wagga wagga logo" },
-  { src: westfieldLogo, alt: "westfield logo" },
-];
+    { src: aflLogo, alt: 'afl logo' },
+    { src: brimbankLogo, alt: 'brimbank logo' },
+    { src: caseyCentralLogo, alt: 'casey central logo' },
+    { src: cbusLogo, alt: 'cbus logo' },
+    { src: croydonCentralLogo, alt: 'croydon central logo' },
+    { src: dandenongPlazaLogo, alt: 'dandenong plaza logo' },
+    { src: goodFridayAppealLogo, alt: 'good friday appeal logo' },
+    { src: mCityLogo, alt: 'm-city logo' },
+    { src: mooneePondsCentralLogo, alt: 'moonee ponds central logo' },
+    { src: mothersDayClassicLogo, alt: 'mothers day classic logo' },
+    { src: stocklandLogo, alt: 'stockland logo' },
+    { src: sumerhillLogo, alt: 'sumerhill logo' },
+    { src: thePinesLogo, alt: 'the pines logo' },
+    { src: waggaWaggaLogo, alt: 'wagga wagga logo' },
+    { src: westfieldLogo, alt: 'westfield logo' },
+]
 ---
 
-<Layout
-  title="Kids' Event Activations Across Australia | Fizz Kidz"
-  description={description}
-  schema={schema}
->
-  <main>
-    <div class="m-auto block max-w-[1380px] px-5 pt-4">
-      <div class="h-[10px]"></div>
-      <BreadcrumbWrapper
-        items={[
-          {
-            type: "link",
-            path: "/activations-and-events/",
-            title: "Activations and Events",
-          },
-        ]}
-      />
-      <PageIntro
-        subtitle="Seriously fun activations!"
-        type="image"
-        image={hero}
-        imageAlt="Fizz Kids running a beautiful activation in a shopping center"
-        actionButtonText="Book an activation or event"
-        actionButtonPath="#contact"
-        color="blue"
-      >
-        <span slot="title">Kids Activations and Events in Melbourne</span>
-        <span slot="content"
-          >Fizz Kidz is an innovative and vibrant company that is wholeheartedly
-          dedicated to providing high-energy, interactive and fun experiences
-          for children. Fizz Kidz Activations are vibrant and engaging,
-          fostering a sense of wonder and creating a world of curious excitement
-          for children.</span
-        >
-      </PageIntro>
-      <section class="mt-28 lg:mt-40">
-        <h2 class="text-center font-lilita text-5xl">
-          Share the Fizz and create a buzz around your community!
-        </h2>
-        <div class="mt-20 flex flex-col gap-8 lg:mt-28 lg:gap-16">
-          <WideImageCard
-            image={mCity}
-            imageAlt="Fiz Kidz running programs for children in a large shopping center with balloons"
-            imageSide="left"
-          >
-            <div
-              slot="content"
-              class="flex h-full flex-col items-center justify-center gap-8"
+<Layout title="Kids' Event Activations Across Australia | Fizz Kidz" description={description} schema={schema}>
+    <main>
+        <div class="m-auto block max-w-[1380px] px-5 pt-4">
+            <div class="h-[10px]"></div>
+            <BreadcrumbWrapper
+                items={[
+                    {
+                        type: 'link',
+                        path: '/activations-and-events/',
+                        title: 'Activations and Events',
+                    },
+                ]}
+            />
+            <PageIntro
+                subtitle="Seriously fun activations!"
+                type="image"
+                image={hero}
+                imageAlt="Fizz Kids running a beautiful activation in a shopping center"
+                actionButtonText="Book an activation or event"
+                actionButtonPath="#contact"
+                color="blue"
             >
-              <h3 class="text-center font-lilita text-4xl text-[#4DC5D9]">
-                School Holiday Activations
-              </h3>
-              <p class="text-center font-gotham font-medium leading-8">
-                Join us for school holiday fun! Choose from our pre-created
-                themes or share your vision, and we'll bring it to life. Whether
-                it's for one or two weeks, we've got you covered.
-              </p>
+                <span slot="title">Kids Activations and Events in Melbourne</span>
+                <span slot="content"
+                    >Fizz Kidz is an innovative and vibrant company that is wholeheartedly dedicated to providing
+                    high-energy, interactive and fun experiences for children. Fizz Kidz Activations are vibrant and
+                    engaging, fostering a sense of wonder and creating a world of curious excitement for children.</span
+                >
+            </PageIntro>
+            <section class="mt-28 lg:mt-40">
+                <h2 class="text-center font-lilita text-5xl">
+                    Share the Fizz and create a buzz around your community!
+                </h2>
+                <div class="mt-20 flex flex-col gap-8 lg:mt-28 lg:gap-16">
+                    <WideImageCard
+                        image={mCity}
+                        imageAlt="Fiz Kidz running programs for children in a large shopping center with balloons"
+                        imageSide="left"
+                    >
+                        <div slot="content" class="flex h-full flex-col items-center justify-center gap-8">
+                            <h3 class="text-center font-lilita text-4xl text-[#4DC5D9]">School Holiday Activations</h3>
+                            <p class="text-center font-gotham font-medium leading-8">
+                                Join us for school holiday fun! Choose from our pre-created themes or share your vision,
+                                and we'll bring it to life. Whether it's for one or two weeks, we've got you covered.
+                            </p>
+                        </div>
+                    </WideImageCard>
+                    <WideImageCard
+                        image={kidsMornings}
+                        imageAlt="A child smiling while drawing with crayons"
+                        imageSide="right"
+                    >
+                        <div slot="content" class="flex h-full flex-col items-center justify-center gap-8">
+                            <h3 class="text-center font-lilita text-4xl text-[#4FE16D]">Pre-school Kids Mornings</h3>
+                            <p class="text-center font-gotham font-medium leading-8">
+                                Bring weekday morning excitement to your Centre. Little ones and parents join in for fun
+                                developmentally appropriate activities that families love! Choose from our pre-planned
+                                workshops or we'll customise the sessions to your vision!
+                            </p>
+                        </div>
+                    </WideImageCard>
+                    <WideImageCard
+                        image={mothersDayClassic}
+                        imageAlt="Fizz Kids building cardboard houses outdoors with a marquee in the background"
+                        imageSide="left"
+                    >
+                        <div slot="content" class="flex h-full flex-col items-center justify-center gap-8">
+                            <h3 class="text-center font-lilita text-4xl text-[#4DC5D9]">Corporate Events</h3>
+                            <p class="text-center font-gotham font-medium leading-8">
+                                Elevate your corporate events with Fizz Kidz! Your team and customers will love you for
+                                it. Whether it's a company family fun day, a public showcase, or a large-scale pop-up
+                                event, we deliver high-end, seamless, and beloved activations!
+                            </p>
+                        </div>
+                    </WideImageCard>
+                </div>
+            </section>
+            <section>
+                <div class="mt-28 bg-[#EBFAFE] p-4">
+                    <h2 class="pb-2 pl-12 pt-12 font-lilita text-4xl text-[#6EC1E4]">Calendar Themed Activations</h2>
+                    <CardCarousel
+                        client:visible
+                        items={[
+                            {
+                                imageSlot: 'image1',
+                                title: 'Mothers Day',
+                                content:
+                                    "An activation wrapped in pastel pinks, designed to celebrate mums! This event offers a variety of activities for kids that are sure to delight mums, from creating Mother's Day cards to making bath bombs. It's an activation guaranteed to bring smiles to all.",
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                            {
+                                imageSlot: 'image2',
+                                title: 'Exciting Easter',
+                                content:
+                                    'Spring into fun with our Easter-themed activations where kids create truly egg-citing activities! Activities include Easter Baskets, Easter Egg Bath-Bombs and Bunny Ears.',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                            {
+                                imageSlot: 'image3',
+                                title: 'Christmas Cheer',
+                                content:
+                                    'Spread the Holiday Spirit! In this Activation kids craft festive Christmas activities, including Christmas Stockings, Snow Houses and Christmas Slime.',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                            {
+                                imageSlot: 'image4',
+                                title: 'Haunted Halloween',
+                                content:
+                                    'Step into a Spooky Spectacle! Kids craft up their spooky activities including Monster Slime and Wild Animal Masks.',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                            {
+                                imageSlot: 'image5',
+                                title: 'Back to School',
+                                content:
+                                    'Get kids and families into your centre for back to school shopping with school themed kids activities!',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                            {
+                                imageSlot: 'image6',
+                                title: 'Science Week',
+                                content:
+                                    'This Activation is scientifically fantastic offering kids hands-on science experiments to make and take home with them for hours of fun!',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                        ]}
+                    >
+                        <Image
+                            slot="image1"
+                            src={mothersDay}
+                            alt="A child colouring in a card for mothers day"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                        <Image
+                            slot="image2"
+                            src={easter}
+                            alt="An crafty easter egg"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                        <Image
+                            slot="image3"
+                            src={christmas}
+                            alt="A child making a cutout christmas tree"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                        <Image
+                            slot="image4"
+                            src={halloween}
+                            alt="A slimey couldron"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                        <Image
+                            slot="image5"
+                            src={backToSchool}
+                            alt="A kid carefully reading from an instruction booklet"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                        <Image
+                            slot="image6"
+                            src={scienceWeek}
+                            alt="A child playing with slime they made"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                    </CardCarousel>
+                </div>
+                <div class="p-4">
+                    <h2 class="pb-2 pl-12 pt-12 font-lilita text-4xl text-[#6EC1E4]">Themed Activations</h2>
+                    <CardCarousel
+                        client:visible
+                        items={[
+                            {
+                                imageSlot: 'image1',
+                                title: 'Silly Scientist',
+                                content:
+                                    'A Fizz Kidz favourite, this activation is scientifically-fantastic! Kids get hands-on making their own science experiments lead by enthusiastic facilitators dressed in lab coats and science goggles.',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                            {
+                                imageSlot: 'image2',
+                                title: 'Winter Wonderland',
+                                content:
+                                    'Step into the winter wonderland! Kids explore enchanting activities like instant snow slime, frosty bath-bombs and build their own snow houses.',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                            {
+                                imageSlot: 'image3',
+                                title: 'Roaring Rainbows',
+                                content:
+                                    'Our Roaring Rainbows activation is a colourful celebration packed with vibrant activities, including rainbow wall hangings, rainbow and rainbow sand art.',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                            {
+                                imageSlot: 'image4',
+                                title: 'Excellent Engineers',
+                                content:
+                                    'This activation is packed with hands-on activities and challenges designed to spark creativity and problem-solving skills. Activities include 3D roller coasters, catapults and parachutes.',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                            {
+                                imageSlot: 'image5',
+                                title: 'Enchanted Forest',
+                                content:
+                                    'Step into the whimsical enchanted forest with us! This activation has kids making magic sand, creatures-of-the-night masks, monster slime and more.',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                            {
+                                imageSlot: 'image6',
+                                title: 'Amazing Animals',
+                                content:
+                                    'Join us as we explore the fascinating world of animals through hands-on activities such as dinosaur eggs, hamster pencil holders and bugs in bath-bombs.',
+                                buttonText: 'Book Now',
+                                buttonPath: '#contact',
+                            },
+                        ]}
+                    >
+                        <Image
+                            slot="image1"
+                            src={scientist}
+                            alt="A kid in a lab coat pouring something"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                        <Image
+                            slot="image2"
+                            src={winterWonderland}
+                            alt="White snow slime"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                        <Image
+                            slot="image3"
+                            src={rainbows}
+                            alt="A Fizz Kids staff holding crafted rainbows"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                        <Image
+                            slot="image4"
+                            src={engineers}
+                            alt="Two kids laughing with bath bombs"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                        <Image
+                            slot="image5"
+                            src={hero}
+                            alt="An crafty easter egg"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                        <Image
+                            slot="image6"
+                            src={animals}
+                            alt="A toy dinosaur in a bath bomb"
+                            width={640}
+                            height={250}
+                            widths={[320, 480, 640, 960, 1280]}
+                            sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            fit="cover"
+                            class="h-[250px] w-full rounded-t-2xl object-cover"
+                        />
+                    </CardCarousel>
+                </div>
+            </section>
+            <section class="my-12 flex flex-col-reverse gap-8 md:pb-12 md:pt-16 lg:flex-row">
+                <div class="px-0 sm:px-12 lg:w-1/2">
+                    <Image
+                        class="rounded-2xl object-contain shadow-green-sm sm:shadow-green-md"
+                        src={staffArchway}
+                        alt="Two Fizz Kids staff standing under an archway"
+                    />
+                </div>
+                <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
+                    <p class="text-center font-lilita text-5xl lg:text-start">
+                        From big to small, we have you covered.
+                    </p>
+                    <p class="text-center font-gotham text-lg lg:text-start">
+                        Whether you're looking for a one-stop shop or have the infrastructure yourselves and need us to
+                        run amazing daily activities; we're experts in kids' entertainment and we will work with you to
+                        bring your vision to life.
+                    </p>
+                </div>
+            </section>
+            <section>
+                <h2 class="my-20 text-center font-lilita text-6xl">You're in great company!</h2>
+                <LogoGrid logos={logos} />
+            </section>
+            <section>
+                <Reviews
+                    title="Hear what our partners have to say!"
+                    reviews={[
+                        {
+                            review: 'Engaging Minecraft activation captivating kids and parents, with a friendly and proactive team. Meticulous planning and flexibility led to a positive experience for all participants, resulting in a great turnout and consistent engagement - loved every moment! 🌟',
+                            writtenBy: 'Genny, Sanctuary Lakes Shopping Center',
+                            writtenYear: '2024',
+                        },
+                        {
+                            review: 'This was our first time collaborating with Fizz Kids for an activity at CS Square shopping centre. We were very happy from the start of our inquiry to the end of the activity. The team were prompt with their communication and Customer facing was very professional yet fun. We will definitely be looking at more activations from them in the future!',
+                            writtenBy: 'Patric, SC Square',
+                            writtenYear: '2024',
+                        },
+                    ]}
+                />
+            </section>
+        </div>
+        <section class="relative mt-12">
+            <Image
+                class="min-h-[320px] w-full object-cover"
+                src={staff}
+                alt="full width image of Fizz Kids staff smiling"
+            />
+            <div class="absolute right-0 top-1/2 my-auto w-2/3 -translate-y-[40%] min-[450px]:w-1/2">
+                <div class="flex max-w-[420px] flex-col gap-6 p-4">
+                    <p class="font-lilita text-xl md:text-4xl">Have an idea in mind?</p>
+                    <p class="font- text-sm font-semibold text-white md:text-xl">
+                        Let us know your vision and our amazing design team will bring it to life!
+                    </p>
+                    <PrimaryButton text="Let's talk today!" path="#contact" className="w-fit" />
+                </div>
             </div>
-          </WideImageCard>
-          <WideImageCard
-            image={kidsMornings}
-            imageAlt="A child smiling while drawing with crayons"
-            imageSide="right"
-          >
-            <div
-              slot="content"
-              class="flex h-full flex-col items-center justify-center gap-8"
-            >
-              <h3 class="text-center font-lilita text-4xl text-[#4FE16D]">
-                Pre-school Kids Mornings
-              </h3>
-              <p class="text-center font-gotham font-medium leading-8">
-                Bring weekday morning excitement to your Centre. Little ones and
-                parents join in for fun developmentally appropriate activities
-                that families love! Choose from our pre-planned workshops or
-                we'll customise the sessions to your vision!
-              </p>
-            </div>
-          </WideImageCard>
-          <WideImageCard
-            image={mothersDayClassic}
-            imageAlt="Fizz Kids building cardboard houses outdoors with a marquee in the background"
-            imageSide="left"
-          >
-            <div
-              slot="content"
-              class="flex h-full flex-col items-center justify-center gap-8"
-            >
-              <h3 class="text-center font-lilita text-4xl text-[#4DC5D9]">
-                Corporate Events
-              </h3>
-              <p class="text-center font-gotham font-medium leading-8">
-                Elevate your corporate events with Fizz Kidz! Your team and
-                customers will love you for it. Whether it's a company family
-                fun day, a public showcase, or a large-scale pop-up event, we
-                deliver high-end, seamless, and beloved activations!
-              </p>
-            </div>
-          </WideImageCard>
-        </div>
-      </section>
-      <section>
-        <div class="mt-28 bg-[#EBFAFE] p-4">
-          <h2 class="pb-2 pl-12 pt-12 font-lilita text-4xl text-[#6EC1E4]">
-            Calendar Themed Activations
-          </h2>
-          <CardCarousel
-            client:visible
-            items={[
-              {
-                imageSlot: "image1",
-                title: "Mothers Day",
-                content:
-                  "An activation wrapped in pastel pinks, designed to celebrate mums! This event offers a variety of activities for kids that are sure to delight mums, from creating Mother's Day cards to making bath bombs. It's an activation guaranteed to bring smiles to all.",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-              {
-                imageSlot: "image2",
-                title: "Exciting Easter",
-                content:
-                  "Spring into fun with our Easter-themed activations where kids create truly egg-citing activities! Activities include Easter Baskets, Easter Egg Bath-Bombs and Bunny Ears.",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-              {
-                imageSlot: "image3",
-                title: "Christmas Cheer",
-                content:
-                  "Spread the Holiday Spirit! In this Activation kids craft festive Christmas activities, including Christmas Stockings, Snow Houses and Christmas Slime.",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-              {
-                imageSlot: "image4",
-                title: "Haunted Halloween",
-                content:
-                  "Step into a Spooky Spectacle! Kids craft up their spooky activities including Monster Slime and Wild Animal Masks.",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-              {
-                imageSlot: "image5",
-                title: "Back to School",
-                content:
-                  "Get kids and families into your centre for back to school shopping with school themed kids activities!",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-              {
-                imageSlot: "image6",
-                title: "Science Week",
-                content:
-                  "This Activation is scientifically fantastic offering kids hands-on science experiments to make and take home with them for hours of fun!",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-            ]}
-          >
-            <Image
-              slot="image1"
-              src={mothersDay}
-              alt="A child colouring in a card for mothers day"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-            <Image
-              slot="image2"
-              src={easter}
-              alt="An crafty easter egg"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-            <Image
-              slot="image3"
-              src={christmas}
-              alt="A child making a cutout christmas tree"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-            <Image
-              slot="image4"
-              src={halloween}
-              alt="A slimey couldron"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-            <Image
-              slot="image5"
-              src={backToSchool}
-              alt="A kid carefully reading from an instruction booklet"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-            <Image
-              slot="image6"
-              src={scienceWeek}
-              alt="A child playing with slime they made"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-          </CardCarousel>
-        </div>
-        <div class="p-4">
-          <h2 class="pb-2 pl-12 pt-12 font-lilita text-4xl text-[#6EC1E4]">
-            Themed Activations
-          </h2>
-          <CardCarousel
-            client:visible
-            items={[
-              {
-                imageSlot: "image1",
-                title: "Silly Scientist",
-                content:
-                  "A Fizz Kidz favourite, this activation is scientifically-fantastic! Kids get hands-on making their own science experiments lead by enthusiastic facilitators dressed in lab coats and science goggles.",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-              {
-                imageSlot: "image2",
-                title: "Winter Wonderland",
-                content:
-                  "Step into the winter wonderland! Kids explore enchanting activities like instant snow slime, frosty bath-bombs and build their own snow houses.",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-              {
-                imageSlot: "image3",
-                title: "Roaring Rainbows",
-                content:
-                  "Our Roaring Rainbows activation is a colourful celebration packed with vibrant activities, including rainbow wall hangings, rainbow and rainbow sand art.",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-              {
-                imageSlot: "image4",
-                title: "Excellent Engineers",
-                content:
-                  "This activation is packed with hands-on activities and challenges designed to spark creativity and problem-solving skills. Activities include 3D roller coasters, catapults and parachutes.",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-              {
-                imageSlot: "image5",
-                title: "Enchanted Forest",
-                content:
-                  "Step into the whimsical enchanted forest with us! This activation has kids making magic sand, creatures-of-the-night masks, monster slime and more.",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-              {
-                imageSlot: "image6",
-                title: "Amazing Animals",
-                content:
-                  "Join us as we explore the fascinating world of animals through hands-on activities such as dinosaur eggs, hamster pencil holders and bugs in bath-bombs.",
-                buttonText: "Book Now",
-                buttonPath: "#contact",
-              },
-            ]}
-          >
-            <Image
-              slot="image1"
-              src={scientist}
-              alt="A kid in a lab coat pouring something"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-            <Image
-              slot="image2"
-              src={winterWonderland}
-              alt="White snow slime"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-            <Image
-              slot="image3"
-              src={rainbows}
-              alt="A Fizz Kids staff holding crafted rainbows"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-            <Image
-              slot="image4"
-              src={engineers}
-              alt="Two kids laughing with bath bombs"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-            <Image
-              slot="image5"
-              src={hero}
-              alt="An crafty easter egg"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-            <Image
-              slot="image6"
-              src={animals}
-              alt="A toy dinosaur in a bath bomb"
-              width={640}
-              height={250}
-              widths={[320, 480, 640, 960, 1280]}
-              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              fit="cover"
-              class="h-[250px] w-full rounded-t-2xl object-cover"
-            />
-          </CardCarousel>
-        </div>
-      </section>
-      <section
-        class="my-12 flex flex-col-reverse gap-8 md:pb-12 md:pt-16 lg:flex-row"
-      >
-        <div class="px-0 sm:px-12 lg:w-1/2">
-          <Image
-            class="rounded-2xl object-contain shadow-green-sm sm:shadow-green-md"
-            src={staffArchway}
-            alt="Two Fizz Kids staff standing under an archway"
-          />
-        </div>
-        <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
-          <p class="text-center font-lilita text-5xl lg:text-start">
-            From big to small, we have you covered.
-          </p>
-          <p class="text-center font-gotham text-lg lg:text-start">
-            Whether you're looking for a one-stop shop or have the
-            infrastructure yourselves and need us to run amazing daily
-            activities; we're experts in kids' entertainment and we will work
-            with you to bring your vision to life.
-          </p>
-        </div>
-      </section>
-      <section>
-        <h2 class="my-20 text-center font-lilita text-6xl">
-          You're in great company!
-        </h2>
-        <LogoGrid logos={logos} />
-      </section>
-      <section>
-        <Reviews
-          title="Hear what our partners have to say!"
-          reviews={[
-            {
-              review:
-                "Engaging Minecraft activation captivating kids and parents, with a friendly and proactive team. Meticulous planning and flexibility led to a positive experience for all participants, resulting in a great turnout and consistent engagement - loved every moment! 🌟",
-              writtenBy: "Genny, Sanctuary Lakes Shopping Center",
-              writtenYear: "2024",
-            },
-            {
-              review:
-                "This was our first time collaborating with Fizz Kids for an activity at CS Square shopping centre. We were very happy from the start of our inquiry to the end of the activity. The team were prompt with their communication and Customer facing was very professional yet fun. We will definitely be looking at more activations from them in the future!",
-              writtenBy: "Patric, SC Square",
-              writtenYear: "2024",
-            },
-          ]}
-        />
-      </section>
-    </div>
-    <section class="relative mt-12">
-      <Image
-        class="min-h-[320px] w-full object-cover"
-        src={staff}
-        alt="full width image of Fizz Kids staff smiling"
-      />
-      <div
-        class="absolute right-0 top-1/2 my-auto w-2/3 -translate-y-[40%] min-[450px]:w-1/2"
-      >
-        <div class="flex max-w-[420px] flex-col gap-6 p-4">
-          <p class="font-lilita text-xl md:text-4xl">Have an idea in mind?</p>
-          <p class="font- text-sm font-semibold text-white md:text-xl">
-            Let us know your vision and our amazing design team will bring it to
-            life!
-          </p>
-          <PrimaryButton
-            text="Let's talk today!"
-            path="#contact"
-            className="w-fit"
-          />
-        </div>
-      </div>
-      <div id="contact"></div>
-    </section>
-    <section class="m-auto mt-12 block max-w-3xl px-5 py-8">
-      <p class="mb-4 text-center font-lilita text-4xl">
-        Contact us - we're friendly!
-      </p>
-      <p class="text-center font-gotham text-base font-semibold">
-        Please let us know what type of activation or event your looking to run
-        and we will get back to you with all our details.
-      </p>
-      <br />
-      <p class="mb-8 text-center font-gotham text-base font-semibold">
-        Please include your preferred dates.
-      </p>
-      <ActivationsForm client:visible />
-    </section>
-    <Values />
-  </main>
+            <div id="contact"></div>
+        </section>
+        <section class="m-auto mt-12 block max-w-3xl px-5 py-8">
+            <p class="mb-4 text-center font-lilita text-4xl">Contact us - we're friendly!</p>
+            <p class="text-center font-gotham text-base font-semibold">
+                Please let us know what type of activation or event your looking to run and we will get back to you with
+                all our details.
+            </p>
+            <br />
+            <p class="mb-8 text-center font-gotham text-base font-semibold">Please include your preferred dates.</p>
+            <ActivationsForm client:visible />
+        </section>
+        <Values />
+    </main>
 </Layout>

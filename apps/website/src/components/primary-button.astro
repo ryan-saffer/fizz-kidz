@@ -1,37 +1,27 @@
 ---
-import { cn } from "./react/lib/utils";
-import { Button } from "./react/ui/button";
+import { cn } from './react/lib/utils'
+import { Button } from './react/ui/button'
 
 type Props = {
-  text: string;
-  path: string;
-  variant?: "yellow" | "purple";
-  shadow?: boolean;
-  className?: astroHTML.JSX.HTMLAttributes["class"];
-};
+    text: string
+    path: string
+    variant?: 'yellow' | 'purple'
+    shadow?: boolean
+    className?: astroHTML.JSX.HTMLAttributes['class']
+}
 
-const {
-  text,
-  path,
-  variant = "yellow",
-  shadow = true,
-  className = "",
-} = Astro.props;
+const { text, path, variant = 'yellow', shadow = true, className = '' } = Astro.props
 ---
 
 <Button
-  className={cn(
-    "h-fit text-wrap break-words rounded-full bg-[#F6BA33] p-0 text-lg font-semibold uppercase text-white transition-colors duration-300 ease-in-out hover:bg-[#9C59E4]",
-    shadow && "shadow-[0px_0px_35px_0px_rgba(246,186,51,0.75)]",
-    variant === "purple" && "bg-[#9C59E4] hover:bg-[#F6BA33]",
-    className,
-  )}
+    className={cn(
+        'h-fit text-wrap break-words rounded-full bg-[#F6BA33] p-0 text-lg font-semibold uppercase text-white transition-colors duration-300 ease-in-out hover:bg-[#9C59E4]',
+        shadow && 'shadow-[0px_0px_35px_0px_rgba(246,186,51,0.75)]',
+        variant === 'purple' && 'bg-[#9C59E4] hover:bg-[#F6BA33]',
+        className
+    )}
 >
-  <a
-    href={path}
-    class="z-50 px-7 py-5"
-    target={path.startsWith("http") ? "_blank" : "_self"}
-  >
-    {text}
-  </a>
+    <a href={path} class="z-50 px-7 py-5" target={path.startsWith('http') ? '_blank' : '_self'}>
+        {text}
+    </a>
 </Button>

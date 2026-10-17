@@ -1,101 +1,94 @@
 ---
-import PageIntro from "@/components/page-intro.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Layout from "@/layout/Layout.astro";
-import { websitePagesAfterSchoolProgramsArtArtPng as art } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsArtChildPng as child } from "@/data/website-images";
-import Image from "@/components/image.astro";
-import Step from "@/components/step.astro";
-import StarBulletPoints from "@/components/star-bullet-points.astro";
-import { websitePagesAfterSchoolProgramsArtClayPng as clay } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsArtStaffJpg as staff } from "@/data/website-images";
-import FreeTrial from "@/components/free-trial.astro";
-import Values from "@/components/values.astro";
+import PageIntro from '@/components/page-intro.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import Layout from '@/layout/Layout.astro'
+import { websitePagesAfterSchoolProgramsArtArtPng as art } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsArtChildPng as child } from '@/data/website-images'
+import Image from '@/components/image.astro'
+import Step from '@/components/step.astro'
+import StarBulletPoints from '@/components/star-bullet-points.astro'
+import { websitePagesAfterSchoolProgramsArtClayPng as clay } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsArtStaffJpg as staff } from '@/data/website-images'
+import FreeTrial from '@/components/free-trial.astro'
+import Values from '@/components/values.astro'
 ---
 
 <Layout
-  title="Art & Makers After School Program For Kids in Melbourne"
-  description="Embark on a creative journey where innovation meets art, fostering a life-long love for design, craft, making and artistry."
+    title="Art & Makers After School Program For Kids in Melbourne"
+    description="Embark on a creative journey where innovation meets art, fostering a life-long love for design, craft, making and artistry."
 >
-  <main class="m-auto block max-w-[1380px] px-5 py-8">
-    <BreadcrumbWrapper
-      client:idle
-      items={[
-        {
-          type: "link",
-          title: "After School Programs",
-          path: "/after-school-programs/",
-        },
-        {
-          type: "dropdown",
-          title: "Art & Makers Program",
-          items: [
-            {
-              type: "link",
-              title: "Science Program",
-              path: "/after-school-programs/science-program/",
-              isNew: false,
-            },
-            {
-              type: "link",
-              title: "Art & Makers Program",
-              path: "/after-school-programs/art-and-makers-program/",
-              isNew: false,
-            },
-          ],
-        },
-      ]}
-    />
-    <PageIntro
-      subtitle="Igniting curiosity, sparking excitement, and fostering a lifelong love for creative exploration!"
-      type="image"
-      image={art}
-      imageAlt="A child holding a piece of art and craft and smiling"
-      color="green"
-      actionButtonText="Register for a free trial"
-      actionButtonPath="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form"
-    >
-      <span slot="title">Fizz Kidz After School Art & Makers Program</span>
-      <span slot="content"
-        >Embark on a creative journey where innovation meets art, fostering a
-        life-long love for design, craft, making and artistry.
-      </span>
-    </PageIntro>
-    <section class="my-12 md:my-32">
-      <h3 class="mb-6 text-center font-lilita text-5xl">
-        Join the science adventure!
-      </h3>
-      <p class="mb-8 text-center font-lilita text-4xl text-[#9044E2] md:mb-20">
-        - Now taking Term 1 Enrolments -
-      </p>
-      <div class="flex flex-col items-center justify-center gap-12 md:flex-row">
-        <div class="flex items-center justify-center md:w-1/2">
-          <Image
-            class="max-h-96 w-fit rounded-2xl object-contain shadow-green-md"
-            src={child}
-            alt="A child smiling and holding an art piece"
-          />
-        </div>
-        <div class="md:w-1/2">
-          <p class="mb-4 font-lilita text-2xl">
-            We believe in nurturing not only the artist within but also the
-            innovative thinker. The program encourages kids to explore,
-            experiment, and bring their imaginative masterpieces to life!
-          </p>
-          <p>
-            The Fizz Kidz Art and Makers Program offers kids a unique
-            experience, that blends fine art with a makers mindset. The program
-            aims to inspire creativity and innovation, turning ideas into
-            masterpieces that your kids are proud of.
-            <br /><br />
-            The program has been developed by primary school art specialists, is aligned
-            with the victorian curriculum and run by the same passionate facilitator
-            each week.
-          </p>
-        </div>
-      </div>
-    </section>
-    <!-- <section>
+    <main class="m-auto block max-w-[1380px] px-5 py-8">
+        <BreadcrumbWrapper
+            client:idle
+            items={[
+                {
+                    type: 'link',
+                    title: 'After School Programs',
+                    path: '/after-school-programs/',
+                },
+                {
+                    type: 'dropdown',
+                    title: 'Art & Makers Program',
+                    items: [
+                        {
+                            type: 'link',
+                            title: 'Science Program',
+                            path: '/after-school-programs/science-program/',
+                            isNew: false,
+                        },
+                        {
+                            type: 'link',
+                            title: 'Art & Makers Program',
+                            path: '/after-school-programs/art-and-makers-program/',
+                            isNew: false,
+                        },
+                    ],
+                },
+            ]}
+        />
+        <PageIntro
+            subtitle="Igniting curiosity, sparking excitement, and fostering a lifelong love for creative exploration!"
+            type="image"
+            image={art}
+            imageAlt="A child holding a piece of art and craft and smiling"
+            color="green"
+            actionButtonText="Register for a free trial"
+            actionButtonPath="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form"
+        >
+            <span slot="title">Fizz Kidz After School Art & Makers Program</span>
+            <span slot="content">Embark on a creative journey where innovation meets art, fostering a life-long love for
+                design, craft, making and artistry.
+            </span>
+        </PageIntro>
+        <section class="my-12 md:my-32">
+            <h3 class="mb-6 text-center font-lilita text-5xl">Join the science adventure!</h3>
+            <p class="mb-8 text-center font-lilita text-4xl text-[#9044E2] md:mb-20">
+                - Now taking Term 1 Enrolments -
+            </p>
+            <div class="flex flex-col items-center justify-center gap-12 md:flex-row">
+                <div class="flex items-center justify-center md:w-1/2">
+                    <Image
+                        class="max-h-96 w-fit rounded-2xl object-contain shadow-green-md"
+                        src={child}
+                        alt="A child smiling and holding an art piece"
+                    />
+                </div>
+                <div class="md:w-1/2">
+                    <p class="mb-4 font-lilita text-2xl">
+                        We believe in nurturing not only the artist within but also the innovative thinker. The program
+                        encourages kids to explore, experiment, and bring their imaginative masterpieces to life!
+                    </p>
+                    <p>
+                        The Fizz Kidz Art and Makers Program offers kids a unique experience, that blends fine art with
+                        a makers mindset. The program aims to inspire creativity and innovation, turning ideas into
+                        masterpieces that your kids are proud of. <br /><br /> The program has been developed by primary
+                        school art specialists, is aligned with the victorian curriculum and run by the same passionate
+                        facilitator each week.
+                    </p>
+                </div>
+            </div>
+        </section>
+        <!-- <section>
       <h2 class="mb-12 text-center font-lilita text-5xl md:mb-24">
         Term 1 Program Details
       </h2>
@@ -148,102 +141,98 @@ import Values from "@/components/values.astro";
         />
       </div>
     </section> -->
-    <section>
-      <h2 class="mb-8 text-center font-lilita text-4xl">Key Information</h2>
-      <div class="flex flex-col gap-8 lg:flex-row">
-        <Step title="About" color="#50E16D">
-          <div slot="content">
-            <p class="mb-4 font-lilita text-xl">Key program details</p>
-            <StarBulletPoints
-              content={[
-                "Specifically tailored for children in Prep through to Grade 5",
-                // "Each session runs from 4:15pm to 5:15pm at a Fizz Kidz studio",
-                "Every week students will explore a new art element and create their own Art and Makers project with all the materials provided by Fizz Kidz",
-                "Same dedicated facilitator every week",
-              ]}
-            />
-          </div>
-        </Step>
-        <Step title="Key Learning Outcomes" color="#6EC1E4">
-          <div slot="content">
-            <p class="mb-4 font-lilita text-xl">We are focused on</p>
-            <StarBulletPoints
-              content={[
-                "Discovering and exploring all art elements.",
-                "Using our imagination to create art projects.",
-                "Experimenting with a variety of different materials.",
-                "Bringing ideas to life by making our own artwork.",
-                "Engage in thoughtful responses and reflections.",
-                "Gain confidence to tinker, explore and present.",
-              ]}
-            />
-          </div>
-        </Step>
-        <Step title="More Information" color="#9044E2">
-          <div slot="content">
-            <p class="mb-4 font-lilita text-xl">Elements Explored</p>
-            <StarBulletPoints
-              content={[
-                "Colour, Shape, Texture, Space & Line",
-                "Building, Construction, Making & Exploration",
-              ]}
-            />
-            <p class="my-4 font-lilita text-xl">Techniques practised</p>
-            <StarBulletPoints
-              content={[
-                "Weaving, Threading, Wrapping, Building, Collaging, Dying, Rolling, Printing & Marbling and much more!",
-              ]}
-            />
-            <p class="my-4 font-lilita text-xl">Materials Used</p>
-            <StarBulletPoints
-              content={[
-                "Oil pastels, Markers, Pens, Paint, Clay, Foil, Wool, Beads, Dye, Watercolour, Stencils, Electronics Gadgets, Wire, Light, Paper, Felt & much more!",
-              ]}
-            />
-          </div>
-        </Step>
-      </div>
-    </section>
-    <section class="my-12 flex flex-col gap-8 md:my-24 md:flex-row">
-      <div class="flex-1 rounded-2xl shadow-md">
-        <Image
-          class="h-80 rounded-t-2xl object-cover"
-          src={clay}
-          alt="A girl laughing and moulding her experiment"
-        />
-        <div class="rounded-b-2xl bg-white p-8">
-          <p class="mb-4 font-lilita text-3xl text-[#F14CA2]">
-            Making is important
-          </p>
-          <StarBulletPoints
-            content={[
-              "We are passionate about hands-on creativity",
-              "We believe that learning thrives when kids are engaged and making for themselves in supportive and creative environments",
-              "The program offers a wide range of projects catering to every child’s interest",
-            ]}
-          />
-        </div>
-      </div>
-      <div class="flex-1 rounded-2xl shadow-md">
-        <Image
-          class="h-80 rounded-t-2xl object-cover"
-          src={staff}
-          alt="A Fizz Kids staff holding an experiment"
-        />
-        <div class="rounded-b-2xl bg-white p-8">
-          <p class="mb-4 font-lilita text-3xl text-[#8BC34B]">
-            Fizz Kidz Accreditation
-          </p>
-          <StarBulletPoints
-            content={[
-              "The Program is designed and written by primary school art and innovation specialists, aligned with the Victorian Primary school curriculum and facilitated by the same teacher each week, who are passionate about artistry and innovation!",
-            ]}
-          />
-        </div>
-      </div>
-    </section>
-    <!-- This page is technically built for in studio, but currently being repurposed for in school just for term 1 2025 -->
-    <FreeTrial type="school" />
-    <Values />
-  </main>
+        <section>
+            <h2 class="mb-8 text-center font-lilita text-4xl">Key Information</h2>
+            <div class="flex flex-col gap-8 lg:flex-row">
+                <Step title="About" color="#50E16D">
+                    <div slot="content">
+                        <p class="mb-4 font-lilita text-xl">Key program details</p>
+                        <StarBulletPoints
+                            content={[
+                                'Specifically tailored for children in Prep through to Grade 5',
+                                // "Each session runs from 4:15pm to 5:15pm at a Fizz Kidz studio",
+                                'Every week students will explore a new art element and create their own Art and Makers project with all the materials provided by Fizz Kidz',
+                                'Same dedicated facilitator every week',
+                            ]}
+                        />
+                    </div>
+                </Step>
+                <Step title="Key Learning Outcomes" color="#6EC1E4">
+                    <div slot="content">
+                        <p class="mb-4 font-lilita text-xl">We are focused on</p>
+                        <StarBulletPoints
+                            content={[
+                                'Discovering and exploring all art elements.',
+                                'Using our imagination to create art projects.',
+                                'Experimenting with a variety of different materials.',
+                                'Bringing ideas to life by making our own artwork.',
+                                'Engage in thoughtful responses and reflections.',
+                                'Gain confidence to tinker, explore and present.',
+                            ]}
+                        />
+                    </div>
+                </Step>
+                <Step title="More Information" color="#9044E2">
+                    <div slot="content">
+                        <p class="mb-4 font-lilita text-xl">Elements Explored</p>
+                        <StarBulletPoints
+                            content={[
+                                'Colour, Shape, Texture, Space & Line',
+                                'Building, Construction, Making & Exploration',
+                            ]}
+                        />
+                        <p class="my-4 font-lilita text-xl">Techniques practised</p>
+                        <StarBulletPoints
+                            content={[
+                                'Weaving, Threading, Wrapping, Building, Collaging, Dying, Rolling, Printing & Marbling and much more!',
+                            ]}
+                        />
+                        <p class="my-4 font-lilita text-xl">Materials Used</p>
+                        <StarBulletPoints
+                            content={[
+                                'Oil pastels, Markers, Pens, Paint, Clay, Foil, Wool, Beads, Dye, Watercolour, Stencils, Electronics Gadgets, Wire, Light, Paper, Felt & much more!',
+                            ]}
+                        />
+                    </div>
+                </Step>
+            </div>
+        </section>
+        <section class="my-12 flex flex-col gap-8 md:my-24 md:flex-row">
+            <div class="flex-1 rounded-2xl shadow-md">
+                <Image
+                    class="h-80 rounded-t-2xl object-cover"
+                    src={clay}
+                    alt="A girl laughing and moulding her experiment"
+                />
+                <div class="rounded-b-2xl bg-white p-8">
+                    <p class="mb-4 font-lilita text-3xl text-[#F14CA2]">Making is important</p>
+                    <StarBulletPoints
+                        content={[
+                            'We are passionate about hands-on creativity',
+                            'We believe that learning thrives when kids are engaged and making for themselves in supportive and creative environments',
+                            'The program offers a wide range of projects catering to every child’s interest',
+                        ]}
+                    />
+                </div>
+            </div>
+            <div class="flex-1 rounded-2xl shadow-md">
+                <Image
+                    class="h-80 rounded-t-2xl object-cover"
+                    src={staff}
+                    alt="A Fizz Kids staff holding an experiment"
+                />
+                <div class="rounded-b-2xl bg-white p-8">
+                    <p class="mb-4 font-lilita text-3xl text-[#8BC34B]">Fizz Kidz Accreditation</p>
+                    <StarBulletPoints
+                        content={[
+                            'The Program is designed and written by primary school art and innovation specialists, aligned with the Victorian Primary school curriculum and facilitated by the same teacher each week, who are passionate about artistry and innovation!',
+                        ]}
+                    />
+                </div>
+            </div>
+        </section>
+        <!-- This page is technically built for in studio, but currently being repurposed for in school just for term 1 2025 -->
+        <FreeTrial type="school" />
+        <Values />
+    </main>
 </Layout>

@@ -1,57 +1,43 @@
 ---
-import Image from "@/components/image.astro";
-import type { ImageSource } from "@/types/images";
+import Image from '@/components/image.astro'
+import type { ImageSource } from '@/types/images'
 interface Props {
-  img: ImageSource;
-  alt: string;
+    img: ImageSource
+    alt: string
 }
-const { img, alt } = Astro.props as Props;
+const { img, alt } = Astro.props as Props
 ---
 
 <figure class="w-full">
-  <svg
-    viewBox="0 0 611 490"
-    xmlns="http://www.w3.org/2000/svg"
-    class="block h-auto w-full"
-  >
-    <defs>
-      <clipPath id="waveClip" clipPathUnits="userSpaceOnUse">
+    <svg viewBox="0 0 611 490" xmlns="http://www.w3.org/2000/svg" class="block h-auto w-full">
+        <defs>
+            <clipPath id="waveClip" clipPathUnits="userSpaceOnUse">
+                <path
+                    d="M314.443 26.0364C201.241 22.6236 61.4094 -46.569 17.3958 66.6626C-32.3798 194.718 49.0834 350.667 154.797 429.122C250.786 500.36 380.919 480.579 474.823 406.14C567.974 332.298 622.799 208.421 578.29 92.9293C540.618 -4.81975 412.04 28.9788 314.443 26.0364Z"
+                ></path>
+            </clipPath>
+        </defs>
+
+        <!-- Purple blob background -->
         <path
-          d="M314.443 26.0364C201.241 22.6236 61.4094 -46.569 17.3958 66.6626C-32.3798 194.718 49.0834 350.667 154.797 429.122C250.786 500.36 380.919 480.579 474.823 406.14C567.974 332.298 622.799 208.421 578.29 92.9293C540.618 -4.81975 412.04 28.9788 314.443 26.0364Z"
+            d="M331.02 42.6139C217.819 39.2011 77.9871 -29.9915 33.9734 83.2401C-15.8022 211.295 65.661 367.244 171.375 445.699C267.364 516.937 397.496 497.156 491.4 422.717C584.551 348.876 639.377 224.998 594.867 109.507C557.196 11.7577 428.618 45.5563 331.02 42.6139Z"
+            fill="#8F44E1"
         ></path>
-      </clipPath>
-    </defs>
 
-    <!-- Purple blob background -->
-    <path
-      d="M331.02 42.6139C217.819 39.2011 77.9871 -29.9915 33.9734 83.2401C-15.8022 211.295 65.661 367.244 171.375 445.699C267.364 516.937 397.496 497.156 491.4 422.717C584.551 348.876 639.377 224.998 594.867 109.507C557.196 11.7577 428.618 45.5563 331.02 42.6139Z"
-      fill="#8F44E1"></path>
+        <!-- Clipped image -->
+        <foreignObject x="0" y="0" width="611" height="490" clip-path="url(#waveClip)">
+            <body class="m-0 p-0">
+                <Image src={img} alt={alt} width={1000} loading="eager" class="block h-full w-full object-cover" />
+            </body>
+        </foreignObject>
 
-    <!-- Clipped image -->
-    <foreignObject
-      x="0"
-      y="0"
-      width="611"
-      height="490"
-      clip-path="url(#waveClip)"
-    >
-      <body class="m-0 p-0">
-        <Image
-          src={img}
-          alt={alt}
-          width={1000}
-          loading="eager"
-          class="block h-full w-full object-cover"
-        />
-      </body>
-    </foreignObject>
-
-    <!-- Outline stroke -->
-    <path
-      d="M314.443 26.0364C201.241 22.6236 61.4094 -46.569 17.3958 66.6626C-32.3798 194.718 49.0834 350.667 154.797 429.122C250.786 500.36 380.919 480.579 474.823 406.14C567.974 332.298 622.799 208.421 578.29 92.9293C540.618 -4.81975 412.04 28.9788 314.443 26.0364Z"
-      fill="none"
-      stroke="#45D3F3"
-      stroke-width="4"></path>
-  </svg>
-  <figcaption class="sr-only">{alt}</figcaption>
+        <!-- Outline stroke -->
+        <path
+            d="M314.443 26.0364C201.241 22.6236 61.4094 -46.569 17.3958 66.6626C-32.3798 194.718 49.0834 350.667 154.797 429.122C250.786 500.36 380.919 480.579 474.823 406.14C567.974 332.298 622.799 208.421 578.29 92.9293C540.618 -4.81975 412.04 28.9788 314.443 26.0364Z"
+            fill="none"
+            stroke="#45D3F3"
+            stroke-width="4"
+        ></path>
+    </svg>
+    <figcaption class="sr-only">{alt}</figcaption>
 </figure>

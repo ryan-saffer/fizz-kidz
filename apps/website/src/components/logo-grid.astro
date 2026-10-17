@@ -1,64 +1,60 @@
 ---
-import Image from "@/components/image.astro";
-import type { ImageSource } from "@/types/images";
+import Image from '@/components/image.astro'
+import type { ImageSource } from '@/types/images'
 
 interface Props {
-  logos: { src: ImageSource; alt: string }[];
+    logos: { src: ImageSource; alt: string }[]
 }
 
-const { logos } = Astro.props;
+const { logos } = Astro.props
 ---
 
 <div class="logo-grid relative mt-8 grid grid-cols-3 lg:grid-cols-5">
-  {
-    logos.map((logo) => (
-      <div class="logo-grid__item relative flex h-48 items-center justify-center">
+    {logos.map((logo) => <div class="logo-grid__item relative flex h-48 items-center justify-center">
         <Image
-          src={logo.src}
-          alt={logo.alt}
-          widths={[96, 128, 192, 256]}
-          sizes="(min-width: 640px) 128px, 96px"
-          fit="contain"
-          class="max-h-36 max-w-24 object-contain sm:max-w-32"
+            src={logo.src}
+            alt={logo.alt}
+            widths={[96, 128, 192, 256]}
+            sizes="(min-width: 640px) 128px, 96px"
+            fit="contain"
+            class="max-h-36 max-w-24 object-contain sm:max-w-32"
         />
-      </div>
-    ))
-  }
+    </div>)}
 </div>
 
 <style>
-  .logo-grid__item::before,
-  .logo-grid__item::after {
-    content: "";
-    position: absolute;
-    background: black;
-  }
-
-  .logo-grid__item::before {
-    left: 0;
-    width: 1px;
-    height: 80%;
-  }
-
-  .logo-grid__item::after {
-    bottom: 0;
-    width: 80%;
-    height: 1px;
-  }
-
-  .logo-grid__item:nth-child(3n + 1)::before,
-  .logo-grid__item:nth-child(n + 13)::after {
-    display: none;
-  }
-
-  @media (min-width: 1024px) {
-    .logo-grid__item:nth-child(3n + 1)::before {
-      display: block;
+    .logo-grid__item::before,
+    .logo-grid__item::after {
+        content: '';
+        position: absolute;
+        background: black;
     }
 
-    .logo-grid__item:nth-child(5n + 1)::before,
-    .logo-grid__item:nth-child(n + 11)::after {
-      display: none;
+    .logo-grid__item::before {
+        left: 0;
+        width: 1px;
+        height: 80%;
     }
-  }
+
+    .logo-grid__item::after {
+        bottom: 0;
+        width: 80%;
+        height: 1px;
+    }
+
+    .logo-grid__item:nth-child(3n + 1)::before,
+    .logo-grid__item:nth-child(n + 13)::after {
+        display: none;
+    }
+
+    @media (min-width: 1024px) {
+        .logo-grid__item:nth-child(3n + 1)::before {
+            display: block;
+        }
+
+        .logo-grid__item:nth-child(5n + 1)::before,
+        .logo-grid__item:nth-child(n + 11)::after {
+            display: none;
+        }
+    }
 </style>

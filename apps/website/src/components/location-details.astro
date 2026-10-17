@@ -1,117 +1,100 @@
 ---
-import Image from "@/components/image.astro";
-import FaqAccordion from "@/components/react/faq-accordion";
-import Values from "@/components/values.astro";
-import { websitePagesPartiesFaqPng as faq } from "@/data/website-images";
-import {
-  getPublicStudio,
-  type PublicStudioSlug,
-} from "@/utils/studios";
+import Image from '@/components/image.astro'
+import FaqAccordion from '@/components/react/faq-accordion'
+import Values from '@/components/values.astro'
+import { websitePagesPartiesFaqPng as faq } from '@/data/website-images'
+import { getPublicStudio, type PublicStudioSlug } from '@/utils/studios'
 
 type Props = {
-  studio: PublicStudioSlug;
-};
+    studio: PublicStudioSlug
+}
 
-const studio = getPublicStudio(Astro.props.studio);
-const address = `${studio.streetAddress}, ${studio.addressLocality} VIC ${studio.postalCode}`;
+const studio = getPublicStudio(Astro.props.studio)
+const address = `${studio.streetAddress}, ${studio.addressLocality} VIC ${studio.postalCode}`
 
 const faqItems = [
-  {
-    question: `Where is Fizz Kidz ${studio.name}?`,
-    answer: `Fizz Kidz ${studio.name} is located at ${address}.`,
-  },
-  {
-    question: `What kids activities are available at Fizz Kidz ${studio.name}?`,
-    answer:
-      "Fizz Kidz offers hosted birthday parties, school holiday programs and hands-on activities including slime, science, art, craft and take-home creations.",
-  },
-  {
-    question: "Can Fizz Kidz run a party at my home?",
-    answer:
-      "Yes! Every Fizz Kidz party package can be run at your home or a venue near you, up to 30km from your closest Fizz Kidz studio. A travel fee applies based on distance. See our At Home Parties page for pricing and travel zones.",
-  },
-  {
-    question: "What ages are Fizz Kidz parties and holiday programs for?",
-    answer:
-      "Fizz Kidz birthday parties and school holiday programs are designed for children aged 4 to 12.",
-  },
-  {
-    question: "Does Fizz Kidz accept the Child Care Subsidy (CCS)?",
-    answer:
-      "No. Fizz Kidz operates as a children's entertainment provider and is not eligible for the Child Care Subsidy.",
-  },
-];
+    {
+        question: `Where is Fizz Kidz ${studio.name}?`,
+        answer: `Fizz Kidz ${studio.name} is located at ${address}.`,
+    },
+    {
+        question: `What kids activities are available at Fizz Kidz ${studio.name}?`,
+        answer: 'Fizz Kidz offers hosted birthday parties, school holiday programs and hands-on activities including slime, science, art, craft and take-home creations.',
+    },
+    {
+        question: 'Can Fizz Kidz run a party at my home?',
+        answer: 'Yes! Every Fizz Kidz party package can be run at your home or a venue near you, up to 30km from your closest Fizz Kidz studio. A travel fee applies based on distance. See our At Home Parties page for pricing and travel zones.',
+    },
+    {
+        question: 'What ages are Fizz Kidz parties and holiday programs for?',
+        answer: 'Fizz Kidz birthday parties and school holiday programs are designed for children aged 4 to 12.',
+    },
+    {
+        question: 'Does Fizz Kidz accept the Child Care Subsidy (CCS)?',
+        answer: "No. Fizz Kidz operates as a children's entertainment provider and is not eligible for the Child Care Subsidy.",
+    },
+]
 ---
 
 <div class="m-auto max-w-[1380px] px-5">
-  <section class="my-12 rounded-3xl bg-[#F4EDFF] p-6 md:my-24 md:p-10">
-    <h2 class="font-lilita text-4xl text-[#9044E2] md:text-5xl">
-      Kids birthday parties and holiday programs in {studio.name}
-    </h2>
-    <p class="mt-4 max-w-5xl font-gotham text-lg font-medium leading-8">
-      Fizz Kidz {studio.name} hosts creative children's experiences at {address}.
-      Choose a fully hosted birthday party, book a school holiday session or get
-      in touch with our team to find the right activity for your child.
-    </p>
-    <div class="mt-8 grid gap-4 md:grid-cols-3">
-      <a
-        class="rounded-2xl bg-white p-5 shadow-around"
-        href="/birthday-parties/"
-      >
-        <h3 class="font-lilita text-2xl text-[#9044E2]">Birthday parties</h3>
-        <p class="mt-2 font-gotham font-medium">
-          Explore hosted party themes, inclusions, pricing and take-home
-          creations.
+    <section class="my-12 rounded-3xl bg-[#F4EDFF] p-6 md:my-24 md:p-10">
+        <h2 class="font-lilita text-4xl text-[#9044E2] md:text-5xl">
+            Kids birthday parties and holiday programs in {studio.name}
+        </h2>
+        <p class="mt-4 max-w-5xl font-gotham text-lg font-medium leading-8">
+            Fizz Kidz {studio.name} hosts creative children's experiences at {address}. Choose a fully hosted birthday
+            party, book a school holiday session or get in touch with our team to find the right activity for your
+            child.
         </p>
-      </a>
-      <a
-        class="rounded-2xl bg-white p-5 shadow-around"
-        href="/holiday-programs/"
-      >
-        <h3 class="font-lilita text-2xl text-[#9044E2]">Holiday programs</h3>
-        <p class="mt-2 font-gotham font-medium">
-          Find creative school holiday sessions for children aged 4 to 12.
-        </p>
-      </a>
-      <a class="rounded-2xl bg-white p-5 shadow-around" href="/contact-us/">
-        <h3 class="font-lilita text-2xl text-[#9044E2]">Contact the team</h3>
-        <p class="mt-2 font-gotham font-medium">
-          Ask about availability, accessibility or the best option for your
-          family.
-        </p>
-      </a>
-    </div>
-    <div
-      class="mt-4 flex flex-col items-start gap-4 rounded-2xl bg-white p-5 shadow-around md:flex-row md:items-center md:justify-between"
-    >
-      <div>
-        <h3 class="font-lilita text-2xl text-[#42D4F3]">
-          Not close to {studio.name}? We'll bring the party to you!
-        </h3>
-        <p class="mt-2 font-gotham font-medium">
-          Every party package can be run at your home or a venue near you.
-        </p>
-      </div>
-      <a
-        class="shrink-0 rounded-full bg-[#9C59E4] px-6 py-3 font-semibold uppercase text-white transition-colors hover:bg-[#F6BA33]"
-        href="/birthday-parties/at-home-parties/"
-      >
-        At home parties
-      </a>
-    </div>
-  </section>
+        <div class="mt-8 grid gap-4 md:grid-cols-3">
+            <a class="rounded-2xl bg-white p-5 shadow-around" href="/birthday-parties/">
+                <h3 class="font-lilita text-2xl text-[#9044E2]">Birthday parties</h3>
+                <p class="mt-2 font-gotham font-medium">
+                    Explore hosted party themes, inclusions, pricing and take-home creations.
+                </p>
+            </a>
+            <a class="rounded-2xl bg-white p-5 shadow-around" href="/holiday-programs/">
+                <h3 class="font-lilita text-2xl text-[#9044E2]">Holiday programs</h3>
+                <p class="mt-2 font-gotham font-medium">
+                    Find creative school holiday sessions for children aged 4 to 12.
+                </p>
+            </a>
+            <a class="rounded-2xl bg-white p-5 shadow-around" href="/contact-us/">
+                <h3 class="font-lilita text-2xl text-[#9044E2]">Contact the team</h3>
+                <p class="mt-2 font-gotham font-medium">
+                    Ask about availability, accessibility or the best option for your family.
+                </p>
+            </a>
+        </div>
+        <div
+            class="mt-4 flex flex-col items-start gap-4 rounded-2xl bg-white p-5 shadow-around md:flex-row md:items-center md:justify-between"
+        >
+            <div>
+                <h3 class="font-lilita text-2xl text-[#42D4F3]">
+                    Not close to {studio.name}? We'll bring the party to you!
+                </h3>
+                <p class="mt-2 font-gotham font-medium">
+                    Every party package can be run at your home or a venue near you.
+                </p>
+            </div>
+            <a
+                class="shrink-0 rounded-full bg-[#9C59E4] px-6 py-3 font-semibold uppercase text-white transition-colors hover:bg-[#F6BA33]"
+                href="/birthday-parties/at-home-parties/"
+            >
+                At home parties
+            </a>
+        </div>
+    </section>
 
-  <section class="my-12 md:my-24">
-    <h2 class="mb-4 text-center font-lilita text-4xl md:text-5xl">
-      Frequently Asked Questions
-    </h2>
-    <div class="flex w-full flex-col items-center gap-8 md:flex-row">
-      <Image class="hidden w-2/5 md:block" src={faq} alt="Three girls smiling" />
-      <div class="w-full md:w-3/5">
-        <FaqAccordion client:visible={{ rootMargin: "300px" }} items={faqItems} />
-      </div>
-    </div>
-  </section>
+    <section class="my-12 md:my-24">
+        <h2 class="mb-4 text-center font-lilita text-4xl md:text-5xl">Frequently Asked Questions</h2>
+        <div class="flex w-full flex-col items-center gap-8 md:flex-row">
+            <Image class="hidden w-2/5 md:block" src={faq} alt="Three girls smiling" />
+            <div class="w-full md:w-3/5">
+                <FaqAccordion client:visible={{ rootMargin: '300px' }} items={faqItems} />
+            </div>
+        </div>
+    </section>
 
-  <Values />
+    <Values />
 </div>

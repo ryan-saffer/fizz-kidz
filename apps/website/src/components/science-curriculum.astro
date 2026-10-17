@@ -1,109 +1,79 @@
 ---
-import { websitePagesAfterSchoolProgramsScienceTerm1Png as term1 } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsScienceTerm2Png as term2 } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsScienceTerm3Png as term3 } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsScienceTerm4Png as term4 } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsScienceYellowHatPng as yellowHat } from "@/data/website-images";
-import greenDrops from "@/assets/images/pages/parties/drop-green.svg";
-import blueDrops from "@/assets/images/pages/parties/drop-blue.svg";
-import purpleDrops from "@/assets/images/pages/parties/drop-purple.svg";
-import Image from "@/components/image.astro";
-import { cn } from "./react/lib/utils";
+import { websitePagesAfterSchoolProgramsScienceTerm1Png as term1 } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsScienceTerm2Png as term2 } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsScienceTerm3Png as term3 } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsScienceTerm4Png as term4 } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsScienceYellowHatPng as yellowHat } from '@/data/website-images'
+import greenDrops from '@/assets/images/pages/parties/drop-green.svg'
+import blueDrops from '@/assets/images/pages/parties/drop-blue.svg'
+import purpleDrops from '@/assets/images/pages/parties/drop-purple.svg'
+import Image from '@/components/image.astro'
+import { cn } from './react/lib/utils'
 
 const terms = [
-  {
-    title: "Chemical Reactions",
-    icon: term1,
-    color: "#F14EA2",
-    drops: purpleDrops,
-    topics: [
-      "States of Matter",
-      "Acids and Bases",
-      "Chemical Reactions",
-      "Density",
-    ],
-  },
-  {
-    title: "Gravity & Force",
-    icon: term2,
-    color: "#9044E4",
-    drops: purpleDrops,
-    topics: ["Gravity", "Force", "Weight", "Push & Pull"],
-  },
-  {
-    title: "Light & Sounds",
-    icon: term3,
-    color: "#42D4F3",
-    drops: blueDrops,
-    topics: ["Electricity", "Light", "Sound", "Touch & Senses"],
-  },
-  {
-    title: "Earth & Sustainability",
-    icon: term4,
-    color: "#4FE16E",
-    drops: greenDrops,
-    topics: [
-      "Earth & Weather",
-      "Habitats",
-      "Sustainability",
-      "Renewable Energy",
-    ],
-  },
-] as const;
+    {
+        title: 'Chemical Reactions',
+        icon: term1,
+        color: '#F14EA2',
+        drops: purpleDrops,
+        topics: ['States of Matter', 'Acids and Bases', 'Chemical Reactions', 'Density'],
+    },
+    {
+        title: 'Gravity & Force',
+        icon: term2,
+        color: '#9044E4',
+        drops: purpleDrops,
+        topics: ['Gravity', 'Force', 'Weight', 'Push & Pull'],
+    },
+    {
+        title: 'Light & Sounds',
+        icon: term3,
+        color: '#42D4F3',
+        drops: blueDrops,
+        topics: ['Electricity', 'Light', 'Sound', 'Touch & Senses'],
+    },
+    {
+        title: 'Earth & Sustainability',
+        icon: term4,
+        color: '#4FE16E',
+        drops: greenDrops,
+        topics: ['Earth & Weather', 'Habitats', 'Sustainability', 'Renewable Energy'],
+    },
+] as const
 ---
 
 <section>
-  <p class="mb-12 text-center font-lilita text-4xl">
-    Each term kids explore all four science modules
-  </p>
-  <div class="flex flex-col gap-6 lg:flex-row">
-    <div class="flex flex-row items-center justify-center gap-4 lg:flex-col">
-      <Image
-        class="h-20 w-fit"
-        src={yellowHat}
-        alt="A yellow graduation hat icon"
-      />
-      <p class="text-center font-lilita text-3xl">Curriculum breakdown</p>
-    </div>
-    <div class="grid w-full grid-cols-2 gap-8 md:grid-cols-4">
-      {
-        terms.map((term) => (
-          <div class="relative flex flex-col items-center justify-center">
-            <Image
-              class="absolute -left-20 hidden max-h-[400px] md:block"
-              src={term.drops}
-              alt="background graphics"
-            />
-            <div class="w-full max-w-60 rounded-2xl shadow-md">
-              <div
-                class="relative min-h-24 rounded-t-2xl p-4"
-                style={{ background: term.color }}
-              >
-                <p class="absolute bottom-2 font-lilita text-xl text-white min-[500px]:text-2xl sm:text-3xl">
-                  {term.title}
-                </p>
+    <p class="mb-12 text-center font-lilita text-4xl">Each term kids explore all four science modules</p>
+    <div class="flex flex-col gap-6 lg:flex-row">
+        <div class="flex flex-row items-center justify-center gap-4 lg:flex-col">
+            <Image class="h-20 w-fit" src={yellowHat} alt="A yellow graduation hat icon" />
+            <p class="text-center font-lilita text-3xl">Curriculum breakdown</p>
+        </div>
+        <div class="grid w-full grid-cols-2 gap-8 md:grid-cols-4">
+            {terms.map((term) => <div class="relative flex flex-col items-center justify-center">
                 <Image
-                  class="absolute bottom-0 right-4 top-0 m-auto h-16 w-fit"
-                  src={term.icon}
-                  alt="icon"
+                    class="absolute -left-20 hidden max-h-[400px] md:block"
+                    src={term.drops}
+                    alt="background graphics"
                 />
-              </div>
-              <div class="relative z-10 flex flex-col items-center justify-center rounded-b-2xl bg-white">
-                {term.topics.map((topic, idx) => (
-                  <p
-                    class={cn(
-                      "w-full text-nowrap border-black py-4 text-center font-gotham font-thin",
-                      { "border-b": idx < 3 },
-                    )}
-                  >
-                    {topic}
-                  </p>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))
-      }
+                <div class="w-full max-w-60 rounded-2xl shadow-md">
+                    <div class="relative min-h-24 rounded-t-2xl p-4" style={{ background: term.color }}>
+                        <p class="absolute bottom-2 font-lilita text-xl text-white min-[500px]:text-2xl sm:text-3xl">
+                            {term.title}
+                        </p>
+                        <Image class="absolute bottom-0 right-4 top-0 m-auto h-16 w-fit" src={term.icon} alt="icon" />
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center justify-center rounded-b-2xl bg-white">
+                        {term.topics.map((topic, idx) => <p
+                            class={cn('w-full text-nowrap border-black py-4 text-center font-gotham font-thin', {
+                                'border-b': idx < 3,
+                            })}
+                        >
+                            {topic}
+                        </p>)}
+                    </div>
+                </div>
+            </div>)}
+        </div>
     </div>
-  </div>
 </section>

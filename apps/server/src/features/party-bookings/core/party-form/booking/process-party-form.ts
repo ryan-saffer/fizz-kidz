@@ -112,19 +112,17 @@ async function restoreTakeHomeInventory(submissionId: string, payload: PartyForm
             catalogObjectId: mapProductToSquareVariation(env, key),
             quantity,
         })),
-    ].map(
-        ({ catalogObjectId, quantity }): Square.InventoryChange => ({
-            type: 'ADJUSTMENT',
-            adjustment: {
-                catalogObjectId,
-                locationId: getSquareLocationId(env === 'prod' ? booking.location : 'test'),
-                quantity: String(quantity),
-                fromState: 'NONE',
-                toState: 'IN_STOCK',
-                occurredAt: new Date().toISOString(),
-            },
-        })
-    )
+    ].map(({ catalogObjectId, quantity }): Square.InventoryChange => ({
+        type: 'ADJUSTMENT',
+        adjustment: {
+            catalogObjectId,
+            locationId: getSquareLocationId(env === 'prod' ? booking.location : 'test'),
+            quantity: String(quantity),
+            fromState: 'NONE',
+            toState: 'IN_STOCK',
+            occurredAt: new Date().toISOString(),
+        },
+    }))
     if (changes.length === 0) return
     try {
         const square = await SquareClient.getInstance()

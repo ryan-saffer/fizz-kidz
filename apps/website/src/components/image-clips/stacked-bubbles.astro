@@ -1,19 +1,19 @@
 ---
 // BlobPair.astro
 
-import Image from "@/components/image.astro";
-import type { ImageSource } from "@/types/images";
+import Image from '@/components/image.astro'
+import type { ImageSource } from '@/types/images'
 
 interface Props {
-  /** First (top) image metadata */
-  imgTop: ImageSource;
-  altTop: string;
-  /** Second (bottom) image metadata */
-  imgBottom: ImageSource;
-  altBottom: string;
+    /** First (top) image metadata */
+    imgTop: ImageSource
+    altTop: string
+    /** Second (bottom) image metadata */
+    imgBottom: ImageSource
+    altBottom: string
 }
 
-const { imgTop, altTop, imgBottom, altBottom } = Astro.props as Props;
+const { imgTop, altTop, imgBottom, altBottom } = Astro.props as Props
 ---
 
 <!--
@@ -21,136 +21,108 @@ const { imgTop, altTop, imgBottom, altBottom } = Astro.props as Props;
   Feel free to adjust spacing (`space-y-8`) or remove it if you don’t want vertical gaps.
 -->
 <div class="w-full space-y-8">
-  <!-- ========================== -->
-  <!--        TOP BLOB           -->
-  <!-- ========================== -->
-  <figure class="w-full">
-    <svg
-      viewBox="0 0 555 386"
-      xmlns="http://www.w3.org/2000/svg"
-      class="block h-auto w-full"
-      overflow="visible"
-    >
-      <defs>
-        <!-- 
+    <!-- ========================== -->
+    <!--        TOP BLOB           -->
+    <!-- ========================== -->
+    <figure class="w-full">
+        <svg viewBox="0 0 555 386" xmlns="http://www.w3.org/2000/svg" class="block h-auto w-full" overflow="visible">
+            <defs>
+                <!-- 
           1) Define a unique clipPath for the top blob.
           2) The <path> here is exactly what you copied from Figma (first SVG).
         -->
-        <clipPath id="blobClipTop" clipPathUnits="userSpaceOnUse">
-          <path
-            d="M266.919 53.2658C161.499 63.7853 32.4174 -25.3652 5.76628 76.5365C-24.3738 191.778 70.3655 306.91 178.232 361.351C276.176 410.784 384.766 381.524 462.544 306.824C539.699 232.722 585.011 125.729 529.276 32.4026C482.102 -46.5863 357.808 44.1962 266.919 53.2658Z"
-          ></path>
-        </clipPath>
-      </defs>
+                <clipPath id="blobClipTop" clipPathUnits="userSpaceOnUse">
+                    <path
+                        d="M266.919 53.2658C161.499 63.7853 32.4174 -25.3652 5.76628 76.5365C-24.3738 191.778 70.3655 306.91 178.232 361.351C276.176 410.784 384.766 381.524 462.544 306.824C539.699 232.722 585.011 125.729 529.276 32.4026C482.102 -46.5863 357.808 44.1962 266.919 53.2658Z"
+                    ></path>
+                </clipPath>
+            </defs>
 
-      <!--
+            <!--
         1) Background fill for the top blob (you can change `fill="#FEA439"` to whatever background color you want).
         2) This is the same <path> data that defines the shape.
       -->
-      <path
-        d="M266.919 53.2658C161.499 63.7853 32.4174 -25.3652 5.76628 76.5365C-24.3738 191.778 70.3655 306.91 178.232 361.351C276.176 410.784 384.766 381.524 462.544 306.824C539.699 232.722 585.011 125.729 529.276 32.4026C482.102 -46.5863 357.808 44.1962 266.919 53.2658Z"
-        fill="#FEA439"></path>
+            <path
+                d="M266.919 53.2658C161.499 63.7853 32.4174 -25.3652 5.76628 76.5365C-24.3738 191.778 70.3655 306.91 178.232 361.351C276.176 410.784 384.766 381.524 462.544 306.824C539.699 232.722 585.011 125.729 529.276 32.4026C482.102 -46.5863 357.808 44.1962 266.919 53.2658Z"
+                fill="#FEA439"
+            ></path>
 
-      <!--
+            <!--
         1) We place the user’s image inside a <foreignObject> that is clipped to the top blob.
         2) The width/height here should match the original viewBox dimensions (555×386).
         3) The <Image> component from `astro:assets` resizes to fill the blob (`object-cover`).
       -->
-      <foreignObject
-        x="0"
-        y="0"
-        width="555"
-        height="386"
-        clip-path="url(#blobClipTop)"
-      >
-        <body class="m-0 p-0">
-          <Image
-            src={imgTop}
-            alt={altTop}
-            width={1000}
-            class="block h-full w-full object-cover"
-          />
-        </body>
-      </foreignObject>
+            <foreignObject x="0" y="0" width="555" height="386" clip-path="url(#blobClipTop)">
+                <body class="m-0 p-0">
+                    <Image src={imgTop} alt={altTop} width={1000} class="block h-full w-full object-cover" />
+                </body>
+            </foreignObject>
 
-      <!--
+            <!--
         1) Outline stroke of the top blob (same path, but no fill).
         2) You can tweak `stroke="#45D3F3"` and `stroke-width="4"` as needed.
       -->
-      <path
-        d="M266.919 53.2658C161.499 63.7853 32.4174 -25.3652 5.76628 76.5365C-24.3738 191.778 70.3655 306.91 178.232 361.351C276.176 410.784 384.766 381.524 462.544 306.824C539.699 232.722 585.011 125.729 529.276 32.4026C482.102 -46.5863 357.808 44.1962 266.919 53.2658Z"
-        fill="none"
-        stroke="#FEA438"
-        stroke-width="12"></path>
-    </svg>
-    <!-- 
+            <path
+                d="M266.919 53.2658C161.499 63.7853 32.4174 -25.3652 5.76628 76.5365C-24.3738 191.778 70.3655 306.91 178.232 361.351C276.176 410.784 384.766 381.524 462.544 306.824C539.699 232.722 585.011 125.729 529.276 32.4026C482.102 -46.5863 357.808 44.1962 266.919 53.2658Z"
+                fill="none"
+                stroke="#FEA438"
+                stroke-width="12"
+            ></path>
+        </svg>
+        <!-- 
       Accessibility: keep a visually-hidden figcaption 
       so screen-readers know what the image is.
     -->
-    <figcaption class="sr-only">{altTop}</figcaption>
-  </figure>
+        <figcaption class="sr-only">{altTop}</figcaption>
+    </figure>
 
-  <!-- ============================== -->
-  <!--        BOTTOM BLOB             -->
-  <!-- ============================== -->
-  <figure class="!-mt-[30%] w-full">
-    <svg
-      viewBox="0 0 554 374"
-      xmlns="http://www.w3.org/2000/svg"
-      class="block h-auto w-full"
-      overflow="visible"
-    >
-      <defs>
-        <!-- 
+    <!-- ============================== -->
+    <!--        BOTTOM BLOB             -->
+    <!-- ============================== -->
+    <figure class="!-mt-[30%] w-full">
+        <svg viewBox="0 0 554 374" xmlns="http://www.w3.org/2000/svg" class="block h-auto w-full" overflow="visible">
+            <defs>
+                <!-- 
           1) Define a unique clipPath for the bottom blob (second SVG from Figma).
           2) Notice the `<path>` d-attribute is the exact vector you copied.
         -->
-        <clipPath id="blobClipBottom" clipPathUnits="userSpaceOnUse">
-          <path
-            d="M271.129 40.7334C165.249 44.3902 42.2236 -52.9482 9.01639 47.0093C-28.538 160.053 58.531 281.089 162.638 342.414C257.168 398.098 367.427 375.947 449.889 306.451C531.689 237.512 583.849 133.684 534.286 36.938C492.338 -44.9455 362.414 37.5806 271.129 40.7334Z"
-          ></path>
-        </clipPath>
-      </defs>
+                <clipPath id="blobClipBottom" clipPathUnits="userSpaceOnUse">
+                    <path
+                        d="M271.129 40.7334C165.249 44.3902 42.2236 -52.9482 9.01639 47.0093C-28.538 160.053 58.531 281.089 162.638 342.414C257.168 398.098 367.427 375.947 449.889 306.451C531.689 237.512 583.849 133.684 534.286 36.938C492.338 -44.9455 362.414 37.5806 271.129 40.7334Z"
+                    ></path>
+                </clipPath>
+            </defs>
 
-      <!--
+            <!--
         1) Background fill for the bottom blob (use fill="#8F44E1" or whatever color you need).
         2) Again, same path data.
       -->
-      <path
-        d="M271.129 40.7334C165.249 44.3902 42.2236 -52.9482 9.01639 47.0093C-28.538 160.053 58.531 281.089 162.638 342.414C257.168 398.098 367.427 375.947 449.889 306.451C531.689 237.512 583.849 133.684 534.286 36.938C492.338 -44.9455 362.414 37.5806 271.129 40.7334Z"
-        fill="#8F44E1"></path>
+            <path
+                d="M271.129 40.7334C165.249 44.3902 42.2236 -52.9482 9.01639 47.0093C-28.538 160.053 58.531 281.089 162.638 342.414C257.168 398.098 367.427 375.947 449.889 306.451C531.689 237.512 583.849 133.684 534.286 36.938C492.338 -44.9455 362.414 37.5806 271.129 40.7334Z"
+                fill="#8F44E1"
+            ></path>
 
-      <!--
+            <!--
         1) Place the second image inside this <foreignObject>, clipped to the bottom blob.
         2) width/height must match viewBox (554×374).
       -->
-      <foreignObject
-        x="0"
-        y="0"
-        width="554"
-        height="374"
-        clip-path="url(#blobClipBottom)"
-      >
-        <body class="m-0 p-0">
-          <Image
-            src={imgBottom}
-            alt={altBottom}
-            width={1000}
-            class="block h-full w-full object-cover"
-          />
-        </body>
-      </foreignObject>
+            <foreignObject x="0" y="0" width="554" height="374" clip-path="url(#blobClipBottom)">
+                <body class="m-0 p-0">
+                    <Image src={imgBottom} alt={altBottom} width={1000} class="block h-full w-full object-cover" />
+                </body>
+            </foreignObject>
 
-      <!--
+            <!--
         1) Outline stroke for the bottom blob. 
         2) Stroke color is the same as the top (you can choose a different one).
       -->
-      <path
-        d="M271.129 40.7334C165.249 44.3902 42.2236 -52.9482 9.01639 47.0093C-28.538 160.053 58.531 281.089 162.638 342.414C257.168 398.098 367.427 375.947 449.889 306.451C531.689 237.512 583.849 133.684 534.286 36.938C492.338 -44.9455 362.414 37.5806 271.129 40.7334Z"
-        fill="none"
-        stroke="#8F44E1"
-        stroke-width="16"></path>
-    </svg>
-    <figcaption class="sr-only">{altBottom}</figcaption>
-  </figure>
+            <path
+                d="M271.129 40.7334C165.249 44.3902 42.2236 -52.9482 9.01639 47.0093C-28.538 160.053 58.531 281.089 162.638 342.414C257.168 398.098 367.427 375.947 449.889 306.451C531.689 237.512 583.849 133.684 534.286 36.938C492.338 -44.9455 362.414 37.5806 271.129 40.7334Z"
+                fill="none"
+                stroke="#8F44E1"
+                stroke-width="16"
+            ></path>
+        </svg>
+        <figcaption class="sr-only">{altBottom}</figcaption>
+    </figure>
 </div>

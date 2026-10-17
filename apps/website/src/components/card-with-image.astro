@@ -1,46 +1,30 @@
 ---
-import Image from "@/components/image.astro";
-import type { ImageSource } from "@/types/images";
-import type { ClassValue } from "clsx";
-import { cn } from "./react/lib/utils";
+import Image from '@/components/image.astro'
+import type { ImageSource } from '@/types/images'
+import type { ClassValue } from 'clsx'
+import { cn } from './react/lib/utils'
 
 type Props = {
-  image: ImageSource;
-  imageAlt: string;
-  eager?: boolean;
-  className?: ClassValue;
-  imageClassName?: ClassValue;
-};
+    image: ImageSource
+    imageAlt: string
+    eager?: boolean
+    className?: ClassValue
+    imageClassName?: ClassValue
+}
 
-const {
-  image,
-  imageAlt,
-  eager = false,
-  className,
-  imageClassName,
-} = Astro.props;
+const { image, imageAlt, eager = false, className, imageClassName } = Astro.props
 ---
 
-<div
-  class={cn(
-    "flex flex-col rounded-xl shadow-md bg-white overflow-hidden h-full",
-    className,
-  )}
->
-  <div
-    class={cn(
-      "h-52 flex-shrink-0 overflow-hidden rounded-t-xl",
-      imageClassName,
-    )}
-  >
-    <Image
-      loading={eager ? "eager" : "lazy"}
-      src={image}
-      alt={imageAlt}
-      width={1000}
-      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-      class="h-full w-full rounded-t-xl object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
-    />
-  </div>
-  <slot class="h-max" name="content" />
+<div class={cn('flex h-full flex-col overflow-hidden rounded-xl bg-white shadow-md', className)}>
+    <div class={cn('h-52 flex-shrink-0 overflow-hidden rounded-t-xl', imageClassName)}>
+        <Image
+            loading={eager ? 'eager' : 'lazy'}
+            src={image}
+            alt={imageAlt}
+            width={1000}
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            class="h-full w-full rounded-t-xl object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
+        />
+    </div>
+    <slot class="h-max" name="content" />
 </div>

@@ -1,84 +1,67 @@
 ---
-import Container from "@/components/container.astro";
-import HalloweenSpookfestSection from "@/components/halloween-spookfest-section.astro";
-import PageIntro from "@/components/page-intro.astro";
-import {
-  HALLOWEEN_SPOOKFEST,
-  getHalloweenSpookfestSessions,
-} from "@/data/halloween-spookfest";
-import { halloweenSpookfestSession1 as hero } from "@/data/website-images";
-import Layout from "@/layout/Layout.astro";
-import { createBreadcrumbSchema } from "@/utils/seo";
-import { capitalise } from "@fizz-kidz/core";
+import Container from '@/components/container.astro'
+import HalloweenSpookfestSection from '@/components/halloween-spookfest-section.astro'
+import PageIntro from '@/components/page-intro.astro'
+import { HALLOWEEN_SPOOKFEST, getHalloweenSpookfestSessions } from '@/data/halloween-spookfest'
+import { halloweenSpookfestSession1 as hero } from '@/data/website-images'
+import Layout from '@/layout/Layout.astro'
+import { createBreadcrumbSchema } from '@/utils/seo'
+import { capitalise } from '@fizz-kidz/core'
 
 const description =
-  "Halloween Spookfest at Fizz Kidz on Friday 30th October: spooky slime, bath bombs, soap and squishies for kids aged 4 to 12. Just $20 per child.";
+    'Halloween Spookfest at Fizz Kidz on Friday 30th October: spooky slime, bath bombs, soap and squishies for kids aged 4 to 12. Just $20 per child.'
 
 const schema = [
-  createBreadcrumbSchema(HALLOWEEN_SPOOKFEST.path, [
-    { name: "Home", path: "/" },
-    { name: "Halloween Spookfest", path: HALLOWEEN_SPOOKFEST.path },
-  ]),
-];
+    createBreadcrumbSchema(HALLOWEEN_SPOOKFEST.path, [
+        { name: 'Home', path: '/' },
+        { name: 'Halloween Spookfest', path: HALLOWEEN_SPOOKFEST.path },
+    ]),
+]
 
 const studios = HALLOWEEN_SPOOKFEST.studios.map((studio) => ({
-  studio,
-  sessions: getHalloweenSpookfestSessions(studio),
-}));
+    studio,
+    sessions: getHalloweenSpookfestSessions(studio),
+}))
 ---
 
-<Layout
-  title="Halloween Spookfest for Kids | Fizz Kidz"
-  description={description}
-  schema={schema}
->
-  <main>
-    <div class="m-auto block max-w-[1380px] px-5 pt-4">
-      <PageIntro
-        type="image"
-        image={hero}
-        imageAlt="A cauldron erupting with green foam and plastic spiders"
-        subtitle="Spooky creations for kids aged 4 to 12"
-        color="purple"
-        actionButtonPath={HALLOWEEN_SPOOKFEST.bookingUrl}
-        actionButtonText="Book now"
-      >
-        <span slot="title">Halloween Spookfest</span>
-        <span slot="content"
-          >Join us on {HALLOWEEN_SPOOKFEST.date} for a frightfully fun hour of
-          spooky creations. Just {HALLOWEEN_SPOOKFEST.price}!</span
-        >
-      </PageIntro>
-    </div>
-    <HalloweenSpookfestSection />
-    <Container>
-      <section class="my-16 sm:my-24">
-        <h2 class="text-center font-lilita text-4xl sm:text-5xl">
-          Which studios are running Spookfest?
-        </h2>
-        <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {
-            studios.map(({ studio, sessions }) => (
-              <a
-                href={`/locations/${studio}/#halloween`}
-                class="rounded-2xl border-2 border-[#FF7518] p-6 transition-colors hover:bg-[#FFF1E6]"
-              >
-                <p class="font-lilita text-2xl">{capitalise(studio)}</p>
-                <ul class="mt-2 font-gotham">
-                  {sessions.map((session) => (
-                    <li>
-                      <span class="font-semibold">{session.title}:</span> {session.time}
-                    </li>
-                  ))}
-                </ul>
-              </a>
-            ))
-          }
+<Layout title="Halloween Spookfest for Kids | Fizz Kidz" description={description} schema={schema}>
+    <main>
+        <div class="m-auto block max-w-[1380px] px-5 pt-4">
+            <PageIntro
+                type="image"
+                image={hero}
+                imageAlt="A cauldron erupting with green foam and plastic spiders"
+                subtitle="Spooky creations for kids aged 4 to 12"
+                color="purple"
+                actionButtonPath={HALLOWEEN_SPOOKFEST.bookingUrl}
+                actionButtonText="Book now"
+            >
+                <span slot="title">Halloween Spookfest</span>
+                <span slot="content"
+                    >Join us on {HALLOWEEN_SPOOKFEST.date} for a frightfully fun hour of spooky creations. Just
+                    {HALLOWEEN_SPOOKFEST.price}!</span
+                >
+            </PageIntro>
         </div>
-        <p class="mt-6 text-center font-gotham">
-          Spookfest is not running at our Kingsville studio.
-        </p>
-      </section>
-    </Container>
-  </main>
+        <HalloweenSpookfestSection />
+        <Container>
+            <section class="my-16 sm:my-24">
+                <h2 class="text-center font-lilita text-4xl sm:text-5xl">Which studios are running Spookfest?</h2>
+                <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {studios.map(({ studio, sessions }) => <a
+                        href={`/locations/${studio}/#halloween`}
+                        class="rounded-2xl border-2 border-[#FF7518] p-6 transition-colors hover:bg-[#FFF1E6]"
+                    >
+                        <p class="font-lilita text-2xl">{capitalise(studio)}</p>
+                        <ul class="mt-2 font-gotham">
+                            {sessions.map((session) => <li>
+                                <span class="font-semibold">{session.title}:</span> {session.time}
+                            </li>)}
+                        </ul>
+                    </a>)}
+                </div>
+                <p class="mt-6 text-center font-gotham">Spookfest is not running at our Kingsville studio.</p>
+            </section>
+        </Container>
+    </main>
 </Layout>

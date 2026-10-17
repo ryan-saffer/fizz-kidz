@@ -1,59 +1,44 @@
 ---
-import Image from "@/components/image.astro";
-import type { ImageSource } from "@/types/images";
+import Image from '@/components/image.astro'
+import type { ImageSource } from '@/types/images'
 
 type Props = {
-  img: ImageSource;
-  alt: string;
-  objectPosition?: string;
-};
+    img: ImageSource
+    alt: string
+    objectPosition?: string
+}
 
-const { img, alt, objectPosition = "50% 38%" } = Astro.props;
+const { img, alt, objectPosition = '50% 38%' } = Astro.props
 
 const path =
-  "M284.758 21.9648C181.453 18.8461 53.845 -44.383 13.6791 59.0896C-31.7451 176.108 42.5966 318.617 139.069 390.31C226.666 455.408 345.423 437.332 431.117 369.309C516.125 301.831 566.158 188.63 525.539 83.0925C491.161 -6.23198 373.823 24.6536 284.758 21.9648Z";
-const backgroundTransform = "translate(-8 -14)";
+    'M284.758 21.9648C181.453 18.8461 53.845 -44.383 13.6791 59.0896C-31.7451 176.108 42.5966 318.617 139.069 390.31C226.666 455.408 345.423 437.332 431.117 369.309C516.125 301.831 566.158 188.63 525.539 83.0925C491.161 -6.23198 373.823 24.6536 284.758 21.9648Z'
+const backgroundTransform = 'translate(-8 -14)'
 ---
 
 <figure class="w-full overflow-visible">
-  <svg
-    viewBox="0 0 540 431"
-    xmlns="http://www.w3.org/2000/svg"
-    class="block h-auto w-full overflow-visible"
-  >
-    <defs>
-      <clipPath id="preschoolProgramKidsClip" clipPathUnits="userSpaceOnUse">
-        <path d={path}></path>
-      </clipPath>
-    </defs>
+    <svg viewBox="0 0 540 431" xmlns="http://www.w3.org/2000/svg" class="block h-auto w-full overflow-visible">
+        <defs>
+            <clipPath id="preschoolProgramKidsClip" clipPathUnits="userSpaceOnUse">
+                <path d={path}></path>
+            </clipPath>
+        </defs>
 
-    <path d={path} transform={backgroundTransform} fill="#8F44E1"></path>
+        <path d={path} transform={backgroundTransform} fill="#8F44E1"></path>
 
-    <foreignObject
-      x="0"
-      y="0"
-      width="540"
-      height="431"
-      clip-path="url(#preschoolProgramKidsClip)"
-    >
-      <body class="m-0 h-full w-full">
-        <Image
-          src={img}
-          alt={alt}
-          width={1000}
-          loading="eager"
-          class="block h-full w-full object-cover"
-          style={{ objectPosition }}
-        />
-      </body>
-    </foreignObject>
+        <foreignObject x="0" y="0" width="540" height="431" clip-path="url(#preschoolProgramKidsClip)">
+            <body class="m-0 h-full w-full">
+                <Image
+                    src={img}
+                    alt={alt}
+                    width={1000}
+                    loading="eager"
+                    class="block h-full w-full object-cover"
+                    style={{ objectPosition }}
+                />
+            </body>
+        </foreignObject>
 
-    <path
-      d={path}
-      fill="none"
-      stroke="white"
-      stroke-width="8"
-      stroke-linejoin="round"></path>
-  </svg>
-  <figcaption class="sr-only">{alt}</figcaption>
+        <path d={path} fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"></path>
+    </svg>
+    <figcaption class="sr-only">{alt}</figcaption>
 </figure>

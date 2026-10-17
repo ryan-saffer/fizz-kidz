@@ -1,19 +1,18 @@
 ---
-import Reviews from "./reviews.astro";
-import { getGoogleReviews } from "@/utils/google-reviews-api-client";
-import { partyReviewFallbacks } from "@/utils/review-fallbacks";
-import type { Studio } from "@/utils/studios";
+import Reviews from './reviews.astro'
+import { getGoogleReviews } from '@/utils/google-reviews-api-client'
+import { partyReviewFallbacks } from '@/utils/review-fallbacks'
+import type { Studio } from '@/utils/studios'
 
 type Props = {
-  title: string;
-  location?: Studio;
-  limit?: number;
-};
+    title: string
+    location?: Studio
+    limit?: number
+}
 
-const { title, location, limit = 12 } = Astro.props;
-const googleReviews = await getGoogleReviews({ limit, location });
-const reviews =
-  googleReviews.length >= 3 ? googleReviews : partyReviewFallbacks;
+const { title, location, limit = 12 } = Astro.props
+const googleReviews = await getGoogleReviews({ limit, location })
+const reviews = googleReviews.length >= 3 ? googleReviews : partyReviewFallbacks
 ---
 
 <Reviews title={title} reviews={reviews} />

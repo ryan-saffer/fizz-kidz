@@ -1,35 +1,31 @@
 ---
-import Image from "@/components/image.astro";
-import { websitePagesPartiesPartyPacksPng as partyPacks } from "@/data/website-images";
-import StarBulletPoints from "./star-bullet-points.astro";
+import Image from '@/components/image.astro'
+import { websitePagesPartiesPartyPacksPng as partyPacks } from '@/data/website-images'
+import StarBulletPoints from './star-bullet-points.astro'
 ---
 
 <section class="my-24 flex flex-col gap-16 lg:flex-row lg:gap-8">
-  <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
-    <p class="text-center font-lilita text-5xl lg:text-start">
-      Fizz Kidz Party Packs
-    </p>
-    <p class="text-center font-lilita text-3xl text-[#41D5F3] lg:text-start">
-      We have your party gift packs ready!
-    </p>
-    <p class="text-center font-gotham text-lg font-medium lg:text-start">
-      Fizz Kidz Activity Kits are super unique and packed with all the materials
-      kids need to keep the creation making going after the party! Your guests
-      will absolutely love you for this super awesome extra treat. Activity
-      packs are $15 each and you can order them a week before your child's
-      party.
-    </p>
-    <div class="mt-4 lg:ml-12">
-      <p class="mb-6 font-lilita text-3xl">Choose from:</p>
-      <StarBulletPoints
-        content={[
-          "Bubbling Volcano Activity Party Pack",
-          "Fluffy Slime Activity Party Pack",
-          "Dinasour Bath Bomb Activity Party Pack",
-          "Sparkling Lip-Balm Activity Party Pack",
-        ]}
-      />
+    <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
+        <p class="text-center font-lilita text-5xl lg:text-start">Fizz Kidz Party Packs</p>
+        <p class="text-center font-lilita text-3xl text-[#41D5F3] lg:text-start">
+            We have your party gift packs ready!
+        </p>
+        <p class="text-center font-gotham text-lg font-medium lg:text-start">
+            Fizz Kidz Activity Kits are super unique and packed with all the materials kids need to keep the creation
+            making going after the party! Your guests will absolutely love you for this super awesome extra treat.
+            Activity packs are $15 each and you can order them a week before your child's party.
+        </p>
+        <div class="mt-4 lg:ml-12">
+            <p class="mb-6 font-lilita text-3xl">Choose from:</p>
+            <StarBulletPoints
+                content={[
+                    'Bubbling Volcano Activity Party Pack',
+                    'Fluffy Slime Activity Party Pack',
+                    'Dinasour Bath Bomb Activity Party Pack',
+                    'Sparkling Lip-Balm Activity Party Pack',
+                ]}
+            />
+        </div>
     </div>
-  </div>
-  <Image src={partyPacks} alt="Fizz Kids party packs" class="w-full lg:w-1/2" />
+    <Image src={partyPacks} alt="Fizz Kids party packs" class="w-full lg:w-1/2" />
 </section>

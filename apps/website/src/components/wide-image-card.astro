@@ -1,35 +1,35 @@
 ---
-import Image from "@/components/image.astro";
-import type { ImageSource } from "@/types/images";
-import { cn } from "./react/lib/utils";
+import Image from '@/components/image.astro'
+import type { ImageSource } from '@/types/images'
+import { cn } from './react/lib/utils'
 
 type Props = {
-  image: ImageSource;
-  imageAlt: string;
-  imageSide: "left" | "right";
-};
+    image: ImageSource
+    imageAlt: string
+    imageSide: 'left' | 'right'
+}
 
-const { image, imageAlt, imageSide } = Astro.props;
+const { image, imageAlt, imageSide } = Astro.props
 ---
 
 <div
-  class={cn("shadow-around min-h-[450px] flex  rounded-2xl", {
-    "flex-row": imageSide === "left",
-    "flex-row-reverse": imageSide === "right",
-  })}
+    class={cn('flex min-h-[450px] rounded-2xl shadow-around', {
+        'flex-row': imageSide === 'left',
+        'flex-row-reverse': imageSide === 'right',
+    })}
 >
-  <div class="relative hidden w-3/5 md:block">
-    <Image
-      class={cn("absolute inset-0 h-full min-h-[450px] w-full object-cover", {
-        "rounded-l-2xl": imageSide === "left",
-        "rounded-r-2xl": imageSide === "right",
-      })}
-      src={image}
-      alt={imageAlt}
-      sizes="(min-width: 1380px) 828px, (min-width: 768px) 60vw, 100vw"
-    />
-  </div>
-  <div class="p-8 md:w-2/5">
-    <slot name="content" />
-  </div>
+    <div class="relative hidden w-3/5 md:block">
+        <Image
+            class={cn('absolute inset-0 h-full min-h-[450px] w-full object-cover', {
+                'rounded-l-2xl': imageSide === 'left',
+                'rounded-r-2xl': imageSide === 'right',
+            })}
+            src={image}
+            alt={imageAlt}
+            sizes="(min-width: 1380px) 828px, (min-width: 768px) 60vw, 100vw"
+        />
+    </div>
+    <div class="p-8 md:w-2/5">
+        <slot name="content" />
+    </div>
 </div>
