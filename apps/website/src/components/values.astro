@@ -1,32 +1,24 @@
 ---
-import value1 from "@/assets/images/pages/home/value-1.svg";
-import value2 from "@/assets/images/pages/home/value-2.svg";
-import value3 from "@/assets/images/pages/home/value-3.svg";
-import value4 from "@/assets/images/pages/home/value-4.svg";
-import Image from "@/components/image.astro";
+import value1 from '@/assets/images/pages/home/value-1.svg'
+import value2 from '@/assets/images/pages/home/value-2.svg'
+import value3 from '@/assets/images/pages/home/value-3.svg'
+import value4 from '@/assets/images/pages/home/value-4.svg'
+import Image from '@/components/image.astro'
 
 const values = [
-  { icon: value1, text: "We foster wonderment and excitability" },
-  { icon: value2, text: "We are passionate about kids' happiness and joy" },
-  { icon: value3, text: "We believe in the power of hands-on learning" },
-  { icon: value4, text: "We go above and beyond" },
-] as const;
+    { icon: value1, text: 'We foster wonderment and excitability' },
+    { icon: value2, text: "We are passionate about kids' happiness and joy" },
+    { icon: value3, text: 'We believe in the power of hands-on learning' },
+    { icon: value4, text: 'We go above and beyond' },
+] as const
 ---
 
 <section class="m-auto my-12 block max-w-[1380px] px-5 pt-8 md:my-24">
-  <p class="mb-16 text-center font-lilita text-5xl">Our Values</p>
-  <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
-    {
-      values.map((value) => (
-        <div class="flex flex-col items-center gap-6">
-          <Image
-            class="h-16 w-16 min-[450px]:h-32 min-[450px]:w-32"
-            src={value.icon}
-            alt="icon"
-          />
-          <p class="max-w-60 text-center font-gotham">{value.text}</p>
-        </div>
-      ))
-    }
-  </div>
+    <p class="mb-16 text-center font-lilita text-5xl">Our Values</p>
+    <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+        {values.map((value) => <div class="flex flex-col items-center gap-6">
+            <Image class="h-16 w-16 min-[450px]:h-32 min-[450px]:w-32" src={value.icon} alt="icon" />
+            <p class="max-w-60 text-center font-gotham">{value.text}</p>
+        </div>)}
+    </div>
 </section>

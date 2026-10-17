@@ -16,7 +16,7 @@ The roster must reflect the service delivered and whether the work was hands-on 
 - Choose a _Facilitator_ shift whenever the person is actively running the service.
 - Use the service-specific _[Supervisor]_ shift for all prep, packing, shopping, calls, or other support tasks.
 - Use the `[On Call]` and `[Sunday]` variants only when they match the shift.
-  :::
+:::
 
 See [Payroll](/people/payroll) for CSV generation, exception checks, and the manual UpSheets-to-Xero steps.
 

@@ -1,259 +1,213 @@
 ---
 // import "@/styles/globals.css";
-import { sanityClient } from "@/utils/sanity-api-client";
-import { HolidayProgramSchedule } from "@fizz-kidz/ui";
-import Layout from "@/layout/Layout.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import PageIntro from "@/components/page-intro.astro";
-import { websitePagesHolidayProgramsHolidayProgramsPng as holidayPrograms } from "@/data/website-images";
-import Step from "@/components/step.astro";
-import forwardArrow from "@/assets/images/pages/parties/forward-arrow.png";
-import StarBulletPoints from "@/components/star-bullet-points.astro";
-import Image from "@/components/image.astro";
-import FaqAccordion from "@/components/react/faq-accordion";
-import { websitePagesPartiesPackagesSlimePng as faq } from "@/data/website-images";
-import { websitePagesPartiesPackagesSafariPng as why } from "@/data/website-images";
-import { createBreadcrumbSchema, createServiceSchema } from "@/utils/seo";
+import { sanityClient } from '@/utils/sanity-api-client'
+import { HolidayProgramSchedule } from '@fizz-kidz/ui'
+import Layout from '@/layout/Layout.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import PageIntro from '@/components/page-intro.astro'
+import { websitePagesHolidayProgramsHolidayProgramsPng as holidayPrograms } from '@/data/website-images'
+import Step from '@/components/step.astro'
+import forwardArrow from '@/assets/images/pages/parties/forward-arrow.png'
+import StarBulletPoints from '@/components/star-bullet-points.astro'
+import Image from '@/components/image.astro'
+import FaqAccordion from '@/components/react/faq-accordion'
+import { websitePagesPartiesPackagesSlimePng as faq } from '@/data/website-images'
+import { websitePagesPartiesPackagesSafariPng as why } from '@/data/website-images'
+import { createBreadcrumbSchema, createServiceSchema } from '@/utils/seo'
 
 const description =
-  "Creative school holiday programs for kids aged 4 to 12, with guided art, science, slime and craft activities at seven Fizz Kidz studios in Melbourne and Geelong.";
+    'Creative school holiday programs for kids aged 4 to 12, with guided art, science, slime and craft activities at seven Fizz Kidz studios in Melbourne and Geelong.'
 
 const schema = [
-  createServiceSchema({
-    name: "Fizz Kidz School Holiday Programs",
-    description,
-    path: "/holiday-programs/",
-    serviceType: "School holiday program",
-  }),
-  createBreadcrumbSchema("/holiday-programs/", [
-    { name: "Home", path: "/" },
-    { name: "Holiday Programs", path: "/holiday-programs/" },
-  ]),
-];
+    createServiceSchema({
+        name: 'Fizz Kidz School Holiday Programs',
+        description,
+        path: '/holiday-programs/',
+        serviceType: 'School holiday program',
+    }),
+    createBreadcrumbSchema('/holiday-programs/', [
+        { name: 'Home', path: '/' },
+        { name: 'Holiday Programs', path: '/holiday-programs/' },
+    ]),
+]
 
-const { default: greenDrop } = await import(
-  `@/assets/images/pages/parties/drop-green.svg?raw`
-);
-const { default: blueDrop } = await import(
-  `@/assets/images/pages/parties/drop-blue.svg?raw`
-);
-const { default: purpleDrop } = await import(
-  `@/assets/images/pages/parties/drop-purple.svg?raw`
-);
+const { default: greenDrop } = await import(`@/assets/images/pages/parties/drop-green.svg?raw`)
+const { default: blueDrop } = await import(`@/assets/images/pages/parties/drop-blue.svg?raw`)
+const { default: purpleDrop } = await import(`@/assets/images/pages/parties/drop-purple.svg?raw`)
 
-const programWeeks = await sanityClient.getHolidayProgramSchedule();
+const programWeeks = await sanityClient.getHolidayProgramSchedule()
 ---
 
-<Layout
-  title="School Holiday Programs in Melbourne & Geelong | Fizz Kidz"
-  description={description}
-  schema={schema}
->
-  <main class="m-auto block max-w-[1380px] px-5 pt-4">
-    <BreadcrumbWrapper
-      client:idle
-      items={[
-        {
-          type: "dropdown",
-          title: "Holiday Programs",
-          items: [
-            {
-              type: "link",
-              title: "Birthday Parties",
-              path: "/birthday-parties/",
-              isNew: false,
-            },
-            {
-              type: "link",
-              title: "Holiday Programs",
-              path: "/holiday-programs/",
-              isNew: false,
-            },
-            {
-              type: "link",
-              title: "Messy Play Lab",
-              path: "/messy-play-lab/",
-              isNew: false,
-            },
-          ],
-        },
-      ]}
-    />
-    <PageIntro
-      subtitle="Fizzing, Fantastic, Fabulous, Fun!"
-      color="purple"
-      actionButtonText="Book now"
-      actionButtonPath="https://bookings.fizzkidz.com.au/programs?id=11036399"
-      type="image"
-      image={holidayPrograms}
-      imageAlt="Holiday Programs"
-    >
-      <span slot="title">Fizz Kidz School Holiday Programs</span>
-      <span slot="content"
-        >Join us for a creative, hands-on holiday program and make awesome
-        take-home Fizz Kidz creations!</span
-      >
-    </PageIntro>
-    <section class="mt-12 md:mt-40">
-      <p class="text-center font-lilita text-5xl text-[#9044E2]">
-        Upcoming School Holiday Programs
-      </p>
-      <p class="mt-6 text-center font-gotham text-xl font-semibold">
-        Join us these school holidays for fizzing, fantastic fun!
-      </p>
-      <p class="mt-4 text-center font-gotham text-xl font-semibold">
-        Balwyn, Cheltenham, Essendon, Geelong, Kingsville, Malvern and Werribee
-        studios
-      </p>
-      <div
-        class="mt-12 flex flex-col items-center justify-center gap-4 min-[1290px]:flex-row min-[1290px]:items-stretch"
-      >
-        <Step
-          title="Choose your favourite program to attend"
-          color="#4FE16D"
-          number="1"
-          background={greenDrop}
-          backgroundPosition="-bottom-24 -left-12"
-        >
-          <div slot="content">
-            <StarBulletPoints
-              content={[
-                "Make three fabulous Fizz Kidz creations",
-                "Play games, win prizes and have fun!",
-                "Morning and afternoon snack included",
-              ]}
-              className="pl-4"
-            />
-          </div>
-        </Step>
-        <Image
-          src={forwardArrow}
-          alt="forward arrow"
-          class="h-16 w-fit self-center"
-        />
-        <Step
-          title="Register your child"
-          color="#42D4F3"
-          number="2"
-          background={blueDrop}
-          backgroundPosition="-bottom-24 -left-8"
-        >
-          <div slot="content">
-            <StarBulletPoints
-              content={[
-                "Each program is $54 per child.",
-                "Fizz Kidz Holiday Programs are for children 4 - 12 years old, and all children must be completely toilet trained 😊.",
-                "Stay for the day by booking the morning and afternoon program and we'll supervise the break.",
-                "Max 25 children per program",
-              ]}
-              className="pl-4"
-            />
-          </div>
-        </Step>
-        <Image
-          src={forwardArrow}
-          alt="forward arrow"
-          class="h-16 w-fit self-center"
-        />
-        <Step
-          title="We will see you on the day!"
-          color="#9044E2"
-          number="3"
-          background={purpleDrop}
-          backgroundPosition="right-0 -bottom-24"
-        >
-          <div slot="content">
-            <StarBulletPoints
-              content={[
-                "If your child is staying for the day, please pack lunch. Otherwise you don't need anything!",
-                "If staying for the full day, children will be supervised inbetween sessions, with down time activities provided.",
-                "We can't wait to have fun with you!",
-              ]}
-            />
-          </div>
-        </Step>
-      </div>
-    </section>
-    <HolidayProgramSchedule
-      weeks={programWeeks}
-      bookingUrl="https://bookings.fizzkidz.com.au/programs?id=11036399"
-    />
-    <section class="my-12 md:my-24">
-      <h2 class="mb-4 text-center font-lilita text-4xl md:text-5xl">
-        Frequently Asked Questions
-      </h2>
-      <div class="flex w-full flex-col items-center gap-8 md:flex-row">
-        <Image
-          class="hidden w-2/5 md:block"
-          src={faq}
-          alt="Three girls smiling"
-        />
-        <div class="w-full md:w-3/5">
-          <FaqAccordion
-            client:visible
+<Layout title="School Holiday Programs in Melbourne & Geelong | Fizz Kidz" description={description} schema={schema}>
+    <main class="m-auto block max-w-[1380px] px-5 pt-4">
+        <BreadcrumbWrapper
+            client:idle
             items={[
-              {
-                question:
-                  "My kids are staying for the day. What happens in between programs?",
-                answer:
-                  "During the hour break between programs, children are fully supervised. They will be able to eat their (nut-free) lunch (bring your own) and participate in down-time activities. Our holiday programs are full of energy so the time between programs is filled with calm activities such as drawing, puzzles and crafts.",
-              },
-              {
-                question: "What's the best age group for Fizz Kidz programs?",
-                answer:
-                  "Fizz Kidz holiday programs are best for kids 4 - 12 years old. Children that are not toilet trained are not able to attend a Fizz Kidz holiday program.",
-              },
-              {
-                question: "What food is served?",
-                answer:
-                  "Fizz Kidz provides a morning and afternoon snack for all children attending the program. This snack includes rice crackers, fruit, corn chips and water. If your child has allergies or doesn't like the food provided, feel free to bring your own NUT free snacks.",
-              },
-              {
-                question:
-                  "My child has allergies, what's the best way to tell you?",
-                answer:
-                  "When booking in your child, the Fizz Kidz holiday program form will ask you to list any allergies. Please also tell your Fizz Kidz facilitators on the day.",
-              },
-              {
-                question: "My child is Anaphylactic, what do I do?",
-                answer:
-                  "Children that have an anaphylactic allergy, must bring an epipen. Children that don't have an epipen, won't be able to stay.",
-              },
-              {
-                question: "How much FUN are Fizz Kidz programs?",
-                answer:
-                  "Fizz Kidz holiday programs are BUZZING with energy! You will walk in the doors to find an abundance of crafts on the table, facilitators with huge smiles and music playing! We can't wait to have fun with you!",
-              },
+                {
+                    type: 'dropdown',
+                    title: 'Holiday Programs',
+                    items: [
+                        {
+                            type: 'link',
+                            title: 'Birthday Parties',
+                            path: '/birthday-parties/',
+                            isNew: false,
+                        },
+                        {
+                            type: 'link',
+                            title: 'Holiday Programs',
+                            path: '/holiday-programs/',
+                            isNew: false,
+                        },
+                        {
+                            type: 'link',
+                            title: 'Messy Play Lab',
+                            path: '/messy-play-lab/',
+                            isNew: false,
+                        },
+                    ],
+                },
             ]}
-          />
-        </div>
-      </div>
-    </section>
-    <section class="mb-24 flex flex-col-reverse items-center gap-8 md:flex-row">
-      <div class="flex w-full flex-col gap-4 md:w-3/5">
-        <p class="mb-4 font-lilita text-5xl text-[#9044E2]">
-          Why choose a Fizz Kidz holiday program?
-        </p>
-        <p>
-          Fizz Kidz holiday programs in Melbourne and Geelong focus on hands-on
-          fun! Our
-          holiday programs aim to be relevant, creative and provide an
-          opportunity for all kids to explore and create fabulous creations and
-          products.
-        </p>
-        <p>
-          Fizz Kidz holiday programs include dancing games and competitions
-          which get the children out of there seats and dancing around the room!
-          Children are encouraged to also make new friends and get to know
-          everyone in their group, often resulting in them not wanting to leave
-          when getting picked up!
-        </p>
-      </div>
-      <Image
-        class="object-fit h-fit w-full md:w-2/5"
-        src={why}
-        alt="A frog in a bath bomb"
-      />
-    </section>
-  </main>
+        />
+        <PageIntro
+            subtitle="Fizzing, Fantastic, Fabulous, Fun!"
+            color="purple"
+            actionButtonText="Book now"
+            actionButtonPath="https://bookings.fizzkidz.com.au/programs?id=11036399"
+            type="image"
+            image={holidayPrograms}
+            imageAlt="Holiday Programs"
+        >
+            <span slot="title">Fizz Kidz School Holiday Programs</span>
+            <span slot="content"
+                >Join us for a creative, hands-on holiday program and make awesome take-home Fizz Kidz creations!</span
+            >
+        </PageIntro>
+        <section class="mt-12 md:mt-40">
+            <p class="text-center font-lilita text-5xl text-[#9044E2]">Upcoming School Holiday Programs</p>
+            <p class="mt-6 text-center font-gotham text-xl font-semibold">
+                Join us these school holidays for fizzing, fantastic fun!
+            </p>
+            <p class="mt-4 text-center font-gotham text-xl font-semibold">
+                Balwyn, Cheltenham, Essendon, Geelong, Kingsville, Malvern and Werribee studios
+            </p>
+            <div
+                class="mt-12 flex flex-col items-center justify-center gap-4 min-[1290px]:flex-row min-[1290px]:items-stretch"
+            >
+                <Step
+                    title="Choose your favourite program to attend"
+                    color="#4FE16D"
+                    number="1"
+                    background={greenDrop}
+                    backgroundPosition="-bottom-24 -left-12"
+                >
+                    <div slot="content">
+                        <StarBulletPoints
+                            content={[
+                                'Make three fabulous Fizz Kidz creations',
+                                'Play games, win prizes and have fun!',
+                                'Morning and afternoon snack included',
+                            ]}
+                            className="pl-4"
+                        />
+                    </div>
+                </Step>
+                <Image src={forwardArrow} alt="forward arrow" class="h-16 w-fit self-center" />
+                <Step
+                    title="Register your child"
+                    color="#42D4F3"
+                    number="2"
+                    background={blueDrop}
+                    backgroundPosition="-bottom-24 -left-8"
+                >
+                    <div slot="content">
+                        <StarBulletPoints
+                            content={[
+                                'Each program is $54 per child.',
+                                'Fizz Kidz Holiday Programs are for children 4 - 12 years old, and all children must be completely toilet trained 😊.',
+                                "Stay for the day by booking the morning and afternoon program and we'll supervise the break.",
+                                'Max 25 children per program',
+                            ]}
+                            className="pl-4"
+                        />
+                    </div>
+                </Step>
+                <Image src={forwardArrow} alt="forward arrow" class="h-16 w-fit self-center" />
+                <Step
+                    title="We will see you on the day!"
+                    color="#9044E2"
+                    number="3"
+                    background={purpleDrop}
+                    backgroundPosition="right-0 -bottom-24"
+                >
+                    <div slot="content">
+                        <StarBulletPoints
+                            content={[
+                                "If your child is staying for the day, please pack lunch. Otherwise you don't need anything!",
+                                'If staying for the full day, children will be supervised inbetween sessions, with down time activities provided.',
+                                "We can't wait to have fun with you!",
+                            ]}
+                        />
+                    </div>
+                </Step>
+            </div>
+        </section>
+        <HolidayProgramSchedule
+            weeks={programWeeks}
+            bookingUrl="https://bookings.fizzkidz.com.au/programs?id=11036399"
+        />
+        <section class="my-12 md:my-24">
+            <h2 class="mb-4 text-center font-lilita text-4xl md:text-5xl">Frequently Asked Questions</h2>
+            <div class="flex w-full flex-col items-center gap-8 md:flex-row">
+                <Image class="hidden w-2/5 md:block" src={faq} alt="Three girls smiling" />
+                <div class="w-full md:w-3/5">
+                    <FaqAccordion
+                        client:visible
+                        items={[
+                            {
+                                question: 'My kids are staying for the day. What happens in between programs?',
+                                answer: 'During the hour break between programs, children are fully supervised. They will be able to eat their (nut-free) lunch (bring your own) and participate in down-time activities. Our holiday programs are full of energy so the time between programs is filled with calm activities such as drawing, puzzles and crafts.',
+                            },
+                            {
+                                question: "What's the best age group for Fizz Kidz programs?",
+                                answer: 'Fizz Kidz holiday programs are best for kids 4 - 12 years old. Children that are not toilet trained are not able to attend a Fizz Kidz holiday program.',
+                            },
+                            {
+                                question: 'What food is served?',
+                                answer: "Fizz Kidz provides a morning and afternoon snack for all children attending the program. This snack includes rice crackers, fruit, corn chips and water. If your child has allergies or doesn't like the food provided, feel free to bring your own NUT free snacks.",
+                            },
+                            {
+                                question: "My child has allergies, what's the best way to tell you?",
+                                answer: 'When booking in your child, the Fizz Kidz holiday program form will ask you to list any allergies. Please also tell your Fizz Kidz facilitators on the day.',
+                            },
+                            {
+                                question: 'My child is Anaphylactic, what do I do?',
+                                answer: "Children that have an anaphylactic allergy, must bring an epipen. Children that don't have an epipen, won't be able to stay.",
+                            },
+                            {
+                                question: 'How much FUN are Fizz Kidz programs?',
+                                answer: "Fizz Kidz holiday programs are BUZZING with energy! You will walk in the doors to find an abundance of crafts on the table, facilitators with huge smiles and music playing! We can't wait to have fun with you!",
+                            },
+                        ]}
+                    />
+                </div>
+            </div>
+        </section>
+        <section class="mb-24 flex flex-col-reverse items-center gap-8 md:flex-row">
+            <div class="flex w-full flex-col gap-4 md:w-3/5">
+                <p class="mb-4 font-lilita text-5xl text-[#9044E2]">Why choose a Fizz Kidz holiday program?</p>
+                <p>
+                    Fizz Kidz holiday programs in Melbourne and Geelong focus on hands-on fun! Our holiday programs aim
+                    to be relevant, creative and provide an opportunity for all kids to explore and create fabulous
+                    creations and products.
+                </p>
+                <p>
+                    Fizz Kidz holiday programs include dancing games and competitions which get the children out of
+                    there seats and dancing around the room! Children are encouraged to also make new friends and get to
+                    know everyone in their group, often resulting in them not wanting to leave when getting picked up!
+                </p>
+            </div>
+            <Image class="object-fit h-fit w-full md:w-2/5" src={why} alt="A frog in a bath bomb" />
+        </section>
+    </main>
 </Layout>

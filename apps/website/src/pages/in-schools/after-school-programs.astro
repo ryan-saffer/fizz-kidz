@@ -1,143 +1,138 @@
 ---
-import PageIntro from "@/components/page-intro.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Layout from "@/layout/Layout.astro";
-import { websitePagesInSchoolsAfterSchoolProgramsHeroJpg as hero } from "@/data/website-images";
-import ScienceCurriculum from "@/components/science-curriculum.astro";
-import PrimaryButton from "@/components/primary-button.astro";
-import WhyChooseScienceProgram from "@/components/why-choose-science-program.astro";
-import SchoolLogos from "@/components/school-logos.astro";
-import Reviews from "@/components/reviews.astro";
-import Values from "@/components/values.astro";
+import PageIntro from '@/components/page-intro.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import Layout from '@/layout/Layout.astro'
+import { websitePagesInSchoolsAfterSchoolProgramsHeroJpg as hero } from '@/data/website-images'
+import ScienceCurriculum from '@/components/science-curriculum.astro'
+import PrimaryButton from '@/components/primary-button.astro'
+import WhyChooseScienceProgram from '@/components/why-choose-science-program.astro'
+import SchoolLogos from '@/components/school-logos.astro'
+import Reviews from '@/components/reviews.astro'
+import Values from '@/components/values.astro'
 ---
 
 <Layout
-  title="Science & Art After School Programs For Kids in Melbourne"
-  description="We engage your children in the fascinating nature of everyday science, and we do it by exploring hands-on science experiments!"
+    title="Science & Art After School Programs For Kids in Melbourne"
+    description="We engage your children in the fascinating nature of everyday science, and we do it by exploring hands-on science experiments!"
 >
-  <main class="m-auto block max-w-[1380px] px-5 pt-4">
-    <BreadcrumbWrapper
-      client:idle
-      items={[
-        { type: "not-link", title: "In Schools" },
-        {
-          type: "dropdown",
-          title: "After School Programs",
-          items: [
-            {
-              type: "link",
-              title: "After School Programs",
-              path: "/in-schools/after-school-programs/",
-              isNew: false,
-            },
-            {
-              type: "link",
-              title: "Incursions",
-              path: "/in-schools/incursions/",
-              isNew: false,
-            },
-          ],
-        },
-      ]}
-    />
-    <PageIntro
-      type="image"
-      image={hero}
-      imageAlt="two kids playing with a cup on a string"
-      subtitle="We bring science to your school"
-      actionButtonText="Register for a free trial"
-      actionButtonPath="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form"
-      color="blue"
-    >
-      <span slot="title">Fizz Kidz After School Science Program</span>
-      <span slot="content"
-        >We engage your children in the fascinating nature of everyday science,
-        and we do it by exploring hands-on science experiments!</span
-      >
-    </PageIntro>
-    <section class="my-12 md:my-32">
-      <h3 class="mb-12 text-center font-lilita text-4xl md:mb-20 md:text-5xl">
-        Join the science adventure and make weekly awesome science experiments!
-      </h3>
-      <div class="flex flex-col gap-8 md:flex-row">
-        <div class="mx-4 md:w-1/2">
-          <iframe
-            loading="lazy"
-            class="w-full rounded-2xl shadow-green-md"
-            width="600"
-            height="337.5"
-            src="https://www.youtube.com/embed/rwZgnCXJTTY?si=D_WtfH8uac-UJqty"
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen></iframe>
+    <main class="m-auto block max-w-[1380px] px-5 pt-4">
+        <BreadcrumbWrapper
+            client:idle
+            items={[
+                { type: 'not-link', title: 'In Schools' },
+                {
+                    type: 'dropdown',
+                    title: 'After School Programs',
+                    items: [
+                        {
+                            type: 'link',
+                            title: 'After School Programs',
+                            path: '/in-schools/after-school-programs/',
+                            isNew: false,
+                        },
+                        {
+                            type: 'link',
+                            title: 'Incursions',
+                            path: '/in-schools/incursions/',
+                            isNew: false,
+                        },
+                    ],
+                },
+            ]}
+        />
+        <PageIntro
+            type="image"
+            image={hero}
+            imageAlt="two kids playing with a cup on a string"
+            subtitle="We bring science to your school"
+            actionButtonText="Register for a free trial"
+            actionButtonPath="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form"
+            color="blue"
+        >
+            <span slot="title">Fizz Kidz After School Science Program</span>
+            <span slot="content"
+                >We engage your children in the fascinating nature of everyday science, and we do it by exploring
+                hands-on science experiments!</span
+            >
+        </PageIntro>
+        <section class="my-12 md:my-32">
+            <h3 class="mb-12 text-center font-lilita text-4xl md:mb-20 md:text-5xl">
+                Join the science adventure and make weekly awesome science experiments!
+            </h3>
+            <div class="flex flex-col gap-8 md:flex-row">
+                <div class="mx-4 md:w-1/2">
+                    <iframe
+                        loading="lazy"
+                        class="w-full rounded-2xl shadow-green-md"
+                        width="600"
+                        height="337.5"
+                        src="https://www.youtube.com/embed/rwZgnCXJTTY?si=D_WtfH8uac-UJqty"
+                        title="YouTube video player"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen
+                    ></iframe>
+                </div>
+                <div class="md:w-1/2">
+                    <h4 class="mb-4 font-lilita text-3xl">
+                        The Fizz Kidz science program is a unique program that offers children the opportunity to get
+                        hands-on with science!
+                    </h4>
+                    <p class="font-gotham text-lg font-medium">
+                        We are passionate about engaging students in the captivative nature of everyday science. The
+                        program is designed to enhance children's confidence to ask questions, explore through hands-on
+                        experiments, open-minded to all outcomes, and applaud's innovation. By fostering a curiosity
+                        about the world we live in, we hope to encourage our students to become life-long learners!
+                    </p>
+                </div>
+            </div>
+        </section>
+        <ScienceCurriculum />
+        <div class="my-12 flex w-full justify-center md:my-24">
+            <PrimaryButton
+                text="Register for a free trial at your school today!"
+                path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form"
+            />
         </div>
-        <div class="md:w-1/2">
-          <h4 class="mb-4 font-lilita text-3xl">
-            The Fizz Kidz science program is a unique program that offers
-            children the opportunity to get hands-on with science!
-          </h4>
-          <p class="font-gotham text-lg font-medium">
-            We are passionate about engaging students in the captivative nature
-            of everyday science. The program is designed to enhance children's
-            confidence to ask questions, explore through hands-on experiments,
-            open-minded to all outcomes, and applaud's innovation. By fostering
-            a curiosity about the world we live in, we hope to encourage our
-            students to become life-long learners!
-          </p>
+        <WhyChooseScienceProgram />
+        <div class="mb-16 mt-8 flex w-full justify-center md:mb-24">
+            <PrimaryButton
+                text="Register for a free trial at your school today!"
+                path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form"
+            />
         </div>
-      </div>
-    </section>
-    <ScienceCurriculum />
-    <div class="my-12 flex w-full justify-center md:my-24">
-      <PrimaryButton
-        text="Register for a free trial at your school today!"
-        path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form"
-      />
-    </div>
-    <WhyChooseScienceProgram />
-    <div class="mb-16 mt-8 flex w-full justify-center md:mb-24">
-      <PrimaryButton
-        text="Register for a free trial at your school today!"
-        path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form"
-      />
-    </div>
-    <SchoolLogos />
-    <Reviews
-      title="Read what other parents say about the program"
-      reviews={[
-        {
-          review:
-            "Annie absolutely loves the science program at school. Wednesday's are her favourite day of the week because of it!",
-          writtenBy: "Georgia",
-          writtenYear: "2019",
-        },
-        {
-          review:
-            "The Fizz Kidz science program has been so great for Sam. He's really come out of his shell. He loves to learn new science experiments and has made some new friends too. Thanks!",
-          writtenBy: "Lisa",
-          writtenYear: "2020",
-        },
-        {
-          review:
-            "Thanks Fizz Kidz for the term science program. Both my kids have had a great time. They are always so happy when I pick them up and science topics from class have definitely sparked conversation around the dinner table!",
-          writtenBy: "Nicky",
-          writtenYear: "2021",
-        },
-        {
-          review:
-            "Hi Fizz Kidz, just a thanks for the term program. Marlie and Joey were so engaged in the program and it really helped me with work hours. We will be there next term!",
-          writtenBy: "Alyssa",
-          writtenYear: "2021",
-        },
-      ]}
-    />
-    <div class="my-12 flex w-full justify-center">
-      <PrimaryButton
-        text="Register for a free trial at your school today!"
-        path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form"
-      />
-    </div>
-    <Values />
-  </main>
+        <SchoolLogos />
+        <Reviews
+            title="Read what other parents say about the program"
+            reviews={[
+                {
+                    review: "Annie absolutely loves the science program at school. Wednesday's are her favourite day of the week because of it!",
+                    writtenBy: 'Georgia',
+                    writtenYear: '2019',
+                },
+                {
+                    review: "The Fizz Kidz science program has been so great for Sam. He's really come out of his shell. He loves to learn new science experiments and has made some new friends too. Thanks!",
+                    writtenBy: 'Lisa',
+                    writtenYear: '2020',
+                },
+                {
+                    review: 'Thanks Fizz Kidz for the term science program. Both my kids have had a great time. They are always so happy when I pick them up and science topics from class have definitely sparked conversation around the dinner table!',
+                    writtenBy: 'Nicky',
+                    writtenYear: '2021',
+                },
+                {
+                    review: 'Hi Fizz Kidz, just a thanks for the term program. Marlie and Joey were so engaged in the program and it really helped me with work hours. We will be there next term!',
+                    writtenBy: 'Alyssa',
+                    writtenYear: '2021',
+                },
+            ]}
+        />
+        <div class="my-12 flex w-full justify-center">
+            <PrimaryButton
+                text="Register for a free trial at your school today!"
+                path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form"
+            />
+        </div>
+        <Values />
+    </main>
 </Layout>

@@ -1,38 +1,28 @@
 ---
-import Image from "@/components/image.astro";
-import PrimaryButton from "./primary-button.astro";
-import { websitePagesAfterSchoolProgramsFreeTrialPng as freeTrial } from "@/data/website-images";
+import Image from '@/components/image.astro'
+import PrimaryButton from './primary-button.astro'
+import { websitePagesAfterSchoolProgramsFreeTrialPng as freeTrial } from '@/data/website-images'
 
 type Props = {
-  type: "studio" | "school";
-};
+    type: 'studio' | 'school'
+}
 
-const { type } = Astro.props;
+const { type } = Astro.props
 ---
 
 <section class="my-16 flex flex-col gap-16 lg:flex-row lg:gap-8">
-  <Image
-    src={freeTrial}
-    alt="Three images, two of creations and one of a smiling child"
-    class="w-full lg:w-1/2"
-  />
-  <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
-    <p class="text-center font-lilita text-4xl lg:text-start">
-      Join us for a free trial
-    </p>
-    <p class="text-center font-gotham font-medium lg:text-start">
-      We understand that kids need to try things out first. So, feel at ease
-      coming along for a free trial and see if the program is the right fit!
-      <br /><br />
-      We're sure it will be...
-    </p>
-    <div
-      class="mt-8 flex flex-wrap justify-center gap-x-12 gap-y-6 lg:justify-start"
-    >
-      <PrimaryButton
-        text="Enrol for a free trial"
-        path=`https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=${type}`
-      />
+    <Image src={freeTrial} alt="Three images, two of creations and one of a smiling child" class="w-full lg:w-1/2" />
+    <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
+        <p class="text-center font-lilita text-4xl lg:text-start">Join us for a free trial</p>
+        <p class="text-center font-gotham font-medium lg:text-start">
+            We understand that kids need to try things out first. So, feel at ease coming along for a free trial and see
+            if the program is the right fit! <br /><br /> We're sure it will be...
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-x-12 gap-y-6 lg:justify-start">
+            <PrimaryButton
+                text="Enrol for a free trial"
+                path=`https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=${type}`
+            />
+        </div>
     </div>
-  </div>
 </section>

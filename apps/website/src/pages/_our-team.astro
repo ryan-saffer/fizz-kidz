@@ -1,133 +1,112 @@
 ---
-import PageIntro from "@/components/page-intro.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Layout from "@/layout/Layout.astro";
-import { websitePagesOurTeamHeroJpg as hero } from "@/data/website-images";
-import Image from "@/components/image.astro";
-import { websitePagesOurTeamAllStaffJpg as allStaff } from "@/data/website-images";
+import PageIntro from '@/components/page-intro.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import Layout from '@/layout/Layout.astro'
+import { websitePagesOurTeamHeroJpg as hero } from '@/data/website-images'
+import Image from '@/components/image.astro'
+import { websitePagesOurTeamAllStaffJpg as allStaff } from '@/data/website-images'
 
-import { websitePagesOurTeamTaliaJpg as talia } from "@/data/website-images";
-import { websitePagesOurTeamLamiJpg as lami } from "@/data/website-images";
-import { websitePagesOurTeamRyanJpg as ryan } from "@/data/website-images";
-import { websitePagesOurTeamKymJpg as kym } from "@/data/website-images";
-import { websitePagesOurTeamMichaelaJpg as michaela } from "@/data/website-images";
-import { websitePagesOurTeamTShirtPng as tShirt } from "@/data/website-images";
-import PrimaryButton from "@/components/primary-button.astro";
-import Values from "@/components/values.astro";
+import { websitePagesOurTeamTaliaJpg as talia } from '@/data/website-images'
+import { websitePagesOurTeamLamiJpg as lami } from '@/data/website-images'
+import { websitePagesOurTeamRyanJpg as ryan } from '@/data/website-images'
+import { websitePagesOurTeamKymJpg as kym } from '@/data/website-images'
+import { websitePagesOurTeamMichaelaJpg as michaela } from '@/data/website-images'
+import { websitePagesOurTeamTShirtPng as tShirt } from '@/data/website-images'
+import PrimaryButton from '@/components/primary-button.astro'
+import Values from '@/components/values.astro'
 
 const team = [
-  { image: talia, name: "Talia Meltzer", title: "Managing Director" },
-  { image: ryan, name: "Ryan Saffer", title: "Chief Technology Officer" },
-  {
-    image: lami,
-    name: "Lami Martin",
-    title: "Bookings, Events and Accounts Manager",
-  },
-  {
-    image: kym,
-    name: "Kym Hibberd",
-    title: "General Manager",
-  },
-  {
-    image: michaela,
-    name: "Michaela Cohen",
-    title: "Lead Trainer",
-  },
-] as const;
+    { image: talia, name: 'Talia Meltzer', title: 'Managing Director' },
+    { image: ryan, name: 'Ryan Saffer', title: 'Chief Technology Officer' },
+    {
+        image: lami,
+        name: 'Lami Martin',
+        title: 'Bookings, Events and Accounts Manager',
+    },
+    {
+        image: kym,
+        name: 'Kym Hibberd',
+        title: 'General Manager',
+    },
+    {
+        image: michaela,
+        name: 'Michaela Cohen',
+        title: 'Lead Trainer',
+    },
+] as const
 ---
 
 <Layout
-  title="The Team | Fizz Kidz"
-  description="Meet the team that makes the Fizz Kidz one of the leading children entertainment providers in Australia."
+    title="The Team | Fizz Kidz"
+    description="Meet the team that makes the Fizz Kidz one of the leading children entertainment providers in Australia."
 >
-  <main class="m-auto block max-w-[1380px] px-5 pt-4">
-    <div class="h-[10px]"></div>
-    <BreadcrumbWrapper
-      items={[{ type: "link", title: "Our Team", path: "/our-team/" }]}
-    />
-    <PageIntro
-      color="purple"
-      type="image"
-      image={hero}
-      imageAlt="Two Fizz Kids staff working and smiling"
-      subtitle="We're all things fun!"
-      actionButtonText="Fizz Kidz Careers"
-      actionButtonPath="/careers/"
-    >
-      <span slot="title">Meet the Fizz Kidz team</span>
-      <span slot="content">
-        We are on a mission to spread our Fizz Kidz Fun with as many kids as
-        possible!
-      </span>
-    </PageIntro>
-    <section class="my-16 flex flex-col-reverse gap-8 lg:my-32 lg:flex-row">
-      <div class="px-0 sm:px-12 lg:w-1/2">
-        <Image
-          class="rounded-2xl object-contain shadow-green-sm sm:shadow-green-md"
-          src={allStaff}
-          alt="Many Fizz Kids staff all posing and laughing"
-        />
-      </div>
-      <div class="flex flex-col justify-center lg:w-1/2">
-        <h2 class="mb-4 font-lilita text-4xl">
-          We're focused on making kids happy
-        </h2>
-        <p class="font-gotham text-lg font-medium">
-          Fizz Kidz is an innovative, children's creative business that is
-          focused on providing hands on activities to every child that attends
-          our parties and programs.
-          <br /><br />
-          We run engaging experiences that involve every child creating their own
-          masterpiece to take home and enjoy! Our staff are buzzing with fun and will
-          make sure that every child is laughing and smiling throughout every event.
-          We're truly experts in kids entertainment!
-        </p>
-      </div>
-    </section>
-    <section>
-      <h2 class="mb-12 text-center font-lilita text-5xl">Meet the team</h2>
-      <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {
-          team.map((member) => (
-            <div class="flex flex-col rounded-2xl shadow-around">
-              <Image
-                class="h-80 rounded-t-2xl object-cover object-top"
-                src={member.image}
-                height={800}
-                alt="photo of team member"
-              />
-              <div class="flex flex-1 flex-col items-center justify-center p-4">
-                <p class="text-center font-lilita text-2xl">{member.name}</p>
-                <p class="text-center font-lilita text-2xl">{member.title}</p>
-              </div>
+    <main class="m-auto block max-w-[1380px] px-5 pt-4">
+        <div class="h-[10px]"></div>
+        <BreadcrumbWrapper items={[{ type: 'link', title: 'Our Team', path: '/our-team/' }]} />
+        <PageIntro
+            color="purple"
+            type="image"
+            image={hero}
+            imageAlt="Two Fizz Kids staff working and smiling"
+            subtitle="We're all things fun!"
+            actionButtonText="Fizz Kidz Careers"
+            actionButtonPath="/careers/"
+        >
+            <span slot="title">Meet the Fizz Kidz team</span>
+            <span slot="content"> We are on a mission to spread our Fizz Kidz Fun with as many kids as possible! </span>
+        </PageIntro>
+        <section class="my-16 flex flex-col-reverse gap-8 lg:my-32 lg:flex-row">
+            <div class="px-0 sm:px-12 lg:w-1/2">
+                <Image
+                    class="rounded-2xl object-contain shadow-green-sm sm:shadow-green-md"
+                    src={allStaff}
+                    alt="Many Fizz Kids staff all posing and laughing"
+                />
             </div>
-          ))
-        }
-      </div>
-    </section>
-    <section class="my-16 flex flex-col gap-16 lg:flex-row lg:gap-8">
-      <Image
-        src={tShirt}
-        alt="Three images, two of creations and one of a smiling child"
-        class="w-full lg:w-1/2"
-      />
-      <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
-        <p class="text-center font-lilita text-5xl lg:text-start">
-          Interested in joining the team?
-        </p>
-        <p
-          class="text-center font-lilita text-4xl font-medium text-[#4DC5DA] lg:text-start"
-        >
-          We are looking for enthusiastic and bubbly people who love working
-          with kids!
-        </p>
-        <div
-          class="mt-8 flex flex-wrap justify-center gap-x-12 gap-y-6 lg:justify-start"
-        >
-          <PrimaryButton text="Fizz Kidz Careers" path="/careers/" />
-        </div>
-      </div>
-    </section>
-    <Values />
-  </main>
+            <div class="flex flex-col justify-center lg:w-1/2">
+                <h2 class="mb-4 font-lilita text-4xl">We're focused on making kids happy</h2>
+                <p class="font-gotham text-lg font-medium">
+                    Fizz Kidz is an innovative, children's creative business that is focused on providing hands on
+                    activities to every child that attends our parties and programs. <br /><br /> We run engaging
+                    experiences that involve every child creating their own masterpiece to take home and enjoy! Our
+                    staff are buzzing with fun and will make sure that every child is laughing and smiling throughout
+                    every event. We're truly experts in kids entertainment!
+                </p>
+            </div>
+        </section>
+        <section>
+            <h2 class="mb-12 text-center font-lilita text-5xl">Meet the team</h2>
+            <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                {team.map((member) => <div class="flex flex-col rounded-2xl shadow-around">
+                    <Image
+                        class="h-80 rounded-t-2xl object-cover object-top"
+                        src={member.image}
+                        height={800}
+                        alt="photo of team member"
+                    />
+                    <div class="flex flex-1 flex-col items-center justify-center p-4">
+                        <p class="text-center font-lilita text-2xl">{member.name}</p>
+                        <p class="text-center font-lilita text-2xl">{member.title}</p>
+                    </div>
+                </div>)}
+            </div>
+        </section>
+        <section class="my-16 flex flex-col gap-16 lg:flex-row lg:gap-8">
+            <Image
+                src={tShirt}
+                alt="Three images, two of creations and one of a smiling child"
+                class="w-full lg:w-1/2"
+            />
+            <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
+                <p class="text-center font-lilita text-5xl lg:text-start">Interested in joining the team?</p>
+                <p class="text-center font-lilita text-4xl font-medium text-[#4DC5DA] lg:text-start">
+                    We are looking for enthusiastic and bubbly people who love working with kids!
+                </p>
+                <div class="mt-8 flex flex-wrap justify-center gap-x-12 gap-y-6 lg:justify-start">
+                    <PrimaryButton text="Fizz Kidz Careers" path="/careers/" />
+                </div>
+            </div>
+        </section>
+        <Values />
+    </main>
 </Layout>

@@ -1,20 +1,18 @@
 ---
-import Image from "@/components/image.astro";
-import mailingListBg from "@/assets/images/pages/home/mailing-list-bg.svg";
-import MailingListForm from "./react/forms/mailing-list-form";
+import Image from '@/components/image.astro'
+import mailingListBg from '@/assets/images/pages/home/mailing-list-bg.svg'
+import MailingListForm from './react/forms/mailing-list-form'
 ---
 
 <section>
-  <Image class="-mb-px w-full" src={mailingListBg} alt="purple background" />
-  <div class="bg-[#9044E2]">
-    <div class="m-auto block max-w-[1380px] px-5 pb-8 pt-8">
-      <p class="mb-4 text-center font-lilita text-5xl text-white">
-        Join Our Mailing List
-      </p>
-      <p class="m-auto mb-6 text-center font-gotham font-thin text-white">
-        Be the ﬁrst to hear abour our special dicounts, events and more!
-      </p>
-      <MailingListForm client:visible />
+    <Image class="-mb-px w-full" src={mailingListBg} alt="purple background" />
+    <div class="bg-[#9044E2]">
+        <div class="m-auto block max-w-[1380px] px-5 pb-8 pt-8">
+            <p class="mb-4 text-center font-lilita text-5xl text-white">Join Our Mailing List</p>
+            <p class="m-auto mb-6 text-center font-gotham font-thin text-white">
+                Be the ﬁrst to hear abour our special dicounts, events and more!
+            </p>
+            <MailingListForm client:visible />
+        </div>
     </div>
-  </div>
 </section>

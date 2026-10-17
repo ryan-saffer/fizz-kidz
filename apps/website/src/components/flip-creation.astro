@@ -1,137 +1,115 @@
 ---
-import Image from "@/components/image.astro";
-import type { ImageSource } from "@/types/images";
+import Image from '@/components/image.astro'
+import type { ImageSource } from '@/types/images'
 
-import pinkBlob from "@/assets/images/blobs/pink-blob.png";
-import blueBlob from "@/assets/images/blobs/blue-blob.png";
-import yellowBlob from "@/assets/images/blobs/yellow-blob.png";
-import greenBlob from "@/assets/images/blobs/green-blob.png";
-import purpleBlob from "@/assets/images/blobs/purple-blob.png";
-import { cn } from "./react/lib/utils";
+import pinkBlob from '@/assets/images/blobs/pink-blob.png'
+import blueBlob from '@/assets/images/blobs/blue-blob.png'
+import yellowBlob from '@/assets/images/blobs/yellow-blob.png'
+import greenBlob from '@/assets/images/blobs/green-blob.png'
+import purpleBlob from '@/assets/images/blobs/purple-blob.png'
+import { cn } from './react/lib/utils'
 
 type Props = {
-  image: ImageSource;
-  imageAlt?: string;
-  color: "pink" | "yellow" | "green" | "purple" | "blue" | "white" | "red";
-  text?: string[];
-  flippable?: boolean;
-};
+    image: ImageSource
+    imageAlt?: string
+    color: 'pink' | 'yellow' | 'green' | 'purple' | 'blue' | 'white' | 'red'
+    text?: string[]
+    flippable?: boolean
+}
 
-const {
-  image,
-  imageAlt = "Birthday party creation",
-  color,
-  text = [],
-  flippable = true,
-} = Astro.props;
+const { image, imageAlt = 'Birthday party creation', color, text = [], flippable = true } = Astro.props
 
-const textLines = text.map((line) => `${line}`);
-const textHtml = textLines.join("<br />");
+const textLines = text.map((line) => `${line}`)
+const textHtml = textLines.join('<br />')
 
 const blob =
-  color === "pink"
-    ? pinkBlob
-    : color === "green"
-      ? greenBlob
-      : color === "purple"
-        ? purpleBlob
-        : color === "blue"
-          ? blueBlob
-          : color === "red"
-            ? blueBlob
-            : yellowBlob;
+    color === 'pink'
+        ? pinkBlob
+        : color === 'green'
+          ? greenBlob
+          : color === 'purple'
+            ? purpleBlob
+            : color === 'blue'
+              ? blueBlob
+              : color === 'red'
+                ? blueBlob
+                : yellowBlob
 
 const hex =
-  color === "pink"
-    ? "#F24DA2"
-    : color === "green"
-      ? "#4EE16C"
-      : color === "purple"
-        ? "#8F44E1"
-        : color === "blue"
-          ? "#47D2F5"
-          : color === "yellow"
-            ? "#F6BA33"
-            : color === "red"
-              ? "#FF3130"
-              : "#FFFFFF";
+    color === 'pink'
+        ? '#F24DA2'
+        : color === 'green'
+          ? '#4EE16C'
+          : color === 'purple'
+            ? '#8F44E1'
+            : color === 'blue'
+              ? '#47D2F5'
+              : color === 'yellow'
+                ? '#F6BA33'
+                : color === 'red'
+                  ? '#FF3130'
+                  : '#FFFFFF'
 ---
 
 <style>
-  .flip-card {
-    perspective: 1000px;
-  }
-  .flip-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.8s;
-    transform-style: preserve-3d;
-  }
-  .flip-card:hover .flip-card-inner {
-    transform: rotateX(180deg);
-  }
-  .flip-card-front,
-  .flip-card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-  }
-  .flip-card-back {
-    transform: rotateX(180deg);
-  }
+    .flip-card {
+        perspective: 1000px;
+    }
+    .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+    }
+    .flip-card:hover .flip-card-inner {
+        transform: rotateX(180deg);
+    }
+    .flip-card-front,
+    .flip-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+    }
+    .flip-card-back {
+        transform: rotateX(180deg);
+    }
 
-  .full {
-    height: 100%;
-    width: 100%;
-  }
+    .full {
+        height: 100%;
+        width: 100%;
+    }
 </style>
 
-<div class={cn({ "flip-card h-64 w-64": flippable })}>
-  <div class={cn({ "flip-card-inner": flippable })}>
-    <div
-      class={cn(" flex items-center justify-center ", {
-        "flip-card-front": flippable,
-        "flex-col": !flippable,
-      })}
-    >
-      <Image
-        class="min-h-40 min-w-40 object-contain"
-        src={image}
-        alt={imageAlt}
-      />
-      {
-        !flippable && (
-          <p
-            class="text-center font-lilita text-2xl"
-            style={{ color: hex }}
-            set:html={textHtml}
-          />
-        )
-      }
-    </div>
-    {
-      flippable && (
+<div class={cn({ 'flip-card h-64 w-64': flippable })}>
+    <div class={cn({ 'flip-card-inner': flippable })}>
         <div
-          class={cn("relative flex items-center justify-center", {
-            "flip-card-back": flippable,
-          })}
-        >
-          <Image
-            src={blob}
-            alt="background colour"
-            class={cn({
-              "-mr-8": color === "green",
-              "-ml-8": color === "blue",
+            class={cn('flex items-center justify-center', {
+                'flip-card-front': flippable,
+                'flex-col': !flippable,
             })}
-          />
-          <p
-            class="absolute max-w-[130px] text-wrap text-center font-lilita text-2xl font-semibold text-white"
-            set:html={textHtml}
-          />
+        >
+            <Image class="min-h-40 min-w-40 object-contain" src={image} alt={imageAlt} />
+            {!flippable && <p class="text-center font-lilita text-2xl" style={{ color: hex }} set:html={textHtml} />}
         </div>
-      )
-    }
-  </div>
+        {flippable && <div
+            class={cn('relative flex items-center justify-center', {
+                'flip-card-back': flippable,
+            })}
+        >
+            <Image
+                src={blob}
+                alt="background colour"
+                class={cn({
+                    '-mr-8': color === 'green',
+                    '-ml-8': color === 'blue',
+                })}
+            />
+            <p
+                class="absolute max-w-[130px] text-wrap text-center font-lilita text-2xl font-semibold text-white"
+                set:html={textHtml}
+            />
+        </div>}
+    </div>
 </div>

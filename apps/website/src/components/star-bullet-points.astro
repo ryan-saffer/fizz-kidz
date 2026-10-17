@@ -1,27 +1,21 @@
 ---
-import { cn } from "./react/lib/utils";
+import { cn } from './react/lib/utils'
 
-const { default: starSvg } = await import(
-  `@/assets/svg/star-bullet-point.svg?raw`
-);
+const { default: starSvg } = await import(`@/assets/svg/star-bullet-point.svg?raw`)
 
 type Props = {
-  content: string[];
-  className?: astroHTML.JSX.HTMLAttributes["class"];
-};
+    content: string[]
+    className?: astroHTML.JSX.HTMLAttributes['class']
+}
 
-const { content, className } = Astro.props;
+const { content, className } = Astro.props
 ---
 
-<ul class={cn("flex flex-col gap-2", className)}>
-  {
-    content.map((it) => (
-      <li class="flex items-center gap-8 font-semibold">
+<ul class={cn('flex flex-col gap-2', className)}>
+    {content.map((it) => <li class="flex items-center gap-8 font-semibold">
         <div class="h-4 w-4 min-w-4">
-          <Fragment set:html={starSvg} />
+            <Fragment set:html={starSvg} />
         </div>
         <span set:html={it} />
-      </li>
-    ))
-  }
+    </li>)}
 </ul>

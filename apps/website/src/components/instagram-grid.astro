@@ -1,39 +1,33 @@
 ---
-import { instagramClient } from "@/utils/instagram-api-client";
-import Image from "@/components/image.astro";
-import { cn } from "./react/lib/utils";
-import { ExternalLink } from "lucide-react";
+import { instagramClient } from '@/utils/instagram-api-client'
+import Image from '@/components/image.astro'
+import { cn } from './react/lib/utils'
+import { ExternalLink } from 'lucide-react'
 
-const instagramPosts = await instagramClient.getRecentPosts();
-const recentPosts = instagramPosts.length > 1 ? instagramPosts.slice(0, 9) : [];
+const instagramPosts = await instagramClient.getRecentPosts()
+const recentPosts = instagramPosts.length > 1 ? instagramPosts.slice(0, 9) : []
 ---
 
 <div class="m-auto grid w-fit grid-cols-2 gap-1 md:grid-cols-3">
-  {
-    recentPosts.map((post, idx) => (
-      <div
-        class={cn("group aspect-square max-h-64", {
-          "hidden md:block": idx === 8,
+    {recentPosts.map((post, idx) => <div
+        class={cn('group aspect-square max-h-64', {
+            'hidden md:block': idx === 8,
         })}
-      >
+    >
         <a href={post.permalink} target="_blank" class="relative">
-          <Image
-            class="h-full w-full object-cover"
-            src={
-              post.media_type === "VIDEO" ? post.thumbnail_url : post.media_url
-            }
-            alt={post.caption || ""}
-            width={500}
-            height={500}
-          />
-          <div class="absolute top-0 hidden h-full w-full bg-black opacity-30 group-hover:block" />
-          <div class="absolute top-0 hidden h-full w-full items-center justify-center group-hover:flex">
-            <p class="flex items-center font-gotham text-white underline">
-              Open on Instagram <ExternalLink className="w-4 h-4 ml-2" />
-            </p>
-          </div>
+            <Image
+                class="h-full w-full object-cover"
+                src={post.media_type === 'VIDEO' ? post.thumbnail_url : post.media_url}
+                alt={post.caption || ''}
+                width={500}
+                height={500}
+            />
+            <div class="absolute top-0 hidden h-full w-full bg-black opacity-30 group-hover:block" />
+            <div class="absolute top-0 hidden h-full w-full items-center justify-center group-hover:flex">
+                <p class="flex items-center font-gotham text-white underline">
+                    Open on Instagram <ExternalLink className="ml-2 h-4 w-4" />
+                </p>
+            </div>
         </a>
-      </div>
-    ))
-  }
+    </div>)}
 </div>

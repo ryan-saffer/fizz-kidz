@@ -1,180 +1,140 @@
 ---
-import Layout from "@/layout/Layout.astro";
-import Image from "@/components/image.astro";
-import HomeIntro from "@/components/home/home-intro.astro";
-import { homeHeroAvif, homeHeroImage } from "@/components/home/home-hero-image";
-import { websitePagesHomeStudioPng as studio } from "@/data/website-images";
-import fizzFansBgTop from "@/assets/images/pages/home/fizz-fans-bg-top.svg";
-import fizzFansBgBottom from "@/assets/images/pages/home/fizz-fans-bg-bottom.svg";
-import star from "@/assets/images/pages/home/star.svg";
-import { websitePagesHomeFranchisingPng as franchising } from "@/data/website-images";
-import location1 from "@/assets/images/pages/home/location-icon-1.svg";
-import location2 from "@/assets/images/pages/home/location-icon-2.svg";
-import location3 from "@/assets/images/pages/home/location-icon-3.svg";
-import location4 from "@/assets/images/pages/home/location-icon-4.svg";
-import location5 from "@/assets/images/pages/home/location-icon-5.svg";
-import PartyThemes from "@/components/party-themes.astro";
-import ReviewsCarousel from "@/components/react/reviews-carousel";
-import graphics1 from "@/assets/svg/atom.svg";
-import graphics3 from "@/assets/svg/dots.svg";
-import graphics4 from "@/assets/svg/green-science.svg";
-import InstagramGrid from "@/components/instagram-grid.astro";
-import PrimaryButton from "@/components/primary-button.astro";
-import Values from "@/components/values.astro";
-import MailingList from "@/components/mailing-list.astro";
-import SlimeLab from "@/components/slime-lab.astro";
-import { getGoogleReviews } from "@/utils/google-reviews-api-client";
-import { partyReviewFallbacks } from "@/utils/review-fallbacks";
+import Layout from '@/layout/Layout.astro'
+import Image from '@/components/image.astro'
+import HomeIntro from '@/components/home/home-intro.astro'
+import { homeHeroAvif, homeHeroImage } from '@/components/home/home-hero-image'
+import { websitePagesHomeStudioPng as studio } from '@/data/website-images'
+import fizzFansBgTop from '@/assets/images/pages/home/fizz-fans-bg-top.svg'
+import fizzFansBgBottom from '@/assets/images/pages/home/fizz-fans-bg-bottom.svg'
+import star from '@/assets/images/pages/home/star.svg'
+import { websitePagesHomeFranchisingPng as franchising } from '@/data/website-images'
+import location1 from '@/assets/images/pages/home/location-icon-1.svg'
+import location2 from '@/assets/images/pages/home/location-icon-2.svg'
+import location3 from '@/assets/images/pages/home/location-icon-3.svg'
+import location4 from '@/assets/images/pages/home/location-icon-4.svg'
+import location5 from '@/assets/images/pages/home/location-icon-5.svg'
+import PartyThemes from '@/components/party-themes.astro'
+import ReviewsCarousel from '@/components/react/reviews-carousel'
+import graphics1 from '@/assets/svg/atom.svg'
+import graphics3 from '@/assets/svg/dots.svg'
+import graphics4 from '@/assets/svg/green-science.svg'
+import InstagramGrid from '@/components/instagram-grid.astro'
+import PrimaryButton from '@/components/primary-button.astro'
+import Values from '@/components/values.astro'
+import MailingList from '@/components/mailing-list.astro'
+import SlimeLab from '@/components/slime-lab.astro'
+import { getGoogleReviews } from '@/utils/google-reviews-api-client'
+import { partyReviewFallbacks } from '@/utils/review-fallbacks'
 
-const googleReviews = await getGoogleReviews(12);
-const reviews = googleReviews.length >= 5 ? googleReviews : partyReviewFallbacks;
+const googleReviews = await getGoogleReviews(12)
+const reviews = googleReviews.length >= 5 ? googleReviews : partyReviewFallbacks
 const locations = [
-  { icon: location1, location: "Balwyn" },
-  { icon: location2, location: "Cheltenham" },
-  { icon: location3, location: "Essendon" },
-  { icon: location4, location: "Geelong" },
-  { icon: location5, location: "Kingsville" },
-  { icon: location1, location: "Malvern" },
-  { icon: location2, location: "Werribee" },
-] as const;
+    { icon: location1, location: 'Balwyn' },
+    { icon: location2, location: 'Cheltenham' },
+    { icon: location3, location: 'Essendon' },
+    { icon: location4, location: 'Geelong' },
+    { icon: location5, location: 'Kingsville' },
+    { icon: location1, location: 'Malvern' },
+    { icon: location2, location: 'Werribee' },
+] as const
 ---
 
 <Layout
-  title="Fizz Kidz | Kids Parties, Programs & Events in Victoria"
-  description="Fizz Kidz offers studio parties and kids programs in Melbourne and Geelong, plus school incursions and event activations delivered across Australia."
+    title="Fizz Kidz | Kids Parties, Programs & Events in Victoria"
+    description="Fizz Kidz offers studio parties and kids programs in Melbourne and Geelong, plus school incursions and event activations delivered across Australia."
 >
-  <link slot="head" rel="preload" as="image" type="image/avif" href={homeHeroAvif.src} imagesrcset={homeHeroAvif.srcSet.attribute} imagesizes={homeHeroImage.sizes} fetchpriority="high" />
-  <main>
-    <HomeIntro />
-    <section class="m-auto mt-12 block max-w-[1380px] px-5">
-      <PartyThemes />
-    </section>
-    <SlimeLab />
-    <div
-      class="m-auto flex w-full max-w-[1300px] justify-between gap-8 px-12 md:gap-24"
-    >
-      <Image
-        class="w-8 md:w-16"
-        width="100"
-        src={graphics1}
-        alt="science graphic"
-      />
-      <Image
-        class="w-8 md:w-16"
-        width="100"
-        src={graphics3}
-        alt="science graphic"
-      />
-      <Image
-        class="w-8 md:w-16"
-        width="50"
-        src={graphics4}
-        alt="science graphic"
-      />
-    </div>
-    <section>
-      <Image
-        class="min-h-96 w-full object-cover"
-        src={studio}
-        alt="The Essendon studio"
-        height={1200}
-      />
-      <div class="m-auto block max-w-[1380px] px-5 pt-8">
-        <h3 class="my-8 text-center font-lilita text-5xl">Our Studios</h3>
-        <h4 class="m-auto max-w-4xl text-center font-gotham text-2xl">
-          The heart of Fizz Kidz are our Studios. Fizz Kidz studios are
-          captivating, welcoming,and glowing with excitement!
-        </h4>
-        <div
-          class="m-auto my-16 flex max-w-2xl flex-wrap justify-center gap-12"
-        >
-          {
-            locations.map((location) => (
-              <div class="flex flex-col items-center justify-center gap-4">
-                <Image
-                  src={location.icon}
-                  alt="icon"
-                  class="min-h-12 min-[400px]:min-h-16 sm:min-h-24"
-                />
-                <p class="font-lilita text-xl uppercase min-[400px]:text-2xl sm:text-3xl">
-                  {location.location}
-                </p>
-              </div>
-            ))
-          }
+    <link
+        slot="head"
+        rel="preload"
+        as="image"
+        type="image/avif"
+        href={homeHeroAvif.src}
+        imagesrcset={homeHeroAvif.srcSet.attribute}
+        imagesizes={homeHeroImage.sizes}
+        fetchpriority="high"
+    />
+    <main>
+        <HomeIntro />
+        <section class="m-auto mt-12 block max-w-[1380px] px-5">
+            <PartyThemes />
+        </section>
+        <SlimeLab />
+        <div class="m-auto flex w-full max-w-[1300px] justify-between gap-8 px-12 md:gap-24">
+            <Image class="w-8 md:w-16" width="100" src={graphics1} alt="science graphic" />
+            <Image class="w-8 md:w-16" width="100" src={graphics3} alt="science graphic" />
+            <Image class="w-8 md:w-16" width="50" src={graphics4} alt="science graphic" />
         </div>
-      </div>
-    </section>
-    <section>
-      <Image class="w-full" src={fizzFansBgTop} alt="background of green" />
-      <div class="bg-[#D6EAB5]">
-        <div class="m-auto block max-w-[1380px] px-5 pt-8">
-          <p class="mb-4 text-center font-lilita text-5xl">Fizz Fans</p>
-          <p class="m-auto max-w-5xl text-center font-gotham text-2xl">
-            We've hosted over <strong>50,000 parties and events</strong> and are incredibly
-            good at what we do.
-          </p>
-          <div
-            class="my-8 flex w-full flex-col items-center justify-center gap-8 md:flex-row"
-          >
-            <div class="flex gap-2">
-              {
-                [1, 2, 3, 4, 5].map(() => (
-                  <Image src={star} alt="star" class="h-12 w-12" />
-                ))
-              }
+        <section>
+            <Image class="min-h-96 w-full object-cover" src={studio} alt="The Essendon studio" height={1200} />
+            <div class="m-auto block max-w-[1380px] px-5 pt-8">
+                <h3 class="my-8 text-center font-lilita text-5xl">Our Studios</h3>
+                <h4 class="m-auto max-w-4xl text-center font-gotham text-2xl">
+                    The heart of Fizz Kidz are our Studios. Fizz Kidz studios are captivating, welcoming,and glowing
+                    with excitement!
+                </h4>
+                <div class="m-auto my-16 flex max-w-2xl flex-wrap justify-center gap-12">
+                    {locations.map((location) => <div class="flex flex-col items-center justify-center gap-4">
+                        <Image src={location.icon} alt="icon" class="min-h-12 min-[400px]:min-h-16 sm:min-h-24" />
+                        <p class="font-lilita text-xl uppercase min-[400px]:text-2xl sm:text-3xl">
+                            {location.location}
+                        </p>
+                    </div>)}
+                </div>
             </div>
-            <p class="text-center font-gotham text-4xl font-thin">
-              Thousands of 5 Star Reviews
+        </section>
+        <section>
+            <Image class="w-full" src={fizzFansBgTop} alt="background of green" />
+            <div class="bg-[#D6EAB5]">
+                <div class="m-auto block max-w-[1380px] px-5 pt-8">
+                    <p class="mb-4 text-center font-lilita text-5xl">Fizz Fans</p>
+                    <p class="m-auto max-w-5xl text-center font-gotham text-2xl">
+                        We've hosted over <strong>50,000 parties and events</strong> and are incredibly good at what we
+                        do.
+                    </p>
+                    <div class="my-8 flex w-full flex-col items-center justify-center gap-8 md:flex-row">
+                        <div class="flex gap-2">
+                            {[1, 2, 3, 4, 5].map(() => (
+                                <Image src={star} alt="star" class="h-12 w-12" />
+                            ))}
+                        </div>
+                        <p class="text-center font-gotham text-4xl font-thin">Thousands of 5 Star Reviews</p>
+                    </div>
+                    <ReviewsCarousel client:visible reviews={reviews} />
+                </div>
+                <div class="h-1">
+                    <!-- for some reason this stops a gap appearing (???) -->
+                </div>
+            </div>
+            <Image src={fizzFansBgBottom} alt="background of green" class="w-full" />
+        </section>
+        <section class="m-auto block max-w-[1380px] px-5 pt-8">
+            <p class="mb-4 text-center font-lilita text-5xl">We're social - join us!</p>
+            <p class="mb-8 text-center font-lilita text-4xl">
+                Follow us on
+                <a
+                    href="https://www.instagram.com/fizzkidzz/"
+                    target="_blank"
+                    class="bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] bg-clip-text text-transparent"
+                    >instagram</a
+                >
             </p>
-          </div>
-          <ReviewsCarousel client:visible reviews={reviews} />
-        </div>
-        <div class="h-1">
-          <!-- for some reason this stops a gap appearing (???) -->
-        </div>
-      </div>
-      <Image src={fizzFansBgBottom} alt="background of green" class="w-full" />
-    </section>
-    <section class="m-auto block max-w-[1380px] px-5 pt-8">
-      <p class="mb-4 text-center font-lilita text-5xl">
-        We're social - join us!
-      </p>
-      <p class="mb-8 text-center font-lilita text-4xl">
-        Follow us on <a
-          href="https://www.instagram.com/fizzkidzz/"
-          target="_blank"
-          class="bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] bg-clip-text text-transparent"
-          >instagram</a
-        >
-      </p>
-      <InstagramGrid />
-    </section>
-    <section class="m-auto my-12 block max-w-[1380px] px-5 pt-8 md:my-24">
-      <div class="flex flex-col items-center justify-center gap-8 md:flex-row">
-        <div class="flex flex-col gap-12 md:w-1/2">
-          <h2 class="font-lilita text-5xl">Own your own studio</h2>
-          <p class="font-gotham text-lg leading-8 md:text-xl">
-            A Fizz Kidz franchise is an <span class="font-bold"
-              >exciting powerful opportunity</span
-            > to combine your love of working with children and your entrepreneurial
-            spirit. Build a business that brings smiles, sparkles, and unforgettable
-            memories to your local community, with you!
-          </p>
-          <PrimaryButton
-            text="Let's Chat"
-            path="/franchising/"
-            className="w-fit"
-          />
-        </div>
-        <Image
-          class="md:w-1/2"
-          src={franchising}
-          alt="Fizz Kidz staff smiling and making slime"
-        />
-      </div>
-    </section>
-  </main>
-  <Values />
-  <MailingList />
+            <InstagramGrid />
+        </section>
+        <section class="m-auto my-12 block max-w-[1380px] px-5 pt-8 md:my-24">
+            <div class="flex flex-col items-center justify-center gap-8 md:flex-row">
+                <div class="flex flex-col gap-12 md:w-1/2">
+                    <h2 class="font-lilita text-5xl">Own your own studio</h2>
+                    <p class="font-gotham text-lg leading-8 md:text-xl">
+                        A Fizz Kidz franchise is an <span class="font-bold">exciting powerful opportunity</span> to
+                        combine your love of working with children and your entrepreneurial spirit. Build a business
+                        that brings smiles, sparkles, and unforgettable memories to your local community, with you!
+                    </p>
+                    <PrimaryButton text="Let's Chat" path="/franchising/" className="w-fit" />
+                </div>
+                <Image class="md:w-1/2" src={franchising} alt="Fizz Kidz staff smiling and making slime" />
+            </div>
+        </section>
+    </main>
+    <Values />
+    <MailingList />
 </Layout>

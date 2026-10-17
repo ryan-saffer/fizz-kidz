@@ -1,110 +1,78 @@
 ---
-import Layout from "@/layout/Layout.astro";
-import { Button } from "@/components/react/ui/button";
+import Layout from '@/layout/Layout.astro'
+import { Button } from '@/components/react/ui/button'
 ---
 
-<Layout
-  title="Form Submission Result | Fizz Kidz"
-  description="Form submission confirmation page"
-  noIndex={true}
->
-  <section
-    class="flex min-h-screen items-center justify-center bg-gradient-to-b from-blue-50 to-purple-50 px-5 py-12"
-  >
-    <div class="w-full max-w-2xl text-center">
-      <div class="mb-8 flex justify-center">
-        <!-- Success Icon -->
-        <div
-          id="success-icon"
-          class="hidden h-24 w-24 items-center justify-center rounded-full bg-green-100"
-        >
-          <svg
-            class="h-12 w-12 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 13l4 4L19 7"></path>
-          </svg>
+<Layout title="Form Submission Result | Fizz Kidz" description="Form submission confirmation page" noIndex={true}>
+    <section
+        class="flex min-h-screen items-center justify-center bg-gradient-to-b from-blue-50 to-purple-50 px-5 py-12"
+    >
+        <div class="w-full max-w-2xl text-center">
+            <div class="mb-8 flex justify-center">
+                <!-- Success Icon -->
+                <div id="success-icon" class="hidden h-24 w-24 items-center justify-center rounded-full bg-green-100">
+                    <svg class="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <!-- Error Icon -->
+                <div id="error-icon" class="hidden h-24 w-24 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-12 w-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                        ></path>
+                    </svg>
+                </div>
+            </div>
+
+            <h1 id="title" class="mb-6 font-lilita text-4xl md:text-6xl">Thank You!</h1>
+
+            <p id="message" class="mb-8 whitespace-pre-line font-gotham text-lg text-gray-700 md:text-xl">
+                We have received your submission, and we can't wait to party with you soon!
+            </p>
+
+            <div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <div id="contact-button" class="hidden">
+                    <a href="/contact-us/#contact">
+                        <Button className="bg-[#F6BA33] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]">
+                            Get in touch
+                        </Button>
+                    </a>
+                </div>
+            </div>
         </div>
-        <!-- Error Icon -->
-        <div
-          id="error-icon"
-          class="hidden h-24 w-24 items-center justify-center rounded-full bg-red-100"
-        >
-          <svg
-            class="h-12 w-12 text-red-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </div>
-      </div>
+    </section>
 
-      <h1 id="title" class="mb-6 font-lilita text-4xl md:text-6xl">
-        Thank You!
-      </h1>
+    <script>
+        // Get the result parameter from URL
+        const urlParams = new URLSearchParams(window.location.search)
+        const result = urlParams.get('result') || 'success'
+        const isSuccess = result === 'success'
 
-      <p
-        id="message"
-        class="mb-8 whitespace-pre-line font-gotham text-lg text-gray-700 md:text-xl"
-      >
-        We have received your submission, and we can't wait to party with you
-        soon!
-      </p>
+        // Get elements
+        const successIcon = document.getElementById('success-icon')!
+        const errorIcon = document.getElementById('error-icon')!
+        const title = document.getElementById('title')!
+        const message = document.getElementById('message')!
+        const contactButton = document.getElementById('contact-button')!
 
-      <div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
-        <div id="contact-button" class="hidden">
-          <a href="/contact-us/#contact">
-            <Button
-              className="bg-[#F6BA33] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]"
-            >
-              Get in touch
-            </Button>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <script>
-    // Get the result parameter from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const result = urlParams.get("result") || "success";
-    const isSuccess = result === "success";
-
-    // Get elements
-    const successIcon = document.getElementById("success-icon")!;
-    const errorIcon = document.getElementById("error-icon")!;
-    const title = document.getElementById("title")!;
-    const message = document.getElementById("message")!;
-    const contactButton = document.getElementById("contact-button")!;
-
-    if (isSuccess) {
-      // Show success state
-      successIcon.classList.remove("hidden");
-      successIcon.classList.add("flex");
-      title.textContent = "Thank you!";
-      message.textContent =
-        "We have received your submission, and we can't wait to party with you soon!";
-    } else {
-      // Show error state
-      errorIcon.classList.remove("hidden");
-      errorIcon.classList.add("flex");
-      title.textContent = "Oops!";
-      message.textContent =
-        "Something went wrong processing your form submission.\n\nPlease try again.\n\nIf this keeps happening, please get in touch with us.";
-      contactButton.classList.remove("hidden");
-    }
-  </script>
+        if (isSuccess) {
+            // Show success state
+            successIcon.classList.remove('hidden')
+            successIcon.classList.add('flex')
+            title.textContent = 'Thank you!'
+            message.textContent = "We have received your submission, and we can't wait to party with you soon!"
+        } else {
+            // Show error state
+            errorIcon.classList.remove('hidden')
+            errorIcon.classList.add('flex')
+            title.textContent = 'Oops!'
+            message.textContent =
+                'Something went wrong processing your form submission.\n\nPlease try again.\n\nIf this keeps happening, please get in touch with us.'
+            contactButton.classList.remove('hidden')
+        }
+    </script>
 </Layout>

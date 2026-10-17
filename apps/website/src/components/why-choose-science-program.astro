@@ -1,76 +1,64 @@
 ---
-import Image from "@/components/image.astro";
-import StarBulletPoints from "./star-bullet-points.astro";
-import { websitePagesAfterSchoolProgramsScienceFunScienceJpg as funScience } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsScienceAliBalloonJpg as ali } from "@/data/website-images";
+import Image from '@/components/image.astro'
+import StarBulletPoints from './star-bullet-points.astro'
+import { websitePagesAfterSchoolProgramsScienceFunScienceJpg as funScience } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsScienceAliBalloonJpg as ali } from '@/data/website-images'
 
-import { websitePagesAfterSchoolProgramsSciencePinkAtomJpg as pinkAtom } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsScienceBlueHatJpg as blueHat } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsScienceGreenBulbJpg as greenBulb } from "@/data/website-images";
+import { websitePagesAfterSchoolProgramsSciencePinkAtomJpg as pinkAtom } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsScienceBlueHatJpg as blueHat } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsScienceGreenBulbJpg as greenBulb } from '@/data/website-images'
 ---
 
 <section class="flex flex-col justify-center md:flex-row">
-  <div class="flex flex-col items-center justify-center gap-4">
-    <Image src={pinkAtom} alt="Icon of an atom" />
-    <p class="max-w-80 text-center font-lilita text-2xl text-[#F24DA2]">
-      Weekly hands on experiments
-    </p>
-  </div>
-  <div class="flex flex-col items-center justify-center gap-4">
-    <Image src={blueHat} alt="Icon of an college hat" />
-    <p class="max-w-80 text-center font-lilita text-2xl text-[#42D4F3]">
-      Aligned with Victorian curriculum
-    </p>
-  </div>
-  <div class="flex flex-col items-center justify-center gap-4">
-    <Image src={greenBulb} alt="Icon of a light bulb" />
-    <p class="max-w-80 text-center font-lilita text-2xl text-[#8BC34B]">
-      Grow confidence, discover and have fun!
-    </p>
-  </div>
+    <div class="flex flex-col items-center justify-center gap-4">
+        <Image src={pinkAtom} alt="Icon of an atom" />
+        <p class="max-w-80 text-center font-lilita text-2xl text-[#F24DA2]">Weekly hands on experiments</p>
+    </div>
+    <div class="flex flex-col items-center justify-center gap-4">
+        <Image src={blueHat} alt="Icon of an college hat" />
+        <p class="max-w-80 text-center font-lilita text-2xl text-[#42D4F3]">Aligned with Victorian curriculum</p>
+    </div>
+    <div class="flex flex-col items-center justify-center gap-4">
+        <Image src={greenBulb} alt="Icon of a light bulb" />
+        <p class="max-w-80 text-center font-lilita text-2xl text-[#8BC34B]">Grow confidence, discover and have fun!</p>
+    </div>
 </section>
 <section class="my-12 md:my-20">
-  <h2 class="my-12 text-center font-lilita text-4xl md:my-20 md:text-5xl">
-    Why choose the Fizz Kidz science program?
-  </h2>
-  <div class="flex flex-col gap-8 md:flex-row">
-    <div class="flex-1 rounded-2xl shadow-md">
-      <Image
-        class="h-80 rounded-t-2xl object-cover"
-        src={funScience}
-        alt="A girl laughing and moulding her experiment"
-      />
-      <div class="rounded-b-2xl bg-white p-8">
-        <p class="mb-4 font-lilita text-3xl text-[#F14CA2]">Science is fun</p>
-        <StarBulletPoints
-          content={[
-            "Each term, the program explores four key science topics: Chemicals, Gravity/Force, Biology, and Environments. Kids are taken through a sequential process as they delve deep into these key science themes.",
-            "Each week, kids are introduced to the science topic through a variety of interactive activities. They then spend the majority of the program tinkering and crafting their science projects/experiments, learning and exploring as they go.",
-            "Kids take most of their projects home with them to further enjoy and continue their learning after the lesson.",
-            "We truly believe that learning thrives when kids are engaged and tinkering for themselves. So get ready for a hands-on term that your kids will love!",
-          ]}
-        />
-      </div>
+    <h2 class="my-12 text-center font-lilita text-4xl md:my-20 md:text-5xl">
+        Why choose the Fizz Kidz science program?
+    </h2>
+    <div class="flex flex-col gap-8 md:flex-row">
+        <div class="flex-1 rounded-2xl shadow-md">
+            <Image
+                class="h-80 rounded-t-2xl object-cover"
+                src={funScience}
+                alt="A girl laughing and moulding her experiment"
+            />
+            <div class="rounded-b-2xl bg-white p-8">
+                <p class="mb-4 font-lilita text-3xl text-[#F14CA2]">Science is fun</p>
+                <StarBulletPoints
+                    content={[
+                        'Each term, the program explores four key science topics: Chemicals, Gravity/Force, Biology, and Environments. Kids are taken through a sequential process as they delve deep into these key science themes.',
+                        'Each week, kids are introduced to the science topic through a variety of interactive activities. They then spend the majority of the program tinkering and crafting their science projects/experiments, learning and exploring as they go.',
+                        'Kids take most of their projects home with them to further enjoy and continue their learning after the lesson.',
+                        'We truly believe that learning thrives when kids are engaged and tinkering for themselves. So get ready for a hands-on term that your kids will love!',
+                    ]}
+                />
+            </div>
+        </div>
+        <div class="flex-1 rounded-2xl shadow-md">
+            <Image class="h-80 rounded-t-2xl object-cover" src={ali} alt="A Fizz Kids staff holding an experiment" />
+            <div class="rounded-b-2xl bg-white p-8">
+                <p class="mb-4 font-lilita text-3xl text-[#8BC34B]">Fizz Kidz Accreditation</p>
+                <StarBulletPoints
+                    content={[
+                        'Fizz Kidz Science Program has been enjoyed by well over 1000 students and is known and loved by the Melbourne community',
+                        'The Fizz Kidz Science Program is designed and written by primary school science specialists who are passionate about science .',
+                        "The program is aligned with the Victorian Primary School curriculum and designed to enhance students' learning at school",
+                        'Every session is run by the same teacher who is passionate about science, exploration and fun!',
+                    ]}
+                />
+            </div>
+        </div>
     </div>
-    <div class="flex-1 rounded-2xl shadow-md">
-      <Image
-        class="h-80 rounded-t-2xl object-cover"
-        src={ali}
-        alt="A Fizz Kids staff holding an experiment"
-      />
-      <div class="rounded-b-2xl bg-white p-8">
-        <p class="mb-4 font-lilita text-3xl text-[#8BC34B]">
-          Fizz Kidz Accreditation
-        </p>
-        <StarBulletPoints
-          content={[
-            "Fizz Kidz Science Program has been enjoyed by well over 1000 students and is known and loved by the Melbourne community",
-            "The Fizz Kidz Science Program is designed and written by primary school science specialists who are passionate about science .",
-            "The program is aligned with the Victorian Primary School curriculum and designed to enhance students' learning at school",
-            "Every session is run by the same teacher who is passionate about science, exploration and fun!",
-          ]}
-        />
-      </div>
-    </div>
-  </div>
 </section>

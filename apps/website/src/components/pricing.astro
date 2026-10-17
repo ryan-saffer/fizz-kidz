@@ -1,80 +1,73 @@
 ---
-import StarBulletPoints from "./star-bullet-points.astro";
-import Step from "./step.astro";
+import StarBulletPoints from './star-bullet-points.astro'
+import Step from './step.astro'
 ---
 
 <section>
-  <h2 class="mb-12 text-center font-lilita text-5xl">Pricing</h2>
-  <div class="flex flex-col gap-4 lg:flex-row">
-    <Step title="1.5 hour party" color="#9044E2">
-      <div slot="content">
-        <p class="mb-2 font-lilita text-3xl text-[#9044E2]">$480</p>
-        <p class="mb-2 text-xl font-bold text-[#9044E2]">
-          Includes up to 12 children
-        </p>
-        <p class="text-xl">
-          <span class="font-lilita text-2xl text-[#9044E2]">$40</span> per each additional
-          child (max 28)
-        </p><div class="my-4 h-[2px] w-full bg-gray-200"></div>
-        <StarBulletPoints
-          content={[
-            "Two fantastic Fizz Kidz Party hosts",
-            "Exclusive Fizz Kidz Studio",
-            "Each child makes two Fizz Kidz creations",
-            "Dancing and party games",
-            "Take home creation bags",
-            "Create personalised invitations and track RSVPs [NEW!]",
-          ]}
-        />
-      </div>
-    </Step>
-    <Step title="2 hour party" color="#9044E2">
-      <div slot="content">
-        <p class="mb-2 font-lilita text-3xl text-[#9044E2]">$636</p>
-        <p class="mb-2 text-xl font-bold text-[#9044E2]">
-          Includes up to 12 children
-        </p>
-        <p class="text-xl">
-          <span class="font-lilita text-2xl text-[#9044E2]">$53</span> per each additional
-          child (max 28)
-        </p><div class="my-4 h-[2px] w-full bg-gray-200"></div>
-        <StarBulletPoints
-          content={[
-            "Two fantastic Fizz Kidz Party hosts",
-            "Exclusive Fizz Kidz Studio",
-            "Each child makes three Fizz Kidz creations",
-            "Dancing and party games",
-            "Take home creation bags",
-            "Create personalised invitations and track RSVPs [NEW!]",
-          ]}
-        />
-      </div>
-    </Step>
-    <Step title="Party food" color="#9044E2">
-      <div slot="content">
-        <p class="mb-2 font-lilita text-3xl text-[#9044E2]">$84</p>
-        <p class="mb-2 text-xl font-bold text-[#9044E2]">
-          Includes up to 12 children
-        </p>
-        <p class="text-xl">
-          <span class="font-lilita text-2xl text-[#9044E2]">$7</span> per each additional
-          child
-        </p><div class="my-4 h-[2px] w-full bg-gray-200"></div>
-        <StarBulletPoints
-          content={[
-            "Choose from a meat or vegetarian menu",
-            "Entire menu included for all children",
-            "Party plates and cups included",
-            "Fizz Kidz hosts serve party food",
-            "Halal friendly menu available",
-            "Sit back, watch and enjoy!",
-          ]}
-        />
-        <p class="my-8 pl-12 italic">
-          You are welcome to provide your own party food at no extra cost and
-          our staff will serve it for you!
-        </p>
-      </div>
-    </Step>
-  </div>
+    <h2 class="mb-12 text-center font-lilita text-5xl">Pricing</h2>
+    <div class="flex flex-col gap-4 lg:flex-row">
+        <Step title="1.5 hour party" color="#9044E2">
+            <div slot="content">
+                <p class="mb-2 font-lilita text-3xl text-[#9044E2]">$480</p>
+                <p class="mb-2 text-xl font-bold text-[#9044E2]">Includes up to 12 children</p>
+                <p class="text-xl">
+                    <span class="font-lilita text-2xl text-[#9044E2]">$40</span> per each additional child (max 28)
+                </p>
+                <div class="my-4 h-[2px] w-full bg-gray-200"></div>
+                <StarBulletPoints
+                    content={[
+                        'Two fantastic Fizz Kidz Party hosts',
+                        'Exclusive Fizz Kidz Studio',
+                        'Each child makes two Fizz Kidz creations',
+                        'Dancing and party games',
+                        'Take home creation bags',
+                        'Create personalised invitations and track RSVPs [NEW!]',
+                    ]}
+                />
+            </div>
+        </Step>
+        <Step title="2 hour party" color="#9044E2">
+            <div slot="content">
+                <p class="mb-2 font-lilita text-3xl text-[#9044E2]">$636</p>
+                <p class="mb-2 text-xl font-bold text-[#9044E2]">Includes up to 12 children</p>
+                <p class="text-xl">
+                    <span class="font-lilita text-2xl text-[#9044E2]">$53</span> per each additional child (max 28)
+                </p>
+                <div class="my-4 h-[2px] w-full bg-gray-200"></div>
+                <StarBulletPoints
+                    content={[
+                        'Two fantastic Fizz Kidz Party hosts',
+                        'Exclusive Fizz Kidz Studio',
+                        'Each child makes three Fizz Kidz creations',
+                        'Dancing and party games',
+                        'Take home creation bags',
+                        'Create personalised invitations and track RSVPs [NEW!]',
+                    ]}
+                />
+            </div>
+        </Step>
+        <Step title="Party food" color="#9044E2">
+            <div slot="content">
+                <p class="mb-2 font-lilita text-3xl text-[#9044E2]">$84</p>
+                <p class="mb-2 text-xl font-bold text-[#9044E2]">Includes up to 12 children</p>
+                <p class="text-xl">
+                    <span class="font-lilita text-2xl text-[#9044E2]">$7</span> per each additional child
+                </p>
+                <div class="my-4 h-[2px] w-full bg-gray-200"></div>
+                <StarBulletPoints
+                    content={[
+                        'Choose from a meat or vegetarian menu',
+                        'Entire menu included for all children',
+                        'Party plates and cups included',
+                        'Fizz Kidz hosts serve party food',
+                        'Halal friendly menu available',
+                        'Sit back, watch and enjoy!',
+                    ]}
+                />
+                <p class="my-8 pl-12 italic">
+                    You are welcome to provide your own party food at no extra cost and our staff will serve it for you!
+                </p>
+            </div>
+        </Step>
+    </div>
 </section>

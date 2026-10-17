@@ -1,54 +1,52 @@
 ---
-import PartyInformation from "@/components/party-information.astro";
-import Pricing from "@/components/pricing.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import { createBirthdayPartyMenuLinks } from "@/react-components/navigation/navigation-menu-data";
-import { birthdayPartyPackageNavigationLinks } from "@/data/birthday-party-catalogue";
-import MixAndMatchParties from "@/components/mix-and-match-parties.astro";
+import PartyInformation from '@/components/party-information.astro'
+import Pricing from '@/components/pricing.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import { createBirthdayPartyMenuLinks } from '@/react-components/navigation/navigation-menu-data'
+import { birthdayPartyPackageNavigationLinks } from '@/data/birthday-party-catalogue'
+import MixAndMatchParties from '@/components/mix-and-match-parties.astro'
 // import PartyPacks from "@/components/party-packs.astro";
-import PartyReviews from "@/components/party-reviews.astro";
-import PartyFaq from "@/components/party-faq.astro";
-import Values from "@/components/values.astro";
-import PartyPerks from "@/components/party-perks.astro";
+import PartyReviews from '@/components/party-reviews.astro'
+import PartyFaq from '@/components/party-faq.astro'
+import Values from '@/components/values.astro'
+import PartyPerks from '@/components/party-perks.astro'
 
 type Props = {
-  partyPackage: string;
-};
+    partyPackage: string
+}
 
-const { partyPackage } = Astro.props;
-const partyMenuLinks = createBirthdayPartyMenuLinks(
-  birthdayPartyPackageNavigationLinks,
-);
+const { partyPackage } = Astro.props
+const partyMenuLinks = createBirthdayPartyMenuLinks(birthdayPartyPackageNavigationLinks)
 ---
 
 <main>
-  <div class="m-auto block max-w-[1380px] px-5 pt-4">
-    <BreadcrumbWrapper
-      client:idle
-      items={[
-        {
-          type: "link",
-          title: "Birthday Parties",
-          path: "/birthday-parties/",
-        },
-        {
-          type: "dropdown",
-          title: `${partyPackage} Party`,
-          items: partyMenuLinks,
-        },
-      ]}
-    />
-    <slot name="intro" />
-  </div>
-  <slot />
-  <div class="m-auto block max-w-[1380px] px-5 pt-4">
-    <Pricing />
-    <PartyInformation partyPackage={partyPackage} />
-    <PartyPerks />
-    <PartyFaq />
-    <!-- <PartyPacks /> -->
-    <PartyReviews />
-    <MixAndMatchParties />
-    <Values />
-  </div>
+    <div class="m-auto block max-w-[1380px] px-5 pt-4">
+        <BreadcrumbWrapper
+            client:idle
+            items={[
+                {
+                    type: 'link',
+                    title: 'Birthday Parties',
+                    path: '/birthday-parties/',
+                },
+                {
+                    type: 'dropdown',
+                    title: `${partyPackage} Party`,
+                    items: partyMenuLinks,
+                },
+            ]}
+        />
+        <slot name="intro" />
+    </div>
+    <slot />
+    <div class="m-auto block max-w-[1380px] px-5 pt-4">
+        <Pricing />
+        <PartyInformation partyPackage={partyPackage} />
+        <PartyPerks />
+        <PartyFaq />
+        <!-- <PartyPacks /> -->
+        <PartyReviews />
+        <MixAndMatchParties />
+        <Values />
+    </div>
 </main>

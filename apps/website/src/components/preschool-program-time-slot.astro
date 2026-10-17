@@ -1,105 +1,76 @@
 ---
-import Image from "@/components/image.astro";
+import Image from '@/components/image.astro'
 
-import craftIcon from "@/assets/images/pages/preschool-program/schedule-icons/2.svg";
-import movementIcon from "@/assets/images/pages/preschool-program/schedule-icons/5.svg";
-import pickupIcon from "@/assets/images/pages/preschool-program/schedule-icons/7.svg";
-import scienceIcon from "@/assets/images/pages/preschool-program/schedule-icons/4.svg";
-import storyIcon from "@/assets/images/pages/preschool-program/schedule-icons/6.svg";
-import teaIcon from "@/assets/images/pages/preschool-program/schedule-icons/3.svg";
-import welcomeIcon from "@/assets/images/pages/preschool-program/schedule-icons/1.svg";
+import craftIcon from '@/assets/images/pages/preschool-program/schedule-icons/2.svg'
+import movementIcon from '@/assets/images/pages/preschool-program/schedule-icons/5.svg'
+import pickupIcon from '@/assets/images/pages/preschool-program/schedule-icons/7.svg'
+import scienceIcon from '@/assets/images/pages/preschool-program/schedule-icons/4.svg'
+import storyIcon from '@/assets/images/pages/preschool-program/schedule-icons/6.svg'
+import teaIcon from '@/assets/images/pages/preschool-program/schedule-icons/3.svg'
+import welcomeIcon from '@/assets/images/pages/preschool-program/schedule-icons/1.svg'
 
-type SlotIcon =
-  "welcome" | "craft" | "tea" | "science" | "movement" | "story" | "pickup";
+type SlotIcon = 'welcome' | 'craft' | 'tea' | 'science' | 'movement' | 'story' | 'pickup'
 
 type Props = {
-  time: string;
-  title: string;
-  subtitle?: string;
-  color: string;
-  icon: SlotIcon;
-  isFirst?: boolean;
-  isLast?: boolean;
-};
+    time: string
+    title: string
+    subtitle?: string
+    color: string
+    icon: SlotIcon
+    isFirst?: boolean
+    isLast?: boolean
+}
 
-const {
-  time,
-  title,
-  subtitle,
-  color,
-  icon,
-  isFirst = false,
-  isLast = false,
-} = Astro.props;
+const { time, title, subtitle, color, icon, isFirst = false, isLast = false } = Astro.props
 
-const softColor = `${color}20`;
-const lineTop = isFirst ? "50%" : "0";
-const lineBottom = isLast ? "50%" : "0";
+const softColor = `${color}20`
+const lineTop = isFirst ? '50%' : '0'
+const lineBottom = isLast ? '50%' : '0'
 
 const iconMap = {
-  welcome: welcomeIcon,
-  craft: craftIcon,
-  tea: teaIcon,
-  science: scienceIcon,
-  movement: movementIcon,
-  story: storyIcon,
-  pickup: pickupIcon,
-} satisfies Record<SlotIcon, ImageMetadata>;
+    welcome: welcomeIcon,
+    craft: craftIcon,
+    tea: teaIcon,
+    science: scienceIcon,
+    movement: movementIcon,
+    story: storyIcon,
+    pickup: pickupIcon,
+} satisfies Record<SlotIcon, ImageMetadata>
 
-const iconAsset = iconMap[icon];
+const iconAsset = iconMap[icon]
 ---
 
-<div
-  class="grid grid-cols-[5.25rem_2rem_minmax(0,1fr)] items-center md:grid-cols-[7rem_2.5rem_minmax(0,1fr)]"
->
-  <p
-    class="text-nowrap pr-3 text-right font-gotham text-base font-medium text-[#333333] md:pr-6 md:text-2xl"
-  >
-    {time}
-  </p>
+<div class="grid grid-cols-[5.25rem_2rem_minmax(0,1fr)] items-center md:grid-cols-[7rem_2.5rem_minmax(0,1fr)]">
+    <p class="text-nowrap pr-3 text-right font-gotham text-base font-medium text-[#333333] md:pr-6 md:text-2xl">
+        {time}
+    </p>
 
-  <div
-    class="relative flex h-full min-h-[6.75rem] items-center justify-center md:min-h-[7.25rem]"
-  >
-    <div
-      class="absolute left-1/2 w-[5px] -translate-x-1/2 bg-[#D9D9D9]"
-      style={{ top: lineTop, bottom: lineBottom }}
-    >
+    <div class="relative flex h-full min-h-[6.75rem] items-center justify-center md:min-h-[7.25rem]">
+        <div
+            class="absolute left-1/2 w-[5px] -translate-x-1/2 bg-[#D9D9D9]"
+            style={{ top: lineTop, bottom: lineBottom }}
+        ></div>
+
+        <div
+            class="relative z-10 h-5 w-5 rounded-full border-4 border-white md:h-6 md:w-6"
+            style={{ backgroundColor: color }}
+        ></div>
     </div>
 
-    <div
-      class="relative z-10 h-5 w-5 rounded-full border-4 border-white md:h-6 md:w-6"
-      style={{ backgroundColor: color }}
-    >
-    </div>
-  </div>
+    <div class="rounded-xl px-4 py-4 md:px-7 md:py-5" style={{ backgroundColor: softColor }}>
+        <div class="flex items-center gap-4 md:gap-5">
+            <Image src={iconAsset} alt="" aria-hidden="true" class="h-10 w-10 shrink-0 md:h-12 md:w-12" />
 
-  <div
-    class="rounded-xl px-4 py-4 md:px-7 md:py-5"
-    style={{ backgroundColor: softColor }}
-  >
-    <div class="flex items-center gap-4 md:gap-5">
-      <Image
-        src={iconAsset}
-        alt=""
-        aria-hidden="true"
-        class="h-10 w-10 shrink-0 md:h-12 md:w-12"
-      />
-
-      <div class="min-w-0">
-        <p
-          class="font-gotham text-lg font-medium leading-tight text-black md:text-[1.25rem] lg:text-[1.5rem]"
-        >
-          {title}
-        </p>
-        {
-          subtitle && (
-            <p class="mt-1 font-gotham text-xs leading-tight text-[#555555] md:text-base lg:text-[1.15rem]">
-              {subtitle}
-            </p>
-          )
-        }
-      </div>
+            <div class="min-w-0">
+                <p class="font-gotham text-lg font-medium leading-tight text-black md:text-[1.25rem] lg:text-[1.5rem]">
+                    {title}
+                </p>
+                {subtitle && <p
+                    class="mt-1 font-gotham text-xs leading-tight text-[#555555] md:text-base lg:text-[1.15rem]"
+                >
+                    {subtitle}
+                </p>}
+            </div>
+        </div>
     </div>
-  </div>
 </div>

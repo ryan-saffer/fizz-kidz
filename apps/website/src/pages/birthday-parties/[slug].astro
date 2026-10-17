@@ -1,18 +1,18 @@
 ---
-import PartyPage from "@/components/birthday-party-catalogue/party-page.astro";
-import { getBirthdayPartyPackageStaticPaths } from "@/data/birthday-party-catalogue";
+import PartyPage from '@/components/birthday-party-catalogue/party-page.astro'
+import { getBirthdayPartyPackageStaticPaths } from '@/data/birthday-party-catalogue'
 
-import type { BirthdayPartyCataloguePackage } from "@fizz-kidz/core";
+import type { BirthdayPartyCataloguePackage } from '@fizz-kidz/core'
 
 export function getStaticPaths() {
-  return getBirthdayPartyPackageStaticPaths();
+    return getBirthdayPartyPackageStaticPaths()
 }
 
 type Props = {
-  partyPackage: BirthdayPartyCataloguePackage;
-};
+    partyPackage: BirthdayPartyCataloguePackage
+}
 
-const { partyPackage } = Astro.props;
+const { partyPackage } = Astro.props
 ---
 
 <PartyPage partyPackage={partyPackage} />
