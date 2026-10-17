@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import { AcuityConstants, AcuityUtilities, getSquareLocationId } from '@fizz-kidz/core'
+import { AcuityConstants, AcuityUtilities, EVENT_POLICY, getSquareLocationId } from '@fizz-kidz/core'
 import type { AcuityTypes } from '@fizz-kidz/core'
 
 import { processHolidayProgramPayment } from './process-holiday-program-payment'
@@ -83,19 +83,21 @@ describe.each([
         studio: 'werribee',
         location: 'Fizz Kidz Werribee Studio',
         squareLocationId: 'L5Z6AWAMMZY4V',
-        email: 'werribeeOpeningConfirmation',
+        email: 'halloweenSpookfestConfirmation',
         address: 'T5, Harpley Town Center, Bradfield St, Werribee VIC 3030',
-        date: '2026-09-19',
+        date: '2026-10-30',
+        dateLabel: 'Friday, Oct 30',
     },
     {
         studio: 'malvern',
         location: 'Fizz Kidz Malvern Studio',
         squareLocationId: 'NSS38M5PEET6N',
-        email: 'malvernAnniversaryConfirmation',
+        email: 'halloweenSpookfestConfirmation',
         address: '20 Glenferrie Rd, Malvern VIC 3144',
-        date: '2026-09-26',
+        date: '2026-10-30',
+        dateLabel: 'Friday, Oct 30',
     },
-] as const)('$studio event booking', ({ studio, location, squareLocationId, email, address, date }) => {
+] as const)('$studio event booking', ({ studio, location, squareLocationId, email, address, date, dateLabel }) => {
     beforeEach(() => {
         vi.clearAllMocks()
         mocks.createOrder.mockResolvedValue({ order: { id: 'order-id', totalMoney: { amount: 1500n } } })
@@ -131,6 +133,7 @@ describe.each([
     })
 
     it('selects the confirmation and canonical address by calendar ID for the shared appointment type', async () => {
+        vi.stubEnv('ACUITY_API_KEY', 'test-signing-key')
         const appointment: AcuityTypes.Api.Appointment = {
             id: 1,
             email: 'parent@example.com',
@@ -139,7 +142,7 @@ describe.each([
             phone: '0400000000',
             appointmentTypeID: AcuityConstants.AppointmentTypes.OPEN_DAY,
             classID: 120414493,
-            type: 'Fizz Kidz Werribee Opening Day',
+            type: 'Halloween Spookfest',
             price: '15.00',
             forms: [],
             notes: '',
@@ -161,10 +164,11 @@ describe.each([
             address,
             bookings: [
                 {
-                    datetime: expect.stringContaining(`Saturday, Sep ${date.slice(-2)}, 10:00`),
-                    confirmationPage: 'https://example.com/confirmation',
+                    datetime: expect.stringContaining(`${dateLabel}, 10:00`),
+                    confirmationPage: expect.stringContaining('/programs/manage/1#token='),
                 },
             ],
+            policy: EVENT_POLICY,
         })
     })
 })

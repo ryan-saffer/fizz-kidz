@@ -28,8 +28,8 @@ acuityWebhook.post('/acuity', async (req, resp) => {
     try {
         switch (data.action) {
             case 'canceled':
-                // ONLY HOLIDAY PROGRAMS GET REFUNDED - CURRENTLY OTHER PROGRAMS NOT SUPPORTED (ie kingsville opening)
-                if (isHolidayProgram(data.appointmentTypeID)) {
+                // events share the holiday program checkout, so they are refunded and tracked in Zoho the same way
+                if (isHolidayProgram(data.appointmentTypeID) || isEvent(data.appointmentTypeID)) {
                     await processHolidayProgramRefund(data)
                     await updateHolidayProgramZohoRow(data, { status: 'Cancelled' }).catch((error) => {
                         logError('error updating cancelled holiday program Zoho row', error, { data })
@@ -59,7 +59,7 @@ acuityWebhook.post('/acuity', async (req, resp) => {
                     return
                 }
             case 'rescheduled':
-                if (isHolidayProgram(data.appointmentTypeID)) {
+                if (isHolidayProgram(data.appointmentTypeID) || isEvent(data.appointmentTypeID)) {
                     await updateHolidayProgramZohoRow(data, { status: 'Booked' }).catch((error) => {
                         logError('error updating rescheduled holiday program Zoho row', error, { data })
                     })
@@ -94,6 +94,11 @@ function isHolidayProgram(appointmentTypeId: string) {
         appointmentTypeId === AcuityConstants.AppointmentTypes.HOLIDAY_PROGRAM.toString() ||
         appointmentTypeId === AcuityConstants.AppointmentTypes.TEST_HOLIDAY_PROGRAM.toString()
     )
+}
+
+/** One-off events such as open days, anniversaries and Halloween. */
+function isEvent(appointmentTypeId: string) {
+    return appointmentTypeId === AcuityConstants.AppointmentTypes.OPEN_DAY.toString()
 }
 
 /** Reports whether an Acuity webhook belongs to a production or test preschool-v2 appointment type. */

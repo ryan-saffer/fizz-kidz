@@ -1,7 +1,14 @@
 import { DateTime } from 'luxon'
 
 import type { AcuityTypes } from '@fizz-kidz/core'
-import { AcuityConstants, AcuityUtilities, capitalise, getStudioAddress, HOLIDAY_PROGRAM_POLICY } from '@fizz-kidz/core'
+import {
+    AcuityConstants,
+    AcuityUtilities,
+    capitalise,
+    EVENT_POLICY,
+    getStudioAddress,
+    HOLIDAY_PROGRAM_POLICY,
+} from '@fizz-kidz/core'
 
 import type { Emails } from '@/integrations/sendgrid/types'
 
@@ -13,15 +20,10 @@ type ConfirmationAppointmentType =
     | typeof AcuityConstants.AppointmentTypes.TEST_HOLIDAY_PROGRAM
     | typeof AcuityConstants.AppointmentTypes.OPEN_DAY
 
-function getOpenDayConfirmation(calendarId: number) {
-    switch (calendarId) {
-        case AcuityConstants.StoreCalendars.werribee:
-            return { email: 'werribeeOpeningConfirmation', studio: 'werribee' } as const
-        case AcuityConstants.StoreCalendars.malvern:
-            return { email: 'malvernAnniversaryConfirmation', studio: 'malvern' } as const
-        default:
-            throw new Error(`No Open Day confirmation configured for calendar: ${calendarId}`)
-    }
+function getEventStudio(calendarId: number) {
+    const studio = AcuityUtilities.getStudioByCalendarId(calendarId)
+    // Use Werribee's details so test bookings still receive the email.
+    return studio === 'test' ? 'werribee' : studio
 }
 
 export async function sendConfirmationEmail(
@@ -44,10 +46,7 @@ export async function sendConfirmationEmail(
     const bookings: Emails['holidayProgramConfirmation']['bookings'] = sortedAppointments.map((appointment) => {
         return {
             datetime: formatHolidayProgramAppointment(appointment),
-            confirmationPage:
-                appointment.appointmentTypeID === AcuityConstants.AppointmentTypes.OPEN_DAY
-                    ? appointment.confirmationPage
-                    : getAppointmentManagementUrl(appointment.id),
+            confirmationPage: getAppointmentManagementUrl(appointment.id),
         }
     })
 
@@ -68,12 +67,13 @@ export async function sendConfirmationEmail(
             break
         }
         case AcuityConstants.AppointmentTypes.OPEN_DAY: {
-            const { email, studio } = getOpenDayConfirmation(sortedAppointments[0].calendarID)
-            await mailClient.sendEmail(email, appointments[0].email, {
+            const studio = getEventStudio(sortedAppointments[0].calendarID)
+            await mailClient.sendEmail('halloweenSpookfestConfirmation', appointments[0].email, {
                 parentName: appointments[0].firstName,
                 location: `Fizz Kidz ${capitalise(studio)} Studio`,
                 address: getStudioAddress(studio),
                 bookings,
+                policy: EVENT_POLICY,
             })
             break
         }

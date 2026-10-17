@@ -52,6 +52,9 @@ const token = 'a'.repeat(64)
 const appointment = (canReschedule = true, program = 'holiday-program') => ({
     id: 123,
     program,
+    programName: program === 'event' ? 'Halloween Spookfest' : 'Holiday Program',
+    allowsRescheduling: program !== 'event',
+    isRefundable: canReschedule,
     childName: 'Alex',
     datetime: '2026-10-04T10:00:00+10:00',
     duration: '180',
@@ -59,7 +62,7 @@ const appointment = (canReschedule = true, program = 'holiday-program') => ({
     address: 'Studio address',
     canceled: false,
     canCancel: true,
-    canReschedule,
+    canReschedule: program !== 'event' && canReschedule,
 })
 
 function showPage() {
@@ -106,6 +109,19 @@ describe('manage program booking page', () => {
         expect(screen.getByText(/cancellation confirmation, including any refund details/)).toBeTruthy()
         expect(screen.queryByRole('button', { name: 'Cancel session' })).toBeNull()
         expect(mocks.cancel.mock.calls[0][0]).toEqual({ appointmentId: 123, token })
+    })
+
+    it('lets event bookings cancel with a refund but never reschedule', async () => {
+        mocks.load.mockResolvedValue(appointment(true, 'event'))
+        mocks.refund.mockResolvedValue({ refundCents: 2000, fullTermDiscountRemoved: false })
+        const user = showPage()
+        expect(await screen.findByRole('heading', { name: 'Manage your Halloween Spookfest booking' })).toBeTruthy()
+        expect(screen.queryByRole('button', { name: 'Reschedule session' })).toBeNull()
+        expect(screen.getByText('Event cancellation policy')).toBeTruthy()
+        await user.click(screen.getByRole('button', { name: 'Cancel session' }))
+        expect(
+            await within(screen.getByRole('dialog')).findByText(/\$20.00 to your original payment method/)
+        ).toBeTruthy()
     })
 
     it('reschedules to a selected session', async () => {

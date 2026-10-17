@@ -1,6 +1,12 @@
 import { logger } from 'firebase-functions/v2'
 
-import { AcuityConstants, AcuityUtilities, getSessionChangeEligibility, HOLIDAY_PROGRAM_POLICY } from '@fizz-kidz/core'
+import {
+    AcuityConstants,
+    AcuityUtilities,
+    EVENT_POLICY,
+    getSessionChangeEligibility,
+    HOLIDAY_PROGRAM_POLICY,
+} from '@fizz-kidz/core'
 import type { AcuityTypes } from '@fizz-kidz/core'
 
 import { formatHolidayProgramAppointment } from './send-confirmation-email'
@@ -13,6 +19,19 @@ import { logError } from '@/integrations/observability/log-error'
 import { MailClient } from '@/integrations/sendgrid/sendgrid.client'
 import { SquareClient } from '@/integrations/square/square.client'
 
+/** One-off events share the holiday program checkout, so they are refunded the same way with their own wording. */
+function getCancellationEmail(appointment: AcuityTypes.Api.Appointment) {
+    if (appointment.appointmentTypeID === AcuityConstants.AppointmentTypes.OPEN_DAY) {
+        return {
+            programName: appointment.type,
+            policy: EVENT_POLICY,
+            subject: `${appointment.type} booking cancelled`,
+        }
+    }
+    return { programName: 'holiday program', policy: HOLIDAY_PROGRAM_POLICY, subject: undefined }
+}
+
+/** Refunds a cancelled holiday program or one-off event session, and emails the parent. */
 export async function processHolidayProgramRefund(data: AcuityWebhookData) {
     const acuity = await AcuityClient.getInstance()
     const appointment = await acuity.getAppointment(data.id)
@@ -51,31 +70,34 @@ export async function processHolidayProgramRefund(data: AcuityWebhookData) {
     }
 
     const mailClient = await MailClient.getInstance()
+    const { programName, policy, subject } = getCancellationEmail(appointment)
+    const sendCancellationEmail = (receiptUrl: string) =>
+        mailClient.sendEmail(
+            'holidayProgramCancellation',
+            appointment.email,
+            {
+                programName,
+                booking: formatHolidayProgramAppointment(appointment),
+                location: `Fizz Kidz ${appointment.calendar}`,
+                parentName: appointment.firstName,
+                receiptUrl,
+                policy,
+            },
+            { subject }
+        )
 
     let amountToRefund = lineItemToRefund.totalMoney?.amount
 
     // refunds follow the same 48 hour cutoff as rescheduling
-    if (!getSessionChangeEligibility(appointment.datetime).canReschedule) {
+    if (!getSessionChangeEligibility(appointment.datetime).isRefundable) {
         logger.log('Less than 48 hours before program, not performing refund.')
-        await mailClient.sendEmail('holidayProgramCancellation', appointment.email, {
-            booking: formatHolidayProgramAppointment(appointment),
-            location: `Fizz Kidz ${appointment.calendar}`,
-            parentName: appointment.firstName,
-            receiptUrl: '',
-            policy: HOLIDAY_PROGRAM_POLICY,
-        })
+        await sendCancellationEmail('')
         return
     }
 
     if (!amountToRefund || amountToRefund === BigInt(0)) {
         // dont process refunds on free bookings
-        await mailClient.sendEmail('holidayProgramCancellation', appointment.email, {
-            booking: formatHolidayProgramAppointment(appointment),
-            location: `Fizz Kidz ${appointment.calendar}`,
-            parentName: appointment.firstName,
-            receiptUrl: '',
-            policy: HOLIDAY_PROGRAM_POLICY,
-        })
+        await sendCancellationEmail('')
         return
     }
 
@@ -157,18 +179,12 @@ export async function processHolidayProgramRefund(data: AcuityWebhookData) {
         }
     }
 
-    await mailClient.sendEmail('holidayProgramCancellation', appointment.email, {
-        booking: formatHolidayProgramAppointment(appointment),
-        location: `Fizz Kidz ${appointment.calendar}`,
-        parentName: appointment.firstName,
-        receiptUrl,
-        policy: HOLIDAY_PROGRAM_POLICY,
-    })
+    await sendCancellationEmail(receiptUrl)
 }
 
 /** The amount cancelling this appointment now would refund, using the same rules as the cancellation webhook. */
 export async function quoteHolidayProgramRefund(appointment: AcuityTypes.Api.Appointment) {
-    if (!getSessionChangeEligibility(appointment.datetime).canReschedule) return { refundCents: 0 }
+    if (!getSessionChangeEligibility(appointment.datetime).isRefundable) return { refundCents: 0 }
 
     const orderId = AcuityUtilities.retrieveFormAndField(
         appointment,

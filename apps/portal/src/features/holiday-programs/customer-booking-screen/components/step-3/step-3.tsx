@@ -7,7 +7,7 @@ import React, { useEffect, useRef } from 'react'
 import { ApplePay, CreditCard, GooglePay, PaymentForm } from 'react-square-web-payments-sdk'
 import { toast } from 'sonner'
 
-import { getSquareLocationId } from '@fizz-kidz/core'
+import { AcuityConstants, getSquareLocationId } from '@fizz-kidz/core'
 import type { DiscountCode } from '@fizz-kidz/core'
 
 import { pushBookingConversion } from '@integrations/google-tag-manager'
@@ -127,7 +127,10 @@ const Step3: React.FC<Props> = ({ form, handleBookingSuccess }) => {
                         childRequiresAsthmaActionPlan: child.requiresAsthmaActionPlan === 'yes',
                         childAsthmaActionPlan: child.asthmaActionPlan?.storagePath || '',
                         childAdditionalInfo: child.additionalInfo || '',
-                        isAllDayClass: currentCart.sameDayClasses.includes(klass.id),
+                        // 'Stay for the day' only applies to holiday programs.
+                        isAllDayClass:
+                            klass.appointmentTypeID !== AcuityConstants.AppointmentTypes.OPEN_DAY &&
+                            currentCart.sameDayClasses.includes(klass.id),
                         title: klass.title,
                         creations: klass.creations,
                     }))

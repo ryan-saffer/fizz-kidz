@@ -1,0 +1,107 @@
+---
+import WaveBottom from '@/assets/svg/wave-bottom.svg'
+import WaveTop from '@/assets/svg/wave-top.svg'
+import CardWithImage from '@/components/card-with-image.astro'
+import { Button } from '@/components/react/ui/button'
+import {
+    HALLOWEEN_SPOOKFEST,
+    getHalloweenSpookfestSessions,
+    type HalloweenSpookfestStudio,
+} from '@/data/halloween-spookfest'
+import { capitalise } from '@fizz-kidz/core'
+
+type Props = {
+    /** Shows only this studio's sessions. Omit to show every session. */
+    studio?: HalloweenSpookfestStudio
+}
+
+const { studio } = Astro.props
+const sessions = getHalloweenSpookfestSessions(studio)
+const allStudioCount = HALLOWEEN_SPOOKFEST.studios.length
+
+function getStudiosNote(studios: readonly HalloweenSpookfestStudio[]) {
+    if (studio || studios.length === allStudioCount) return null
+    return `${studios.map(capitalise).join(' & ')} only`
+}
+---
+
+<WaveTop aria-hidden="true" focusable="false" class="-mb-px mt-12 block h-8 w-full text-[#FF7518] sm:h-16 lg:h-20" />
+<section id="halloween" class="scroll-mt-24 bg-[#FF7518] py-4">
+    <div class="m-auto block max-w-[1380px] px-5">
+        <div class="mx-auto max-w-2xl text-center lg:max-w-5xl">
+            <p class="mb-3 font-gotham text-sm font-semibold uppercase tracking-widest text-black">
+                {studio ? `Join us at ${capitalise(studio)} for` : 'Join us for'}
+            </p>
+            <h2 class="font-lilita text-4xl uppercase sm:text-6xl">
+                Halloween <span class="whitespace-nowrap">Spookfest!</span>
+            </h2>
+            <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <p class="rounded-full bg-white/80 px-5 py-2 font-gotham text-sm font-semibold sm:text-base">
+                    {HALLOWEEN_SPOOKFEST.date}
+                </p>
+                <p
+                    class="rounded-full bg-[#9044E2] px-5 py-2 font-gotham text-sm font-semibold text-white sm:text-base"
+                >
+                    Just {HALLOWEEN_SPOOKFEST.price}
+                </p>
+                <p class="rounded-full bg-white/80 px-5 py-2 font-gotham text-sm font-semibold sm:text-base">
+                    {HALLOWEEN_SPOOKFEST.ages}
+                </p>
+            </div>
+        </div>
+        <a href={HALLOWEEN_SPOOKFEST.bookingUrl} class="mt-6 flex justify-center">
+            <Button className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#542785]">
+                Book a Spookfest Session
+            </Button>
+        </a>
+        <p class="mt-3 text-center font-gotham text-sm font-semibold">Limited spots available.</p>
+        <div
+            class:list={[
+                'mx-auto mt-8 grid grid-cols-1 gap-4',
+                sessions.length === 3 ? 'md:grid-cols-3' : 'max-w-4xl md:grid-cols-2',
+            ]}
+        >
+            {sessions.map((session) => {
+                const studiosNote = getStudiosNote(session.studios)
+                return <CardWithImage image={session.image} imageAlt={session.imageAlt}>
+                    <div slot="content" class="p-8">
+                        <p class="font-lilita text-3xl" style={{ color: session.colour }}>
+                            <span aria-hidden="true">{session.emoji}</span>{' '}
+                            {session.title}
+                        </p>
+                        <p class="mt-2 font-semibold">
+                            {HALLOWEEN_SPOOKFEST.date}
+                            <br />
+                            {session.time}
+                        </p>
+                        {studiosNote && <p class="mt-1 text-sm font-semibold text-[#542785]">
+                            {studiosNote}
+                        </p>}
+                        <ul class="mb-4 mt-2 list-disc pl-4">
+                            {session.activities.map((activity) => <li>{activity}</li>)}
+                        </ul>
+                        {session.bonus && <p class="rounded-xl bg-[#FFF1E6] px-4 py-2 font-semibold text-[#B34700]">
+                            {session.bonus}
+                        </p>}
+                    </div>
+                </CardWithImage>
+            })}
+        </div>
+        <div class="mt-6 flex flex-wrap justify-center gap-4">
+            <a href={HALLOWEEN_SPOOKFEST.bookingUrl}>
+                <Button className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#542785]">
+                    Book a Spookfest Session
+                </Button>
+            </a>
+            {studio && <a href={HALLOWEEN_SPOOKFEST.path}>
+                <Button
+                    variant="outline"
+                    className="border-black bg-transparent p-6 font-lilita text-lg uppercase hover:bg-white/30"
+                >
+                    All Spookfest details
+                </Button>
+            </a>}
+        </div>
+    </div>
+</section>
+<WaveBottom aria-hidden="true" focusable="false" class="-mt-px block h-8 w-full text-[#FF7518] sm:h-16 lg:h-20" />

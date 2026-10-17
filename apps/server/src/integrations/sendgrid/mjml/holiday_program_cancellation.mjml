@@ -26,7 +26,7 @@
             <mj-column width="100%">
                 <mj-spacer height="30px" />
                 <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
-                    Holiday program booking cancelled
+                    Booking cancelled
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -39,7 +39,7 @@
             <mj-column width="100%">
                 <mj-text color="#637381" font-size="16px"> Hi {{ parentName }}, </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    Your holiday program booking has been successfully cancelled.
+                    Your {{ programName }} booking has been successfully cancelled.
                 </mj-text>
             </mj-column>
             <mj-column width="100%">

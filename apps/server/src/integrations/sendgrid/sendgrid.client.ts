@@ -192,7 +192,7 @@ export class MailClient {
                     template: 'holiday_program_cancellation.mjml',
                     useMjml: true,
                 }
-            case 'werribeeOpeningConfirmation':
+            case 'halloweenSpookfestConfirmation':
                 return {
                     emailInfo: {
                         to,
@@ -200,24 +200,10 @@ export class MailClient {
                             name: 'Fizz Kidz',
                             email: 'bookings@fizzkidz.com.au',
                         },
-                        subject: subject || 'Werribee open day booking confirmation',
+                        subject: subject || 'Halloween Spookfest booking confirmation',
                         replyTo: replyTo || 'bookings@fizzkidz.com.au',
                     },
-                    template: 'werribee_opening_confirmation.mjml',
-                    useMjml: true,
-                }
-            case 'malvernAnniversaryConfirmation':
-                return {
-                    emailInfo: {
-                        to,
-                        from: {
-                            name: 'Fizz Kidz',
-                            email: 'bookings@fizzkidz.com.au',
-                        },
-                        subject: subject || "Malvern's 10th Birthday Party! Booking confirmation",
-                        replyTo: replyTo || 'bookings@fizzkidz.com.au',
-                    },
-                    template: 'malvern_anniversary_confirmation.mjml',
+                    template: 'halloween_spookfest_confirmation.mjml',
                     useMjml: true,
                 }
             case 'afterSchoolEnrolmentConfirmation':
