@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                line-height: 1.6;
+                color: #2c3e50;
+                background-color: #f8f9fa;
+                margin: 0;
+                padding: 20px;
+            }
+            td {
+                padding: 10px 16px;
+                border-bottom: 1px solid #e9ecef;
+                vertical-align: top;
+            }
+            td.label {
+                font-weight: 600;
+                color: #495057;
+                width: 35%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 12px; overflow: hidden">
+            <div
+                style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 24px;
+                    text-align: center;
+                "
+            >
+                <h1 style="margin: 0; font-size: 24px; font-weight: 600">{{ heading }}</h1>
+            </div>
+            <div style="padding: 24px">
+                <p style="margin-top: 0; font-size: 16px">{{ summary }}</p>
+
+                <h3 style="margin-bottom: 8px; border-bottom: 2px solid #667eea; padding-bottom: 8px">Booking</h3>
+                <table style="border-collapse: collapse; width: 100%; margin-bottom: 24px">
+                    {{#previousStudio}}
+                    <tr>
+                        <td class="label">Previous studio</td>
+                        <td>{{ previousStudio }}</td>
+                    </tr>
+                    {{/previousStudio}}
+                    <tr>
+                        <td class="label">
+                            {{#previousStudio}}New studio{{/previousStudio}}{{^previousStudio}}Studio{{/previousStudio}}
+                        </td>
+                        <td><strong>{{ studio }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Date / Time</td>
+                        <td>{{ dateTime }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Parent</td>
+                        <td>{{ parentName }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Email</td>
+                        <td><a href="mailto:{{ email }}">{{ email }}</a></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Phone</td>
+                        <td><a href="tel:{{ mobile }}">{{ mobile }}</a></td>
+                    </tr>
+                </table>
+
+                {{#cake}}
+                <h3 style="margin-bottom: 8px; border-bottom: 2px solid #667eea; padding-bottom: 8px">Cake</h3>
+                <table style="border-collapse: collapse; width: 100%; margin-bottom: 24px">
+                    <tr>
+                        <td class="label">Cake</td>
+                        <td>{{ selection }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Size</td>
+                        <td>{{ size }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Flavours</td>
+                        <td>{{ flavours }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">How to serve</td>
+                        <td>{{ served }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Candles</td>
+                        <td>{{ candles }}</td>
+                    </tr>
+                    {{#message}}
+                    <tr>
+                        <td class="label">Message</td>
+                        <td><em>"{{ message }}"</em></td>
+                    </tr>
+                    {{/message}}
+                </table>
+                {{/cake}} {{#hasTakeHomeBags}}
+                <h3 style="margin-bottom: 8px; border-bottom: 2px solid #667eea; padding-bottom: 8px">
+                    Take-home bags
+                </h3>
+                <table style="border-collapse: collapse; width: 100%">
+                    {{#takeHomeBags}}
+                    <tr>
+                        <td class="label">{{ name }}</td>
+                        <td>{{ quantity }}</td>
+                    </tr>
+                    {{/takeHomeBags}}
+                </table>
+                {{/hasTakeHomeBags}}
+            </div>
+        </div>
+    </body>
+</html>

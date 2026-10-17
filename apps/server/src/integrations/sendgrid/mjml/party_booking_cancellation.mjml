@@ -1,0 +1,103 @@
+<mjml>
+    <mj-head>
+        <mj-attributes>
+            <mj-all font-family="'Trebuchet MS', 'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-all>
+
+            <mj-text
+                font-weight="400"
+                font-size="14px"
+                color="#000000"
+                line-height="24px"
+                font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+            ></mj-text>
+        </mj-attributes>
+        <mj-style inline="inline">
+            .footer-link {
+                color: #888888;
+            }
+        </mj-style>
+    </mj-head>
+    <mj-body background-color="#E7E7E7" width="600px">
+        <mj-section background-color="#eec73b" padding-bottom="0px">
+            <mj-column width="100%">
+                <mj-spacer height="30px" />
+
+                <mj-text font-family="Trebuchet MS" color="white" align="center" font-size="30px" line-height="40px">
+                    {{ childName }}'s party has been cancelled
+                </mj-text>
+            </mj-column>
+        </mj-section>
+        <mj-section background-color="#ffffff" padding-top="0">
+            <mj-column>
+                <mj-image src="https://i.imgur.com/5DI7BbY.png" width="600px" alt="" padding="0" />
+            </mj-column>
+        </mj-section>
+        <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px" padding-top="0">
+            <mj-column width="100%">
+                <mj-text>Hi {{ parentName }},</mj-text>
+
+                <mj-text>This email confirms that the following party booking has been cancelled.</mj-text>
+            </mj-column>
+
+            <mj-column width="50%">
+                <mj-text font-weight="bold" padding-bottom="0"> Where </mj-text>
+
+                <mj-text text-transform="capitalize" padding-top="0">
+                    {{^isMobile}} Fizz Kidz {{ location }}
+                    <br />
+                    {{/isMobile}} {{ address }}
+                </mj-text>
+            </mj-column>
+            <mj-column width="50%">
+                <mj-text font-weight="bold" padding-bottom="0"> When </mj-text>
+
+                <mj-text padding-top="0">
+                    {{ startDate }}
+                    <br />
+                    {{ startTime }} - {{ endTime }}
+                </mj-text>
+            </mj-column>
+
+            <mj-column width="100%">
+                <mj-text font-weight="bold" padding-bottom="0"> Cancellation Policy </mj-text>
+
+                <mj-text padding-top="0">
+                    While we would much prefer to not charge for a service that has not been received, please understand
+                    that cancelled or rescheduled parties would have otherwise been taken by another family.
+                    <br /><br />
+                    Cancellation or rescheduling may incur the following fees:
+                    <ul>
+                        <li>$150 if cancelled or rescheduled within 3 weeks of the event.</li>
+                        <li>$300 if cancelled or rescheduled within 2 weeks of the event.</li>
+                        <li>$450 if cancelled or rescheduled within 1 week of the event.</li>
+                    </ul>
+                </mj-text>
+            </mj-column>
+
+            <mj-column width="100%">
+                <mj-text>
+                    If you have any questions, just reply to this email, call us on {{ contactPhone }}, or email us at
+                    {{ contactEmail }}.
+                </mj-text>
+
+                <mj-text>{{ contactSignoff }}</mj-text>
+            </mj-column>
+        </mj-section>
+        <mj-wrapper full-width="full-width">
+            <mj-section padding-top="0">
+                <mj-group>
+                    <mj-column width="100%" padding-right="0">
+                        <mj-text font-size="11px" align="center" line-height="14px" font-weight="bold">
+                            <a class="footer-link" href="mailto:bookings@fizzkidz.com.au">bookings@fizzkidz.com.au</a
+                            >&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;<a
+                                class="footer-link"
+                                href="https://www.fizzkidz.com.au"
+                                >www.fizzkidz.com.au</a
+                            >
+                        </mj-text>
+                    </mj-column>
+                </mj-group>
+            </mj-section>
+        </mj-wrapper>
+    </mj-body>
+</mjml>

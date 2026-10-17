@@ -149,6 +149,22 @@ export type Emails = {
         includesFood: boolean
         canOrderCake: boolean
         cakeFormUrl: string
+        /** A rescheduled or moved party whose invitation still shows the old details. */
+        hasInvitationToUpdate?: boolean
+    }
+
+    partyBookingCancellation: {
+        parentName: string
+        childName: string
+        startDate: string
+        startTime: string
+        endTime: string
+        address: string
+        location: string
+        isMobile: boolean
+        contactEmail: string
+        contactPhone: string
+        contactSignoff: string
     }
 
     cakeForm: {
@@ -311,6 +327,43 @@ export type Emails = {
         cakeServed: string
         cakeCandles: string
         cakeMessage?: string
+    }
+
+    /** Tells the supplier a party's order changed: a new order, a new delivery studio, or a cancelled order. */
+    partySupplierOrderChange: {
+        heading: string
+        summary: string
+        parentName: string
+        dateTime: string
+        mobile: string
+        email: string
+        /** Only for a party that moved studio. */
+        previousStudio?: string
+        studio: string
+        cake?: {
+            selection: string
+            size: string
+            flavours: string
+            served: string
+            candles: string
+            message?: string
+        }
+        hasTakeHomeBags: boolean
+        takeHomeBags: { name: string; quantity: string }[]
+    }
+
+    /** Tells a stocked studio that a party moved to it, and what couldn't be reserved from its stock. */
+    partyStudioMoveStockAlert: {
+        studio: string
+        previousStudio: string
+        parentName: string
+        dateTime: string
+        mobile: string
+        email: string
+        bookingUrl: string
+        problems: { title: string; detail: string }[]
+        hasReserved: boolean
+        reserved: { name: string; quantity: string }[]
     }
 
     inventoryAlert: {
