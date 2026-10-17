@@ -28,15 +28,12 @@ acuityWebhook.post('/acuity', async (req, resp) => {
     try {
         switch (data.action) {
             case 'canceled':
-                if (isHolidayProgram(data.appointmentTypeID)) {
+                // events share the holiday program checkout, so they are refunded and tracked in Zoho the same way
+                if (isHolidayProgram(data.appointmentTypeID) || isEvent(data.appointmentTypeID)) {
                     await processHolidayProgramRefund(data)
                     await updateHolidayProgramZohoRow(data, { status: 'Cancelled' }).catch((error) => {
                         logError('error updating cancelled holiday program Zoho row', error, { data })
                     })
-                    resp.status(200).send()
-                    return
-                } else if (isEvent(data.appointmentTypeID)) {
-                    await processHolidayProgramRefund(data)
                     resp.status(200).send()
                     return
                 } else if (isPreschoolProgramV2(data.appointmentTypeID)) {
@@ -62,7 +59,7 @@ acuityWebhook.post('/acuity', async (req, resp) => {
                     return
                 }
             case 'rescheduled':
-                if (isHolidayProgram(data.appointmentTypeID)) {
+                if (isHolidayProgram(data.appointmentTypeID) || isEvent(data.appointmentTypeID)) {
                     await updateHolidayProgramZohoRow(data, { status: 'Booked' }).catch((error) => {
                         logError('error updating rescheduled holiday program Zoho row', error, { data })
                     })
