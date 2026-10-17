@@ -42,8 +42,7 @@
                     Your booking for our Halloween Spookfest is confirmed! Get ready for a frightfully fun time.
                 </mj-text>
                 <mj-text color="#637381" font-size="16px">
-                    Activities are suitable for children <strong>aged 4 to 12 years</strong>. The Spookfest Tween Disco
-                    Night is for tweens <strong>aged 9 to 12 years</strong>.
+                    Activities are suitable for children <strong>aged 4 to 12 years</strong>.
                 </mj-text>
                 <mj-text color="#637381" font-size="16px"> We can't wait to see you there! </mj-text>
             </mj-column>
@@ -81,7 +80,22 @@
                 </mj-text>
             </mj-column>
 
-            <mj-column width="100%"> </mj-column>
+            <mj-column width="100%">
+                <mj-text
+                    color="#212b35"
+                    font-size="12px"
+                    text-transform="uppercase"
+                    font-weight="bold"
+                    padding-bottom="0"
+                >
+                    {{ policy.title }}
+                </mj-text>
+                <mj-text color="#637381" font-size="16px">
+                    {{#policy.paragraphs}}
+                    <p>{{.}}</p>
+                    {{/policy.paragraphs}}
+                </mj-text>
+            </mj-column>
             <mj-column width="100%">
                 <mj-text color="#637381" font-size="16px">
                     If you have any questions, please feel free to contact us on

@@ -33,7 +33,7 @@ const Step1: React.FC<Props> = ({ appointmentTypeId, classes, onClassSelectionCh
                 <Alert
                     type="info"
                     showIcon
-                    message="Activities are suitable for children aged 4 to 12 years. The Spookfest Tween Disco Night is for ages 9 to 12."
+                    message="Activities are suitable for children aged 4 to 12 years."
                     style={{ marginBottom: 16 }}
                 />
             )}

@@ -1,4 +1,4 @@
-Last updated: 15 October 2026. Built only from the public website, so it can be regenerated from scratch at any time.
+Last updated: 17 October 2026. Built only from the public website, so it can be regenerated from scratch at any time.
 
 All URLs below are on the live site https://www.fizzkidz.com.au (booking links are on https://bookings.fizzkidz.com.au). Prices are quoted exactly as the website shows them. If a price or detail isn't here, follow "When you don't know" in the instructions.
 
@@ -44,13 +44,20 @@ Studio notes (from each location page):
 - Kingsville: on Somerville Road. A large, open space for kids to dance, create and explore. A cafe just metres away. Ample parking nearby.
 - Malvern: on Glenferrie Road with lots of cafes and shops nearby. Accommodates up to 28 children at birthday parties. Cafe for parents: Green Goose, right around the corner.
 - Werribee: the newest studio, in Harpley Town Center on Bradfield St. Hosts birthday parties, holiday programs and creative activities.
-  - Halloween Spookfest at Werribee, Friday 30th October. Just $20 per child. Limited spots available. Details: https://www.fizzkidz.com.au/locations/werribee/#halloween. Book: https://bookings.fizzkidz.com.au/programs?id=75381458
-    - Session 1, 4:00pm - 5:00pm: Cauldron Spider Explosions; Spooky Jelly Soap.
-    - Session 2, 5:30pm - 6:30pm: Ghost Glow Slime (glow-in-the-dark slime); Bat Attack Bath Bombs (hide a bat inside your bath bomb).
-    - Spookfest Tween Disco Night, 7:00pm - 8:00pm, for ages 9 to 12: Glow Squishies; Glow Crowns (made with glow-in-the-dark beads).
-    - Activities are for kids aged 4 to 12; the Tween Disco Night is for ages 9 to 12.
 
 Each location page offers birthday parties and holiday programs and has a "Get in touch" link to https://www.fizzkidz.com.au/contact-us/.
+
+# Halloween Spookfest
+
+Page: https://www.fizzkidz.com.au/halloween-spookfest/. Book: https://bookings.fizzkidz.com.au/programs?id=75381458
+
+- Friday 30th October. Just $20 per child. Ages 4 to 12. Limited spots available.
+- Runs at Balwyn, Cheltenham, Essendon, Geelong, Malvern and Werribee. Not running at Kingsville.
+- Session 1, 4:00pm - 5:00pm (all six studios): Cauldron Spider Explosions; Spooky Jelly Soap. FREE Halloween tote bag for trick-or-treating!
+- Session 2, 5:30pm - 6:30pm (all six studios): Ghost Glow Slime; Bat Attack Bath Bombs.
+- Session 3, 7:00pm - 8:00pm (Werribee & Balwyn only): Pumpkin Spice Squishies; Boo Bling Keychains.
+- Each Spookfest studio's location page also shows its sessions.
+- Cancellations: at least 48 hours before, cancel for a full refund using Change / Cancel in the confirmation email; sessions can't be rescheduled. See the Event cancellation policy under Policies.
 
 # Birthday parties (in studio)
 
@@ -399,6 +406,12 @@ Page: https://www.fizzkidz.com.au/policies/ (privacy section: https://www.fizzki
   - Plans changed? If your session is at least 48 hours away, you can move to another available Messy Play Lab session in the same term at the same studio, on any day, or cancel for an automatic refund.
   - Full-term bookings receive 20% off because every session in the term is booked. Rescheduling keeps the discount. Cancelling a session means the booking no longer covers the full term, so the discount is removed from the remaining sessions and taken out of your refund. This can make the refund small, or nothing at all.
   - Less than 48 hours to go? You can still cancel before the session starts, but refunds and rescheduling aren't available.
+  - Use Change / Cancel in your confirmation email. Each link manages one child's session.
+  - This policy may change at Fizz Kidz's discretion.
+- Studio events (such as the Halloween Spookfest) are paid for online when you book. Event cancellation policy (https://www.fizzkidz.com.au/policies/#events):
+  - Plans changed? If your session is at least 48 hours away, you can cancel for an automatic full refund of the amount paid.
+  - Less than 48 hours to go? You can still cancel before the session starts, but refunds aren't available.
+  - Event sessions can't be rescheduled.
   - Use Change / Cancel in your confirmation email. Each link manages one child's session.
   - This policy may change at Fizz Kidz's discretion.
 - Privacy: Fizz Kidz Australia Pty Ltd follows the Australian Privacy Principles (Privacy Act 1988). Personal information is collected to provide services, share information and for marketing; you can unsubscribe at any time in writing. You can ask to access or correct your information in writing (no fee for the request; there may be an admin fee for a copy). Records are kept for at least 7 years. Privacy contact: Fizz Kidz Australia Pty Ltd, 20 Glenferrie Road, Malvern 3144, bookings@fizzkidz.com.au, 03 9059 8144.

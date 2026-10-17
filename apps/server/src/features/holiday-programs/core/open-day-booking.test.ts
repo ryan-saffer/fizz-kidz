@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import { AcuityConstants, AcuityUtilities, getSquareLocationId } from '@fizz-kidz/core'
+import { AcuityConstants, AcuityUtilities, EVENT_POLICY, getSquareLocationId } from '@fizz-kidz/core'
 import type { AcuityTypes } from '@fizz-kidz/core'
 
 import { processHolidayProgramPayment } from './process-holiday-program-payment'
@@ -34,7 +34,7 @@ vi.mock('@/integrations/sendgrid/sendgrid.client', () => ({
     MailClient: { getInstance: async () => ({ sendEmail: mocks.sendEmail }) },
 }))
 
-function makeBookingInput(eventStudio: 'werribee', giftCardId: string): HolidayProgramBookingProps {
+function makeBookingInput(eventStudio: 'werribee' | 'malvern', giftCardId: string): HolidayProgramBookingProps {
     const calendarId = AcuityConstants.StoreCalendars[eventStudio]
     const studio = AcuityUtilities.getStudioByCalendarId(calendarId)
 
@@ -88,6 +88,15 @@ describe.each([
         date: '2026-10-30',
         dateLabel: 'Friday, Oct 30',
     },
+    {
+        studio: 'malvern',
+        location: 'Fizz Kidz Malvern Studio',
+        squareLocationId: 'NSS38M5PEET6N',
+        email: 'halloweenSpookfestConfirmation',
+        address: '20 Glenferrie Rd, Malvern VIC 3144',
+        date: '2026-10-30',
+        dateLabel: 'Friday, Oct 30',
+    },
 ] as const)('$studio event booking', ({ studio, location, squareLocationId, email, address, date, dateLabel }) => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -124,6 +133,7 @@ describe.each([
     })
 
     it('selects the confirmation and canonical address by calendar ID for the shared appointment type', async () => {
+        vi.stubEnv('ACUITY_API_KEY', 'test-signing-key')
         const appointment: AcuityTypes.Api.Appointment = {
             id: 1,
             email: 'parent@example.com',
@@ -155,9 +165,10 @@ describe.each([
             bookings: [
                 {
                     datetime: expect.stringContaining(`${dateLabel}, 10:00`),
-                    confirmationPage: 'https://example.com/confirmation',
+                    confirmationPage: expect.stringContaining('/programs/manage/1#token='),
                 },
             ],
+            policy: EVENT_POLICY,
         })
     })
 })

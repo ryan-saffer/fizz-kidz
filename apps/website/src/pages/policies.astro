@@ -1,13 +1,14 @@
 ---
 import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
 import Layout from "@/layout/Layout.astro";
-import { HOLIDAY_PROGRAM_POLICY, PRESCHOOL_PROGRAM_POLICY } from "@fizz-kidz/core";
+import { EVENT_POLICY, HOLIDAY_PROGRAM_POLICY, PRESCHOOL_PROGRAM_POLICY } from "@fizz-kidz/core";
 
 const sections = [
   { id: "general", label: "General policies" },
   { id: "parties", label: "Parties" },
   { id: "holiday-programs", label: "Holiday programs" },
   { id: "preschool-program", label: "Messy Play Lab" },
+  { id: "events", label: "Studio events" },
   { id: "privacy", label: "Privacy" },
 ];
 
@@ -19,7 +20,7 @@ const linkClasses = "text-[#7639b5] underline underline-offset-[0.2em] hover:dec
 
 <Layout
   title="Our Policies | Fizz Kidz"
-  description="Read our policies on child wellbeing, party, holiday-program and Messy Play Lab payments, cancellations, rescheduling and privacy."
+  description="Read our policies on child wellbeing, party, holiday-program, Messy Play Lab and studio event payments, cancellations, rescheduling and privacy."
 >
   <main class="mx-auto max-w-[1120px] px-5 pb-20 pt-7 font-gotham text-[#30273b] [&_a:focus-visible]:rounded [&_a:focus-visible]:outline [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-offset-4 [&_a:focus-visible]:outline-[#7639b5] print:max-w-none print:p-0 print:text-black">
     <div class="print:hidden">
@@ -186,6 +187,19 @@ const linkClasses = "text-[#7639b5] underline underline-offset-[0.2em] hover:dec
           <div class="mt-7 rounded-r-xl border-l-[3px] border-[#aa78d8] bg-[#faf7fe] p-6">
             <h3 class={subheadingClasses}>{PRESCHOOL_PROGRAM_POLICY.title}</h3>
             {PRESCHOOL_PROGRAM_POLICY.paragraphs.map((paragraph) => <p class="last:text-[13px] last:text-[#655d6e]">{paragraph}</p>)}
+          </div>
+        </div>
+      </section>
+      <section id="events" class={sectionClasses} aria-labelledby="events-heading">
+        <h2 id="events-heading" class={sectionHeadingClasses}>Studio events</h2>
+        <div class="text-[15px] leading-[1.85] [&_p+p]:mt-4">
+          <p>
+            Studio events, such as our Halloween Spookfest, are paid for online
+            when you book.
+          </p>
+          <div class="mt-7 rounded-r-xl border-l-[3px] border-[#aa78d8] bg-[#faf7fe] p-6">
+            <h3 class={subheadingClasses}>{EVENT_POLICY.title}</h3>
+            {EVENT_POLICY.paragraphs.map((paragraph) => <p class="last:text-[13px] last:text-[#655d6e]">{paragraph}</p>)}
           </div>
         </div>
       </section>

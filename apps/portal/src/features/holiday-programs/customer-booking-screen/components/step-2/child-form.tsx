@@ -68,7 +68,7 @@ export const ChildForm: React.FC<Props> = ({ form, appointmentTypeId, childNumbe
                 label="Child's date of birth"
                 extra={
                     appointmentTypeId === AcuityConstants.AppointmentTypes.OPEN_DAY
-                        ? 'Activities are suitable for children aged 4 to 12 years. The Spookfest Tween Disco Night is for ages 9 to 12.'
+                        ? 'Activities are suitable for children aged 4 to 12 years.'
                         : 'The minimum age is 4 years old, and all children must be completely toilet trained 😊'
                 }
                 rules={[

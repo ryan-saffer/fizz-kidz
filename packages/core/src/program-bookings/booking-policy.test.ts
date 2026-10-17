@@ -14,13 +14,18 @@ describe('session change cutoff', () => {
         [47, true, false],
         [0, false, false],
     ])('%i hours before the start', (hours, canCancel, canReschedule) => {
-        expect(getSessionChangeEligibility(inHours(hours), false, now)).toEqual({ canCancel, canReschedule })
+        expect(getSessionChangeEligibility(inHours(hours), false, now)).toEqual({
+            canCancel,
+            canReschedule,
+            isRefundable: canReschedule,
+        })
     })
 
     it('does not allow changes to cancelled appointments', () => {
         expect(getSessionChangeEligibility(inHours(72), true, now)).toEqual({
             canCancel: false,
             canReschedule: false,
+            isRefundable: false,
         })
     })
 })
