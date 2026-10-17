@@ -1,441 +1,333 @@
 ---
-import "@/styles/globals.css";
-import Image from "@/components/image.astro";
-import Layout from "@/layout/Layout.astro";
-import Container from "@/components/container.astro";
-import { Button } from "@/components/react/ui/button";
-import CardWithImage from "@/components/card-with-image.astro";
-import { ArrowRight, MailIcon } from "lucide-react";
-import Values from "@/components/values.astro";
-import ContactUsForm from "@/components/react/forms/contact-us-form";
+import '@/styles/globals.css'
+import Image from '@/components/image.astro'
+import Layout from '@/layout/Layout.astro'
+import Container from '@/components/container.astro'
+import { Button } from '@/components/react/ui/button'
+import CardWithImage from '@/components/card-with-image.astro'
+import { ArrowRight, MailIcon } from 'lucide-react'
+import Values from '@/components/values.astro'
+import ContactUsForm from '@/components/react/forms/contact-us-form'
 
 // assets
-import { websitePagesGiftCardsPhonePng as phone } from "@/data/website-images";
-import { websitePagesGiftCardsPersonalPng as personal } from "@/data/website-images";
-import { websitePagesGiftCardsGroupPng as group } from "@/data/website-images";
-import { websitePagesGiftCardsQuestionsPng as questions } from "@/data/website-images";
-import whiteSlime from "@/assets/images/pages/gift-cards/white-slime.svg";
-import waveSeparator from "@/assets/images/pages/gift-cards/wave-separator.svg";
-import purpleWave from "@/assets/images/pages/gift-cards/purple-wave.svg";
-import gift from "@/assets/images/pages/gift-cards/gift.svg";
-import smile from "@/assets/images/pages/gift-cards/smile.svg";
-import check from "@/assets/images/pages/gift-cards/check.svg";
-import { websitePagesGiftCardsGiftCard1Png as giftCard1 } from "@/data/website-images";
-import { websitePagesGiftCardsGiftCard2Png as giftCard2 } from "@/data/website-images";
-import { websitePagesGiftCardsGiftCard3Png as giftCard3 } from "@/data/website-images";
-import { websitePagesGiftCardsGiftCard4Png as giftCard4 } from "@/data/website-images";
-import { websitePagesGiftCardsGiftCard5Png as giftCard5 } from "@/data/website-images";
-import { websitePagesGiftCardsGiftCard6Png as giftCard6 } from "@/data/website-images";
-import { websitePagesGiftCardsGiftCard7Png as giftCard7 } from "@/data/website-images";
-import { websitePagesGiftCardsGiftCard8Png as giftCard8 } from "@/data/website-images";
-import { websitePagesGiftCardsGiftCard9Png as giftCard9 } from "@/data/website-images";
-import graphic1 from "@/assets/svg/yellow-stars.svg";
-import graphic2 from "@/assets/svg/pink-yellow-dots.svg";
-import graphic3 from "@/assets/svg/pink-green-dots.svg";
-import graphic4 from "@/assets/svg/pink-atom.svg";
-import graphic5 from "@/assets/svg/green-ring.svg";
-import graphic6 from "@/assets/svg/blue-atom.svg";
-import graphic7 from "@/assets/svg/pink-green-white.svg";
-import graphic8 from "@/assets/svg/pink-circle.svg";
-import graphic9 from "@/assets/svg/atom.svg";
-import graphic10 from "@/assets/svg/purple-science.svg";
+import { websitePagesGiftCardsPhonePng as phone } from '@/data/website-images'
+import { websitePagesGiftCardsPersonalPng as personal } from '@/data/website-images'
+import { websitePagesGiftCardsGroupPng as group } from '@/data/website-images'
+import { websitePagesGiftCardsQuestionsPng as questions } from '@/data/website-images'
+import whiteSlime from '@/assets/images/pages/gift-cards/white-slime.svg'
+import waveSeparator from '@/assets/images/pages/gift-cards/wave-separator.svg'
+import purpleWave from '@/assets/images/pages/gift-cards/purple-wave.svg'
+import gift from '@/assets/images/pages/gift-cards/gift.svg'
+import smile from '@/assets/images/pages/gift-cards/smile.svg'
+import check from '@/assets/images/pages/gift-cards/check.svg'
+import { websitePagesGiftCardsGiftCard1Png as giftCard1 } from '@/data/website-images'
+import { websitePagesGiftCardsGiftCard2Png as giftCard2 } from '@/data/website-images'
+import { websitePagesGiftCardsGiftCard3Png as giftCard3 } from '@/data/website-images'
+import { websitePagesGiftCardsGiftCard4Png as giftCard4 } from '@/data/website-images'
+import { websitePagesGiftCardsGiftCard5Png as giftCard5 } from '@/data/website-images'
+import { websitePagesGiftCardsGiftCard6Png as giftCard6 } from '@/data/website-images'
+import { websitePagesGiftCardsGiftCard7Png as giftCard7 } from '@/data/website-images'
+import { websitePagesGiftCardsGiftCard8Png as giftCard8 } from '@/data/website-images'
+import { websitePagesGiftCardsGiftCard9Png as giftCard9 } from '@/data/website-images'
+import graphic1 from '@/assets/svg/yellow-stars.svg'
+import graphic2 from '@/assets/svg/pink-yellow-dots.svg'
+import graphic3 from '@/assets/svg/pink-green-dots.svg'
+import graphic4 from '@/assets/svg/pink-atom.svg'
+import graphic5 from '@/assets/svg/green-ring.svg'
+import graphic6 from '@/assets/svg/blue-atom.svg'
+import graphic7 from '@/assets/svg/pink-green-white.svg'
+import graphic8 from '@/assets/svg/pink-circle.svg'
+import graphic9 from '@/assets/svg/atom.svg'
+import graphic10 from '@/assets/svg/purple-science.svg'
 ---
 
 <Layout
-  title="Fizz Kidz Gift Cards | The Perfect Gift For Kids"
-  description="Give the gift of fizzing fun. Fizz Kidz gift cards can be used for parties, holiday programs, Messy Play Lab sessions and more."
+    title="Fizz Kidz Gift Cards | The Perfect Gift For Kids"
+    description="Give the gift of fizzing fun. Fizz Kidz gift cards can be used for parties, holiday programs, Messy Play Lab sessions and more."
 >
-  <!--This is to hide the header box shadow so the slime looks good, but re-enable it after scrolling down -->
-  <style lang="css">
-    :global(header) {
-      box-shadow: none !important;
-      transition: box-shadow 150ms ease;
-    }
-    :global(body.scrolled header) {
-      box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
-    }
-  </style>
-  <script is:inline>
-    const toggleHeaderShadow = () => {
-      document.body.classList.toggle("scrolled", window.scrollY > 10);
-    };
-    window.addEventListener("scroll", toggleHeaderShadow, { passive: true });
-    toggleHeaderShadow();
-  </script>
-
-  <main class="bg-white">
-    <div class="relative overflow-hidden bg-[#E6F5F5]">
-      <Image
-        src={whiteSlime}
-        alt=""
-        aria-hidden="true"
-        class="pointer-events-none absolute left-0 right-0 z-50 w-full"
-      />
-      <Container
-        class="relative z-10 mx-auto mt-24 flex flex-col items-start gap-6 md:flex-row md:items-center md:gap-10"
-      >
-        <Image
-          src={graphic3}
-          alt=""
-          aria-hidden="true"
-          class="absolute -left-[100px] top-[90px]"
-        />
-        <div class="relative z-10 flex-1 space-y-5">
-          <Image
-            src={graphic4}
-            alt=""
-            aria-hidden="true"
-            class="absolute bottom-0 right-0"
-          />
-          <h1
-            class="font-lilita text-5xl leading-tight text-black sm:text-6xl md:text-7xl"
-          >
-            Fizz Kidz Gift Cards
-          </h1>
-          <p
-            class="font-lilita text-2xl uppercase leading-tight text-[#00c7dd] sm:text-3xl"
-          >
-            The perfect gift for kids and their parents!
-          </p>
-          <p class="font-gotham text-lg leading-7 text-black/80">
-            Fizz Kidz Gift Cards can be used at any Fizz Kidz experience - from
-            birthday parties to Holiday Programs, Messy Play Lab sessions and more!
-            It's the perfect gift for little makers... and parents will love you
-            for it!
-          </p>
-          <p class="font-gotham text-lg leading-7 text-black/80">
-            Easy, fun, and guaranteed to bring BIG smiles! 🎉💛
-          </p>
-          <a
-            href="https://app.squareup.com/gift/3BYCWGK2H0SXV/order"
-            target="_blank"
-            class="mt-2 inline-flex w-fit items-center rounded-xl bg-[#8f44e1] px-6 py-3 font-lilita text-lg text-white shadow-md transition hover:bg-[#7b35c7]"
-          >
-            Grab a gift card
-          </a>
-        </div>
-        <div class="relative mt-6 flex-1 md:mt-0">
-          <Image
-            src={graphic1}
-            alt=""
-            aria-hidden="true"
-            class="absolute left-0 top-[50px] z-0"
-          />
-          <Image
-            src={graphic2}
-            alt=""
-            aria-hidden="true"
-            class="absolute right-[24px] top-[40px]"
-          />
-          <Image
-            src={graphic5}
-            alt=""
-            aria-hidden="true"
-            class="absolute bottom-[120px] right-[24px]"
-          />
-          <Image
-            src={phone}
-            alt="Fizz Kidz gift card phone preview"
-            class="mx-auto h-[700px] object-contain"
-            loading="eager"
-          />
-        </div>
-      </Container>
-      <Image
-        src={waveSeparator}
-        alt=""
-        aria-hidden="true"
-        class="-mb-1 w-full"
-      />
-    </div>
-    <Container class="relative z-10">
-      <Image
-        src={graphic2}
-        alt=""
-        aria-hidden="true"
-        class="absolute left-0 top-0 z-0 hidden md:block"
-      />
-      <Image
-        src={graphic6}
-        alt=""
-        aria-hidden="true"
-        class="absolute right-0 top-0 z-0 hidden md:block"
-      />
-      <p class="my-8 text-center font-lilita text-5xl uppercase md:text-6xl">
-        Why choose our <span class="text-[#F24DA2]">gift cards?</span>
-      </p>
-      <p class="text-center font-gotham text-lg">
-        Flexible, valid forever, and can be used for any Fizz Kidz experience at
-        ANY location!
-      </p>
-      <div class="my-16 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {
-          [
-            {
-              icon: gift,
-              title: "A gift that keeps on giving",
-              content:
-                "Parent can book for the recipient, add siblings, or invite friends. How they enjoy their gift is up to them!",
-            },
-            {
-              icon: smile,
-              title: "Completely Flexible & Full of Fun",
-              content:
-                "Recipient can choose to use their Fizz Kidz gift at any experience they like, from parties and holiday programs to Messy Play Lab sessions and more!",
-            },
-            {
-              icon: check,
-              title: "Valid forever",
-              content:
-                "With no expire date use the card, parents have plenty of time to plan and decide how to make the most of it.",
-            },
-          ].map((card) => (
-            <div class="flex h-full flex-col items-center gap-5 rounded-2xl p-12 text-center shadow-[0px_8px_24px_rgba(211,191,217,0.3)]">
-              <Image src={card.icon} alt="" aria-hidden="true" width={80} />
-              <p class="font-lilita text-4xl leading-snug lg:min-h-36">
-                {card.title}
-              </p>
-              <p class="font-gotham">{card.content}</p>
-              <a
-                href="https://app.squareup.com/gift/3BYCWGK2H0SXV/order"
-                target="_blank"
-                class="mt-auto"
-              >
-                <Button className="bg-[#8F44E1] text-lg font-lilita hover:bg-[#7b35c7]">
-                  Grab a gift card
-                </Button>
-              </a>
-            </div>
-          ))
+    <!--This is to hide the header box shadow so the slime looks good, but re-enable it after scrolling down -->
+    <style lang="css">
+        :global(header) {
+            box-shadow: none !important;
+            transition: box-shadow 150ms ease;
         }
-      </div>
-    </Container>
-    <Image src={purpleWave} alt="" aria-hidden="true" class="w-full" />
-    <div class="-mb-1 -mt-1 bg-[#8F44E1] py-12 lg:py-0">
-      <div class="relative z-0 m-auto h-full max-w-[1700px]">
-        <Image
-          src={graphic7}
-          alt=""
-          aria-hidden="true"
-          class="absolute left-0 top-0 z-0 hidden md:block"
-        />
-        <Image
-          src={graphic5}
-          alt=""
-          aria-hidden="true"
-          class="absolute right-0 top-1/2 z-0 hidden xl:block"
-        />
-        <Image
-          src={graphic8}
-          alt=""
-          aria-hidden="true"
-          class="absolute bottom-10 right-0 z-0 hidden xl:block"
-        />
-        <Image
-          src={graphic9}
-          alt=""
-          aria-hidden="true"
-          class="absolute left-0 top-2/3 z-0 hidden h-20 xl:block"
-        />
-        <Container class="z-10">
-          <p class="mb-6 text-center font-lilita text-6xl uppercase text-white">
-            Choose your way to <span class="text-[#FEA438]">gift</span>
-          </p>
-          <p class="mb-12 text-center font-gotham text-lg text-white">
-            Purchase as an individual or as a group gift. You can even specify
-            the day you want it to be recieved!
-          </p>
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {
-              [
-                {
-                  image: personal,
-                  content:
-                    "Purchase a gift card yourself and email or print it for your special recipient.",
-                  button: "Individual E-Gift Card",
-                },
-                {
-                  image: group,
-                  content:
-                    "Organise a group present from a group of friends, share the link around and everyone can add funds to the card.",
-                  button: "Group E-Gift Card",
-                },
-              ].map((card) => (
-                <CardWithImage
-                  image={card.image}
-                  imageAlt="gift card"
-                  imageClassName="object-fit min-h-96"
-                >
-                  <div
-                    slot="content"
-                    class="flex h-full flex-col items-center justify-between gap-12 p-8 text-center"
-                  >
-                    <p class="font-gotham text-2xl font-semibold">
-                      {card.content}
+        :global(body.scrolled header) {
+            box-shadow:
+                0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+        }
+    </style>
+    <script is:inline>
+        const toggleHeaderShadow = () => {
+            document.body.classList.toggle('scrolled', window.scrollY > 10)
+        }
+        window.addEventListener('scroll', toggleHeaderShadow, { passive: true })
+        toggleHeaderShadow()
+    </script>
+
+    <main class="bg-white">
+        <div class="relative overflow-hidden bg-[#E6F5F5]">
+            <Image
+                src={whiteSlime}
+                alt=""
+                aria-hidden="true"
+                class="pointer-events-none absolute left-0 right-0 z-50 w-full"
+            />
+            <Container
+                class="relative z-10 mx-auto mt-24 flex flex-col items-start gap-6 md:flex-row md:items-center md:gap-10"
+            >
+                <Image src={graphic3} alt="" aria-hidden="true" class="absolute -left-[100px] top-[90px]" />
+                <div class="relative z-10 flex-1 space-y-5">
+                    <Image src={graphic4} alt="" aria-hidden="true" class="absolute bottom-0 right-0" />
+                    <h1 class="font-lilita text-5xl leading-tight text-black sm:text-6xl md:text-7xl">
+                        Fizz Kidz Gift Cards
+                    </h1>
+                    <p class="font-lilita text-2xl uppercase leading-tight text-[#00c7dd] sm:text-3xl">
+                        The perfect gift for kids and their parents!
+                    </p>
+                    <p class="font-gotham text-lg leading-7 text-black/80">
+                        Fizz Kidz Gift Cards can be used at any Fizz Kidz experience - from birthday parties to Holiday
+                        Programs, Messy Play Lab sessions and more! It's the perfect gift for little makers... and
+                        parents will love you for it!
+                    </p>
+                    <p class="font-gotham text-lg leading-7 text-black/80">
+                        Easy, fun, and guaranteed to bring BIG smiles! 🎉💛
                     </p>
                     <a
-                      href="https://app.squareup.com/gift/3BYCWGK2H0SXV/order"
-                      target="_blank"
+                        href="https://app.squareup.com/gift/3BYCWGK2H0SXV/order"
+                        target="_blank"
+                        class="mt-2 inline-flex w-fit items-center rounded-xl bg-[#8f44e1] px-6 py-3 font-lilita text-lg text-white shadow-md transition hover:bg-[#7b35c7]"
                     >
-                      <Button className="bg-[#FFC907] hover:bg-[#FFC907]/80 text-black font-lilita text-lg">
-                        {card.button}
-                      </Button>
+                        Grab a gift card
                     </a>
-                  </div>
-                </CardWithImage>
-              ))
-            }
-          </div>
-        </Container>
-      </div>
-    </div>
-    <Image
-      src={purpleWave}
-      alt=""
-      aria-hidden="true"
-      class="w-full rotate-180"
-    />
-    <div>
-      <div class="relative z-0 m-auto h-full max-w-[1700px]">
-        <Image
-          src={graphic10}
-          alt=""
-          aria-hidden="true"
-          class="absolute right-0 top-0 z-0 hidden md:block"
-        />
-        <Image
-          src={graphic3}
-          alt=""
-          aria-hidden="true"
-          class="absolute right-0 top-1/2 z-0 hidden xl:block"
-        />
-        <Image
-          src={graphic4}
-          alt=""
-          aria-hidden="true"
-          class="absolute left-0 top-1/3 z-0 hidden xl:block"
-        />
-        <Container class="mt-24">
-          <p class="mb-6 text-center font-lilita text-6xl uppercase">
-            Browse our <span class="text-[#8F44E1]">card</span> gallery
-          </p>
-          <p class="mb-12 text-center font-gotham text-lg">
-            Explore beautifully designed cards for every moment and every
-            personality.
-          </p>
-          <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
-            {
-              [
-                giftCard1,
-                giftCard2,
-                giftCard3,
-                giftCard4,
-                giftCard5,
-                giftCard6,
-                giftCard7,
-                giftCard8,
-                giftCard9,
-              ].map((card) => (
-                <a
-                  href="https://app.squareup.com/gift/3BYCWGK2H0SXV/order"
-                  target="_blank"
-                >
-                  <div class="group relative cursor-pointer rounded-2xl p-2 shadow-[0px_8px_24px_rgba(211,191,217,0.3)]">
-                    <div class="absolute bottom-[8px] left-[8px] right-[8px] top-[8px] hidden rounded-2xl bg-gradient-to-t from-black to-white opacity-60 group-hover:block" />
+                </div>
+                <div class="relative mt-6 flex-1 md:mt-0">
+                    <Image src={graphic1} alt="" aria-hidden="true" class="absolute left-0 top-[50px] z-0" />
+                    <Image src={graphic2} alt="" aria-hidden="true" class="absolute right-[24px] top-[40px]" />
+                    <Image src={graphic5} alt="" aria-hidden="true" class="absolute bottom-[120px] right-[24px]" />
                     <Image
-                      src={card}
-                      alt="Gift card option"
-                      class="rounded-2xl"
+                        src={phone}
+                        alt="Fizz Kidz gift card phone preview"
+                        class="mx-auto h-[700px] object-contain"
+                        loading="eager"
                     />
-                    <Button className="absolute bottom-[24px] text-lg left-[24px] right-[24px] rounded-xl uppercase font-bold bg-white text-[#8F44E1] hover:bg-white hidden group-hover:inline-flex">
-                      Pick me
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  </div>
-                </a>
-              ))
-            }
-          </div>
-        </Container>
-      </div>
-      <div>
-        <div class="relative z-0 m-auto h-full max-w-[1700px]">
-          <Image
-            src={graphic10}
-            alt=""
-            aria-hidden="true"
-            class="absolute left-0 top-24 z-0 hidden xl:block"
-          />
-          <Image
-            src={graphic5}
-            alt=""
-            aria-hidden="true"
-            class="absolute right-24 top-0 z-0 hidden xl:block"
-          />
-          <Image
-            src={graphic4}
-            alt=""
-            aria-hidden="true"
-            class="absolute bottom-10 right-0 z-0 hidden xl:block"
-          />
-          <Container>
-            <div class="my-20 flex gap-20 md:my-24">
-              <Image
-                src={questions}
-                alt="Fizz kids staff smiling"
-                class="hidden w-1/2 lg:block"
-              />
-              <div class="flex w-full flex-col justify-center gap-8 lg:w-1/2">
-                <p class="font-lilita text-6xl uppercase">
-                  Have a <span class="text-[#F14EA1]">question?</span>
-                </p>
-                <p class="font-gotham">
-                  We're here to help, our goal is to make gifting easy for you.
-                  Call us, email us, message us through instagram - whatever is
-                  easier for you!
-                </p>
-                <a href="#contact">
-                  <Button
-                    className="w-fit bg-[#8F44E1] p-6 font-lilita text-lg text-white hover:bg-[#8F44E1]/80"
-                    ><MailIcon className="mr-2 h-4 w-4" />Email Fizz Kidz</Button
-                  >
-                </a>
-              </div>
+                </div>
+            </Container>
+            <Image src={waveSeparator} alt="" aria-hidden="true" class="-mb-1 w-full" />
+        </div>
+        <Container class="relative z-10">
+            <Image src={graphic2} alt="" aria-hidden="true" class="absolute left-0 top-0 z-0 hidden md:block" />
+            <Image src={graphic6} alt="" aria-hidden="true" class="absolute right-0 top-0 z-0 hidden md:block" />
+            <p class="my-8 text-center font-lilita text-5xl uppercase md:text-6xl">
+                Why choose our <span class="text-[#F24DA2]">gift cards?</span>
+            </p>
+            <p class="text-center font-gotham text-lg">
+                Flexible, valid forever, and can be used for any Fizz Kidz experience at ANY location!
+            </p>
+            <div class="my-16 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                {[
+                    {
+                        icon: gift,
+                        title: 'A gift that keeps on giving',
+                        content:
+                            'Parent can book for the recipient, add siblings, or invite friends. How they enjoy their gift is up to them!',
+                    },
+                    {
+                        icon: smile,
+                        title: 'Completely Flexible & Full of Fun',
+                        content:
+                            'Recipient can choose to use their Fizz Kidz gift at any experience they like, from parties and holiday programs to Messy Play Lab sessions and more!',
+                    },
+                    {
+                        icon: check,
+                        title: 'Valid forever',
+                        content:
+                            'With no expire date use the card, parents have plenty of time to plan and decide how to make the most of it.',
+                    },
+                ].map((card) => <div
+                    class="flex h-full flex-col items-center gap-5 rounded-2xl p-12 text-center shadow-[0px_8px_24px_rgba(211,191,217,0.3)]"
+                >
+                    <Image src={card.icon} alt="" aria-hidden="true" width={80} />
+                    <p class="font-lilita text-4xl leading-snug lg:min-h-36">
+                        {card.title}
+                    </p>
+                    <p class="font-gotham">{card.content}</p>
+                    <a href="https://app.squareup.com/gift/3BYCWGK2H0SXV/order" target="_blank" class="mt-auto">
+                        <Button className="bg-[#8F44E1] font-lilita text-lg hover:bg-[#7b35c7]">
+                            Grab a gift card
+                        </Button>
+                    </a>
+                </div>)}
             </div>
-          </Container>
-        </div>
-        <Container>
-          <div
-            id="contact"
-            class="m-auto mb-12 max-w-4xl scroll-mt-20 p-4 md:mt-24"
-          >
-            <p class="mb-4 text-center font-lilita text-4xl">
-              Feel free to <a
-                class="text-[#9A57E6] underline"
-                href="tel:+61390598144">call us</a
-              > or fill in the form and we will be in touch within 24 hours!
-            </p>
-            <p class="mb-12 text-center">
-              You can also email us directly at <a
-                href="mailto:bookings@fizzkidz.com.au"
-                class="text-[#9A57E6] underline">bookings@fizzkidz.com.au</a
-              >
-            </p>
-            <ContactUsForm client:visible={{ rootMargin: "300px" }} />
-          </div>
         </Container>
-        <div class="relative z-0 m-auto h-full max-w-[1700px]">
-          <Image
-            src={graphic3}
-            alt=""
-            aria-hidden="true"
-            class="absolute left-0 top-0 z-0 hidden xl:block"
-          />
-          <Values />
+        <Image src={purpleWave} alt="" aria-hidden="true" class="w-full" />
+        <div class="-mb-1 -mt-1 bg-[#8F44E1] py-12 lg:py-0">
+            <div class="relative z-0 m-auto h-full max-w-[1700px]">
+                <Image src={graphic7} alt="" aria-hidden="true" class="absolute left-0 top-0 z-0 hidden md:block" />
+                <Image src={graphic5} alt="" aria-hidden="true" class="absolute right-0 top-1/2 z-0 hidden xl:block" />
+                <Image
+                    src={graphic8}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute bottom-10 right-0 z-0 hidden xl:block"
+                />
+                <Image
+                    src={graphic9}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute left-0 top-2/3 z-0 hidden h-20 xl:block"
+                />
+                <Container class="z-10">
+                    <p class="mb-6 text-center font-lilita text-6xl uppercase text-white">
+                        Choose your way to <span class="text-[#FEA438]">gift</span>
+                    </p>
+                    <p class="mb-12 text-center font-gotham text-lg text-white">
+                        Purchase as an individual or as a group gift. You can even specify the day you want it to be
+                        recieved!
+                    </p>
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        {[
+                            {
+                                image: personal,
+                                content:
+                                    'Purchase a gift card yourself and email or print it for your special recipient.',
+                                button: 'Individual E-Gift Card',
+                            },
+                            {
+                                image: group,
+                                content:
+                                    'Organise a group present from a group of friends, share the link around and everyone can add funds to the card.',
+                                button: 'Group E-Gift Card',
+                            },
+                        ].map((card) => <CardWithImage
+                            image={card.image}
+                            imageAlt="gift card"
+                            imageClassName="object-fit min-h-96"
+                        >
+                            <div
+                                slot="content"
+                                class="flex h-full flex-col items-center justify-between gap-12 p-8 text-center"
+                            >
+                                <p class="font-gotham text-2xl font-semibold">
+                                    {card.content}
+                                </p>
+                                <a href="https://app.squareup.com/gift/3BYCWGK2H0SXV/order" target="_blank">
+                                    <Button
+                                        className="bg-[#FFC907] font-lilita text-lg text-black hover:bg-[#FFC907]/80"
+                                    >
+                                        {card.button}
+                                    </Button>
+                                </a>
+                            </div>
+                        </CardWithImage>)}
+                    </div>
+                </Container>
+            </div>
         </div>
-      </div>
-    </div>
-  </main>
+        <Image src={purpleWave} alt="" aria-hidden="true" class="w-full rotate-180" />
+        <div>
+            <div class="relative z-0 m-auto h-full max-w-[1700px]">
+                <Image src={graphic10} alt="" aria-hidden="true" class="absolute right-0 top-0 z-0 hidden md:block" />
+                <Image src={graphic3} alt="" aria-hidden="true" class="absolute right-0 top-1/2 z-0 hidden xl:block" />
+                <Image src={graphic4} alt="" aria-hidden="true" class="absolute left-0 top-1/3 z-0 hidden xl:block" />
+                <Container class="mt-24">
+                    <p class="mb-6 text-center font-lilita text-6xl uppercase">
+                        Browse our <span class="text-[#8F44E1]">card</span> gallery
+                    </p>
+                    <p class="mb-12 text-center font-gotham text-lg">
+                        Explore beautifully designed cards for every moment and every personality.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
+                        {[
+                            giftCard1,
+                            giftCard2,
+                            giftCard3,
+                            giftCard4,
+                            giftCard5,
+                            giftCard6,
+                            giftCard7,
+                            giftCard8,
+                            giftCard9,
+                        ].map((card) => <a href="https://app.squareup.com/gift/3BYCWGK2H0SXV/order" target="_blank">
+                            <div
+                                class="group relative cursor-pointer rounded-2xl p-2 shadow-[0px_8px_24px_rgba(211,191,217,0.3)]"
+                            >
+                                <div
+                                    class="absolute bottom-[8px] left-[8px] right-[8px] top-[8px] hidden rounded-2xl bg-gradient-to-t from-black to-white opacity-60 group-hover:block"
+                                />
+                                <Image src={card} alt="Gift card option" class="rounded-2xl" />
+                                <Button
+                                    className="absolute bottom-[24px] left-[24px] right-[24px] hidden rounded-xl bg-white text-lg font-bold uppercase text-[#8F44E1] hover:bg-white group-hover:inline-flex"
+                                >
+                                    Pick me
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </Button>
+                            </div>
+                        </a>)}
+                    </div>
+                </Container>
+            </div>
+            <div>
+                <div class="relative z-0 m-auto h-full max-w-[1700px]">
+                    <Image
+                        src={graphic10}
+                        alt=""
+                        aria-hidden="true"
+                        class="absolute left-0 top-24 z-0 hidden xl:block"
+                    />
+                    <Image
+                        src={graphic5}
+                        alt=""
+                        aria-hidden="true"
+                        class="absolute right-24 top-0 z-0 hidden xl:block"
+                    />
+                    <Image
+                        src={graphic4}
+                        alt=""
+                        aria-hidden="true"
+                        class="absolute bottom-10 right-0 z-0 hidden xl:block"
+                    />
+                    <Container>
+                        <div class="my-20 flex gap-20 md:my-24">
+                            <Image src={questions} alt="Fizz kids staff smiling" class="hidden w-1/2 lg:block" />
+                            <div class="flex w-full flex-col justify-center gap-8 lg:w-1/2">
+                                <p class="font-lilita text-6xl uppercase">
+                                    Have a <span class="text-[#F14EA1]">question?</span>
+                                </p>
+                                <p class="font-gotham">
+                                    We're here to help, our goal is to make gifting easy for you. Call us, email us,
+                                    message us through instagram - whatever is easier for you!
+                                </p>
+                                <a href="#contact">
+                                    <Button
+                                        className="w-fit bg-[#8F44E1] p-6 font-lilita text-lg text-white hover:bg-[#8F44E1]/80"
+                                        ><MailIcon className="mr-2 h-4 w-4" />Email Fizz Kidz</Button
+                                    >
+                                </a>
+                            </div>
+                        </div>
+                    </Container>
+                </div>
+                <Container>
+                    <div id="contact" class="m-auto mb-12 max-w-4xl scroll-mt-20 p-4 md:mt-24">
+                        <p class="mb-4 text-center font-lilita text-4xl">
+                            Feel free to <a class="text-[#9A57E6] underline" href="tel:+61390598144">call us</a> or fill
+                            in the form and we will be in touch within 24 hours!
+                        </p>
+                        <p class="mb-12 text-center">
+                            You can also email us directly at
+                            <a href="mailto:bookings@fizzkidz.com.au" class="text-[#9A57E6] underline"
+                                >bookings@fizzkidz.com.au</a
+                            >
+                        </p>
+                        <ContactUsForm client:visible={{ rootMargin: '300px' }} />
+                    </div>
+                </Container>
+                <div class="relative z-0 m-auto h-full max-w-[1700px]">
+                    <Image src={graphic3} alt="" aria-hidden="true" class="absolute left-0 top-0 z-0 hidden xl:block" />
+                    <Values />
+                </div>
+            </div>
+        </div>
+    </main>
 </Layout>

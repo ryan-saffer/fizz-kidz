@@ -1,66 +1,56 @@
 ---
-import Image from "@/components/image.astro";
-import logoHorizontal from "@/assets/images/logo-horizontal.png";
-import NavigationMenu from "@/react-components/navigation/navigation-menu";
-import { createNavigationMenu } from "@/react-components/navigation/navigation-menu-data";
-import { Button } from "@/components/react/ui/button";
-import { birthdayPartyPackageNavigationLinks } from "@/data/birthday-party-catalogue";
+import Image from '@/components/image.astro'
+import logoHorizontal from '@/assets/images/logo-horizontal.png'
+import NavigationMenu from '@/react-components/navigation/navigation-menu'
+import { createNavigationMenu } from '@/react-components/navigation/navigation-menu-data'
+import { Button } from '@/components/react/ui/button'
+import { birthdayPartyPackageNavigationLinks } from '@/data/birthday-party-catalogue'
 
-const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks);
+const menu = createNavigationMenu(birthdayPartyPackageNavigationLinks)
 ---
 
 <header
-  class="sticky top-0 z-[99] flex h-16 justify-center bg-white px-2 py-2 shadow-lg min-[1280px]:h-20 min-[1280px]:px-8"
+    class="sticky top-0 z-[99] flex h-16 justify-center bg-white px-2 py-2 shadow-lg min-[1280px]:h-20 min-[1280px]:px-8"
 >
-  <div
-    class="flex w-full flex-row-reverse items-center justify-end gap-4 min-[1280px]:flex-row min-[1280px]:justify-between"
-  >
     <div
-      class="absolute right-2 flex gap-2 min-[1280px]:right-8 min-[1280px]:hidden"
+        class="flex w-full flex-row-reverse items-center justify-end gap-4 min-[1280px]:flex-row min-[1280px]:justify-between"
     >
-      <a href="/birthday-parties/book-a-party/#book">
-        <Button
-          className="bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg"
-        >
-          Book a party
-        </Button>
-      </a>
-      <a href="/contact-us/#contact">
-        <Button
-          className="bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg"
-        >
-          Get in touch
-        </Button>
-      </a>
-    </div>
-    <a href="/" aria-label="Fizz Kidz home">
-      <Image
-        src={logoHorizontal}
-        alt="Fizz Kids Logo"
-        widths={[100, 300]}
-        sizes="(min-width: 1280px) 192px, 144px"
-        loading="eager"
-        class="[min-1280px]:block hidden h-12 w-fit min-[450px]:block min-[1212px]:block min-[1280px]:h-16"
-      />
-    </a>
-    <div class="flex items-center">
-      <NavigationMenu menu={menu} client:load />
-      <div class="flex gap-2">
-        <a class="hidden min-[1440px]:inline-flex" href="/birthday-parties/book-a-party/#book">
-          <Button
-            className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]"
-          >
-            Book a party
-          </Button>
+        <div class="absolute right-2 flex gap-2 min-[1280px]:right-8 min-[1280px]:hidden">
+            <a href="/birthday-parties/book-a-party/#book">
+                <Button className="bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg">
+                    Book a party
+                </Button>
+            </a>
+            <a href="/contact-us/#contact">
+                <Button className="bg-[#9044E2] p-2 font-lilita text-sm uppercase hover:bg-[#F6BA33] sm:p-6 sm:text-lg">
+                    Get in touch
+                </Button>
+            </a>
+        </div>
+        <a href="/" aria-label="Fizz Kidz home">
+            <Image
+                src={logoHorizontal}
+                alt="Fizz Kids Logo"
+                widths={[100, 300]}
+                sizes="(min-width: 1280px) 192px, 144px"
+                loading="eager"
+                class="[min-1280px]:block hidden h-12 w-fit min-[450px]:block min-[1212px]:block min-[1280px]:h-16"
+            />
         </a>
-        <a class="hidden min-[1440px]:inline-flex" href="/contact-us/#contact">
-          <Button
-            className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]"
-          >
-            Get in touch
-          </Button>
-        </a>
-      </div>
+        <div class="flex items-center">
+            <NavigationMenu menu={menu} client:load />
+            <div class="flex gap-2">
+                <a class="hidden min-[1440px]:inline-flex" href="/birthday-parties/book-a-party/#book">
+                    <Button className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]">
+                        Book a party
+                    </Button>
+                </a>
+                <a class="hidden min-[1440px]:inline-flex" href="/contact-us/#contact">
+                    <Button className="bg-[#9044E2] p-6 font-lilita text-lg uppercase hover:bg-[#F6BA33]">
+                        Get in touch
+                    </Button>
+                </a>
+            </div>
+        </div>
     </div>
-  </div>
 </header>

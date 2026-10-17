@@ -1,66 +1,60 @@
 ---
-import { websitePagesPartiesInvitationsPng as invitations } from "@/data/website-images";
-import { websitePagesPartiesCakesPng as cakes } from "@/data/website-images";
-import { websitePagesPartiesLollyBagsPng as lollyBags } from "@/data/website-images";
-import Image from "@/components/image.astro";
+import { websitePagesPartiesInvitationsPng as invitations } from '@/data/website-images'
+import { websitePagesPartiesCakesPng as cakes } from '@/data/website-images'
+import { websitePagesPartiesLollyBagsPng as lollyBags } from '@/data/website-images'
+import Image from '@/components/image.astro'
 ---
 
 <section class="my-16">
-  <p
-    class="mb-8 text-center font-lilita text-3xl leading-9 md:text-5xl md:leading-[3.5rem]"
-  >
-    <span class="text-[#F24DA4]">Extra Perks</span><br />We're all about making
-    it <span class="text-[#9044E2]">easy</span> for you!
-  </p>
-  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-    {
-      [
-        {
-          image: invitations,
-          alt: "",
-          content: (
-            <>
-              Personalised Fizz Kidz
-              <br />
-              <span class="text-[#45D3F3]">Invitations (included)</span>
-            </>
-          ),
-        },
-        {
-          image: cakes,
-          alt: "",
-          content: (
-            <>
-              Order your own
-              <br />
-              <span class="text-[#FFDC5D]">birthday cake</span>
-            </>
-          ),
-        },
-        {
-          image: lollyBags,
-          alt: "",
-          content: (
-            <>
-              Take home party
-              <br />
-              <span class="text-[#F24DA2]">lolly bags + gifts</span>
-            </>
-          ),
-        },
-      ].map((item) => (
-        <div class="flex flex-col rounded-lg bg-white p-4 shadow-lg">
-          <Image
-            src={item.image}
-            alt={item.alt}
-            class="max-h-[350px] flex-grow rounded-lg object-cover"
-            width={700}
-          />
-          <p class="mt-4 text-center font-lilita text-xl uppercase tracking-wide">
-            {item.content}
-          </p>
-        </div>
-      ))
-    }
-  </div>
+    <p class="mb-8 text-center font-lilita text-3xl leading-9 md:text-5xl md:leading-[3.5rem]">
+        <span class="text-[#F24DA4]">Extra Perks</span><br />We're all about making it
+        <span class="text-[#9044E2]">easy</span> for you!
+    </p>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {[
+            {
+                image: invitations,
+                alt: '',
+                content: (
+                    <>
+                        Personalised Fizz Kidz
+                        <br />
+                        <span class="text-[#45D3F3]">Invitations (included)</span>
+                    </>
+                ),
+            },
+            {
+                image: cakes,
+                alt: '',
+                content: (
+                    <>
+                        Order your own
+                        <br />
+                        <span class="text-[#FFDC5D]">birthday cake</span>
+                    </>
+                ),
+            },
+            {
+                image: lollyBags,
+                alt: '',
+                content: (
+                    <>
+                        Take home party
+                        <br />
+                        <span class="text-[#F24DA2]">lolly bags + gifts</span>
+                    </>
+                ),
+            },
+        ].map((item) => <div class="flex flex-col rounded-lg bg-white p-4 shadow-lg">
+            <Image
+                src={item.image}
+                alt={item.alt}
+                class="max-h-[350px] flex-grow rounded-lg object-cover"
+                width={700}
+            />
+            <p class="mt-4 text-center font-lilita text-xl uppercase tracking-wide">
+                {item.content}
+            </p>
+        </div>)}
+    </div>
 </section>

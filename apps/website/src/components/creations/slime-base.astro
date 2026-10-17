@@ -1,17 +1,12 @@
 ---
-import FlipCreation from "../flip-creation.astro";
+import FlipCreation from '../flip-creation.astro'
 
-import { websiteCreationsSlimeBasePng as creation } from "@/data/website-images";
+import { websiteCreationsSlimeBasePng as creation } from '@/data/website-images'
 type Props = {
-  flippable?: boolean;
-};
+    flippable?: boolean
+}
 
-const { flippable = true } = Astro.props;
+const { flippable = true } = Astro.props
 ---
 
-<FlipCreation
-  flippable={flippable}
-  image={creation}
-  text={["Choose your base"]}
-  color="white"
-/>
+<FlipCreation flippable={flippable} image={creation} text={['Choose your base']} color="white" />

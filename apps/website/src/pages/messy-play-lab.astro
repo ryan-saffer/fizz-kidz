@@ -1,1040 +1,888 @@
 ---
-import Image from "@/components/image.astro";
-import { ArrowRight, CalendarDays, Clock3 } from "lucide-react";
+import Image from '@/components/image.astro'
+import { ArrowRight, CalendarDays, Clock3 } from 'lucide-react'
 
-import { Button } from "@/components/react/ui/button";
-import blueAtom from "@/assets/svg/blue-atom.svg";
-import pinkAtom from "@/assets/svg/pink-atom.svg";
-import pinkGreenDots from "@/assets/svg/pink-green-dots.svg";
-import smallShapes from "@/assets/svg/small-shapes.svg";
-import check from "@/assets/images/pages/franchising/check.png";
-import { websitePagesFranchisingCloudsPng as clouds } from "@/data/website-images";
-import graphic10 from "@/assets/images/pages/franchising/graphics/graphic10.png";
-import graphic12 from "@/assets/images/pages/franchising/graphics/graphic12.png";
-import graphic15 from "@/assets/images/pages/franchising/graphics/graphic15.png";
-import { websitePagesPreschoolProgramHeroJpg as hero } from "@/data/website-images";
-import { websitePagesFranchisingPlayLabJpg as playLabImage } from "@/data/website-images";
-import { websitePagesFranchisingPurpleCurvePng as purpleCurve } from "@/data/website-images";
-import calendarHeaderIcon from "@/assets/images/pages/preschool-program/schedule-icons/calendar.svg";
-import sessionIcon1 from "@/assets/images/pages/preschool-program/session-icons/1.svg";
-import sessionIcon2 from "@/assets/images/pages/preschool-program/session-icons/2.svg";
-import sessionIcon3 from "@/assets/images/pages/preschool-program/session-icons/3.svg";
-import sessionIcon4 from "@/assets/images/pages/preschool-program/session-icons/4.svg";
-import sessionIcon5 from "@/assets/images/pages/preschool-program/session-icons/5.svg";
-import { websitePagesPreschoolProgram1Jpg as step1 } from "@/data/website-images";
-import { websitePagesPreschoolProgram2Jpg as step2 } from "@/data/website-images";
-import { websitePagesPreschoolProgram3Jpg as step3 } from "@/data/website-images";
-import { websitePagesPreschoolProgramCarousel1Jpg as carousel1 } from "@/data/website-images";
-import { websitePagesPreschoolProgramCarousel2Jpg as carousel2 } from "@/data/website-images";
-import { websitePagesPreschoolProgramCarousel3Jpg as carousel3 } from "@/data/website-images";
-import { websitePagesPreschoolProgramWednesdayJpg as wednesday } from "@/data/website-images";
-import { websitePagesPreschoolProgramThursdayJpg as thursday } from "@/data/website-images";
-import { websitePagesFranchisingSchoolsJpg as schools } from "@/data/website-images";
-import yellowBlob from "@/assets/images/blobs/yellow-blob.png";
-import Container from "@/components/container.astro";
-import PreschoolProgramKidsHero from "@/components/image-clips/preschool-program-kids-hero.astro";
-import PreschoolProgramSessionCalendar from "@/components/preschool-program-session-calendar.astro";
-import PageIntro from "@/components/page-intro.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Layout from "@/layout/Layout.astro";
-import PrimaryButton from "@/components/primary-button.astro";
-import Values from "@/components/values.astro";
-import FaqAccordion from "@/components/react/faq-accordion";
-import ImageCarousel from "@/components/react/image-carousel";
-import { websitePagesPartiesFaqPng as faq } from "@/data/website-images";
-import { createBreadcrumbSchema, createServiceSchema } from "@/utils/seo";
+import { Button } from '@/components/react/ui/button'
+import blueAtom from '@/assets/svg/blue-atom.svg'
+import pinkAtom from '@/assets/svg/pink-atom.svg'
+import pinkGreenDots from '@/assets/svg/pink-green-dots.svg'
+import smallShapes from '@/assets/svg/small-shapes.svg'
+import check from '@/assets/images/pages/franchising/check.png'
+import { websitePagesFranchisingCloudsPng as clouds } from '@/data/website-images'
+import graphic10 from '@/assets/images/pages/franchising/graphics/graphic10.png'
+import graphic12 from '@/assets/images/pages/franchising/graphics/graphic12.png'
+import graphic15 from '@/assets/images/pages/franchising/graphics/graphic15.png'
+import { websitePagesPreschoolProgramHeroJpg as hero } from '@/data/website-images'
+import { websitePagesFranchisingPlayLabJpg as playLabImage } from '@/data/website-images'
+import { websitePagesFranchisingPurpleCurvePng as purpleCurve } from '@/data/website-images'
+import calendarHeaderIcon from '@/assets/images/pages/preschool-program/schedule-icons/calendar.svg'
+import sessionIcon1 from '@/assets/images/pages/preschool-program/session-icons/1.svg'
+import sessionIcon2 from '@/assets/images/pages/preschool-program/session-icons/2.svg'
+import sessionIcon3 from '@/assets/images/pages/preschool-program/session-icons/3.svg'
+import sessionIcon4 from '@/assets/images/pages/preschool-program/session-icons/4.svg'
+import sessionIcon5 from '@/assets/images/pages/preschool-program/session-icons/5.svg'
+import { websitePagesPreschoolProgram1Jpg as step1 } from '@/data/website-images'
+import { websitePagesPreschoolProgram2Jpg as step2 } from '@/data/website-images'
+import { websitePagesPreschoolProgram3Jpg as step3 } from '@/data/website-images'
+import { websitePagesPreschoolProgramCarousel1Jpg as carousel1 } from '@/data/website-images'
+import { websitePagesPreschoolProgramCarousel2Jpg as carousel2 } from '@/data/website-images'
+import { websitePagesPreschoolProgramCarousel3Jpg as carousel3 } from '@/data/website-images'
+import { websitePagesPreschoolProgramWednesdayJpg as wednesday } from '@/data/website-images'
+import { websitePagesPreschoolProgramThursdayJpg as thursday } from '@/data/website-images'
+import { websitePagesFranchisingSchoolsJpg as schools } from '@/data/website-images'
+import yellowBlob from '@/assets/images/blobs/yellow-blob.png'
+import Container from '@/components/container.astro'
+import PreschoolProgramKidsHero from '@/components/image-clips/preschool-program-kids-hero.astro'
+import PreschoolProgramSessionCalendar from '@/components/preschool-program-session-calendar.astro'
+import PageIntro from '@/components/page-intro.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import Layout from '@/layout/Layout.astro'
+import PrimaryButton from '@/components/primary-button.astro'
+import Values from '@/components/values.astro'
+import FaqAccordion from '@/components/react/faq-accordion'
+import ImageCarousel from '@/components/react/image-carousel'
+import { websitePagesPartiesFaqPng as faq } from '@/data/website-images'
+import { createBreadcrumbSchema, createServiceSchema } from '@/utils/seo'
 
 const description =
-  "Messy Play Lab: weekly 2-hour science, art and sensory classes for ages 2.5 to 5 in Essendon, Geelong and Werribee. Builds confidence and school readiness.";
+    'Messy Play Lab: weekly 2-hour science, art and sensory classes for ages 2.5 to 5 in Essendon, Geelong and Werribee. Builds confidence and school readiness.'
 
 const schema = [
-  createServiceSchema({
-    name: "Fizz Kidz Messy Play Lab",
-    description,
-    path: "/messy-play-lab/",
-    serviceType: "Toddler science and art classes",
-    areaServed: ["Victoria"],
-  }),
-  createBreadcrumbSchema("/messy-play-lab/", [
-    { name: "Home", path: "/" },
-    { name: "Messy Play Lab", path: "/messy-play-lab/" },
-  ]),
-];
+    createServiceSchema({
+        name: 'Fizz Kidz Messy Play Lab',
+        description,
+        path: '/messy-play-lab/',
+        serviceType: 'Toddler science and art classes',
+        areaServed: ['Victoria'],
+    }),
+    createBreadcrumbSchema('/messy-play-lab/', [
+        { name: 'Home', path: '/' },
+        { name: 'Messy Play Lab', path: '/messy-play-lab/' },
+    ]),
+]
 
 const sessionSlots = [
-  {
-    time: "9:30 AM",
-    title: "Welcome & Free Play",
-    subtitle: "Arrival & Settling In",
-    color: "#F6C546",
-    icon: "welcome",
-  },
-  {
-    time: "9:45 AM",
-    title: "Science & Sensory Projects",
-    subtitle: "Hands-On Exploration",
-    color: "#54DB9D",
-    icon: "science",
-  },
-  {
-    time: "10:15 AM",
-    title: "Morning Tea Break",
-    color: "#7CB9FF",
-    icon: "tea",
-  },
-  {
-    time: "10:30 AM",
-    title: "Creative Craft",
-    subtitle: "Guided Project",
-    color: "#FFA252",
-    icon: "craft",
-  },
-  {
-    time: "11:15 AM",
-    title: "Movement & Dance",
-    subtitle: "Active Fun",
-    color: "#FF8FB8",
-    icon: "movement",
-  },
-  {
-    time: "11:25 AM",
-    title: "Story Time & Home Time Prep",
-    subtitle: "Pack Up & Reflection",
-    color: "#C8D556",
-    icon: "story",
-  },
-  {
-    time: "11:30 AM",
-    title: "Session Ends",
-    subtitle: "Pickup",
-    color: "#D3D3D3",
-    icon: "pickup",
-  },
-] as const;
+    {
+        time: '9:30 AM',
+        title: 'Welcome & Free Play',
+        subtitle: 'Arrival & Settling In',
+        color: '#F6C546',
+        icon: 'welcome',
+    },
+    {
+        time: '9:45 AM',
+        title: 'Science & Sensory Projects',
+        subtitle: 'Hands-On Exploration',
+        color: '#54DB9D',
+        icon: 'science',
+    },
+    {
+        time: '10:15 AM',
+        title: 'Morning Tea Break',
+        color: '#7CB9FF',
+        icon: 'tea',
+    },
+    {
+        time: '10:30 AM',
+        title: 'Creative Craft',
+        subtitle: 'Guided Project',
+        color: '#FFA252',
+        icon: 'craft',
+    },
+    {
+        time: '11:15 AM',
+        title: 'Movement & Dance',
+        subtitle: 'Active Fun',
+        color: '#FF8FB8',
+        icon: 'movement',
+    },
+    {
+        time: '11:25 AM',
+        title: 'Story Time & Home Time Prep',
+        subtitle: 'Pack Up & Reflection',
+        color: '#C8D556',
+        icon: 'story',
+    },
+    {
+        time: '11:30 AM',
+        title: 'Session Ends',
+        subtitle: 'Pickup',
+        color: '#D3D3D3',
+        icon: 'pickup',
+    },
+] as const
 ---
 
-<Layout
-  title="Messy Play Lab: Toddler Science & Art Classes | Fizz Kidz"
-  description={description}
-  schema={schema}
->
-  <main>
-  <Container class="mb:20 pt-4 md:mb-40">
-    <BreadcrumbWrapper
-      client:idle
-      items={[
-        {
-          type: "dropdown",
-          title: "Messy Play Lab",
-          items: [
-            {
-              type: "link",
-              title: "Birthday Parties",
-              path: "/birthday-parties/",
-              isNew: false,
-            },
-            {
-              type: "link",
-              title: "Holiday Programs",
-              path: "/holiday-programs/",
-              isNew: false,
-            },
-            {
-              type: "link",
-              title: "Messy Play Lab",
-              path: "/messy-play-lab/",
-              isNew: false,
-            },
-          ],
-        },
-      ]}
-    />
-    <PageIntro
-      subtitle="Weekly 2-hour science, art and sensory classes for ages 2.5 to 5."
-      color="purple"
-      actionButtonText="Book sessions"
-      actionButtonPath="https://bookings.fizzkidz.com.au/preschool-program-v2-booking"
-      type="image"
-      image={hero}
-      imageAlt="Child exploring a hands-on Messy Play Lab activity"
-    >
-      <span slot="title">Fizz Kidz Messy Play Lab</span>
-      <span slot="content"
-        >Build confidence, independence and school readiness through intentional
-        play, with a new hands-on <strong>art and science</strong> adventure every
-        week.</span
-      >
-    </PageIntro>
-  </Container>
-
-  <section class="relative overflow-hidden">
-    <Image
-      src={graphic12}
-      alt=""
-      aria-hidden="true"
-      class="absolute left-[6%] top-[1%] hidden w-20 min-[1400px]:block"
-    />
-    <Image
-      src={pinkAtom}
-      alt=""
-      aria-hidden="true"
-      class="absolute -left-6 bottom-[10%] hidden w-20 min-[1400px]:block"
-    />
-    <Image
-      src={graphic10}
-      alt=""
-      aria-hidden="true"
-      class="absolute -right-4 top-1/2 hidden w-20 -translate-y-1/2 rotate-[20deg] min-[1400px]:block"
-    />
-    <div
-      class="absolute left-[52%] top-0 hidden h-10 w-10 rounded-full border-[7px] border-[#4BE06C] min-[1400px]:block"
-    >
-    </div>
-
-    <Container class="py-16 md:py-24">
-      <h1
-        class="text-center font-lilita text-4xl uppercase leading-none min-[480px]:text-5xl md:text-6xl"
-      >
-        Everything you <span class="text-[#FF4FB3]">need to know</span>
-      </h1>
-      <p
-        class="mx-auto mt-6 max-w-4xl text-center font-gotham text-lg text-[#5F5F5F] md:text-2xl"
-      >
-        Messy Play Lab runs throughout the school term, with the
-        flexibility to book for the full term or join us casually, whatever
-        works best for your family!
-      </p>
-
-      <div class="mt-12 grid gap-8 xl:grid-cols-3">
-        {
-          [
-            {
-              image: step1,
-              alt: "Child wearing science goggles during a Fizz Kidz activity",
-              title: "Choose your sessions",
-              points: [
-                "<strong>Each 2-hour session is $39.00, filled with art, science and messy play fun.</strong>",
-                "Choose from Tuesday or Friday sessions at our Essendon, Geelong or Werribee studios, or enjoy a mix of both days.",
-                "Every week brings a brand-new adventure for your little one to explore.",
-              ],
-              number: "1",
-              numberColor: "bg-[#FFC61B]",
-            },
-            {
-              image: step2,
-              alt: "Child exploring a science activity with a microscope",
-              title: "Join us for the term",
-              points: [
-                "Book for the term before the term begins and save 20%.",
-                "Enjoy the special term rate of <strong>$31.20 per child, per session.</strong>",
-                "A regular weekly session gives your child a familiar routine and something exciting to look forward to.",
-              ],
-              number: "2",
-              numberColor: "bg-[#4BE06C]",
-            },
-            {
-              image: step3,
-              alt: "Child drawing during a Fizz Kidz learning activity",
-              title: "Come along casually",
-              points: [
-                "Prefer more flexibility? Book individual sessions whenever suits your family.",
-                "Choose as many or as few sessions as you like.",
-                "Plans change? Reschedule to another session in the same term, or cancel for an automatic refund, at least 48 hours before.",
-              ],
-              number: "3",
-              numberColor: "bg-[#45D3F3]",
-            },
-          ].map((card) => (
-            <article class="relative rounded-[2rem] bg-white p-4 pb-16 shadow-[0_0_32px_rgba(143,68,225,0.08)] md:p-8 md:pb-20">
-              <Image
-                src={card.image}
-                alt={card.alt}
-                class="h-64 w-full rounded-[1.5rem] object-cover md:h-72"
-              />
-
-              <h2 class="mt-6 font-lilita text-3xl leading-tight md:text-4xl">
-                {card.title}
-              </h2>
-
-              <div class="mt-4 space-y-5">
-                {card.points.map((point) => (
-                  <div class="flex items-start gap-4">
-                    <Image
-                      src={check}
-                      alt="check"
-                      width={40}
-                      class="mt-1 w-8 shrink-0"
-                    />
-                    <p
-                      class="font-gotham text-lg leading-relaxed text-[#4F4F4F] md:text-xl"
-                      set:html={point}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div
-                class:list={[
-                  "absolute left-1/2 top-0 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full font-gotham text-5xl font-extrabold text-white",
-                  card.numberColor,
+<Layout title="Messy Play Lab: Toddler Science & Art Classes | Fizz Kidz" description={description} schema={schema}>
+    <main>
+        <Container class="mb:20 pt-4 md:mb-40">
+            <BreadcrumbWrapper
+                client:idle
+                items={[
+                    {
+                        type: 'dropdown',
+                        title: 'Messy Play Lab',
+                        items: [
+                            {
+                                type: 'link',
+                                title: 'Birthday Parties',
+                                path: '/birthday-parties/',
+                                isNew: false,
+                            },
+                            {
+                                type: 'link',
+                                title: 'Holiday Programs',
+                                path: '/holiday-programs/',
+                                isNew: false,
+                            },
+                            {
+                                type: 'link',
+                                title: 'Messy Play Lab',
+                                path: '/messy-play-lab/',
+                                isNew: false,
+                            },
+                        ],
+                    },
                 ]}
-              >
-                {card.number}
-              </div>
-            </article>
-          ))
-        }
-      </div>
-      <a
-        href="https://bookings.fizzkidz.com.au/preschool-program-v2-booking"
-        target="_blank"
-      >
-        <Button
-          className="mt-20 w-full rounded-[1.2rem] bg-[#FFD115] px-8 py-7 font-lilita text-xl uppercase text-[#8F44E1] hover:bg-[#FFD115]/90 md:text-2xl"
-        >
-          Book sessions
-          <span
-            class="ml-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#8F44E1] text-white md:h-8 md:w-8"
-          >
-            <ArrowRight className="h-4 w-4" />
-          </span>
-        </Button>
-      </a>
-    </Container>
-
-    <section class="relative mt-12 overflow-hidden md:mt-20">
-      <Image src={purpleCurve} alt="" class="w-full" aria-hidden="true" />
-
-      <div class="relative bg-[#8F44E1] py-14 text-white md:py-24">
-        <Image
-          src={graphic12}
-          alt=""
-          aria-hidden="true"
-          class="absolute left-[4%] top-[10%] hidden w-24 min-[1400px]:block"
-        />
-        <Image
-          src={graphic10}
-          alt=""
-          aria-hidden="true"
-          class="absolute left-1/2 top-[8%] hidden w-20 -translate-x-1/2 min-[1400px]:block"
-        />
-        <Image
-          src={graphic15}
-          alt=""
-          aria-hidden="true"
-          class="absolute bottom-[8%] left-[42%] hidden w-20 min-[1400px]:block"
-        />
-        <div
-          class="absolute right-[7%] top-[10%] hidden h-20 w-20 rounded-full border-[14px] border-[#4BE06C] min-[1400px]:block"
-        >
-        </div>
-        <div
-          class="absolute bottom-[14%] right-[-1.5rem] hidden h-24 w-24 rounded-full bg-[#F24DA2] min-[1400px]:block"
-        >
-        </div>
-
-        <Container>
-          <div class="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
-            <div class="relative w-full max-w-[700px] lg:w-1/2 lg:max-w-none">
-              <div
-                class="absolute -left-3 -top-3 h-full w-full rounded-[2rem] border-[4px] border-white"
-              >
-              </div>
-
-              <div class="relative overflow-hidden rounded-[2rem] bg-white">
-                <Image
-                  src={wednesday}
-                  alt="Child painting during a Messy Play Lab session"
-                  class="w-full rounded-[1.6rem] object-cover"
-                  width={900}
-                />
-              </div>
-            </div>
-
-            <div class="w-full lg:w-1/2">
-              <h2
-                class="font-lilita text-3xl uppercase leading-none sm:text-4xl md:text-5xl lg:text-6xl"
-              >
-                A program with <span class="text-[#FF9E43]">purpose</span>
-              </h2>
-
-              <p
-                class="mt-6 max-w-[760px] font-gotham text-lg leading-relaxed md:text-2xl"
-              >
-                The early years are a powerful time for growth. Through
-                structured guided activities, your child will:
-              </p>
-
-              <div
-                class="mt-8 space-y-6 font-gotham text-lg leading-relaxed md:mt-10 md:text-2xl"
-              >
-                {
-                  [
-                    <Fragment>
-                      Dive into immersive{" "}
-                      <span class="font-bold">
-                        art, science, and craft projects
-                      </span>{" "}
-                      that encourage imagination and real problem-solving skills
-                    </Fragment>,
-                    <Fragment>
-                      Create{" "}
-                      <span class="font-bold">
-                        meaningful take-home projects
-                      </span>{" "}
-                      that spark continued play, storytelling, and a strong
-                      sense of pride in their unique art expressions
-                    </Fragment>,
-                    <Fragment>
-                      <span class="font-bold">
-                        Express themselves confidently
-                      </span>{" "}
-                      while building friendships and practicing teamwork
-                    </Fragment>,
-                    <Fragment>
-                      Experience{" "}
-                      <span class="font-bold">small group programs</span> where
-                      every child is guided and encouraged
-                    </Fragment>,
-                  ].map((item) => (
-                    <div class="flex items-start gap-4">
-                      <span class="mt-2 text-xl md:text-2xl">•</span>
-                      <p>{item}</p>
-                    </div>
-                  ))
-                }
-              </div>
-            </div>
-          </div>
-        </Container>
-      </div>
-
-      <Image
-        src={purpleCurve}
-        alt=""
-        class="-mt-2 w-full rotate-180"
-        aria-hidden="true"
-      />
-    </section>
-
-    <section class="relative overflow-hidden bg-white py-16 md:py-24">
-      <Image
-        src={graphic12}
-        alt=""
-        aria-hidden="true"
-        class="absolute left-[4%] top-[10%] hidden w-20 min-[1400px]:block"
-      />
-      <Image
-        src={smallShapes}
-        alt=""
-        aria-hidden="true"
-        class="absolute bottom-[4%] right-[3%] hidden w-24 min-[1400px]:block"
-      />
-
-      <Container>
-        <h2
-          class="text-center font-lilita text-4xl uppercase leading-none md:text-6xl"
-        >
-          Checkout the fun
-        </h2>
-
-        <ImageCarousel
-          imageSlots={["image1", "image2", "image3", "image4", "image5"]}
-          client:visible
-        >
-          <Image
-            slot="image1"
-            src={carousel1}
-            alt="Child enjoying a science activity during a Fizz Kidz session"
-            class="h-60 w-60 rounded-md object-cover"
-            width={240}
-            height={240}
-            widths={[240, 480]}
-            sizes="240px"
-            fit="cover"
-          />
-          <Image
-            slot="image2"
-            src={carousel2}
-            alt="Children exploring a science activity together"
-            class="h-60 w-60 rounded-md object-cover"
-            width={240}
-            height={240}
-            widths={[240, 480]}
-            sizes="240px"
-            fit="cover"
-          />
-          <Image
-            slot="image3"
-            src={carousel3}
-            alt="Child drawing during a Fizz Kidz learning activity"
-            class="h-60 w-60 rounded-md object-cover"
-            width={240}
-            height={240}
-            widths={[240, 480]}
-            sizes="240px"
-            fit="cover"
-          />
-          <Image
-            slot="image4"
-            src={schools}
-            alt="Children smiling during a Fizz Kidz session"
-            class="h-60 w-60 rounded-md object-cover"
-            width={240}
-            height={240}
-            widths={[240, 480]}
-            sizes="240px"
-            fit="cover"
-          />
-          <Image
-            slot="image5"
-            src={playLabImage}
-            alt="Child taking part in a Messy Play Lab session"
-            class="h-60 w-60 rounded-md object-cover"
-            width={240}
-            height={240}
-            widths={[240, 480]}
-            sizes="240px"
-            fit="cover"
-          />
-        </ImageCarousel>
-      </Container>
-    </section>
-
-    <section
-      id="session-timetable"
-      class="relative overflow-hidden py-16 md:py-24"
-      style={{ backgroundColor: "rgba(143, 68, 225, 0.12)" }}
-    >
-      <Image
-        src={graphic12}
-        alt=""
-        aria-hidden="true"
-        class="absolute right-[2.5%] top-[4%] hidden w-20 min-[1400px]:block"
-      />
-      <Image
-        src={graphic10}
-        alt=""
-        aria-hidden="true"
-        class="absolute bottom-[6%] right-[2%] hidden w-20 rotate-[18deg] min-[1400px]:block"
-      />
-      <Image
-        src={blueAtom}
-        alt=""
-        aria-hidden="true"
-        class="absolute bottom-[22%] left-[1.5%] hidden w-16 min-[1400px]:block"
-      />
-
-      <Container>
-        <h2
-          class="text-center font-lilita text-4xl uppercase leading-none md:text-6xl"
-        >
-          Term 4, 2026 schedule
-        </h2>
-        <p
-          class="mt-6 text-center font-gotham text-lg text-[#5F5F5F] md:text-2xl"
-        >
-          Sessions run at our Essendon, Geelong and Werribee studios, from
-          9:30am to 11:30am. Book one session, several, or the whole term.
-        </p>
-
-        <div class="mt-16 grid gap-8 xl:grid-cols-2">
-          <div
-            class="flex h-full flex-col overflow-hidden rounded-[2rem] bg-white shadow-[0_0_32px_rgba(143,68,225,0.08)]"
-          >
-            <div
-              class="flex items-center gap-5 bg-gradient-to-r from-[#A15BFF] to-[#863BEF] p-5 md:p-8"
+            />
+            <PageIntro
+                subtitle="Weekly 2-hour science, art and sensory classes for ages 2.5 to 5."
+                color="purple"
+                actionButtonText="Book sessions"
+                actionButtonPath="https://bookings.fizzkidz.com.au/preschool-program-v2-booking"
+                type="image"
+                image={hero}
+                imageAlt="Child exploring a hands-on Messy Play Lab activity"
             >
-              <div
-                class="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-white md:h-24 md:w-24"
-              >
-                <Image
-                  src={calendarHeaderIcon}
-                  alt=""
-                  aria-hidden="true"
-                  class="h-10 w-10 md:h-12 md:w-12"
-                />
-              </div>
-              <p
-                class="font-gotham text-xl font-bold text-white md:text-[2rem]"
-              >
-                Weekly Timetable
-              </p>
-            </div>
+                <span slot="title">Fizz Kidz Messy Play Lab</span>
+                <span slot="content"
+                    >Build confidence, independence and school readiness through intentional play, with a new hands-on
+                    <strong>art and science</strong> adventure every week.</span
+                >
+            </PageIntro>
+        </Container>
 
-            <div class="flex flex-1 flex-col space-y-6 p-4 md:p-6">
-              {
-                [
-                  {
-                    image: wednesday,
-                    alt: "Children exploring a science activity together",
-                    title: "Tuesday Sessions",
-                    dates:
-                      "13, 20 & 27 October; 3, 10, 17 & 24 November; 1, 8 & 15 December",
-                    note: "No session on 3 November (Melbourne Cup Day) at Essendon or Werribee. Geelong runs as usual.",
-                    cardColor: "#DFF8FF",
-                    borderColor: "#52D6F0",
-                    pillColor: "#11C6E8",
-                  },
-                  {
-                    image: thursday,
-                    alt: "Children taking part in a Fizz Kidz session",
-                    title: "Friday Sessions",
-                    dates:
-                      "16, 23 & 30 October; 6, 13, 20 & 27 November; 4, 11 & 18 December",
-                    note: undefined,
-                    cardColor: "#FBE4F2",
-                    borderColor: "#F06AB1",
-                    pillColor: "#F14EA1",
-                  },
-                ].map((dayCard) => (
-                  <div
-                    class="rounded-[1.4rem] border-r-[4px] p-3 md:p-4"
-                    style={{
-                      backgroundColor: dayCard.cardColor,
-                      borderColor: dayCard.borderColor,
-                    }}
-                  >
-                    <div class="flex items-center gap-4 md:gap-6">
-                      <Image
-                        src={dayCard.image}
-                        alt={dayCard.alt}
-                        class="h-28 w-28 rounded-[1rem] object-cover md:h-32 md:w-32"
-                      />
+        <section class="relative overflow-hidden">
+            <Image
+                src={graphic12}
+                alt=""
+                aria-hidden="true"
+                class="absolute left-[6%] top-[1%] hidden w-20 min-[1400px]:block"
+            />
+            <Image
+                src={pinkAtom}
+                alt=""
+                aria-hidden="true"
+                class="absolute -left-6 bottom-[10%] hidden w-20 min-[1400px]:block"
+            />
+            <Image
+                src={graphic10}
+                alt=""
+                aria-hidden="true"
+                class="absolute -right-4 top-1/2 hidden w-20 -translate-y-1/2 rotate-[20deg] min-[1400px]:block"
+            />
+            <div
+                class="absolute left-[52%] top-0 hidden h-10 w-10 rounded-full border-[7px] border-[#4BE06C] min-[1400px]:block"
+            ></div>
 
-                      <div class="min-w-0">
-                        <p class="font-gotham text-2xl font-semibold text-black">
-                          {dayCard.title}
-                        </p>
+            <Container class="py-16 md:py-24">
+                <h1 class="text-center font-lilita text-4xl uppercase leading-none min-[480px]:text-5xl md:text-6xl">
+                    Everything you <span class="text-[#FF4FB3]">need to know</span>
+                </h1>
+                <p class="mx-auto mt-6 max-w-4xl text-center font-gotham text-lg text-[#5F5F5F] md:text-2xl">
+                    Messy Play Lab runs throughout the school term, with the flexibility to book for the full term or
+                    join us casually, whatever works best for your family!
+                </p>
+
+                <div class="mt-12 grid gap-8 xl:grid-cols-3">
+                    {[
+                        {
+                            image: step1,
+                            alt: 'Child wearing science goggles during a Fizz Kidz activity',
+                            title: 'Choose your sessions',
+                            points: [
+                                '<strong>Each 2-hour session is $39.00, filled with art, science and messy play fun.</strong>',
+                                'Choose from Tuesday or Friday sessions at our Essendon, Geelong or Werribee studios, or enjoy a mix of both days.',
+                                'Every week brings a brand-new adventure for your little one to explore.',
+                            ],
+                            number: '1',
+                            numberColor: 'bg-[#FFC61B]',
+                        },
+                        {
+                            image: step2,
+                            alt: 'Child exploring a science activity with a microscope',
+                            title: 'Join us for the term',
+                            points: [
+                                'Book for the term before the term begins and save 20%.',
+                                'Enjoy the special term rate of <strong>$31.20 per child, per session.</strong>',
+                                'A regular weekly session gives your child a familiar routine and something exciting to look forward to.',
+                            ],
+                            number: '2',
+                            numberColor: 'bg-[#4BE06C]',
+                        },
+                        {
+                            image: step3,
+                            alt: 'Child drawing during a Fizz Kidz learning activity',
+                            title: 'Come along casually',
+                            points: [
+                                'Prefer more flexibility? Book individual sessions whenever suits your family.',
+                                'Choose as many or as few sessions as you like.',
+                                'Plans change? Reschedule to another session in the same term, or cancel for an automatic refund, at least 48 hours before.',
+                            ],
+                            number: '3',
+                            numberColor: 'bg-[#45D3F3]',
+                        },
+                    ].map((card) => <article
+                        class="relative rounded-[2rem] bg-white p-4 pb-16 shadow-[0_0_32px_rgba(143,68,225,0.08)] md:p-8 md:pb-20"
+                    >
+                        <Image
+                            src={card.image}
+                            alt={card.alt}
+                            class="h-64 w-full rounded-[1.5rem] object-cover md:h-72"
+                        />
+
+                        <h2 class="mt-6 font-lilita text-3xl leading-tight md:text-4xl">
+                            {card.title}
+                        </h2>
+
+                        <div class="mt-4 space-y-5">
+                            {card.points.map((point) => <div class="flex items-start gap-4">
+                                <Image src={check} alt="check" width={40} class="mt-1 w-8 shrink-0" />
+                                <p
+                                    class="font-gotham text-lg leading-relaxed text-[#4F4F4F] md:text-xl"
+                                    set:html={point}
+                                />
+                            </div>)}
+                        </div>
 
                         <div
-                          class="mt-4 inline-flex items-center gap-2 rounded-full px-5 py-3 font-gotham text-lg font-semibold text-white"
-                          style={{ backgroundColor: dayCard.pillColor }}
+                            class:list={[
+                                'absolute left-1/2 top-0 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full font-gotham text-5xl font-extrabold text-white',
+                                card.numberColor,
+                            ]}
                         >
-                          <Clock3 className="h-4 w-4 text-white md:h-5 md:w-5" />
-                          <span>9:30 AM - 11:30 AM</span>
+                            {card.number}
                         </div>
-                        <p class="mt-3 font-gotham text-base text-[#4F4F4F] md:text-lg">
-                          {dayCard.dates}
-                        </p>
-                        {dayCard.note && (
-                          <p class="mt-2 font-gotham text-sm text-[#4F4F4F] md:text-base">
-                            {dayCard.note}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              }
-            </div>
+                    </article>)}
+                </div>
+                <a href="https://bookings.fizzkidz.com.au/preschool-program-v2-booking" target="_blank">
+                    <Button
+                        className="mt-20 w-full rounded-[1.2rem] bg-[#FFD115] px-8 py-7 font-lilita text-xl uppercase text-[#8F44E1] hover:bg-[#FFD115]/90 md:text-2xl"
+                    >
+                        Book sessions
+                        <span
+                            class="ml-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#8F44E1] text-white md:h-8 md:w-8"
+                        >
+                            <ArrowRight className="h-4 w-4" />
+                        </span>
+                    </Button>
+                </a>
+            </Container>
 
-            <div class="mt-auto px-4 pb-4 md:px-6 md:pb-6">
-              <a
-                href="https://bookings.fizzkidz.com.au/preschool-program-v2-booking"
-                target="_blank"
-              >
-                <Button
-                  className="w-full rounded-[1.2rem] bg-[#FFD115] px-8 py-7 font-lilita text-xl uppercase text-[#8F44E1] hover:bg-[#FFD115]/90 md:text-2xl"
-                >
-                  Book sessions
-                  <span
-                    class="ml-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#8F44E1] text-white md:h-8 md:w-8"
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                  </span>
-                </Button>
-              </a>
-            </div>
-          </div>
+            <section class="relative mt-12 overflow-hidden md:mt-20">
+                <Image src={purpleCurve} alt="" class="w-full" aria-hidden="true" />
 
-          <PreschoolProgramSessionCalendar
-            title="Daily Session Structure"
-            headerIcon="clock"
-            headerStart="#FF67B4"
-            headerEnd="#F53F98"
-            calendarColor="#FF5EA8"
-            slots={sessionSlots}
-          />
-        </div>
-      </Container>
-    </section>
-
-    <section class="relative overflow-hidden bg-white pt-16 md:pt-24">
-      <Image
-        src={graphic15}
-        alt=""
-        aria-hidden="true"
-        class="absolute -left-8 top-28 hidden w-24 md:block"
-      />
-      <Image
-        src={graphic10}
-        alt=""
-        aria-hidden="true"
-        class="absolute right-6 top-10 hidden w-20 md:block"
-      />
-
-      <Container>
-        <div class="flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-20">
-          <div class="w-full lg:w-1/2">
-            <h2 class="font-lilita text-4xl uppercase leading-none md:text-6xl">
-              Why parents love<br /><span class="text-[#45D3F3]"
-                >Messy Play Lab</span
-              >
-              <span class="ml-3 text-[#F24DA2]">&#9829;</span>
-            </h2>
-
-            <div class="mt-10 space-y-6">
-              {
-                [
-                  "Supports school readiness",
-                  "Builds confidence and independence",
-                  "Purposeful play where children develop real art, science and self-expression skills",
-                  "Led by qualified Early Childhood educators",
-                  "Small group sizes, every child is supported",
-                  "Calm, structured and nurturing environment",
-                  "Purposeful activities with real developmental outcomes",
-                  <Fragment>
-                    Most importantly,{" "}
-                    <span class="font-bold">kids love it!</span>
-                  </Fragment>,
-                ].map((item) => (
-                  <div class="flex items-start gap-4 md:gap-5">
+                <div class="relative bg-[#8F44E1] py-14 text-white md:py-24">
                     <Image
-                      src={check}
-                      alt="check"
-                      width={40}
-                      class="mt-1 w-8 shrink-0"
+                        src={graphic12}
+                        alt=""
+                        aria-hidden="true"
+                        class="absolute left-[4%] top-[10%] hidden w-24 min-[1400px]:block"
                     />
-                    <p class="font-gotham text-lg leading-relaxed text-[#333333] md:text-2xl">
-                      {item}
-                    </p>
-                  </div>
-                ))
-              }
-            </div>
-          </div>
+                    <Image
+                        src={graphic10}
+                        alt=""
+                        aria-hidden="true"
+                        class="absolute left-1/2 top-[8%] hidden w-20 -translate-x-1/2 min-[1400px]:block"
+                    />
+                    <Image
+                        src={graphic15}
+                        alt=""
+                        aria-hidden="true"
+                        class="absolute bottom-[8%] left-[42%] hidden w-20 min-[1400px]:block"
+                    />
+                    <div
+                        class="absolute right-[7%] top-[10%] hidden h-20 w-20 rounded-full border-[14px] border-[#4BE06C] min-[1400px]:block"
+                    ></div>
+                    <div
+                        class="absolute bottom-[14%] right-[-1.5rem] hidden h-24 w-24 rounded-full bg-[#F24DA2] min-[1400px]:block"
+                    ></div>
 
-          <div class="relative w-full lg:w-1/2">
-            <Image
-              src={yellowBlob}
-              alt=""
-              aria-hidden="true"
-              class="mx-auto w-full max-w-[760px]"
-            />
+                    <Container>
+                        <div class="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
+                            <div class="relative w-full max-w-[700px] lg:w-1/2 lg:max-w-none">
+                                <div
+                                    class="absolute -left-3 -top-3 h-full w-full rounded-[2rem] border-[4px] border-white"
+                                ></div>
 
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div
-                class="h-[60vw] max-h-[420px] w-[60vw] max-w-[420px] overflow-hidden rounded-full border-[10px] border-[#F6BA33] bg-white md:border-[14px]"
-              >
+                                <div class="relative overflow-hidden rounded-[2rem] bg-white">
+                                    <Image
+                                        src={wednesday}
+                                        alt="Child painting during a Messy Play Lab session"
+                                        class="w-full rounded-[1.6rem] object-cover"
+                                        width={900}
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="w-full lg:w-1/2">
+                                <h2
+                                    class="font-lilita text-3xl uppercase leading-none sm:text-4xl md:text-5xl lg:text-6xl"
+                                >
+                                    A program with <span class="text-[#FF9E43]">purpose</span>
+                                </h2>
+
+                                <p class="mt-6 max-w-[760px] font-gotham text-lg leading-relaxed md:text-2xl">
+                                    The early years are a powerful time for growth. Through structured guided
+                                    activities, your child will:
+                                </p>
+
+                                <div class="mt-8 space-y-6 font-gotham text-lg leading-relaxed md:mt-10 md:text-2xl">
+                                    {[
+                                        <Fragment>
+                                            Dive into immersive{' '}
+                                            <span class="font-bold"> art, science, and craft projects </span>{' '} that
+                                            encourage imagination and real problem-solving skills
+                                        </Fragment>,
+                                        <Fragment>
+                                            Create{' '} <span class="font-bold"> meaningful take-home projects </span
+                                            >{' '} that spark continued play, storytelling, and a strong sense of pride
+                                            in their unique art expressions
+                                        </Fragment>,
+                                        <Fragment>
+                                            <span class="font-bold"> Express themselves confidently </span>{' '} while
+                                            building friendships and practicing teamwork
+                                        </Fragment>,
+                                        <Fragment>
+                                            Experience{' '} <span class="font-bold">small group programs</span> where
+                                            every child is guided and encouraged
+                                        </Fragment>,
+                                    ].map((item) => <div class="flex items-start gap-4">
+                                        <span class="mt-2 text-xl md:text-2xl">•</span>
+                                        <p>{item}</p>
+                                    </div>)}
+                                </div>
+                            </div>
+                        </div>
+                    </Container>
+                </div>
+
+                <Image src={purpleCurve} alt="" class="-mt-2 w-full rotate-180" aria-hidden="true" />
+            </section>
+
+            <section class="relative overflow-hidden bg-white py-16 md:py-24">
                 <Image
-                  src={step3}
-                  alt="Children enjoying a Messy Play Lab craft activity"
-                  class="h-full w-full object-cover"
-                  width={900}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </Container>
-
-      <div class="relative -my-px mt-20 overflow-hidden bg-[#49B95E]">
-        <Image
-          src={clouds}
-          alt=""
-          class="block w-full rotate-180"
-          aria-hidden="true"
-        />
-      </div>
-    </section>
-
-    <section class="relative overflow-hidden bg-[#49B95E] py-16 md:py-24">
-      <Image
-        src={graphic12}
-        alt=""
-        aria-hidden="true"
-        class="absolute left-[5%] top-[6%] hidden w-20 md:block"
-      />
-      <Image
-        src={graphic10}
-        alt=""
-        aria-hidden="true"
-        class="absolute bottom-[10%] left-[4%] hidden w-20 md:block"
-      />
-      <Image
-        src={graphic15}
-        alt=""
-        aria-hidden="true"
-        class="absolute bottom-[5%] left-1/2 hidden w-20 -translate-x-1/2 md:block"
-      />
-      <div
-        class="absolute right-[6%] top-[6%] hidden h-20 w-20 rounded-full border-[12px] border-[#4BE06C] md:block"
-      >
-      </div>
-      <div
-        class="absolute bottom-[18%] right-[-1.5rem] hidden h-24 w-24 rounded-full bg-[#F24DA2] md:block"
-      >
-      </div>
-
-      <Container>
-        <h2
-          class="text-center font-lilita text-4xl uppercase leading-none text-white md:text-6xl"
-        >
-          What happens in each session
-        </h2>
-
-        <div class="mt-12 grid gap-6 md:grid-cols-2 xl:mt-16 xl:grid-cols-5">
-          {
-            [
-              {
-                icon: sessionIcon1,
-                title: "Creative Craft Activity",
-                description: "Builds focus, coordination and problem-solving",
-              },
-              {
-                icon: sessionIcon2,
-                title: "Science & Sensory Play",
-                description:
-                  "Hands-on exploration that supports brain development",
-              },
-              {
-                icon: sessionIcon3,
-                title: "Movement & Dance Breaks",
-                description: "Helps regulate energy and coordination",
-              },
-              {
-                icon: sessionIcon4,
-                title: "Imagination & Sensory Play",
-                description: "Encourages language and creativity",
-              },
-              {
-                icon: sessionIcon5,
-                title: "Take-Home Creation",
-                description: "Kids leave proud of what they've made",
-              },
-            ].map((card) => (
-              <article class="rounded-[2rem] border-[4px] border-white p-1">
-                <div class="flex h-full flex-col items-center rounded-[1.55rem] border-[3px] border-[#49B95E] bg-white px-6 py-10 text-center">
-                  <Image
-                    src={card.icon}
+                    src={graphic12}
                     alt=""
                     aria-hidden="true"
-                    class="h-16 w-16"
-                  />
-                  <p class="mt-8 font-gotham text-2xl font-semibold leading-tight text-black">
-                    {card.title}
-                  </p>
-                  <p class="mt-3 font-gotham text-2xl leading-tight text-black">
-                    {card.description}
-                  </p>
-                </div>
-              </article>
-            ))
-          }
-        </div>
+                    class="absolute left-[4%] top-[10%] hidden w-20 min-[1400px]:block"
+                />
+                <Image
+                    src={smallShapes}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute bottom-[4%] right-[3%] hidden w-24 min-[1400px]:block"
+                />
 
-        <div
-          class="my-24 flex flex-col items-center justify-center gap-4 sm:flex-row xl:mt-16"
-        >
-          <a
-            href="https://bookings.fizzkidz.com.au/preschool-program-v2-booking"
-            target="_blank"
-          >
-            <Button
-              className="rounded-[1.2rem] bg-[#FFD115] px-8 py-7 font-lilita text-xl uppercase text-black hover:bg-[#FFD115]/90"
+                <Container>
+                    <h2 class="text-center font-lilita text-4xl uppercase leading-none md:text-6xl">
+                        Checkout the fun
+                    </h2>
+
+                    <ImageCarousel imageSlots={['image1', 'image2', 'image3', 'image4', 'image5']} client:visible>
+                        <Image
+                            slot="image1"
+                            src={carousel1}
+                            alt="Child enjoying a science activity during a Fizz Kidz session"
+                            class="h-60 w-60 rounded-md object-cover"
+                            width={240}
+                            height={240}
+                            widths={[240, 480]}
+                            sizes="240px"
+                            fit="cover"
+                        />
+                        <Image
+                            slot="image2"
+                            src={carousel2}
+                            alt="Children exploring a science activity together"
+                            class="h-60 w-60 rounded-md object-cover"
+                            width={240}
+                            height={240}
+                            widths={[240, 480]}
+                            sizes="240px"
+                            fit="cover"
+                        />
+                        <Image
+                            slot="image3"
+                            src={carousel3}
+                            alt="Child drawing during a Fizz Kidz learning activity"
+                            class="h-60 w-60 rounded-md object-cover"
+                            width={240}
+                            height={240}
+                            widths={[240, 480]}
+                            sizes="240px"
+                            fit="cover"
+                        />
+                        <Image
+                            slot="image4"
+                            src={schools}
+                            alt="Children smiling during a Fizz Kidz session"
+                            class="h-60 w-60 rounded-md object-cover"
+                            width={240}
+                            height={240}
+                            widths={[240, 480]}
+                            sizes="240px"
+                            fit="cover"
+                        />
+                        <Image
+                            slot="image5"
+                            src={playLabImage}
+                            alt="Child taking part in a Messy Play Lab session"
+                            class="h-60 w-60 rounded-md object-cover"
+                            width={240}
+                            height={240}
+                            widths={[240, 480]}
+                            sizes="240px"
+                            fit="cover"
+                        />
+                    </ImageCarousel>
+                </Container>
+            </section>
+
+            <section
+                id="session-timetable"
+                class="relative overflow-hidden py-16 md:py-24"
+                style={{ backgroundColor: 'rgba(143, 68, 225, 0.12)' }}
             >
-              Book Today
-              <ArrowRight className="ml-3 h-5 w-5" />
-            </Button>
-          </a>
+                <Image
+                    src={graphic12}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute right-[2.5%] top-[4%] hidden w-20 min-[1400px]:block"
+                />
+                <Image
+                    src={graphic10}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute bottom-[6%] right-[2%] hidden w-20 rotate-[18deg] min-[1400px]:block"
+                />
+                <Image
+                    src={blueAtom}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute bottom-[22%] left-[1.5%] hidden w-16 min-[1400px]:block"
+                />
 
-          <a href="#session-timetable">
-            <Button
-              className="rounded-[1.2rem] bg-[#FFD115] px-8 py-7 font-lilita text-xl uppercase text-black hover:bg-[#FFD115]/90"
-            >
-              View Timetable
-              <CalendarDays className="ml-3 h-5 w-5" />
-            </Button>
-          </a>
-        </div>
-      </Container>
-
-      <div class="absolute bottom-0 left-0 right-0 overflow-hidden">
-        <Image src={clouds} alt="" class="w-full" aria-hidden="true" />
-      </div>
-    </section>
-
-    <section class="relative overflow-hidden bg-white py-16 md:py-24">
-      <Image
-        src={smallShapes}
-        alt=""
-        aria-hidden="true"
-        class="absolute left-0 top-0 hidden w-28 md:block"
-      />
-      <Image
-        src={pinkGreenDots}
-        alt=""
-        aria-hidden="true"
-        class="absolute right-[2%] top-12 hidden w-16 md:block"
-      />
-      <Image
-        src={pinkAtom}
-        alt=""
-        aria-hidden="true"
-        class="absolute bottom-0 right-[2%] hidden w-24 md:block"
-      />
-
-      <Container>
-        <div
-          class="flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-16 xl:gap-24"
-        >
-          <div class="w-full lg:w-[46%]">
-            <h2 class="font-lilita text-4xl uppercase leading-none md:text-6xl">
-              Designed for <span class="text-[#8F44E1]">kids 2.5-5</span>
-            </h2>
-
-            <div class="mt-10 space-y-6">
-              {
-                [
-                  "Calm, nurturing environments",
-                  "Short engaging activity blocks",
-                  "Small groups",
-                  "Balance of structure and free play",
-                  "Experienced facilitators",
-                ].map((item) => (
-                  <div class="flex items-start gap-4 md:gap-5">
-                    <Image
-                      src={check}
-                      alt="check"
-                      width={40}
-                      class="mt-1 w-8 shrink-0"
-                    />
-                    <p class="font-gotham text-lg font-semibold leading-relaxed text-black md:text-2xl">
-                      {item}
+                <Container>
+                    <h2 class="text-center font-lilita text-4xl uppercase leading-none md:text-6xl">
+                        Term 4, 2026 schedule
+                    </h2>
+                    <p class="mt-6 text-center font-gotham text-lg text-[#5F5F5F] md:text-2xl">
+                        Sessions run at our Essendon, Geelong and Werribee studios, from 9:30am to 11:30am. Book one
+                        session, several, or the whole term.
                     </p>
-                  </div>
-                ))
-              }
-            </div>
 
-            <a
-              href="https://bookings.fizzkidz.com.au/preschool-program-v2-booking"
-              target="_blank"
-              class="inline-block"
-            >
-              <Button
-                className="mt-10 rounded-[1.2rem] bg-[#8F44E1] px-8 py-7 font-lilita text-xl uppercase text-white hover:bg-[#8F44E1]/90"
-              >
-                Book Now
-                <span
-                  class="ml-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#8F44E1]"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </span>
-              </Button>
-            </a>
-          </div>
+                    <div class="mt-16 grid gap-8 xl:grid-cols-2">
+                        <div
+                            class="flex h-full flex-col overflow-hidden rounded-[2rem] bg-white shadow-[0_0_32px_rgba(143,68,225,0.08)]"
+                        >
+                            <div
+                                class="flex items-center gap-5 bg-gradient-to-r from-[#A15BFF] to-[#863BEF] p-5 md:p-8"
+                            >
+                                <div
+                                    class="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-white md:h-24 md:w-24"
+                                >
+                                    <Image
+                                        src={calendarHeaderIcon}
+                                        alt=""
+                                        aria-hidden="true"
+                                        class="h-10 w-10 md:h-12 md:w-12"
+                                    />
+                                </div>
+                                <p class="font-gotham text-xl font-bold text-white md:text-[2rem]">Weekly Timetable</p>
+                            </div>
 
-          <div class="w-full lg:w-[54%]">
-            <PreschoolProgramKidsHero
-              img={schools}
-              alt="Children smiling during a Fizz Kidz session"
-              objectPosition="50% 30%"
-            />
-          </div>
-        </div>
-      </Container>
-    </section>
-    <Container>
-      <section class="mt-12 md:mt-20">
-        <h2 class="mb-4 text-center font-lilita text-4xl md:text-5xl">
-          Frequently Asked Questions
-        </h2>
-        <div class="flex w-full flex-col items-center gap-8 md:flex-row">
-          <Image
-            class="hidden w-2/5 md:block"
-            src={faq}
-            alt="Three girls smiling"
-          />
-          <div class="w-full md:w-3/5">
-            <FaqAccordion
-              client:visible={{ rootMargin: "300px" }}
-              items={[
-                {
-                  question: "How do I book a session?",
-                  answer:
-                    "Choose your studio, then as many Tuesday and Friday sessions as you like and pay online when you book. You can include both days in the same checkout.",
-                },
-                {
-                  question: "Where is Messy Play Lab held?",
-                  answer:
-                    "Messy Play Lab runs at our Essendon, Geelong and Werribee studios, every Tuesday and Friday during the school term.",
-                },
-                {
-                  question: "Is Messy Play Lab just free play?",
-                  answer:
-                    "No. Each session is a structured 2-hour class led by qualified Early Childhood educators, with hands-on science, creative craft, sensory play, movement, music and story time.",
-                },
-                {
-                  question: "What age group is Messy Play Lab for?",
-                  answer:
-                    "Messy Play Lab is designed for children aged 2.5 to 5 years old. Activities are thoughtfully adapted to suit each developmental stage, so children can build confidence, creativity, and school readiness in every session.",
-                },
-                {
-                  question: "Do I stay with my child during the session?",
-                  answer:
-                    "It's up to you! You're welcome to drop your child off, or stay and enjoy the session with them. Either way, our facilitators provide gentle guidance and support throughout.",
-                },
-                {
-                  question: "Is Messy Play Lab a kinder or childcare program?",
-                  answer:
-                    "No. Messy Play Lab is a weekly 2-hour class you book by the session or by the term. It isn't funded kinder or childcare.",
-                },
-                {
-                  question: "Is Messy Play Lab the same as the Fizz Kidz Preschool Program?",
-                  answer:
-                    "Yes. The Preschool Program is now called Messy Play Lab. It's the same sessions, studios, times and prices.",
-                },
-                {
-                  question: "What types of activities do you run?",
-                  answer:
-                    "Each session includes creative projects, sensory exploration, science experiments, movement, music and story time. Children take home their creations each week.",
-                },
-                {
-                  question: "How long is each session?",
-                  answer:
-                    "Each Messy Play Lab session runs from 9:30 AM to 11:30 AM.",
-                },
-                {
-                  question: "How much does Messy Play Lab cost?",
-                  answer:
-                    "Sessions are $39 per child. Book every Tuesday or Friday session in the term before the term starts to receive 20% off, bringing the price to $31.20 per session, per child.",
-                },
-                {
-                  question: "Can I cancel or reschedule a session?",
-                  answer:
-                    "Yes, using the Change / Cancel link in your confirmation email. At least 48 hours before a session, you can move it to another session in the same term at the same studio, or cancel it for an automatic refund. Full-term bookings keep their 20% discount when rescheduled, but cancelling a session removes the discount from the remaining sessions, so the refund can be small or nothing. Within 48 hours you can still cancel, but without a refund. See our policies page for the full policy.",
-                },
-                {
-                  question:
-                    "My child has special needs. Is Messy Play Lab appropriate?",
-                  answer:
-                    "Absolutely. We welcome all children and are passionate about creating an inclusive, supportive environment for every child. We encourage you to call us so we can chat about how best to support your child in Messy Play Lab.",
-                },
-              ]}
-            />
-          </div>
-        </div>
-        <div class="mt-12 flex w-full justify-center sm:mt-6">
-          <PrimaryButton
-            text="Book Today"
-            path="https://bookings.fizzkidz.com.au/preschool-program-v2-booking"
-          />
-        </div>
-        <Values />
-      </section>
-    </Container>
-  </section>
-  </main>
+                            <div class="flex flex-1 flex-col space-y-6 p-4 md:p-6">
+                                {[
+                                    {
+                                        image: wednesday,
+                                        alt: 'Children exploring a science activity together',
+                                        title: 'Tuesday Sessions',
+                                        dates: '13, 20 & 27 October; 3, 10, 17 & 24 November; 1, 8 & 15 December',
+                                        note: 'No session on 3 November (Melbourne Cup Day) at Essendon or Werribee. Geelong runs as usual.',
+                                        cardColor: '#DFF8FF',
+                                        borderColor: '#52D6F0',
+                                        pillColor: '#11C6E8',
+                                    },
+                                    {
+                                        image: thursday,
+                                        alt: 'Children taking part in a Fizz Kidz session',
+                                        title: 'Friday Sessions',
+                                        dates: '16, 23 & 30 October; 6, 13, 20 & 27 November; 4, 11 & 18 December',
+                                        note: undefined,
+                                        cardColor: '#FBE4F2',
+                                        borderColor: '#F06AB1',
+                                        pillColor: '#F14EA1',
+                                    },
+                                ].map((dayCard) => <div
+                                    class="rounded-[1.4rem] border-r-[4px] p-3 md:p-4"
+                                    style={{
+                                        backgroundColor: dayCard.cardColor,
+                                        borderColor: dayCard.borderColor,
+                                    }}
+                                >
+                                    <div class="flex items-center gap-4 md:gap-6">
+                                        <Image
+                                            src={dayCard.image}
+                                            alt={dayCard.alt}
+                                            class="h-28 w-28 rounded-[1rem] object-cover md:h-32 md:w-32"
+                                        />
+
+                                        <div class="min-w-0">
+                                            <p class="font-gotham text-2xl font-semibold text-black">
+                                                {dayCard.title}
+                                            </p>
+
+                                            <div
+                                                class="mt-4 inline-flex items-center gap-2 rounded-full px-5 py-3 font-gotham text-lg font-semibold text-white"
+                                                style={{ backgroundColor: dayCard.pillColor }}
+                                            >
+                                                <Clock3 className="h-4 w-4 text-white md:h-5 md:w-5" />
+                                                <span>9:30 AM - 11:30 AM</span>
+                                            </div>
+                                            <p class="mt-3 font-gotham text-base text-[#4F4F4F] md:text-lg">
+                                                {dayCard.dates}
+                                            </p>
+                                            {dayCard.note && <p
+                                                class="mt-2 font-gotham text-sm text-[#4F4F4F] md:text-base"
+                                            >
+                                                {dayCard.note}
+                                            </p>}
+                                        </div>
+                                    </div>
+                                </div>)}
+                            </div>
+
+                            <div class="mt-auto px-4 pb-4 md:px-6 md:pb-6">
+                                <a href="https://bookings.fizzkidz.com.au/preschool-program-v2-booking" target="_blank">
+                                    <Button
+                                        className="w-full rounded-[1.2rem] bg-[#FFD115] px-8 py-7 font-lilita text-xl uppercase text-[#8F44E1] hover:bg-[#FFD115]/90 md:text-2xl"
+                                    >
+                                        Book sessions
+                                        <span
+                                            class="ml-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#8F44E1] text-white md:h-8 md:w-8"
+                                        >
+                                            <ArrowRight className="h-4 w-4" />
+                                        </span>
+                                    </Button>
+                                </a>
+                            </div>
+                        </div>
+
+                        <PreschoolProgramSessionCalendar
+                            title="Daily Session Structure"
+                            headerIcon="clock"
+                            headerStart="#FF67B4"
+                            headerEnd="#F53F98"
+                            calendarColor="#FF5EA8"
+                            slots={sessionSlots}
+                        />
+                    </div>
+                </Container>
+            </section>
+
+            <section class="relative overflow-hidden bg-white pt-16 md:pt-24">
+                <Image src={graphic15} alt="" aria-hidden="true" class="absolute -left-8 top-28 hidden w-24 md:block" />
+                <Image src={graphic10} alt="" aria-hidden="true" class="absolute right-6 top-10 hidden w-20 md:block" />
+
+                <Container>
+                    <div class="flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-20">
+                        <div class="w-full lg:w-1/2">
+                            <h2 class="font-lilita text-4xl uppercase leading-none md:text-6xl">
+                                Why parents love<br /><span class="text-[#45D3F3]">Messy Play Lab</span>
+                                <span class="ml-3 text-[#F24DA2]">&#9829;</span>
+                            </h2>
+
+                            <div class="mt-10 space-y-6">
+                                {[
+                                    'Supports school readiness',
+                                    'Builds confidence and independence',
+                                    'Purposeful play where children develop real art, science and self-expression skills',
+                                    'Led by qualified Early Childhood educators',
+                                    'Small group sizes, every child is supported',
+                                    'Calm, structured and nurturing environment',
+                                    'Purposeful activities with real developmental outcomes',
+                                    <Fragment>
+                                        Most importantly,{' '}
+                                        <span class="font-bold">kids love it!</span>
+                                    </Fragment>,
+                                ].map((item) => <div class="flex items-start gap-4 md:gap-5">
+                                    <Image src={check} alt="check" width={40} class="mt-1 w-8 shrink-0" />
+                                    <p class="font-gotham text-lg leading-relaxed text-[#333333] md:text-2xl">
+                                        {item}
+                                    </p>
+                                </div>)}
+                            </div>
+                        </div>
+
+                        <div class="relative w-full lg:w-1/2">
+                            <Image src={yellowBlob} alt="" aria-hidden="true" class="mx-auto w-full max-w-[760px]" />
+
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div
+                                    class="h-[60vw] max-h-[420px] w-[60vw] max-w-[420px] overflow-hidden rounded-full border-[10px] border-[#F6BA33] bg-white md:border-[14px]"
+                                >
+                                    <Image
+                                        src={step3}
+                                        alt="Children enjoying a Messy Play Lab craft activity"
+                                        class="h-full w-full object-cover"
+                                        width={900}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Container>
+
+                <div class="relative -my-px mt-20 overflow-hidden bg-[#49B95E]">
+                    <Image src={clouds} alt="" class="block w-full rotate-180" aria-hidden="true" />
+                </div>
+            </section>
+
+            <section class="relative overflow-hidden bg-[#49B95E] py-16 md:py-24">
+                <Image
+                    src={graphic12}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute left-[5%] top-[6%] hidden w-20 md:block"
+                />
+                <Image
+                    src={graphic10}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute bottom-[10%] left-[4%] hidden w-20 md:block"
+                />
+                <Image
+                    src={graphic15}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute bottom-[5%] left-1/2 hidden w-20 -translate-x-1/2 md:block"
+                />
+                <div
+                    class="absolute right-[6%] top-[6%] hidden h-20 w-20 rounded-full border-[12px] border-[#4BE06C] md:block"
+                ></div>
+                <div
+                    class="absolute bottom-[18%] right-[-1.5rem] hidden h-24 w-24 rounded-full bg-[#F24DA2] md:block"
+                ></div>
+
+                <Container>
+                    <h2 class="text-center font-lilita text-4xl uppercase leading-none text-white md:text-6xl">
+                        What happens in each session
+                    </h2>
+
+                    <div class="mt-12 grid gap-6 md:grid-cols-2 xl:mt-16 xl:grid-cols-5">
+                        {[
+                            {
+                                icon: sessionIcon1,
+                                title: 'Creative Craft Activity',
+                                description: 'Builds focus, coordination and problem-solving',
+                            },
+                            {
+                                icon: sessionIcon2,
+                                title: 'Science & Sensory Play',
+                                description: 'Hands-on exploration that supports brain development',
+                            },
+                            {
+                                icon: sessionIcon3,
+                                title: 'Movement & Dance Breaks',
+                                description: 'Helps regulate energy and coordination',
+                            },
+                            {
+                                icon: sessionIcon4,
+                                title: 'Imagination & Sensory Play',
+                                description: 'Encourages language and creativity',
+                            },
+                            {
+                                icon: sessionIcon5,
+                                title: 'Take-Home Creation',
+                                description: "Kids leave proud of what they've made",
+                            },
+                        ].map((card) => <article class="rounded-[2rem] border-[4px] border-white p-1">
+                            <div
+                                class="flex h-full flex-col items-center rounded-[1.55rem] border-[3px] border-[#49B95E] bg-white px-6 py-10 text-center"
+                            >
+                                <Image src={card.icon} alt="" aria-hidden="true" class="h-16 w-16" />
+                                <p class="mt-8 font-gotham text-2xl font-semibold leading-tight text-black">
+                                    {card.title}
+                                </p>
+                                <p class="mt-3 font-gotham text-2xl leading-tight text-black">
+                                    {card.description}
+                                </p>
+                            </div>
+                        </article>)}
+                    </div>
+
+                    <div class="my-24 flex flex-col items-center justify-center gap-4 sm:flex-row xl:mt-16">
+                        <a href="https://bookings.fizzkidz.com.au/preschool-program-v2-booking" target="_blank">
+                            <Button
+                                className="rounded-[1.2rem] bg-[#FFD115] px-8 py-7 font-lilita text-xl uppercase text-black hover:bg-[#FFD115]/90"
+                            >
+                                Book Today
+                                <ArrowRight className="ml-3 h-5 w-5" />
+                            </Button>
+                        </a>
+
+                        <a href="#session-timetable">
+                            <Button
+                                className="rounded-[1.2rem] bg-[#FFD115] px-8 py-7 font-lilita text-xl uppercase text-black hover:bg-[#FFD115]/90"
+                            >
+                                View Timetable
+                                <CalendarDays className="ml-3 h-5 w-5" />
+                            </Button>
+                        </a>
+                    </div>
+                </Container>
+
+                <div class="absolute bottom-0 left-0 right-0 overflow-hidden">
+                    <Image src={clouds} alt="" class="w-full" aria-hidden="true" />
+                </div>
+            </section>
+
+            <section class="relative overflow-hidden bg-white py-16 md:py-24">
+                <Image src={smallShapes} alt="" aria-hidden="true" class="absolute left-0 top-0 hidden w-28 md:block" />
+                <Image
+                    src={pinkGreenDots}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute right-[2%] top-12 hidden w-16 md:block"
+                />
+                <Image
+                    src={pinkAtom}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute bottom-0 right-[2%] hidden w-24 md:block"
+                />
+
+                <Container>
+                    <div class="flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-16 xl:gap-24">
+                        <div class="w-full lg:w-[46%]">
+                            <h2 class="font-lilita text-4xl uppercase leading-none md:text-6xl">
+                                Designed for <span class="text-[#8F44E1]">kids 2.5-5</span>
+                            </h2>
+
+                            <div class="mt-10 space-y-6">
+                                {[
+                                    'Calm, nurturing environments',
+                                    'Short engaging activity blocks',
+                                    'Small groups',
+                                    'Balance of structure and free play',
+                                    'Experienced facilitators',
+                                ].map((item) => <div class="flex items-start gap-4 md:gap-5">
+                                    <Image src={check} alt="check" width={40} class="mt-1 w-8 shrink-0" />
+                                    <p class="font-gotham text-lg font-semibold leading-relaxed text-black md:text-2xl">
+                                        {item}
+                                    </p>
+                                </div>)}
+                            </div>
+
+                            <a
+                                href="https://bookings.fizzkidz.com.au/preschool-program-v2-booking"
+                                target="_blank"
+                                class="inline-block"
+                            >
+                                <Button
+                                    className="mt-10 rounded-[1.2rem] bg-[#8F44E1] px-8 py-7 font-lilita text-xl uppercase text-white hover:bg-[#8F44E1]/90"
+                                >
+                                    Book Now
+                                    <span
+                                        class="ml-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#8F44E1]"
+                                    >
+                                        <ArrowRight className="h-4 w-4" />
+                                    </span>
+                                </Button>
+                            </a>
+                        </div>
+
+                        <div class="w-full lg:w-[54%]">
+                            <PreschoolProgramKidsHero
+                                img={schools}
+                                alt="Children smiling during a Fizz Kidz session"
+                                objectPosition="50% 30%"
+                            />
+                        </div>
+                    </div>
+                </Container>
+            </section>
+            <Container>
+                <section class="mt-12 md:mt-20">
+                    <h2 class="mb-4 text-center font-lilita text-4xl md:text-5xl">Frequently Asked Questions</h2>
+                    <div class="flex w-full flex-col items-center gap-8 md:flex-row">
+                        <Image class="hidden w-2/5 md:block" src={faq} alt="Three girls smiling" />
+                        <div class="w-full md:w-3/5">
+                            <FaqAccordion
+                                client:visible={{ rootMargin: '300px' }}
+                                items={[
+                                    {
+                                        question: 'How do I book a session?',
+                                        answer: 'Choose your studio, then as many Tuesday and Friday sessions as you like and pay online when you book. You can include both days in the same checkout.',
+                                    },
+                                    {
+                                        question: 'Where is Messy Play Lab held?',
+                                        answer: 'Messy Play Lab runs at our Essendon, Geelong and Werribee studios, every Tuesday and Friday during the school term.',
+                                    },
+                                    {
+                                        question: 'Is Messy Play Lab just free play?',
+                                        answer: 'No. Each session is a structured 2-hour class led by qualified Early Childhood educators, with hands-on science, creative craft, sensory play, movement, music and story time.',
+                                    },
+                                    {
+                                        question: 'What age group is Messy Play Lab for?',
+                                        answer: 'Messy Play Lab is designed for children aged 2.5 to 5 years old. Activities are thoughtfully adapted to suit each developmental stage, so children can build confidence, creativity, and school readiness in every session.',
+                                    },
+                                    {
+                                        question: 'Do I stay with my child during the session?',
+                                        answer: "It's up to you! You're welcome to drop your child off, or stay and enjoy the session with them. Either way, our facilitators provide gentle guidance and support throughout.",
+                                    },
+                                    {
+                                        question: 'Is Messy Play Lab a kinder or childcare program?',
+                                        answer: "No. Messy Play Lab is a weekly 2-hour class you book by the session or by the term. It isn't funded kinder or childcare.",
+                                    },
+                                    {
+                                        question: 'Is Messy Play Lab the same as the Fizz Kidz Preschool Program?',
+                                        answer: "Yes. The Preschool Program is now called Messy Play Lab. It's the same sessions, studios, times and prices.",
+                                    },
+                                    {
+                                        question: 'What types of activities do you run?',
+                                        answer: 'Each session includes creative projects, sensory exploration, science experiments, movement, music and story time. Children take home their creations each week.',
+                                    },
+                                    {
+                                        question: 'How long is each session?',
+                                        answer: 'Each Messy Play Lab session runs from 9:30 AM to 11:30 AM.',
+                                    },
+                                    {
+                                        question: 'How much does Messy Play Lab cost?',
+                                        answer: 'Sessions are $39 per child. Book every Tuesday or Friday session in the term before the term starts to receive 20% off, bringing the price to $31.20 per session, per child.',
+                                    },
+                                    {
+                                        question: 'Can I cancel or reschedule a session?',
+                                        answer: 'Yes, using the Change / Cancel link in your confirmation email. At least 48 hours before a session, you can move it to another session in the same term at the same studio, or cancel it for an automatic refund. Full-term bookings keep their 20% discount when rescheduled, but cancelling a session removes the discount from the remaining sessions, so the refund can be small or nothing. Within 48 hours you can still cancel, but without a refund. See our policies page for the full policy.',
+                                    },
+                                    {
+                                        question: 'My child has special needs. Is Messy Play Lab appropriate?',
+                                        answer: 'Absolutely. We welcome all children and are passionate about creating an inclusive, supportive environment for every child. We encourage you to call us so we can chat about how best to support your child in Messy Play Lab.',
+                                    },
+                                ]}
+                            />
+                        </div>
+                    </div>
+                    <div class="mt-12 flex w-full justify-center sm:mt-6">
+                        <PrimaryButton
+                            text="Book Today"
+                            path="https://bookings.fizzkidz.com.au/preschool-program-v2-booking"
+                        />
+                    </div>
+                    <Values />
+                </section>
+            </Container>
+        </section>
+    </main>
 </Layout>

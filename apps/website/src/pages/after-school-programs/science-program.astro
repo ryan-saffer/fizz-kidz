@@ -1,160 +1,143 @@
 ---
-import PageIntro from "@/components/page-intro.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Layout from "@/layout/Layout.astro";
-import { websitePagesAfterSchoolProgramsScienceScienceJpg as science } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsScienceMixingJpg as mixing } from "@/data/website-images";
-import Image from "@/components/image.astro";
-import blueCalendar from "@/assets/images/pages/parties/blue-calendar.svg";
-import greenClock from "@/assets/images/pages/parties/green-clock.svg";
-import PrimaryButton from "@/components/primary-button.astro";
+import PageIntro from '@/components/page-intro.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import Layout from '@/layout/Layout.astro'
+import { websitePagesAfterSchoolProgramsScienceScienceJpg as science } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsScienceMixingJpg as mixing } from '@/data/website-images'
+import Image from '@/components/image.astro'
+import blueCalendar from '@/assets/images/pages/parties/blue-calendar.svg'
+import greenClock from '@/assets/images/pages/parties/green-clock.svg'
+import PrimaryButton from '@/components/primary-button.astro'
 
-import greenDrops from "@/assets/images/pages/parties/drop-green.svg";
-import FreeTrial from "@/components/free-trial.astro";
-import ScienceCurriculum from "@/components/science-curriculum.astro";
-import WhyChooseScienceProgram from "@/components/why-choose-science-program.astro";
-import Values from "@/components/values.astro";
+import greenDrops from '@/assets/images/pages/parties/drop-green.svg'
+import FreeTrial from '@/components/free-trial.astro'
+import ScienceCurriculum from '@/components/science-curriculum.astro'
+import WhyChooseScienceProgram from '@/components/why-choose-science-program.astro'
+import Values from '@/components/values.astro'
 ---
 
 <Layout
-  title="Science After School Program For Kids in Melbourne"
-  description="We engage your children in the fascinating nature of everyday science, and we do it byexploring hands-on science experiments!"
+    title="Science After School Program For Kids in Melbourne"
+    description="We engage your children in the fascinating nature of everyday science, and we do it byexploring hands-on science experiments!"
 >
-  <main class="m-auto block max-w-[1380px] px-5 py-8">
-    <BreadcrumbWrapper
-      client:idle
-      items={[
-        {
-          type: "link",
-          title: "After School Programs",
-          path: "/after-school-programs/",
-        },
-        {
-          type: "dropdown",
-          title: "Science Program",
-          items: [
-            {
-              type: "link",
-              title: "Science Program",
-              path: "/after-school-programs/science-program/",
-              isNew: false,
-            },
-            {
-              type: "link",
-              title: "Art & Makers Program",
-              path: "/after-school-programs/art-and-makers-program/",
-              isNew: false,
-            },
-          ],
-        },
-      ]}
-    />
-    <PageIntro
-      subtitle="Igniting curiosity, sparking excitement, and fostering a lifelong love for science!"
-      type="image"
-      image={science}
-      imageAlt="Kids in a lab coat gathered around smiling at a volcano exploding"
-      color="green"
-      actionButtonText="Register for a free trial"
-      actionButtonPath="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=studio"
-    >
-      <span slot="title">Fizz Kidz After School Science Program</span>
-      <span slot="content"
-        >We engage your children in the fascinating nature of everyday science,
-        and we do it by exploring hands-on science experiments!
-      </span>
-    </PageIntro>
-    <section class="my-12 md:my-32">
-      <h3 class="mb-6 text-center font-lilita text-5xl">
-        Join the science adventure!
-      </h3>
-      <p class="mb-8 text-center font-lilita text-4xl text-[#9044E2] md:mb-20">
-        - Now taking Term 3 Enrolments -
-      </p>
-      <div class="flex flex-col items-center justify-center gap-12 md:flex-row">
-        <Image
-          class="rounded-2xl md:w-1/2"
-          src={mixing}
-          alt="A child in a lab coat carefully mixing their experiment"
+    <main class="m-auto block max-w-[1380px] px-5 py-8">
+        <BreadcrumbWrapper
+            client:idle
+            items={[
+                {
+                    type: 'link',
+                    title: 'After School Programs',
+                    path: '/after-school-programs/',
+                },
+                {
+                    type: 'dropdown',
+                    title: 'Science Program',
+                    items: [
+                        {
+                            type: 'link',
+                            title: 'Science Program',
+                            path: '/after-school-programs/science-program/',
+                            isNew: false,
+                        },
+                        {
+                            type: 'link',
+                            title: 'Art & Makers Program',
+                            path: '/after-school-programs/art-and-makers-program/',
+                            isNew: false,
+                        },
+                    ],
+                },
+            ]}
         />
-        <div class="md:w-1/2">
-          <p class="mb-4 font-lilita text-2xl">
-            The Fizz Kidz science program is a unique program that offers
-            children the opportunity to get hands-on with science!
-          </p>
-          <p>
-            We are passionate about engaging students in the captivative nature
-            of everyday science. The program is designed to enhance children's
-            confidence to ask questions, explore through hands-on experiments,
-            open-minded to all outcomes, and applaud's innovation. By fostering
-            a curiosity about the world we live in, we hope to encourage our
-            students to become life-long learners!
-          </p>
-        </div>
-      </div>
-    </section>
-    <section>
-      <h2 class="mb-12 text-center font-lilita text-5xl md:mb-24">
-        Term 3 Program Details
-      </h2>
-      <div class="flex flex-col gap-12 md:flex-row">
-        <div class="flex flex-col items-center justify-center gap-4 md:w-1/2">
-          <Image
-            class="h-24 w-fit"
-            src={blueCalendar}
-            alt="Icon of a blue calendar"
-          />
-          <p class="font-lilita text-3xl">In Studio Program Timetable</p>
-        </div>
-        <div class="relative md:w-1/2">
-          <Image
-            class="absolute -bottom-10 -left-20 z-10 h-60 rotate-180"
-            src={greenDrops}
-            alt="background dots"
-          />
+        <PageIntro
+            subtitle="Igniting curiosity, sparking excitement, and fostering a lifelong love for science!"
+            type="image"
+            image={science}
+            imageAlt="Kids in a lab coat gathered around smiling at a volcano exploding"
+            color="green"
+            actionButtonText="Register for a free trial"
+            actionButtonPath="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=studio"
+        >
+            <span slot="title">Fizz Kidz After School Science Program</span>
+            <span slot="content">We engage your children in the fascinating nature of everyday science, and we do it by
+                exploring hands-on science experiments!
+            </span>
+        </PageIntro>
+        <section class="my-12 md:my-32">
+            <h3 class="mb-6 text-center font-lilita text-5xl">Join the science adventure!</h3>
+            <p class="mb-8 text-center font-lilita text-4xl text-[#9044E2] md:mb-20">
+                - Now taking Term 3 Enrolments -
+            </p>
+            <div class="flex flex-col items-center justify-center gap-12 md:flex-row">
+                <Image
+                    class="rounded-2xl md:w-1/2"
+                    src={mixing}
+                    alt="A child in a lab coat carefully mixing their experiment"
+                />
+                <div class="md:w-1/2">
+                    <p class="mb-4 font-lilita text-2xl">
+                        The Fizz Kidz science program is a unique program that offers children the opportunity to get
+                        hands-on with science!
+                    </p>
+                    <p>
+                        We are passionate about engaging students in the captivative nature of everyday science. The
+                        program is designed to enhance children's confidence to ask questions, explore through hands-on
+                        experiments, open-minded to all outcomes, and applaud's innovation. By fostering a curiosity
+                        about the world we live in, we hope to encourage our students to become life-long learners!
+                    </p>
+                </div>
+            </div>
+        </section>
+        <section>
+            <h2 class="mb-12 text-center font-lilita text-5xl md:mb-24">Term 3 Program Details</h2>
+            <div class="flex flex-col gap-12 md:flex-row">
+                <div class="flex flex-col items-center justify-center gap-4 md:w-1/2">
+                    <Image class="h-24 w-fit" src={blueCalendar} alt="Icon of a blue calendar" />
+                    <p class="font-lilita text-3xl">In Studio Program Timetable</p>
+                </div>
+                <div class="relative md:w-1/2">
+                    <Image
+                        class="absolute -bottom-10 -left-20 z-10 h-60 rotate-180"
+                        src={greenDrops}
+                        alt="background dots"
+                    />
 
-          <div class="relative z-20 rounded-2xl shadow-lg">
-            <div class="rounded-t-2xl bg-[#4FE16D] p-3">
-              <p class="text-center font-lilita text-3xl text-white">
-                Term 3 - Starts 23rd July
-              </p>
+                    <div class="relative z-20 rounded-2xl shadow-lg">
+                        <div class="rounded-t-2xl bg-[#4FE16D] p-3">
+                            <p class="text-center font-lilita text-3xl text-white">Term 3 - Starts 23rd July</p>
+                        </div>
+                        <div class="relative rounded-b-2xl bg-white p-6">
+                            <Image
+                                class="absolute right-4 z-30 h-20 w-fit"
+                                src={greenClock}
+                                alt="Icon of a green clock"
+                            />
+                            <p class="relative z-50 font-lilita text-3xl">Tuesdays</p>
+                            <p class="relative z-50 mb-4 font-lilita text-3xl">4:15pm - 5:15pm</p>
+                            <p class="relative z-50 font-lilita text-xl text-slate-500">Prep - Grade 4</p>
+                            <p class="relative z-50 font-lilita text-xl text-slate-500">
+                                $234 ($26 per week for a 9 week term)
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="relative rounded-b-2xl bg-white p-6">
-              <Image
-                class="absolute right-4 z-30 h-20 w-fit"
-                src={greenClock}
-                alt="Icon of a green clock"
-              />
-              <p class="relative z-50 font-lilita text-3xl">Tuesdays</p>
-              <p class="relative z-50 mb-4 font-lilita text-3xl">
-                4:15pm - 5:15pm
-              </p>
-              <p class="relative z-50 font-lilita text-xl text-slate-500">
-                Prep - Grade 4
-              </p>
-              <p class="relative z-50 font-lilita text-xl text-slate-500">
-                $234 ($26 per week for a 9 week term)
-              </p>
+            <div class="my-16 flex justify-center">
+                <PrimaryButton
+                    text="Register for a free trial"
+                    path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=studio"
+                />
             </div>
-          </div>
+        </section>
+        <WhyChooseScienceProgram />
+        <ScienceCurriculum />
+        <div class="my-12 flex items-center justify-center md:my-24">
+            <PrimaryButton
+                text="Register for a free trial"
+                path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=studio"
+            />
         </div>
-      </div>
-      <div class="my-16 flex justify-center">
-        <PrimaryButton
-          text="Register for a free trial"
-          path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=studio"
-        />
-      </div>
-    </section>
-    <WhyChooseScienceProgram />
-    <ScienceCurriculum />
-    <div class="my-12 flex items-center justify-center md:my-24">
-      <PrimaryButton
-        text="Register for a free trial"
-        path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=studio"
-      />
-    </div>
-    <FreeTrial type="studio" />
-    <Values />
-  </main>
+        <FreeTrial type="studio" />
+        <Values />
+    </main>
 </Layout>

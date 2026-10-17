@@ -1,78 +1,60 @@
 ---
-import {
-  Image as AstroImage,
-  type LocalImageProps,
-  type RemoteImageProps,
-} from "astro:assets";
-import type { WebsiteImage } from "@/types/images";
+import { Image as AstroImage, type LocalImageProps, type RemoteImageProps } from 'astro:assets'
+import type { WebsiteImage } from '@/types/images'
 
-type Props = Omit<LocalImageProps, "src"> & {
-  src: LocalImageProps["src"] | WebsiteImage | string;
-  inferSize?: boolean;
-};
+type Props = Omit<LocalImageProps, 'src'> & {
+    src: LocalImageProps['src'] | WebsiteImage | string
+    inferSize?: boolean
+}
 
-const { src, ...props } = Astro.props;
-const websiteImage =
-  typeof src === "object" && src !== null && "assetId" in src ? src : null;
+const { src, ...props } = Astro.props
+const websiteImage = typeof src === 'object' && src !== null && 'assetId' in src ? src : null
 
-const requestedWidth =
-  props.width === undefined ? undefined : Number(props.width);
-const requestedHeight =
-  props.height === undefined ? undefined : Number(props.height);
+const requestedWidth = props.width === undefined ? undefined : Number(props.width)
+const requestedHeight = props.height === undefined ? undefined : Number(props.height)
 
 const imageProps = websiteImage
-  ? (() => {
-      const defaultWidth = Math.min(websiteImage.width, 1920);
-      const width =
-        requestedWidth ??
-        (requestedHeight
-          ? Math.round(
-              (requestedHeight * websiteImage.width) / websiteImage.height,
-            )
-          : defaultWidth);
-      const height =
-        requestedHeight ??
-        (requestedWidth
-          ? Math.round(
-              (requestedWidth * websiteImage.height) / websiteImage.width,
-            )
-          : Math.round(
-              (defaultWidth * websiteImage.height) / websiteImage.width,
-            ));
-      const layout = props.layout ?? "constrained";
-      const responsiveWidths =
-        layout !== "none" &&
-        props.widths === undefined &&
-        props.densities === undefined
-          ? getResponsiveWidths(width, websiteImage.width)
-          : props.widths;
+    ? (() => {
+          const defaultWidth = Math.min(websiteImage.width, 1920)
+          const width =
+              requestedWidth ??
+              (requestedHeight
+                  ? Math.round((requestedHeight * websiteImage.width) / websiteImage.height)
+                  : defaultWidth)
+          const height =
+              requestedHeight ??
+              (requestedWidth
+                  ? Math.round((requestedWidth * websiteImage.height) / websiteImage.width)
+                  : Math.round((defaultWidth * websiteImage.height) / websiteImage.width))
+          const layout = props.layout ?? 'constrained'
+          const responsiveWidths =
+              layout !== 'none' && props.widths === undefined && props.densities === undefined
+                  ? getResponsiveWidths(width, websiteImage.width)
+                  : props.widths
 
-      return {
-        ...props,
-        src: websiteImage.src,
-        width,
-        height,
-        layout,
-        widths: responsiveWidths,
-      };
-    })()
-  : { ...props, src };
+          return {
+              ...props,
+              src: websiteImage.src,
+              width,
+              height,
+              layout,
+              widths: responsiveWidths,
+          }
+      })()
+    : { ...props, src }
 
 function getResponsiveWidths(displayWidth: number, sourceWidth: number) {
-  const maxWidth = Math.min(sourceWidth, displayWidth * 2);
-  const breakpoints = [
-    320, 480, 640, 750, 828, 960, 1080, 1280, 1440, 1668, 1920, 2048, 2560,
-    3200, 3840,
-  ];
+    const maxWidth = Math.min(sourceWidth, displayWidth * 2)
+    const breakpoints = [320, 480, 640, 750, 828, 960, 1080, 1280, 1440, 1668, 1920, 2048, 2560, 3200, 3840]
 
-  return [
-    ...new Set([
-      ...breakpoints.filter((breakpoint) => breakpoint < maxWidth),
-      Math.min(displayWidth, maxWidth),
-      maxWidth,
-    ]),
-  ].sort((a, b) => a - b);
+    return [
+        ...new Set([
+            ...breakpoints.filter((breakpoint) => breakpoint < maxWidth),
+            Math.min(displayWidth, maxWidth),
+            maxWidth,
+        ]),
+    ].sort((a, b) => a - b)
 }
 ---
 
-<AstroImage {...imageProps as LocalImageProps | RemoteImageProps} />
+<AstroImage {...(imageProps as LocalImageProps | RemoteImageProps)} />

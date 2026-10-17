@@ -1,50 +1,41 @@
 ---
-import PageIntro from "@/components/page-intro.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Layout from "@/layout/Layout.astro";
-import { websitePagesFranchisingStaffPng as hero } from "@/data/website-images";
-import ContactUsForm from "@/components/react/forms/contact-us-form";
+import PageIntro from '@/components/page-intro.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import Layout from '@/layout/Layout.astro'
+import { websitePagesFranchisingStaffPng as hero } from '@/data/website-images'
+import ContactUsForm from '@/components/react/forms/contact-us-form'
 ---
 
-<Layout
-  title="Contact us | Fizz Kidz"
-  description="Fill in the form to get in touch. We will respond within 48 hours!"
->
-  <main class="m-auto block max-w-[1380px] px-5 pt-4">
-    <div class="h-[10px]"></div>
-    <BreadcrumbWrapper
-      items={[{ type: "link", path: "/contact-us/", title: "Contact Us" }]}
-    />
-    <PageIntro
-      subtitle="We can't wait to hear from you!"
-      color="green"
-      actionButtonText="Contact us"
-      actionButtonPath="#contact"
-      type="image"
-      image={hero}
-      imageAlt="Two Fizz Kids staff smiling"
-    >
-      <span slot="title">Contact us</span>
-      <span slot="content"
-        >Fizz Kidz are experts in kids entertainment! Whether that be kids
-        birthday parties, corporate or council events, holiday programs or
-        school workshops, we can't wait to bring your event to life!</span
-      >
-    </PageIntro>
-    <div id="contact"></div>
-    <div class="m-auto mb-12 mt-24 max-w-4xl p-4">
-      <p class="mb-4 text-center font-lilita text-4xl">
-        Feel free to <a class="text-[#9A57E6] underline" href="tel:+61390598144"
-          >call us</a
-        > or fill in the form and we will be in touch within 24 hours!
-      </p>
-      <p class="mb-12 text-center">
-        You can also email us directly at <a
-          href="mailto:bookings@fizzkidz.com.au"
-          class="text-[#9A57E6] underline">bookings@fizzkidz.com.au</a
+<Layout title="Contact us | Fizz Kidz" description="Fill in the form to get in touch. We will respond within 48 hours!">
+    <main class="m-auto block max-w-[1380px] px-5 pt-4">
+        <div class="h-[10px]"></div>
+        <BreadcrumbWrapper items={[{ type: 'link', path: '/contact-us/', title: 'Contact Us' }]} />
+        <PageIntro
+            subtitle="We can't wait to hear from you!"
+            color="green"
+            actionButtonText="Contact us"
+            actionButtonPath="#contact"
+            type="image"
+            image={hero}
+            imageAlt="Two Fizz Kids staff smiling"
         >
-      </p>
-      <ContactUsForm client:idle />
-    </div>
-  </main>
+            <span slot="title">Contact us</span>
+            <span slot="content"
+                >Fizz Kidz are experts in kids entertainment! Whether that be kids birthday parties, corporate or
+                council events, holiday programs or school workshops, we can't wait to bring your event to life!</span
+            >
+        </PageIntro>
+        <div id="contact"></div>
+        <div class="m-auto mb-12 mt-24 max-w-4xl p-4">
+            <p class="mb-4 text-center font-lilita text-4xl">
+                Feel free to <a class="text-[#9A57E6] underline" href="tel:+61390598144">call us</a> or fill in the form
+                and we will be in touch within 24 hours!
+            </p>
+            <p class="mb-12 text-center">
+                You can also email us directly at
+                <a href="mailto:bookings@fizzkidz.com.au" class="text-[#9A57E6] underline">bookings@fizzkidz.com.au</a>
+            </p>
+            <ContactUsForm client:idle />
+        </div>
+    </main>
 </Layout>

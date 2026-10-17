@@ -1,48 +1,42 @@
 ---
-import PageIntro from "@/components/page-intro.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Layout from "@/layout/Layout.astro";
-import { websitePagesOurTeamAllStaffJpg as team } from "@/data/website-images";
-import JobListings from "@/components/react/job-listings";
-import CareersForm from "@/components/react/forms/careers-form";
+import PageIntro from '@/components/page-intro.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import Layout from '@/layout/Layout.astro'
+import { websitePagesOurTeamAllStaffJpg as team } from '@/data/website-images'
+import JobListings from '@/components/react/job-listings'
+import CareersForm from '@/components/react/forms/careers-form'
 ---
 
-<Layout
-  title="Careers | Fizz Kidz"
-  description="Want to work for Fizz Kidz? Apply for one of our open roles!"
->
-  <main class="m-auto block max-w-[1380px] px-5 pt-4">
-    <div class="h-[10px]"></div>
-    <BreadcrumbWrapper
-      items={[{ type: "link", title: "Careers", path: "/careers/" }]}
-    />
-    <PageIntro
-      type="image"
-      image={team}
-      imageAlt="Lots of Fizz Kids staff all posing and laughing"
-      subtitle="We're buzzing with fun - join us!"
-      color="blue"
-      actionButtonText="Apply now"
-      actionButtonPath="#apply"
-    >
-      <span slot="title">Fizz Kidz Careers</span>
-      <span slot="content"
-        >Fizz Kidz is a vibrant and fast-growing kids entertainment company that
-        specialises in hands-on creativity! We specialise in running amazing
-        kids birthday parties! During our highly sought-after parties, kids
-        explore the process of making science experiments and craft activities!</span
-      >
-    </PageIntro>
-    <section class="relative my-24">
-      <h3 class="mb-8 text-center font-lilita text-5xl">Available roles</h3>
-      <JobListings client:idle />
-      <div id="apply" class="absolute"></div>
-    </section>
-    <section class="mb-8">
-      <h3 class="mb-4 text-center font-lilita text-4xl">
-        Fill in the form below to apply for one of our open roles!
-      </h3>
-      <CareersForm client:idle />
-    </section>
-  </main>
+<Layout title="Careers | Fizz Kidz" description="Want to work for Fizz Kidz? Apply for one of our open roles!">
+    <main class="m-auto block max-w-[1380px] px-5 pt-4">
+        <div class="h-[10px]"></div>
+        <BreadcrumbWrapper items={[{ type: 'link', title: 'Careers', path: '/careers/' }]} />
+        <PageIntro
+            type="image"
+            image={team}
+            imageAlt="Lots of Fizz Kids staff all posing and laughing"
+            subtitle="We're buzzing with fun - join us!"
+            color="blue"
+            actionButtonText="Apply now"
+            actionButtonPath="#apply"
+        >
+            <span slot="title">Fizz Kidz Careers</span>
+            <span slot="content"
+                >Fizz Kidz is a vibrant and fast-growing kids entertainment company that specialises in hands-on
+                creativity! We specialise in running amazing kids birthday parties! During our highly sought-after
+                parties, kids explore the process of making science experiments and craft activities!</span
+            >
+        </PageIntro>
+        <section class="relative my-24">
+            <h3 class="mb-8 text-center font-lilita text-5xl">Available roles</h3>
+            <JobListings client:idle />
+            <div id="apply" class="absolute"></div>
+        </section>
+        <section class="mb-8">
+            <h3 class="mb-4 text-center font-lilita text-4xl">
+                Fill in the form below to apply for one of our open roles!
+            </h3>
+            <CareersForm client:idle />
+        </section>
+    </main>
 </Layout>

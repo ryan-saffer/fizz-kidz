@@ -1,6 +1,6 @@
-import { defineConfig } from 'oxfmt'
+import type { OxfmtConfig } from 'vite-plus/fmt'
 
-export default defineConfig({
+export default {
     ignorePatterns: ['docs/feature-plans/PRESCHOOL_V2_IMPLEMENTATION_PLAN.md', 'docs/inventory-system-plan.md'],
     trailingComma: 'es5',
     tabWidth: 4,
@@ -39,6 +39,8 @@ export default defineConfig({
         newlinesBetween: true,
     },
     sortPackageJson: false,
+    // matches `compressHTML: true` in the website's astro.config, so whitespace the compiler keeps is left alone
+    astro: { compressHTML: 'html' },
     overrides: [
         {
             files: ['apps/portal/**/*.{js,jsx,ts,tsx,html}'],
@@ -49,6 +51,11 @@ export default defineConfig({
             options: { sortTailwindcss: { config: './apps/website/tailwind.config.mjs' } },
         },
         {
+            // Astro bundles CSS in the order components are imported, so sorting imports would change which styles win
+            files: ['**/*.astro'],
+            options: { sortImports: false },
+        },
+        {
             // Indentation is semantically significant in Markdown and MDX: it controls
             // list nesting and paragraph boundaries, including inside JSX children.
             // Re-indenting these files from 2 to 4 spaces silently restructures the
@@ -57,4 +64,4 @@ export default defineConfig({
             options: { tabWidth: 2 },
         },
     ],
-})
+} satisfies OxfmtConfig

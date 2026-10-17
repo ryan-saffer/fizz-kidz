@@ -1,98 +1,68 @@
 ---
-import Image from "@/components/image.astro";
-import PrimaryButton from "@/components/primary-button.astro";
-import type { ImageSource } from "@/types/images";
-import { cn } from "./react/lib/utils";
-import {
-  getBirthdayPartyPackageColourHex,
-  type BirthdayPartyPackageColour,
-} from "@fizz-kidz/core";
+import Image from '@/components/image.astro'
+import PrimaryButton from '@/components/primary-button.astro'
+import type { ImageSource } from '@/types/images'
+import { cn } from './react/lib/utils'
+import { getBirthdayPartyPackageColourHex, type BirthdayPartyPackageColour } from '@fizz-kidz/core'
 
 type Props = {
-  subtitle: string;
-  actionButtonText: string;
-  actionButtonPath: string;
-  color: BirthdayPartyPackageColour;
-} & (
-  | { type: "image"; image: ImageSource; imageAlt: string }
-  | { type: "video"; videoUrl: string }
-);
+    subtitle: string
+    actionButtonText: string
+    actionButtonPath: string
+    color: BirthdayPartyPackageColour
+} & ({ type: 'image'; image: ImageSource; imageAlt: string } | { type: 'video'; videoUrl: string })
 
-const { subtitle, actionButtonPath, actionButtonText, color, ...props } =
-  Astro.props;
+const { subtitle, actionButtonPath, actionButtonText, color, ...props } = Astro.props
 
-const colourHex = getBirthdayPartyPackageColourHex(color);
+const colourHex = getBirthdayPartyPackageColourHex(color)
 ---
 
 <section class="min-[1200px]:mt-12">
-  <div
-    class="flex flex-col items-center gap-16 md:gap-24 min-[1200px]:flex-row"
-  >
-    <div class="mt-4 w-full min-[1200px]:m-0 min-[1200px]:w-2/5">
-      <h1 class="mb-4 font-lilita text-5xl leading-none sm:text-6xl">
-        <slot name="title" />
-      </h1>
-      <h2
-        class="mb-8 font-lilita text-3xl sm:text-4xl"
-        style={{ color: colourHex }}
-      >
-        {subtitle}
-      </h2>
-      <p class="mb-16 font-gotham text-base font-semibold sm:text-lg">
-        <slot name="content" />
-      </p>
-      <PrimaryButton text={actionButtonText} path={actionButtonPath} />
+    <div class="flex flex-col items-center gap-16 md:gap-24 min-[1200px]:flex-row">
+        <div class="mt-4 w-full min-[1200px]:m-0 min-[1200px]:w-2/5">
+            <h1 class="mb-4 font-lilita text-5xl leading-none sm:text-6xl">
+                <slot name="title" />
+            </h1>
+            <h2 class="mb-8 font-lilita text-3xl sm:text-4xl" style={{ color: colourHex }}>
+                {subtitle}
+            </h2>
+            <p class="mb-16 font-gotham text-base font-semibold sm:text-lg">
+                <slot name="content" />
+            </p>
+            <PrimaryButton text={actionButtonText} path={actionButtonPath} />
+        </div>
+        <div class="px-0 sm:px-12 min-[1200px]:block min-[1200px]:w-3/5 min-[1200px]:px-0">
+            {props.type === 'image' && (
+                <Image
+                    src={props.image}
+                    alt={props.imageAlt}
+                    width={1000}
+                    loading="eager"
+                    fetchpriority="high"
+                    sizes="(min-width: 1380px) 828px, (min-width: 1200px) 60vw, 100vw"
+                    class={cn('max-h-[600px] rounded-3xl object-cover', {
+                        'shadow-purple-sm sm:shadow-purple-md md:shadow-purple-lg': color === 'purple',
+                        'shadow-blue-sm sm:shadow-blue-md md:shadow-blue-lg': color === 'blue',
+                        'shadow-pink-sm sm:shadow-pink-md md:shadow-pink-lg': color === 'pink',
+                        'shadow-green-sm sm:shadow-green-md md:shadow-green-lg': color === 'green',
+                        'shadow-gold-sm sm:shadow-gold-md md:shadow-gold-lg': color === 'gold',
+                    })}
+                />
+            )}
+            {props.type === 'video' && <video
+                muted
+                autoplay
+                loop
+                class={cn('max-h-[600px] rounded-3xl object-cover', {
+                    'shadow-purple-sm sm:shadow-purple-md md:shadow-purple-lg': color === 'purple',
+                    'shadow-blue-sm sm:shadow-blue-md md:shadow-blue-lg': color === 'blue',
+                    'shadow-pink-sm sm:shadow-pink-md md:shadow-pink-lg': color === 'pink',
+                    'shadow-green-sm sm:shadow-green-md md:shadow-green-lg': color === 'green',
+                    'shadow-gold-sm sm:shadow-gold-md md:shadow-gold-lg': color === 'gold',
+                })}
+            >
+                <source src={props.videoUrl} type="video/mp4" />
+            </video>}
+        </div>
     </div>
-    <div
-      class="px-0 sm:px-12 min-[1200px]:block min-[1200px]:w-3/5 min-[1200px]:px-0"
-    >
-      {
-        props.type === "image" && (
-          <Image
-            src={props.image}
-            alt={props.imageAlt}
-            width={1000}
-            loading="eager"
-            fetchpriority="high"
-            sizes="(min-width: 1380px) 828px, (min-width: 1200px) 60vw, 100vw"
-            class={cn("max-h-[600px] rounded-3xl object-cover", {
-              "shadow-purple-sm sm:shadow-purple-md md:shadow-purple-lg":
-                color === "purple",
-              "shadow-blue-sm sm:shadow-blue-md md:shadow-blue-lg":
-                color === "blue",
-              "shadow-pink-sm sm:shadow-pink-md md:shadow-pink-lg":
-                color === "pink",
-              "shadow-green-sm sm:shadow-green-md md:shadow-green-lg":
-                color === "green",
-              "shadow-gold-sm sm:shadow-gold-md md:shadow-gold-lg":
-                color === "gold",
-            })}
-          />
-        )
-      }
-      {
-        props.type === "video" && (
-          <video
-            muted
-            autoplay
-            loop
-            class={cn("max-h-[600px] rounded-3xl object-cover", {
-              "shadow-purple-sm sm:shadow-purple-md md:shadow-purple-lg":
-                color === "purple",
-              "shadow-blue-sm sm:shadow-blue-md md:shadow-blue-lg":
-                color === "blue",
-              "shadow-pink-sm sm:shadow-pink-md md:shadow-pink-lg":
-                color === "pink",
-              "shadow-green-sm sm:shadow-green-md md:shadow-green-lg":
-                color === "green",
-              "shadow-gold-sm sm:shadow-gold-md md:shadow-gold-lg":
-                color === "gold",
-            })}
-          >
-            <source src={props.videoUrl} type="video/mp4" />
-          </video>
-        )
-      }
-    </div>
-  </div>
 </section>

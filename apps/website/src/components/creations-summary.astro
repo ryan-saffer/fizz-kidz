@@ -1,34 +1,32 @@
 ---
 type Props = {
-  title: string;
-  color: string;
-  useDefaultSlot?: boolean;
-};
+    title: string
+    color: string
+    useDefaultSlot?: boolean
+}
 
-const { title, color, useDefaultSlot = false } = Astro.props;
+const { title, color, useDefaultSlot = false } = Astro.props
 ---
 
 <div class="mb-16">
-  <p class="mb-8 text-center font-lilita text-5xl" style={{ color }}>{title}</p>
-  <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-    {
-      useDefaultSlot ? (
-        <slot />
-      ) : (
-        <>
-          <slot name="1" />
-          <slot name="2" />
-          <slot name="3" />
-          <slot name="4" />
-          <slot name="5" />
-          <slot name="6" />
-          <slot name="7" />
-          <slot name="8" />
-          <slot name="9" />
-          <slot name="10" />
-          <slot name="11" />
-        </>
-      )
-    }
-  </div>
+    <p class="mb-8 text-center font-lilita text-5xl" style={{ color }}>{title}</p>
+    <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {useDefaultSlot ? (
+            <slot />
+        ) : (
+            <>
+                <slot name="1" />
+                <slot name="2" />
+                <slot name="3" />
+                <slot name="4" />
+                <slot name="5" />
+                <slot name="6" />
+                <slot name="7" />
+                <slot name="8" />
+                <slot name="9" />
+                <slot name="10" />
+                <slot name="11" />
+            </>
+        )}
+    </div>
 </div>

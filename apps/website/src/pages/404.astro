@@ -1,35 +1,28 @@
 ---
-import Layout from "@/layout/Layout.astro";
+import Layout from '@/layout/Layout.astro'
 
-import { websitePagesPartiesCreationsHeroJpg as bg } from "@/data/website-images";
-import Image from "@/components/image.astro";
-import { ArrowRight } from "lucide-react";
+import { websitePagesPartiesCreationsHeroJpg as bg } from '@/data/website-images'
+import Image from '@/components/image.astro'
+import { ArrowRight } from 'lucide-react'
 ---
 
 <Layout title="404 | Fizz Kidz" description="Page not found." noIndex>
-  <main class="relative flex h-[80vh] items-center justify-center">
-    <Image
-      src={bg}
-      alt="background of smocks"
-      class="absolute inset-0 z-10 h-full w-full object-cover"
-    />
-    <div class="absolute left-0 top-0 z-10 h-full w-full bg-black opacity-60">
-    </div>
-    <div class="z-20 mx-12">
-      <p class="mb-8 text-center font-lilita text-5xl text-white">- 404 -</p>
-      <h1 class="text-center font-lilita text-6xl text-[#FFF377] md:text-7xl">
-        Whoops, you seem to be lost!
-      </h1>
-      <div class="mt-12 flex w-full justify-center">
-        <a href="/">
-          <button
-            class="flex items-center rounded-2xl bg-[#9044E2] p-6 font-bold text-white transition-colors duration-300 ease-in-out hover:bg-[#F6BA34]"
-          >
-            Go Home
-            <ArrowRight className="ml-2 h-6 w-6" />
-          </button>
-        </a>
-      </div>
-    </div>
-  </main>
+    <main class="relative flex h-[80vh] items-center justify-center">
+        <Image src={bg} alt="background of smocks" class="absolute inset-0 z-10 h-full w-full object-cover" />
+        <div class="absolute left-0 top-0 z-10 h-full w-full bg-black opacity-60"></div>
+        <div class="z-20 mx-12">
+            <p class="mb-8 text-center font-lilita text-5xl text-white">- 404 -</p>
+            <h1 class="text-center font-lilita text-6xl text-[#FFF377] md:text-7xl">Whoops, you seem to be lost!</h1>
+            <div class="mt-12 flex w-full justify-center">
+                <a href="/">
+                    <button
+                        class="flex items-center rounded-2xl bg-[#9044E2] p-6 font-bold text-white transition-colors duration-300 ease-in-out hover:bg-[#F6BA34]"
+                    >
+                        Go Home
+                        <ArrowRight className="ml-2 h-6 w-6" />
+                    </button>
+                </a>
+            </div>
+        </div>
+    </main>
 </Layout>

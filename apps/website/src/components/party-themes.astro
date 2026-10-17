@@ -1,42 +1,30 @@
 ---
-import PartyPackage from "./party-package.astro";
-import {
-  birthdayPartyThemePackages,
-  getBirthdayPartyPackagePath,
-} from "@/data/birthday-party-catalogue";
-import {
-  getBirthdayPartyPackagePartyName,
-} from "@fizz-kidz/core";
+import PartyPackage from './party-package.astro'
+import { birthdayPartyThemePackages, getBirthdayPartyPackagePath } from '@/data/birthday-party-catalogue'
+import { getBirthdayPartyPackagePartyName } from '@fizz-kidz/core'
 ---
 
 <section class="mt-12 md:mt-24">
-  <div class="mb-8 flex flex-col items-center gap-4 md:mb-16">
-    <h3 class="text-center font-lilita text-5xl">Birthday Party Themes</h3>
-    <h4
-      class="max-w-3xl text-center font-lilita text-2xl text-[#9044E2] md:text-3xl"
-    >
-      Our packages create a personalised birthday party that your child will
-      love.
-    </h4>
-    <p class="text-center font-gotham text-xl">
-      Whether your child loves all things glitter and sparkles or is amazed by<br
-      />science we have the perfect party for your child!
-    </p>
-  </div>
-  <div
-    class="mb-24 grid grid-cols-2 justify-center gap-y-4 min-[900px]:grid-cols-4"
-  >
-    {
-      birthdayPartyThemePackages.map((partyPackage) => (
-        <PartyPackage
-          title={getBirthdayPartyPackagePartyName(partyPackage.name)}
-          color={partyPackage.accentColour}
-          image={partyPackage.websitePage.themeCard.image}
-          imageAlt={partyPackage.websitePage.themeCard.imageAlt}
-          isNew={partyPackage.websitePage.navigation.isNew}
-          path={getBirthdayPartyPackagePath(partyPackage.websitePage.slug)}
-        />
-      ))
-    }
-  </div>
+    <div class="mb-8 flex flex-col items-center gap-4 md:mb-16">
+        <h3 class="text-center font-lilita text-5xl">Birthday Party Themes</h3>
+        <h4 class="max-w-3xl text-center font-lilita text-2xl text-[#9044E2] md:text-3xl">
+            Our packages create a personalised birthday party that your child will love.
+        </h4>
+        <p class="text-center font-gotham text-xl">
+            Whether your child loves all things glitter and sparkles or is amazed by<br />science we have the perfect
+            party for your child!
+        </p>
+    </div>
+    <div class="mb-24 grid grid-cols-2 justify-center gap-y-4 min-[900px]:grid-cols-4">
+        {birthdayPartyThemePackages.map((partyPackage) => (
+            <PartyPackage
+                title={getBirthdayPartyPackagePartyName(partyPackage.name)}
+                color={partyPackage.accentColour}
+                image={partyPackage.websitePage.themeCard.image}
+                imageAlt={partyPackage.websitePage.themeCard.imageAlt}
+                isNew={partyPackage.websitePage.navigation.isNew}
+                path={getBirthdayPartyPackagePath(partyPackage.websitePage.slug)}
+            />
+        ))}
+    </div>
 </section>

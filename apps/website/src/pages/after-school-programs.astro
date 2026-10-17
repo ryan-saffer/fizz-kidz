@@ -1,190 +1,162 @@
 ---
-import PageIntro from "@/components/page-intro.astro";
-import { BreadcrumbWrapper } from "@/components/react/breadcrumb-wrapper";
-import Layout from "@/layout/Layout.astro";
-import { websitePagesAfterSchoolProgramsBannerPng as hero } from "@/data/website-images";
-import WideImageCard from "@/components/wide-image-card.astro";
-import { websitePagesAfterSchoolProgramsSciencePng as science } from "@/data/website-images";
-import { websitePagesAfterSchoolProgramsArtPng as art } from "@/data/website-images";
-import PrimaryButton from "@/components/primary-button.astro";
-import { websitePagesAfterSchoolPrograms1Png as one } from "@/data/website-images";
-import { websitePagesAfterSchoolPrograms2Png as two } from "@/data/website-images";
-import { websitePagesAfterSchoolPrograms3Png as three } from "@/data/website-images";
-import Image from "@/components/image.astro";
-import FreeTrial from "@/components/free-trial.astro";
-import Values from "@/components/values.astro";
+import PageIntro from '@/components/page-intro.astro'
+import { BreadcrumbWrapper } from '@/components/react/breadcrumb-wrapper'
+import Layout from '@/layout/Layout.astro'
+import { websitePagesAfterSchoolProgramsBannerPng as hero } from '@/data/website-images'
+import WideImageCard from '@/components/wide-image-card.astro'
+import { websitePagesAfterSchoolProgramsSciencePng as science } from '@/data/website-images'
+import { websitePagesAfterSchoolProgramsArtPng as art } from '@/data/website-images'
+import PrimaryButton from '@/components/primary-button.astro'
+import { websitePagesAfterSchoolPrograms1Png as one } from '@/data/website-images'
+import { websitePagesAfterSchoolPrograms2Png as two } from '@/data/website-images'
+import { websitePagesAfterSchoolPrograms3Png as three } from '@/data/website-images'
+import Image from '@/components/image.astro'
+import FreeTrial from '@/components/free-trial.astro'
+import Values from '@/components/values.astro'
 
 const programs = [
-  {
-    title: "Science Program",
-    dates: "Tuesdays - Prep to Grade 4",
-    points: [
-      "Join the science adventure and make weekly science experiments with us!",
-      "Centered around hands-on exploration, we believe that learning thrives when kids are engaged and tinkering for themselves",
-      "Developed by primary school science specialists, aligned with the Victorian curriculum and run by the same passionate facilitator each week.",
-    ],
-    path: "/after-school-programs/science-program/",
-    color: "#F24DA2",
-    image: science,
-    imageAlt: "Kids in lab coats gathered around",
-  },
-  {
-    title: "Art & Makers Program",
-    dates: "Wednesdays - Prep to Grade 5",
-    points: [
-      "Where innovation meets art! The program",
-      "Centered around a strong passion for hands-on exploration, we believe young minds thrive when provided with the opportunity to explore, experiment, and bring their imaginative masterpieces to life for themselves!",
-      "Developed by primary school art specialists, aligned with the victorian curriculum and run by the same passionate facilitator each week.",
-    ],
-    path: "/after-school-programs/art-and-makers-program/",
-    color: "#9DCC45",
-    image: art,
-    imageAlt: "A child holding an artwork and smiling",
-  },
-] as const;
+    {
+        title: 'Science Program',
+        dates: 'Tuesdays - Prep to Grade 4',
+        points: [
+            'Join the science adventure and make weekly science experiments with us!',
+            'Centered around hands-on exploration, we believe that learning thrives when kids are engaged and tinkering for themselves',
+            'Developed by primary school science specialists, aligned with the Victorian curriculum and run by the same passionate facilitator each week.',
+        ],
+        path: '/after-school-programs/science-program/',
+        color: '#F24DA2',
+        image: science,
+        imageAlt: 'Kids in lab coats gathered around',
+    },
+    {
+        title: 'Art & Makers Program',
+        dates: 'Wednesdays - Prep to Grade 5',
+        points: [
+            'Where innovation meets art! The program',
+            'Centered around a strong passion for hands-on exploration, we believe young minds thrive when provided with the opportunity to explore, experiment, and bring their imaginative masterpieces to life for themselves!',
+            'Developed by primary school art specialists, aligned with the victorian curriculum and run by the same passionate facilitator each week.',
+        ],
+        path: '/after-school-programs/art-and-makers-program/',
+        color: '#9DCC45',
+        image: art,
+        imageAlt: 'A child holding an artwork and smiling',
+    },
+] as const
 
 const numbers = [
-  {
-    image: one,
-    alt: "The number one",
-    text: "Hands-On Exploration: We believe in the power of learning through active, hands-on experiences.",
-  },
-  {
-    image: two,
-    alt: "The number two",
-    text: "Excitability and Wonderment (aka FUN): We aim to inspire excitement and a sense of wonder in every activity.",
-  },
-  {
-    image: three,
-    alt: "The number three",
-    text: "Dedicated Facilitators: Our enthusiastic facilitators are passionate about sparking curiosity in young minds and have a strong love for hands-on learning",
-  },
-] as const;
+    {
+        image: one,
+        alt: 'The number one',
+        text: 'Hands-On Exploration: We believe in the power of learning through active, hands-on experiences.',
+    },
+    {
+        image: two,
+        alt: 'The number two',
+        text: 'Excitability and Wonderment (aka FUN): We aim to inspire excitement and a sense of wonder in every activity.',
+    },
+    {
+        image: three,
+        alt: 'The number three',
+        text: 'Dedicated Facilitators: Our enthusiastic facilitators are passionate about sparking curiosity in young minds and have a strong love for hands-on learning',
+    },
+] as const
 ---
 
 <Layout
-  title="Science & Art After School Programs For Kids in Melbourne"
-  description="Run once a week throughout the term, come and explore the exciting range of after school programs run at Fizz Kidz."
+    title="Science & Art After School Programs For Kids in Melbourne"
+    description="Run once a week throughout the term, come and explore the exciting range of after school programs run at Fizz Kidz."
 >
-  <main class="m-auto block max-w-[1380px] px-5 py-8">
-    <BreadcrumbWrapper
-      client:idle
-      items={[
-        {
-          title: "After School Programs",
-          type: "dropdown",
-          items: [
-            {
-              type: "link",
-              title: "Birthday Parties",
-              path: "/birthday-parties/",
-              isNew: false,
-            },
-            {
-              type: "link",
-              title: "Holiday Programs",
-              path: "/holiday-programs/",
-              isNew: false,
-            },
-            {
-              type: "link",
-              title: "After School Programs",
-              path: "/after-school-programs/",
-              isNew: false,
-            },
-          ],
-        },
-      ]}
-    />
-    <PageIntro
-      subtitle="Igniting curiosity, sparking excitement, and fostering a lifelong love for creative exploration!"
-      type="image"
-      image={hero}
-      imageAlt="Collection of images of children experimenting in school"
-      color="purple"
-      actionButtonText="Enrol for a free trial"
-      actionButtonPath="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=studio"
-    >
-      <span slot="title">Fizz Kidz After School Programs</span>
-      <span slot="content"
-        >Fizz kidz after-school programs run once a week at all Fizz Studios.<br
-        /><br />
-        Come for a free trial and see if your child loves it! We're sure they will.<br
-        /><br />
-      </span>
-    </PageIntro>
-    <section class="mt-16 md:mt-40">
-      <h2 class="text-center font-lilita text-4xl">
-        We offer two programs - which one will your child love?
-      </h2>
-      <div class="mt-20 flex flex-col gap-8 lg:mt-20 lg:gap-16">
-        {
-          programs.map((program, idx) => (
-            <WideImageCard
-              image={program.image}
-              imageAlt={program.imageAlt}
-              imageSide={idx % 2 === 0 ? "left" : "right"}
-            >
-              <div
-                slot="content"
-                class="relative flex h-full flex-col justify-between"
-              >
-                <div>
-                  <h3
-                    class="mb-4 font-lilita text-3xl"
-                    style={{ color: program.color }}
-                  >
-                    {program.title}
-                  </h3>
-                  <p class="mb-4 font-gotham text-lg">{program.dates}</p>
-                  <ul class="list-disc pl-4 [&>li]:mb-4">
-                    {program.points.map((point) => (
-                      <li>{point}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div class="mt-4 flex justify-center">
-                  <PrimaryButton
-                    className=""
-                    text="Click to learn more"
-                    path={program.path}
-                  />
-                </div>
-              </div>
-            </WideImageCard>
-          ))
-        }
-      </div>
-    </section>
-    <section class="mt-16">
-      <h4
-        class="m-auto mb-12 max-w-4xl text-center font-lilita text-4xl text-[#6EC1E4]"
-      >
-        Igniting curiosity, sparking excitement, and fostering a lifelong love
-        for learning!
-      </h4>
-      <p class="mb-12 text-center font-gotham text-2xl font-semibold">
-        Fizz Kidz programs are founded on three key principles:
-      </p>
-      <div class="flex flex-col gap-8 md:flex-row">
-        {
-          numbers.map((number) => (
-            <div class="flex items-center justify-center gap-4">
-              <Image class="h-32 w-fit" src={number.image} alt={number.alt} />
-              <p>{number.text}</p>
-            </div>
-          ))
-        }
-      </div>
-      <div class="flex justify-center">
-        <PrimaryButton
-          className="my-12"
-          text="Enrol for a free trial"
-          path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=studio"
+    <main class="m-auto block max-w-[1380px] px-5 py-8">
+        <BreadcrumbWrapper
+            client:idle
+            items={[
+                {
+                    title: 'After School Programs',
+                    type: 'dropdown',
+                    items: [
+                        {
+                            type: 'link',
+                            title: 'Birthday Parties',
+                            path: '/birthday-parties/',
+                            isNew: false,
+                        },
+                        {
+                            type: 'link',
+                            title: 'Holiday Programs',
+                            path: '/holiday-programs/',
+                            isNew: false,
+                        },
+                        {
+                            type: 'link',
+                            title: 'After School Programs',
+                            path: '/after-school-programs/',
+                            isNew: false,
+                        },
+                    ],
+                },
+            ]}
         />
-      </div>
-    </section>
-    <FreeTrial type="studio" />
-    <Values />
-  </main>
+        <PageIntro
+            subtitle="Igniting curiosity, sparking excitement, and fostering a lifelong love for creative exploration!"
+            type="image"
+            image={hero}
+            imageAlt="Collection of images of children experimenting in school"
+            color="purple"
+            actionButtonText="Enrol for a free trial"
+            actionButtonPath="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=studio"
+        >
+            <span slot="title">Fizz Kidz After School Programs</span>
+            <span slot="content">Fizz kidz after-school programs run once a week at all Fizz Studios.<br /><br /> Come
+                for a free trial and see if your child loves it! We're sure they will.<br /><br />
+            </span>
+        </PageIntro>
+        <section class="mt-16 md:mt-40">
+            <h2 class="text-center font-lilita text-4xl">We offer two programs - which one will your child love?</h2>
+            <div class="mt-20 flex flex-col gap-8 lg:mt-20 lg:gap-16">
+                {programs.map((program, idx) => <WideImageCard
+                    image={program.image}
+                    imageAlt={program.imageAlt}
+                    imageSide={idx % 2 === 0 ? 'left' : 'right'}
+                >
+                    <div slot="content" class="relative flex h-full flex-col justify-between">
+                        <div>
+                            <h3 class="mb-4 font-lilita text-3xl" style={{ color: program.color }}>
+                                {program.title}
+                            </h3>
+                            <p class="mb-4 font-gotham text-lg">{program.dates}</p>
+                            <ul class="list-disc pl-4 [&>li]:mb-4">
+                                {program.points.map((point) => <li>{point}</li>)}
+                            </ul>
+                        </div>
+                        <div class="mt-4 flex justify-center">
+                            <PrimaryButton className="" text="Click to learn more" path={program.path} />
+                        </div>
+                    </div>
+                </WideImageCard>)}
+            </div>
+        </section>
+        <section class="mt-16">
+            <h4 class="m-auto mb-12 max-w-4xl text-center font-lilita text-4xl text-[#6EC1E4]">
+                Igniting curiosity, sparking excitement, and fostering a lifelong love for learning!
+            </h4>
+            <p class="mb-12 text-center font-gotham text-2xl font-semibold">
+                Fizz Kidz programs are founded on three key principles:
+            </p>
+            <div class="flex flex-col gap-8 md:flex-row">
+                {numbers.map((number) => <div class="flex items-center justify-center gap-4">
+                    <Image class="h-32 w-fit" src={number.image} alt={number.alt} />
+                    <p>{number.text}</p>
+                </div>)}
+            </div>
+            <div class="flex justify-center">
+                <PrimaryButton
+                    className="my-12"
+                    text="Enrol for a free trial"
+                    path="https://bookings.fizzkidz.com.au/after-school-program-enrolment-form?type=studio"
+                />
+            </div>
+        </section>
+        <FreeTrial type="studio" />
+        <Values />
+    </main>
 </Layout>

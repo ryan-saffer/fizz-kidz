@@ -1,102 +1,96 @@
 ---
-import { RECALL_URL, RECALL_LABEL } from "@/utils/constants";
+import { RECALL_URL, RECALL_LABEL } from '@/utils/constants'
 ---
 
-<div
-  id="recall-banner"
-  data-recall-banner
-  class="w-full border-b border-amber-200/80 bg-amber-50 print:hidden"
->
-  <div
-    class="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-2 sm:px-8"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-      class="hidden h-4 w-4 shrink-0 text-amber-700 sm:block"
-    >
-      <circle cx="12" cy="12" r="10"></circle>
-      <line x1="12" y1="8" x2="12" y2="12"></line>
-      <line x1="12" y1="16" x2="12.01" y2="16"></line>
-    </svg>
+<div id="recall-banner" data-recall-banner class="w-full border-b border-amber-200/80 bg-amber-50 print:hidden">
+    <div class="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-2 sm:px-8">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            class="hidden h-4 w-4 shrink-0 text-amber-700 sm:block"
+        >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
 
-    <p class="flex-1 text-xs leading-snug text-amber-900 sm:text-sm">
-      <span class="font-semibold">Product safety recall:</span>
-      {RECALL_LABEL}.{" "}
-      <a
-        href={RECALL_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="underline underline-offset-2 hover:text-amber-950"
-      >
-        Read the recall notice
-      </a>
-    </p>
+        <p class="flex-1 text-xs leading-snug text-amber-900 sm:text-sm">
+            <span class="font-semibold">Product safety recall:</span>
+            {RECALL_LABEL}.{' '}
+            <a
+                href={RECALL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="underline underline-offset-2 hover:text-amber-950"
+            >
+                Read the recall notice
+            </a>
+        </p>
 
-    <button
-      type="button"
-      data-recall-dismiss
-      aria-label="Dismiss product safety recall notice"
-      class="shrink-0 rounded p-1 text-amber-700 transition-colors hover:bg-amber-100 hover:text-amber-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-        class="h-4 w-4"
-      >
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
-  </div>
+        <button
+            type="button"
+            data-recall-dismiss
+            aria-label="Dismiss product safety recall notice"
+            class="shrink-0 rounded p-1 text-amber-700 transition-colors hover:bg-amber-100 hover:text-amber-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                class="h-4 w-4"
+            >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
 </div>
 
 <script is:inline>
-  (function () {
-    // sessionStorage (not localStorage) is deliberate: dismissing hides the
-    // notice for the current visit only, so it is shown again on a return
-    // visit. The footer link remains available at all times.
-    var KEY = "recall-banner-dismissed:glow-crown-headbands";
+    ;(function () {
+        // sessionStorage (not localStorage) is deliberate: dismissing hides the
+        // notice for the current visit only, so it is shown again on a return
+        // visit. The footer link remains available at all times.
+        var KEY = 'recall-banner-dismissed:glow-crown-headbands'
 
-    function apply() {
-      var banner = document.querySelector("[data-recall-banner]");
-      if (!banner) return;
+        function apply() {
+            var banner = document.querySelector('[data-recall-banner]')
+            if (!banner) return
 
-      try {
-        if (sessionStorage.getItem(KEY) === "1") {
-          banner.remove();
-          return;
+            try {
+                if (sessionStorage.getItem(KEY) === '1') {
+                    banner.remove()
+                    return
+                }
+            } catch (e) {
+                /* storage unavailable - keep the banner visible */
+            }
+
+            var dismiss = banner.querySelector('[data-recall-dismiss]')
+            if (!dismiss || dismiss.dataset.bound === '1') return
+            dismiss.dataset.bound = '1'
+            dismiss.addEventListener('click', function () {
+                try {
+                    sessionStorage.setItem(KEY, '1')
+                } catch (e) {
+                    /* ignore */
+                }
+                banner.remove()
+            })
         }
-      } catch (e) {
-        /* storage unavailable - keep the banner visible */
-      }
 
-      var dismiss = banner.querySelector("[data-recall-dismiss]");
-      if (!dismiss || dismiss.dataset.bound === "1") return;
-      dismiss.dataset.bound = "1";
-      dismiss.addEventListener("click", function () {
-        try {
-          sessionStorage.setItem(KEY, "1");
-        } catch (e) {
-          /* ignore */
-        }
-        banner.remove();
-      });
-    }
-
-    apply();
-    document.addEventListener("astro:page-load", apply);
-  })();
+        apply()
+        document.addEventListener('astro:page-load', apply)
+    })()
 </script>

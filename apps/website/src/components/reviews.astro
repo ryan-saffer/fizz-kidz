@@ -1,26 +1,24 @@
 ---
-import Image from "@/components/image.astro";
-import ReviewsCarousel from "./react/reviews-carousel";
-import reviewsIcon from "@/assets/images/reviews.png";
+import Image from '@/components/image.astro'
+import ReviewsCarousel from './react/reviews-carousel'
+import reviewsIcon from '@/assets/images/reviews.png'
 
-import type { Review } from "@/types/reviews";
+import type { Review } from '@/types/reviews'
 
 type Props = {
-  title: string;
-  reviews: Review[];
-};
+    title: string
+    reviews: Review[]
+}
 
-const { title, reviews } = Astro.props;
+const { title, reviews } = Astro.props
 ---
 
 <section class="mt-32 flex min-w-0 flex-col gap-6 xl:mt-24 xl:flex-row">
-  <p
-    class="flex min-w-60 flex-col items-center justify-center gap-4 text-center font-lilita text-4xl xl:flex-1"
-  >
-    <Image src={reviewsIcon} alt="blue reviews icon " class="w-24" />
-    {title}
-  </p>
-  <div class="min-w-0 flex-[2] px-3 sm:px-10">
-    <ReviewsCarousel client:visible reviews={reviews} />
-  </div>
+    <p class="flex min-w-60 flex-col items-center justify-center gap-4 text-center font-lilita text-4xl xl:flex-1">
+        <Image src={reviewsIcon} alt="blue reviews icon " class="w-24" />
+        {title}
+    </p>
+    <div class="min-w-0 flex-[2] px-3 sm:px-10">
+        <ReviewsCarousel client:visible reviews={reviews} />
+    </div>
 </section>

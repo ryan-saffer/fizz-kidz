@@ -1,33 +1,22 @@
 ---
-import Image from "@/components/image.astro";
-import PrimaryButton from "./primary-button.astro";
-import { websitePagesPartiesBlueCirclesPng as blueBubbles } from "@/data/website-images";
+import Image from '@/components/image.astro'
+import PrimaryButton from './primary-button.astro'
+import { websitePagesPartiesBlueCirclesPng as blueBubbles } from '@/data/website-images'
 ---
 
 <section class="my-16 flex flex-col gap-16 lg:flex-row lg:gap-8">
-  <Image
-    src={blueBubbles}
-    alt="Three images, two of creations and one of a smiling child"
-    class="w-full lg:w-1/2"
-  />
-  <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
-    <p class="text-center font-lilita text-5xl lg:text-start">
-      Create your own birthday parties
-    </p>
-    <p class="text-center font-lilita text-3xl text-[#41D5F3] lg:text-start">
-      Does your child love a little bit of everything?
-    </p>
-    <p class="text-center font-gotham text-lg font-medium lg:text-start">
-      Not to worry, you are not limited to only choosing creations within a
-      single package, you can mix and match the creations however you like!
-    </p>
-    <div
-      class="mt-8 flex flex-wrap justify-center gap-x-12 gap-y-6 lg:justify-start"
-    >
-      <PrimaryButton
-        text="View all the creations here"
-        path="/birthday-parties/creations/"
-      />
+    <Image src={blueBubbles} alt="Three images, two of creations and one of a smiling child" class="w-full lg:w-1/2" />
+    <div class="flex w-full flex-col justify-center gap-4 lg:w-1/2">
+        <p class="text-center font-lilita text-5xl lg:text-start">Create your own birthday parties</p>
+        <p class="text-center font-lilita text-3xl text-[#41D5F3] lg:text-start">
+            Does your child love a little bit of everything?
+        </p>
+        <p class="text-center font-gotham text-lg font-medium lg:text-start">
+            Not to worry, you are not limited to only choosing creations within a single package, you can mix and match
+            the creations however you like!
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-x-12 gap-y-6 lg:justify-start">
+            <PrimaryButton text="View all the creations here" path="/birthday-parties/creations/" />
+        </div>
     </div>
-  </div>
 </section>
