@@ -23,6 +23,8 @@ export type Emails = {
     }
 
     holidayProgramCancellation: {
+        /** eg. 'holiday program' or 'Halloween Spookfest' */
+        programName: string
         parentName: string
         location: string
         booking: string
@@ -30,18 +32,12 @@ export type Emails = {
         policy: ProgramBookingPolicy
     }
 
-    werribeeOpeningConfirmation: {
+    halloweenSpookfestConfirmation: {
         parentName: string
         location: string
         address: string
         bookings: { datetime: string; confirmationPage: string }[]
-    }
-
-    malvernAnniversaryConfirmation: {
-        parentName: string
-        location: string
-        address: string
-        bookings: { datetime: string; confirmationPage: string }[]
+        policy: ProgramBookingPolicy
     }
 
     preschoolProgramBookingConfirmation: {

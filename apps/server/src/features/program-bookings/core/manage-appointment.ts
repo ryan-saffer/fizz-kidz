@@ -25,6 +25,7 @@ type ReplacementSession = AcuityTypes.Api.Class & { title?: string }
 const PROGRAMS = {
     'holiday-program': {
         name: 'holiday program',
+        allowsRescheduling: true,
         // any later session at the same studio
         async getReplacementSessions(acuity: AcuityClient, appointment: Appointment): Promise<ReplacementSession[]> {
             const classes = await acuity.getClasses([appointment.appointmentTypeID], true, Date.now())
@@ -41,6 +42,7 @@ const PROGRAMS = {
     },
     'preschool-program': {
         name: 'Messy Play Lab',
+        allowsRescheduling: true,
         // any later session at the same studio in the same term, on any day
         async getReplacementSessions(acuity: AcuityClient, appointment: Appointment): Promise<ReplacementSession[]> {
             const classes = await acuity.getClasses(
@@ -54,6 +56,16 @@ const PROGRAMS = {
         },
         quoteRefund: quotePreschoolProgramV2Refund,
     },
+    // one-off events (open days, anniversaries, Halloween) are booked and refunded like holiday programs
+    event: {
+        name: 'event',
+        allowsRescheduling: false,
+        getReplacementSessions: async (): Promise<ReplacementSession[]> => [],
+        quoteRefund: async (appointment: Appointment) => ({
+            ...(await quoteHolidayProgramRefund(appointment)),
+            fullTermDiscountRemoved: false,
+        }),
+    },
 }
 
 type Program = keyof typeof PROGRAMS
@@ -66,6 +78,8 @@ function getProgram(appointment: Appointment): Program {
         case AcuityConstants.AppointmentTypes.PRESCHOOL_PROGRAM:
         case AcuityConstants.AppointmentTypes.TEST_PRESCHOOL_PROGRAM:
             return 'preschool-program'
+        case AcuityConstants.AppointmentTypes.OPEN_DAY:
+            return 'event'
         default:
             throw new TRPCError({
                 code: 'NOT_FOUND',
@@ -87,10 +101,18 @@ async function loadAppointment(input: Access) {
     return { acuity, appointment, program, config: PROGRAMS[program] }
 }
 
+function getEligibility(appointment: Appointment) {
+    const eligibility = getSessionChangeEligibility(appointment.datetime, appointment.canceled)
+    const { allowsRescheduling } = PROGRAMS[getProgram(appointment)]
+    return { ...eligibility, canReschedule: allowsRescheduling && eligibility.canReschedule }
+}
+
 function presentAppointment(appointment: Appointment) {
     return {
         id: appointment.id,
         program: getProgram(appointment),
+        // the Acuity appointment type name, eg. 'Halloween Spookfest'
+        programName: appointment.type,
         childName: AcuityUtilities.retrieveFormAndField(
             appointment,
             AcuityConstants.Forms.CHILDREN_DETAILS,
@@ -101,12 +123,19 @@ function presentAppointment(appointment: Appointment) {
         studio: appointment.calendar,
         address: appointment.location,
         canceled: !!appointment.canceled,
-        ...getSessionChangeEligibility(appointment.datetime, appointment.canceled),
+        allowsRescheduling: PROGRAMS[getProgram(appointment)].allowsRescheduling,
+        ...getEligibility(appointment),
     }
 }
 
 function assertCanReschedule(appointment: Appointment) {
-    if (!getSessionChangeEligibility(appointment.datetime, appointment.canceled).canReschedule) {
+    if (!PROGRAMS[getProgram(appointment)].allowsRescheduling) {
+        throw new TRPCError({
+            code: 'PRECONDITION_FAILED',
+            message: 'This session cannot be rescheduled. Please contact us about your booking.',
+        })
+    }
+    if (!getEligibility(appointment).canReschedule) {
         throw new TRPCError({
             code: 'PRECONDITION_FAILED',
             message: 'Rescheduling is only available at least 48 hours before your session.',
@@ -138,7 +167,7 @@ export async function getCancellationRefund(input: Access) {
 
 export async function cancelManagedAppointment(input: Access) {
     const { acuity, appointment } = await loadAppointment(input)
-    if (!getSessionChangeEligibility(appointment.datetime, appointment.canceled).canCancel) {
+    if (!getEligibility(appointment).canCancel) {
         throw new TRPCError({
             code: 'PRECONDITION_FAILED',
             message: 'This session can no longer be cancelled. Please contact us about your booking.',
