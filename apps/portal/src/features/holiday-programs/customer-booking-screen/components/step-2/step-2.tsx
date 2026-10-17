@@ -2,6 +2,8 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Checkbox, Divider, Form, Input, Modal, Typography } from 'antd'
 import React, { Fragment, useState } from 'react'
 
+import { AcuityConstants, EVENT_POLICY, HOLIDAY_PROGRAM_POLICY } from '@fizz-kidz/core'
+
 import { PhoneRule, SimpleTextRule } from '@shared/lib/form-utils'
 
 import { useCart } from '../../state/cart-store'
@@ -23,6 +25,9 @@ export const Step2: React.FC<Props> = ({ form, appointmentTypeId }) => {
     const [showNoChildrenModal, setShowNoChildrenModal] = useState(false)
     const [showCancellationPolicyModal, setShowCancellationPolicyModal] = useState(false)
     const [showTermsModal, setShowTermsModal] = useState(false)
+
+    const isEvent = appointmentTypeId === AcuityConstants.AppointmentTypes.OPEN_DAY
+    const policy = isEvent ? EVENT_POLICY : HOLIDAY_PROGRAM_POLICY
 
     const selectedClasses = useCart((store) => store.selectedClasses)
     const calculateTotal = useCart((store) => store.calculateTotal)
@@ -199,7 +204,7 @@ export const Step2: React.FC<Props> = ({ form, appointmentTypeId }) => {
                                 showModal(e, 'cancellation')
                             }}
                         >
-                            Cancellation and rescheduling policy
+                            {isEvent ? 'Cancellation policy' : 'Cancellation and rescheduling policy'}
                         </Typography.Link>{' '}
                         and the{' '}
                         <Typography.Link
@@ -232,6 +237,7 @@ export const Step2: React.FC<Props> = ({ form, appointmentTypeId }) => {
                 <p>You can always go back and select a class with more spots.</p>
             </Modal>
             <CancellationPolicyModal
+                policy={policy}
                 open={showCancellationPolicyModal}
                 onClose={() => setShowCancellationPolicyModal(false)}
             />

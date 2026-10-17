@@ -3,7 +3,7 @@ import { CircleCheck } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
-import { HOLIDAY_PROGRAM_POLICY, PRESCHOOL_PROGRAM_POLICY } from '@fizz-kidz/core'
+import { EVENT_POLICY, HOLIDAY_PROGRAM_POLICY, PRESCHOOL_PROGRAM_POLICY } from '@fizz-kidz/core'
 
 import { SessionDetails } from '@features/holiday-programs/customer-booking-screen/components/session-details'
 import { formatSessionTime } from '@features/holiday-programs/customer-booking-screen/components/session-time'
@@ -38,6 +38,13 @@ const PROGRAMS = {
         name: 'Messy Play Lab',
         policy: PRESCHOOL_PROGRAM_POLICY,
         sessionScope: 'this term at',
+        scheduleUrl: undefined,
+    },
+    event: {
+        // replaced by the event's own name, eg. 'Halloween Spookfest'
+        name: 'event',
+        policy: EVENT_POLICY,
+        sessionScope: 'at',
         scheduleUrl: undefined,
     },
 } as const
@@ -129,17 +136,20 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
         return <p role="alert">{loadError?.message || 'We could not load your booking. Please try again.'}</p>
     }
     const program = PROGRAMS[appointment.program]
+    const programName = appointment.program === 'event' ? appointment.programName : program.name
 
     // once the change is made, confirm it clearly rather than showing the options again
     if (completed) {
-        return <ChangeConfirmed {...completed} programName={program.name} />
+        return <ChangeConfirmed {...completed} programName={programName} />
     }
 
     return (
         <>
             <header className="space-y-2 text-center">
-                <h1 className="text-2xl font-semibold">Manage your {program.name} booking</h1>
-                <p className="text-sm text-muted-foreground">Change or cancel one child's session.</p>
+                <h1 className="text-2xl font-semibold">Manage your {programName} booking</h1>
+                <p className="text-sm text-muted-foreground">
+                    {appointment.allowsRescheduling ? 'Change or cancel' : 'Cancel'} one child's session.
+                </p>
             </header>
             {error && (
                 <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm">
@@ -161,23 +171,26 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
                 <p>This session has already started. Please contact us if you need help with your booking.</p>
             ) : (
                 <>
-                    {!appointment.canReschedule && (
+                    {!appointment.isRefundable && (
                         <p className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm">
-                            Your session starts in less than 48 hours, so rescheduling is no longer available. You can
-                            still cancel, but your booking will not be refunded.
+                            {appointment.allowsRescheduling
+                                ? 'Your session starts in less than 48 hours, so rescheduling is no longer available. You can still cancel, but your booking will not be refunded.'
+                                : 'Your session starts in less than 48 hours. You can still cancel, but your booking will not be refunded.'}
                         </p>
                     )}
                     <div className="flex flex-col gap-3 sm:flex-row">
-                        <Button
-                            className="flex-1 bg-gradient-to-r from-pink-400 to-yellow-400 text-white"
-                            disabled={!appointment.canReschedule || busy}
-                            onClick={() => {
-                                setChoosingSession(true)
-                                setError('')
-                            }}
-                        >
-                            Reschedule session
-                        </Button>
+                        {appointment.allowsRescheduling && (
+                            <Button
+                                className="flex-1 bg-gradient-to-r from-pink-400 to-yellow-400 text-white"
+                                disabled={!appointment.canReschedule || busy}
+                                onClick={() => {
+                                    setChoosingSession(true)
+                                    setError('')
+                                }}
+                            >
+                                Reschedule session
+                            </Button>
+                        )}
                         <Button
                             variant="outline"
                             className="flex-1"
@@ -290,7 +303,7 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
                             {formatSessionTime(appointment.datetime, Number(appointment.duration))}
                         </p>
                         {confirmation === 'cancel' ? (
-                            <CancellationRefund refund={refund} canReschedule={appointment.canReschedule} />
+                            <CancellationRefund refund={refund} isRefundable={appointment.isRefundable} />
                         ) : (
                             selected && (
                                 <p>
@@ -327,10 +340,10 @@ function ManageAppointment(access: { appointmentId: number; token: string }) {
 
 function CancellationRefund({
     refund,
-    canReschedule,
+    isRefundable,
 }: {
     refund: { data?: { refundCents: number; fullTermDiscountRemoved: boolean }; isPending: boolean; isError: boolean }
-    canReschedule: boolean
+    isRefundable: boolean
 }) {
     if (refund.isPending) return <p role="status">Working out your refund...</p>
     if (refund.isError || !refund.data) {
@@ -344,7 +357,7 @@ function CancellationRefund({
                 <strong>Refund:</strong>{' '}
                 {refundCents > 0 ? `$${(refundCents / 100).toFixed(2)} to your original payment method.` : 'No refund.'}
             </p>
-            {!canReschedule ? (
+            {!isRefundable ? (
                 <p>This session starts in less than 48 hours, so it is not eligible for a refund.</p>
             ) : (
                 fullTermDiscountRemoved && (

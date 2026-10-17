@@ -21,14 +21,27 @@ export const PRESCHOOL_PROGRAM_POLICY = {
     ],
 } as const satisfies ProgramBookingPolicy
 
+/** One-off events (open days, anniversaries, Halloween) can be cancelled but not rescheduled. */
+export const EVENT_POLICY = {
+    title: 'Event cancellation policy',
+    paragraphs: [
+        'Plans changed? If your session is at least 48 hours away, you can cancel for an automatic full refund of the amount paid.',
+        "Less than 48 hours to go? You can still cancel before the session starts, but refunds aren't available.",
+        "Event sessions can't be rescheduled.",
+        "Use Change / Cancel in your confirmation email. Each link manages one child's session.",
+        'This policy may change at our discretion.',
+    ],
+} as const satisfies ProgramBookingPolicy
+
 /**
- * Holiday program and Messy Play Lab sessions share one cutoff: rescheduling and refunds require at least 48 hours notice.
- * Cancelling is allowed until the session starts.
+ * All programs share one cutoff: rescheduling and refunds require at least 48 hours notice.
+ * Cancelling is allowed until the session starts. Programs that never allow rescheduling ignore `canReschedule`.
  */
 export function getSessionChangeEligibility(datetime: string, canceled = false, now = Date.now()) {
     const hoursRemaining = (new Date(datetime).getTime() - now) / (60 * 60 * 1000)
     return {
         canCancel: !canceled && hoursRemaining > 0,
         canReschedule: !canceled && hoursRemaining >= 48,
+        isRefundable: !canceled && hoursRemaining >= 48,
     }
 }

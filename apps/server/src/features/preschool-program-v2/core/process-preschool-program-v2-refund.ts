@@ -102,7 +102,7 @@ async function calculatePreschoolProgramV2Refund(
     )
     const fullTermDiscountRemoved = isFullTermDiscountRemoved(order, remainingLineItemIdentifiers, lineItemIdentifier)
 
-    if (!getSessionChangeEligibility(appointment.datetime).canReschedule) {
+    if (!getSessionChangeEligibility(appointment.datetime).isRefundable) {
         logger.log('Less than 48 hours before preschool-v2 session, not performing refund.')
         return { order, lineItem, refundCents: BigInt(0), fullTermDiscountRemoved }
     }

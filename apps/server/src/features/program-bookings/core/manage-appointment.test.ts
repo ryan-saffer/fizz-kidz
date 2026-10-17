@@ -31,6 +31,7 @@ import { createAppointmentManagementToken, verifyAppointmentManagementToken } fr
 import {
     cancelManagedAppointment,
     getCancellationRefund,
+    getManagedAppointment,
     getRescheduleSessions,
     rescheduleManagedAppointment,
 } from './manage-appointment'
@@ -107,9 +108,7 @@ describe('holiday program appointment management', () => {
     })
 
     it('rejects appointments from other programs', async () => {
-        mocks.getAppointment.mockResolvedValue(
-            appointment({ appointmentTypeID: AcuityConstants.AppointmentTypes.OPEN_DAY })
-        )
+        mocks.getAppointment.mockResolvedValue(appointment({ appointmentTypeID: 1 as never }))
         await expect(cancelManagedAppointment(access())).rejects.toMatchObject({ code: 'NOT_FOUND' })
         expect(mocks.cancelAppointment).not.toHaveBeenCalled()
     })
@@ -183,5 +182,57 @@ describe('preschool program appointment management', () => {
         const quote = { refundCents: 0, sessionPaidCents: 3120, fullTermDiscountRemoved: true }
         mocks.quotePreschoolProgramV2Refund.mockResolvedValue(quote)
         expect(await getCancellationRefund(access())).toEqual(quote)
+    })
+})
+
+describe('event appointment management', () => {
+    const event = (overrides: Partial<AcuityTypes.Api.Appointment> = {}) =>
+        appointment({
+            appointmentTypeID: AcuityConstants.AppointmentTypes.OPEN_DAY,
+            type: 'Halloween Spookfest',
+            ...overrides,
+        })
+
+    beforeEach(() => {
+        vi.useFakeTimers()
+        vi.setSystemTime(new Date('2026-10-01T10:00:00+10:00'))
+        vi.stubEnv('ACUITY_API_KEY', 'test-signing-key')
+        vi.clearAllMocks()
+        mocks.getAppointment.mockResolvedValue(event())
+    })
+    afterEach(() => {
+        vi.useRealTimers()
+        vi.unstubAllEnvs()
+    })
+
+    it('presents a refundable booking that cannot be rescheduled', async () => {
+        expect(await getManagedAppointment(access())).toMatchObject({
+            program: 'event',
+            programName: 'Halloween Spookfest',
+            allowsRescheduling: false,
+            canReschedule: false,
+            canCancel: true,
+            isRefundable: true,
+        })
+    })
+
+    it('never allows rescheduling', async () => {
+        await expect(getRescheduleSessions(access())).rejects.toMatchObject({ code: 'PRECONDITION_FAILED' })
+        await expect(rescheduleManagedAppointment({ ...access(), classId: 11 })).rejects.toMatchObject({
+            code: 'PRECONDITION_FAILED',
+        })
+        expect(mocks.rescheduleAppointment).not.toHaveBeenCalled()
+    })
+
+    it('allows cancelling and previews the refund', async () => {
+        mocks.quoteHolidayProgramRefund.mockResolvedValue({ refundCents: 2000 })
+        expect(await getCancellationRefund(access())).toEqual({ refundCents: 2000, fullTermDiscountRemoved: false })
+        expect((await cancelManagedAppointment(access())).canceled).toBe(true)
+        expect(mocks.cancelAppointment).toHaveBeenCalledWith(123)
+    })
+
+    it('is not refundable inside 48 hours', async () => {
+        mocks.getAppointment.mockResolvedValue(event({ datetime: '2026-10-02T10:00:00+10:00' }))
+        expect(await getManagedAppointment(access())).toMatchObject({ canCancel: true, isRefundable: false })
     })
 })
